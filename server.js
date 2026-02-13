@@ -234,9 +234,12 @@ function startGame() {
         counts: [27, 27, 27, 27]
     };
     
-    // 发送每个玩家的手牌
+    console.log('📤 发送手牌给玩家...');
+    
+    // 先发送每个玩家的手牌
     Object.keys(room.players).forEach(socketId => {
         let seat = room.players[socketId];
+        console.log(`  -> Seat ${seat}: ${hands[seat].length} 张牌`);
         io.to(socketId).emit('dealCards', {
             seat: seat,
             cards: hands[seat]
@@ -246,16 +249,18 @@ function startGame() {
     // 主机额外获得 Bot 的牌（用于计算）
     let hostId = Object.keys(room.players).find(id => room.players[id] === 0);
     if(hostId) {
+        console.log(`  -> 主机收到 Bot 牌`);
         io.to(hostId).emit('botCards', {
             bot1: hands[1],
             bot3: hands[3]
         });
     }
     
-    // 广播游戏开始
-    io.emit('gameStart', { startTurn: 0 });
-    
-    console.log('✅ 发牌完成，游戏开始！');
+    // 延迟一点再广播游戏开始，确保牌都发完了
+    setTimeout(() => {
+        console.log('✅ 发牌完成，广播 gameStart');
+        io.emit('gameStart', { startTurn: 0 });
+    }, 200);
 }
 
 const PORT = process.env.PORT || 3000;
