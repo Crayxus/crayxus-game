@@ -1,98 +1,77 @@
-// server.js - Ghost Player Fix
+// server.js - Robust Version
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
-const io = require('socket.io')(http, { 
-    cors: { origin: "*" },
-    // 增加心跳检测，快速发现断线
-    pingTimeout: 2000,
+const io = require('socket.io')(http, {
+    cors: { origin: "*", methods: ["GET", "POST"] },
+    pingTimeout: 10000,
     pingInterval: 5000
 });
 
 const PORT = process.env.PORT || 3000;
 
-// --- 牌力数据 ---
-const POWER = {'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15,'Sm':16,'Bg':17};
-const SUITS = ['♠','♥','♣','♦']; 
-const POINTS = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
+const POWER={'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15,'Sm':16,'Bg':17};
+const SUITS = ['♠','♥','♣','♦']; const POINTS = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
 
 function createDeck() {
     let deck = [];
     for(let i=0; i<2; i++) {
         SUITS.forEach(s => POINTS.forEach(v => deck.push({s, v, p:POWER[v], id:Math.random().toString(36).substr(2)})));
-        deck.push({s:'JOKER', v:'Sm', p:POWER['Sm'], id:Math.random().toString(36).substr(2)});
-        deck.push({s:'JOKER', v:'Bg', p:POWER['Bg'], id:Math.random().toString(36).substr(2)});
+        deck.push({s:'JOKER', v:'Sm', p:POWER[v='Sm'], id:Math.random().toString(36).substr(2)});
+        deck.push({s:'JOKER', v:'Bg', p:POWER[v='Bg'], id:Math.random().toString(36).substr(2)});
     }
     return deck.sort(() => Math.random() - 0.5);
 }
 
-// --- 房间状态 ---
+// 房间数据
 let room = {
-    seats: [null, 'BOT', null, 'BOT'], // 0=Player, 2=Player
-    players: {}, // socketId -> seatIndex
+    seats: [null, 'BOT', null, 'BOT'],
+    players: {}, // socketId -> seat
+    count: 0,
     game: null,
     timer: null
 };
 
-// 辅助：获取真实的在线人数
-function getActiveCount() {
-    let count = 0;
-    // 检查座位 0 和 2
-    [0, 2].forEach(i => {
-        if (room.seats[i] && room.seats[i] !== 'BOT') {
-            // 关键：检查这个 socket ID 是否真的还活着
-            if (io.sockets.sockets.get(room.seats[i])) {
-                count++;
-            } else {
-                // 如果不活着，直接清空座位
-                console.log(`[CLEAN] Cleaned up ghost at seat ${i}`);
-                room.seats[i] = null;
-            }
-        }
-    });
-    return count;
+function resetRoom() {
+    console.log(">> ROOM RESET");
+    room.seats = [null, 'BOT', null, 'BOT'];
+    room.players = {};
+    room.count = 0;
+    room.game = null;
+    if(room.timer) clearTimeout(room.timer);
+    room.timer = null;
 }
 
 io.on('connection', (socket) => {
-    console.log(`[CONN] ${socket.id.substring(0,5)} connected.`);
+    console.log(`[+] ${socket.id}`);
 
+    // 请求入座
     socket.on('joinGame', () => {
-        // 1. 如果已经在房间里，直接忽略
         if (room.players[socket.id] !== undefined) return;
 
-        // 2. 关键修复：清理幽灵玩家，获取真实人数
-        let currentCount = getActiveCount();
-        console.log(`[CHECK] Current active players: ${currentCount}`);
-
-        // 3. 寻找空位
         let seat = -1;
-        // 优先坐 0 号位
         if (room.seats[0] === null) seat = 0;
         else if (room.seats[2] === null) seat = 2;
 
-        // 4. 如果没座位，尝试强制清理（双重保险）
         if (seat === -1) {
-             // 理论上 getActiveCount 已经清理过了，如果还没座位说明真的满了
-             socket.emit('err', 'Room is full');
-             console.log(`[JOIN] ${socket.id.substring(0,5)} rejected.`);
-             return;
+            // 如果计数器是0但没座，说明状态错乱，重置
+            if(room.count === 0) { resetRoom(); seat = 0; }
+            else { socket.emit('err', 'Full'); return; }
         }
 
-        // 5. 入座
         room.seats[seat] = socket.id;
         room.players[socket.id] = seat;
+        room.count++;
         
-        const newCount = getActiveCount(); // 再次计算确认
-        console.log(`[JOIN] Seat ${seat} taken by ${socket.id.substring(0,5)}. Total: ${newCount}`);
+        console.log(`Player joined Seat ${seat}. Total: ${room.count}`);
+        
+        socket.emit('initIdentity', { seat: seat, isHost: (seat===0) });
+        io.emit('roomUpdate', { count: room.count });
 
-        socket.emit('initIdentity', { seat: seat, isHost: (seat === 0) });
-        io.emit('roomUpdate', { count: newCount });
-
-        // 6. 开始判定
-        if (newCount === 2) {
-            console.log("[START] 2 players detected! Game starting...");
-            if (room.timer) clearTimeout(room.timer);
-            room.timer = setTimeout(startGame, 1500); // 缩短等待时间
+        if (room.count === 2) {
+            console.log("Starting countdown...");
+            if(room.timer) clearTimeout(room.timer);
+            room.timer = setTimeout(startGame, 3000);
         }
     });
 
@@ -102,25 +81,27 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         let seat = room.players[socket.id];
         if (seat !== undefined) {
-            console.log(`[DISC] Seat ${seat} (${socket.id.substring(0,5)}) left.`);
-            if (room.seats[seat] === socket.id) {
-                room.seats[seat] = null;
-            }
+            console.log(`[-] Seat ${seat} left`);
+            room.seats[seat] = null;
             delete room.players[socket.id];
-            
-            const count = getActiveCount();
-            io.emit('roomUpdate', { count: count });
+            room.count--;
 
-            if (room.timer) {
-                clearTimeout(room.timer);
-                room.timer = null;
+            if(room.timer) { clearTimeout(room.timer); room.timer = null; }
+            
+            // 只要有人离开，游戏就结束
+            if(room.game && room.game.active) {
+                room.game.active = false;
+                io.emit('roomUpdate', { count: room.count }); 
             }
+            
+            if(room.count <= 0) resetRoom();
+            else io.emit('roomUpdate', { count: room.count });
         }
     });
 });
 
 function startGame() {
-    console.log("[GAME] Dealing cards...");
+    console.log("Game Starting");
     let deck = createDeck();
     let hands = [[], [], [], []];
     for(let i=0; i<108; i++) hands[i%4].push(deck[i]);
@@ -134,13 +115,10 @@ function startGame() {
         finished: []
     };
 
-    // 发送手牌
     Object.keys(room.players).forEach(sid => {
         let s = room.players[sid];
-        if (io.sockets.sockets.get(sid)) {
-            io.to(sid).emit('dealCards', { cards: hands[s] });
-            if (s === 0) io.to(sid).emit('botCards', { bot1: hands[1], bot3: hands[3] });
-        }
+        io.to(sid).emit('dealCards', { cards: hands[s] });
+        if(s === 0) io.to(sid).emit('botCards', { bot1: hands[1], bot3: hands[3] });
     });
 
     io.emit('gameStart', { startTurn: room.game.turn });
@@ -156,27 +134,27 @@ function handleAction(d) {
     if (d.type === 'play') {
         g.lastHand = { owner: d.seat, type: d.handType.type, val: d.handType.val, count: d.cards.length, score: d.handType.score||0 };
         g.passCnt = 0;
+        // 简单维护服务端手牌数
         g.hands[d.seat].splice(0, d.cards.length);
-        if (g.hands[d.seat].length === 0) {
-            if (!g.finished.includes(d.seat)) g.finished.push(d.seat);
-        }
+        if(g.hands[d.seat].length === 0 && !g.finished.includes(d.seat)) g.finished.push(d.seat);
     } else {
         g.passCnt++;
     }
 
-    let activePlayers = 4 - g.finished.length;
-    if (activePlayers <= 1) {
+    let active = 4 - g.finished.length;
+    if(active <= 1) { // 结束
         io.emit('syncAction', { ...d, nextTurn: -1 });
         room.game.active = false;
         return;
     }
 
-    if (g.passCnt >= activePlayers - 1) {
-        let winner = g.lastHand.owner;
-        nextTurn = winner;
-        if (g.finished.includes(winner)) {
-            nextTurn = (winner + 1) % 4;
-            while(g.finished.includes(nextTurn)) nextTurn = (nextTurn + 1) % 4;
+    if (g.passCnt >= active - 1) {
+        nextTurn = g.lastHand.owner;
+        // 如果赢家已出完，找下家
+        if(g.finished.includes(nextTurn)) {
+            let scan = 1;
+            while(g.finished.includes((nextTurn + scan)%4)) scan++;
+            nextTurn = (nextTurn + scan) % 4;
         }
         g.lastHand = null;
         g.passCnt = 0;
@@ -186,6 +164,7 @@ function handleAction(d) {
     }
 
     g.turn = nextTurn;
+
     io.emit('syncAction', {
         seat: d.seat,
         type: d.type,
@@ -196,4 +175,4 @@ function handleAction(d) {
     });
 }
 
-http.listen(PORT, () => console.log(`Server running on ${PORT}`));
+http.listen(PORT, () => console.log(`Run on ${PORT}`));
