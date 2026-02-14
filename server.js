@@ -28,7 +28,7 @@ function createDeck() {
 // --- 服务端校验规则 ---
 function getHandType(c) {
     if(!c || !c.length) return null;
-    let wild = c.filter(x => x.v === '2' && x.s === '♥').length;
+    let wild = c.filter(x => x.v === '2' && x.s === '♥');
     let norm = c.filter(x => !(x.v === '2' && x.s === '♥'));
     norm.sort((a,b) => a.p - b.p);
     let len = c.length;
@@ -37,11 +37,19 @@ function getHandType(c) {
     let vals=Object.keys(m).map(Number).sort((a,b)=>a-b);
     let maxNormFreq = vals.length ? Math.max(...Object.values(m)) : 0;
 
-    // 1. 炸弹逻辑
+    // 1. 炸弹逻辑（修复：赖子炸弹最多4张）
     if(len>=4){
         let kings = c.filter(x=>x.s==='JOKER');
         if(kings.length===4) return {type:'bomb', val:999, count:6, score:1000};
-        if((maxNormFreq + wild) >= len) {
+        
+        // 赖子炸弹规则：最多4张，且至少要有1张真牌
+        if(len === 4 && (maxNormFreq + wild.length >= 4) && maxNormFreq >= 1) {
+            let v = vals.length ? vals[vals.length-1] : 15;
+            return {type:'bomb', val:v, count:4, score:400};
+        }
+        
+        // 纯牌炸弹（没有赖子）
+        if(wild.length === 0 && maxNormFreq === len) {
             let v = vals.length ? vals[vals.length-1] : 15;
             return {type:'bomb', val:v, count:len, score:len*100};
         }
@@ -49,16 +57,24 @@ function getHandType(c) {
 
     // 2. 基础牌型
     if(len===1) return {type:'1', val:c[0].p};
-    if(len===2 && (maxNormFreq + wild >= 2)) return {type:'2', val:vals.length?vals[vals.length-1]:15};
-    if(len===3 && (maxNormFreq + wild >= 3)) return {type:'3', val:vals.length?vals[vals.length-1]:15};
+    if(len===2 && (maxNormFreq + wild.length >= 2)) return {type:'2', val:vals.length?vals[vals.length-1]:15};
+    if(len===3 && (maxNormFreq + wild.length >= 3)) return {type:'3', val:vals.length?vals[vals.length-1]:15};
 
     // 3. 五张牌
     if(len===5) {
-        if(vals.length <= 2) return {type:'3+2', val:vals.length?vals[vals.length-1]:15};
-        if(vals.length + wild >= 5 && (vals[vals.length-1] - vals[0]) < 5) return {type:'straight', val:vals[vals.length-1]};
+        // 三带二
+        if(vals.length <= 2 && maxNormFreq >= 2) return {type:'3+2', val:vals.length?vals[vals.length-1]:15};
+        // 顺子（赖子可以补）
+        if(vals.length >= 3 && vals.length + wild.length >= 5) {
+            let gap = vals[vals.length-1] - vals[0];
+            if(gap <= 4) return {type:'straight', val:vals[vals.length-1]};
+        }
     }
     
-    if(len===6 && vals.length===2 && (vals[1]===vals[0]+1) && (m[vals[0]]+wild>=3)) return {type:'plate', val:vals[0]};
+    // 钢板（连续三张，赖子可以补）
+    if(len===6 && vals.length===2 && (vals[1]===vals[0]+1) && (m[vals[0]]+wild.length>=3)) {
+        return {type:'plate', val:vals[0]};
+    }
 
     return null; 
 }
