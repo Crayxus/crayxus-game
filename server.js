@@ -199,18 +199,29 @@ io.on('connection', (socket) => {
 });
 
 function startGame() {
+    console.log("🎮 Starting game...");
+    console.log("Room players:", Object.keys(room.players));
+    console.log("Room count:", room.count);
+    
     let deck = createDeck();
     let hands = [[], [], [], []];
     for(let i=0; i<108; i++) hands[i%4].push(deck[i]);
     room.game = { active: true, turn: Math.floor(Math.random()*4), hands: hands, lastHand: null, passCnt: 0, finished: [] };
     
+    console.log("🃏 Dealing cards to players...");
     Object.keys(room.players).forEach(sid => {
         let s = room.players[sid];
+        console.log(`  → Player ${sid} (seat ${s}): ${hands[s].length} cards`);
         io.to(sid).emit('dealCards', { cards: hands[s] });
-        if (s === 0) io.to(sid).emit('botCards', { bot1: hands[1], bot3: hands[3] });
+        if (s === 0) {
+            console.log(`  → Sending bot cards to host`);
+            io.to(sid).emit('botCards', { bot1: hands[1], bot3: hands[3] });
+        }
     });
     
+    console.log(`📢 Broadcasting gameStart, turn: ${room.game.turn}`);
     io.emit('gameStart', { startTurn: room.game.turn });
+    console.log("✅ Game started successfully");
 }
 
 function handleAction(d) {
