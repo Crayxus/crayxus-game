@@ -60,11 +60,31 @@ function getHandType(c) {
     if(len===3 && (maxNormFreq + wild.length >= 3)) return {type:'3', val:vals.length?vals[vals.length-1]:15};
 
     if(len===5) {
-        if(vals.length <= 2 && maxNormFreq >= 2) return {type:'3+2', val:vals.length?vals[vals.length-1]:15};
+        // 检查是否是顺子或同花顺
         if(vals.length >= 3 && vals.length + wild.length >= 5) {
             let gap = vals[vals.length-1] - vals[0];
-            if(gap <= 4) return {type:'straight', val:vals[vals.length-1]};
+            if(gap <= 4) {
+                // 检查是否同花
+                let isFlush = true;
+                if(norm.length > 0) {
+                    let firstSuit = norm[0].s;
+                    for(let card of norm) {
+                        if(card.s !== firstSuit) {
+                            isFlush = false;
+                            break;
+                        }
+                    }
+                }
+                
+                if(isFlush && norm.length === 5) {
+                    return {type:'straight_flush', val:vals[vals.length-1], score:550};
+                } else {
+                    return {type:'straight', val:vals[vals.length-1]};
+                }
+            }
         }
+        // 三带二
+        if(vals.length <= 2 && maxNormFreq >= 2) return {type:'3+2', val:vals.length?vals[vals.length-1]:15};
     }
     
     // 钢板（连续三张: 333444）
@@ -87,14 +107,20 @@ function getHandType(c) {
 
 function canBeat(newCards, newType, lastHand) {
     if(!lastHand) return true;
-    let isNewBomb = (newType.type === 'bomb'), isLastBomb = (lastHand.type === 'bomb');
+    let isNewBomb = (newType.type === 'bomb' || newType.type === 'straight_flush');
+    let isLastBomb = (lastHand.type === 'bomb' || lastHand.type === 'straight_flush');
+    
     if(isNewBomb && !isLastBomb) return true;
     if(!isNewBomb && isLastBomb) return false;
+    
     if(isNewBomb && isLastBomb) {
-        if(newType.score > lastHand.score) return true;
-        if(newType.score < lastHand.score) return false;
+        let newScore = newType.score || (newType.type === 'bomb' ? newType.count * 100 : 550);
+        let lastScore = lastHand.score || (lastHand.type === 'bomb' ? lastHand.count * 100 : 550);
+        if(newScore > lastScore) return true;
+        if(newScore < lastScore) return false;
         return newType.val > lastHand.val;
     }
+    
     if(newType.type !== lastHand.type) return false;
     if(newCards.length !== lastHand.count) return false; 
     return newType.val > lastHand.val;
