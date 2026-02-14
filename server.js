@@ -166,6 +166,13 @@ io.on('connection', (socket) => {
 
     socket.on('action', (d) => handleAction(d));
     socket.on('botAction', (d) => handleAction(d));
+    
+    socket.on('requestNewGame', () => {
+        if(room.count >= 2 && !room.game?.active) {
+            console.log("🔄 Starting new game...");
+            setTimeout(startGame, 2000);
+        }
+    });
 
     socket.on('disconnect', () => {
         let seat = room.players[socket.id];
@@ -260,18 +267,26 @@ function handleAction(d) {
     }
 
     if (g.passCnt >= active - 1) {
+        // 一轮结束，赢家接风（继续出牌）
         let winner = g.lastHand.owner;
         nextTurn = winner;
+        
+        // 如果赢家已经出完牌，对家接风
         if(g.finished.includes(winner)) {
             let partner = (winner + 2) % 4;
-            if(!g.finished.includes(partner)) nextTurn = partner;
-            else {
+            if(!g.finished.includes(partner)) {
+                nextTurn = partner;
+            } else {
+                // 对家也出完了，找下一个还有牌的人
                 let scan = 1; 
                 while(g.finished.includes((winner + scan)%4) && scan < 5) scan++;
                 nextTurn = (winner + scan) % 4;
             }
         }
-        console.log(`🔄 Round end! Winner: ${winner}, Next turn: ${nextTurn}, PassCnt: ${g.passCnt}`);
+        console.log(`🔄 Round end! Winner ${winner} → Next turn: ${nextTurn} (接风)`);
+        g.lastHand = null; 
+        g.passCnt = 0;
+    } else {
         g.lastHand = null; g.passCnt = 0;
     } else {
         nextTurn = (g.turn + 1) % 4;
@@ -284,11 +299,19 @@ function handleAction(d) {
     }
 
     g.turn = nextTurn;
+    
+    let cardsToSend = d.cards || [];
+    if(d.type === 'play' && cardsToSend.length === 0){
+        console.error(`⚠️ Seat ${d.seat} played but no cards!`);
+    }
+    
     io.emit('syncAction', {
-        seat: d.seat, type: d.type, cards: d.cards || [],
+        seat: d.seat, type: d.type, cards: cardsToSend,
         handType: d.handType || (d.type==='play' && d.cards ? getHandType(d.cards) : {}),
         nextTurn: nextTurn, isRoundEnd: (g.lastHand === null)
     });
+    
+    console.log(`📤 Sent: ${d.type}, Cards: ${cardsToSend.length}, Next: ${nextTurn}`);
     
     if(nextTurn === 1 || nextTurn === 3) {
         room.botTimeout = setTimeout(() => {
