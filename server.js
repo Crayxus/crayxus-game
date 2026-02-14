@@ -1,4 +1,4 @@
-// server.js - V30.3 (Rule Sync)
+// server.js - V30.4 (Stable Rule Sync)
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -25,7 +25,7 @@ function createDeck() {
     return deck.sort(() => Math.random() - 0.5);
 }
 
-// --- 服务端校验规则 (同步客户端逻辑) ---
+// --- 服务端校验规则 ---
 function getHandType(c) {
     if(!c || !c.length) return null;
     let wild = c.filter(x => x.v === '2' && x.s === '♥').length;
