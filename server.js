@@ -168,9 +168,18 @@ io.on('connection', (socket) => {
     socket.on('botAction', (d) => handleAction(d));
     
     socket.on('requestNewGame', () => {
-        if(room.count >= 2 && !room.game?.active) {
-            console.log("🔄 Starting new game...");
-            setTimeout(startGame, 2000);
+        console.log("🔄 Player requested new game, room count:", room.count, "game active:", room.game?.active);
+        if(room.count >= 2) {
+            if(room.game?.active) {
+                console.log("⚠️ Game is still active, cannot start new game");
+                return;
+            }
+            console.log("✅ Starting new game in 1 second...");
+            setTimeout(() => {
+                startGame();
+            }, 1000);
+        } else {
+            console.log("❌ Not enough players:", room.count);
         }
     });
 
@@ -301,17 +310,24 @@ function handleAction(d) {
     g.turn = nextTurn;
     
     let cardsToSend = d.cards || [];
-    if(d.type === 'play' && cardsToSend.length === 0){
-        console.error(`⚠️ Seat ${d.seat} played but no cards!`);
+    if(d.type === 'play'){
+        if(cardsToSend.length === 0){
+            console.error(`⚠️ Seat ${d.seat} played but no cards!`);
+        } else {
+            console.log(`📤 Sending ${cardsToSend.length} cards:`, cardsToSend.map(c => `${c.v}${c.s}`).join(','));
+        }
     }
     
     io.emit('syncAction', {
-        seat: d.seat, type: d.type, cards: cardsToSend,
+        seat: d.seat, 
+        type: d.type, 
+        cards: cardsToSend,
         handType: d.handType || (d.type==='play' && d.cards ? getHandType(d.cards) : {}),
-        nextTurn: nextTurn, isRoundEnd: (g.lastHand === null)
+        nextTurn: nextTurn, 
+        isRoundEnd: (g.lastHand === null)
     });
     
-    console.log(`📤 Sent: ${d.type}, Cards: ${cardsToSend.length}, Next: ${nextTurn}`);
+    console.log(`📡 Sync emitted: Type=${d.type}, Cards=${cardsToSend.length}, Next=${nextTurn}`);
     
     if(nextTurn === 1 || nextTurn === 3) {
         room.botTimeout = setTimeout(() => {
