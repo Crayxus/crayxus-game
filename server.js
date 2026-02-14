@@ -1,4 +1,4 @@
-// server.js - V30.4 (Stable Rule Sync)
+// server.js - V30.5 (Bot Timeout Protection)
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -79,9 +79,18 @@ function canBeat(newCards, newType, lastHand) {
 }
 
 // --- 房间 ---
-let room = { seats: [null, 'BOT', null, 'BOT'], players: {}, count: 0, game: null, timer: null };
+let room = { seats: [null, 'BOT', null, 'BOT'], players: {}, count: 0, game: null, timer: null, botTimeout: null };
 
-function resetRoom() { room.seats = [null, 'BOT', null, 'BOT']; room.players = {}; room.count = 0; room.game = null; if(room.timer) clearTimeout(room.timer); room.timer = null; }
+function resetRoom() { 
+    room.seats = [null, 'BOT', null, 'BOT']; 
+    room.players = {}; 
+    room.count = 0; 
+    room.game = null; 
+    if(room.timer) clearTimeout(room.timer); 
+    room.timer = null;
+    if(room.botTimeout) clearTimeout(room.botTimeout);
+    room.botTimeout = null;
+}
 
 io.on('connection', (socket) => {
     socket.on('joinGame', () => {
@@ -103,6 +112,7 @@ io.on('connection', (socket) => {
         if (seat !== undefined) {
             room.seats[seat] = null; delete room.players[socket.id]; room.count--;
             if(room.timer) { clearTimeout(room.timer); room.timer = null; }
+            if(room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
             if(room.game && room.game.active) { room.game.active = false; io.emit('roomUpdate', {count:room.count}); }
             if(room.count <= 0) resetRoom(); else io.emit('roomUpdate', { count: room.count });
         }
@@ -125,47 +135,93 @@ function startGame() {
 function handleAction(d) {
     if (!room.game || !room.game.active) return;
     if (d.seat !== room.game.turn) return;
+    
+    // 清除之前的Bot超时
+    if(room.botTimeout) {
+        clearTimeout(room.botTimeout);
+        room.botTimeout = null;
+    }
+    
     let g = room.game;
     let nextTurn = g.turn;
+    let wasPlayAttempt = false;
 
     if (d.type === 'play') {
+        wasPlayAttempt = true;
         let ht = getHandType(d.cards);
-        if(!ht || !canBeat(d.cards, ht, g.lastHand)) return; 
-        g.lastHand = { owner: d.seat, type: ht.type, val: ht.val, count: d.cards.length, score: ht.score||0 };
-        g.passCnt = 0;
-        g.hands[d.seat].splice(0, d.cards.length);
-        if(g.hands[d.seat].length === 0 && !g.finished.includes(d.seat)) g.finished.push(d.seat);
-    } else {
-        if(!g.lastHand) return; 
+        if(!ht || !canBeat(d.cards, ht, g.lastHand)) {
+            console.log(`❌ Invalid play from seat ${d.seat}, forcing pass`);
+            d.type = 'pass'; // 强制转为pass
+            d.cards = [];
+        } else {
+            console.log(`✅ Seat ${d.seat} plays ${ht.type}`);
+            g.lastHand = { owner: d.seat, type: ht.type, val: ht.val, count: d.cards.length, score: ht.score||0 };
+            g.passCnt = 0;
+            
+            // 从手牌中移除
+            let playedIds = d.cards.map(c => c.id);
+            g.hands[d.seat] = g.hands[d.seat].filter(c => !playedIds.includes(c.id));
+            
+            if(g.hands[d.seat].length === 0 && !g.finished.includes(d.seat)) g.finished.push(d.seat);
+        }
+    }
+    
+    if (d.type === 'pass') {
+        if(!g.lastHand && !wasPlayAttempt) return; 
         g.passCnt++;
+        console.log(`⏭️ Seat ${d.seat} passes (${g.passCnt})`);
     }
 
     let active = 4 - g.finished.length;
-    if(active <= 1) { io.emit('syncAction', { ...d, nextTurn: -1 }); room.game.active = false; return; }
+    if(active <= 1) { 
+        console.log("🏁 Game Over");
+        io.emit('syncAction', { ...d, nextTurn: -1 }); 
+        room.game.active = false; 
+        return; 
+    }
 
     if (g.passCnt >= active - 1) {
         let winner = g.lastHand.owner;
         nextTurn = winner;
         if(g.finished.includes(winner)) {
             let partner = (winner + 2) % 4;
-            if(!g.finished.includes(partner)) nextTurn = partner; // 对家接风
+            if(!g.finished.includes(partner)) nextTurn = partner;
             else {
-                let scan = 1; while(g.finished.includes((winner + scan)%4)) scan++;
+                let scan = 1; 
+                while(g.finished.includes((winner + scan)%4) && scan < 5) scan++;
                 nextTurn = (winner + scan) % 4;
             }
         }
+        console.log(`🔄 Round end, ${winner} wins, next: ${nextTurn}`);
         g.lastHand = null; g.passCnt = 0;
     } else {
         nextTurn = (g.turn + 1) % 4;
-        while(g.finished.includes(nextTurn)) nextTurn = (nextTurn + 1) % 4;
+        let safety = 0;
+        while(g.finished.includes(nextTurn) && safety < 10) {
+            nextTurn = (nextTurn + 1) % 4;
+            safety++;
+        }
     }
 
     g.turn = nextTurn;
     io.emit('syncAction', {
-        seat: d.seat, type: d.type, cards: d.cards || [],
-        handType: d.handType || (d.type==='play'?getHandType(d.cards):{}),
-        nextTurn: nextTurn, isRoundEnd: (g.lastHand === null)
+        seat: d.seat, 
+        type: d.type, 
+        cards: d.cards || [],
+        handType: d.handType || (d.type==='play' && d.cards ? getHandType(d.cards) : {}),
+        nextTurn: nextTurn, 
+        isRoundEnd: (g.lastHand === null)
     });
+    
+    // ⏰ 添加Bot超时保护：如果下一个玩家是Bot，8秒后自动Pass
+    if(nextTurn === 1 || nextTurn === 3) {
+        room.botTimeout = setTimeout(() => {
+            if(room.game && room.game.active && room.game.turn === nextTurn) {
+                console.log(`⏰ Bot ${nextTurn} TIMEOUT! Forcing pass...`);
+                handleAction({seat: nextTurn, type: 'pass', cards: []});
+            }
+        }, 8000);
+    }
 }
 
-http.listen(PORT, () => console.log(`Run on ${PORT}`));
+http.listen(PORT, () => console.log(`✅ Server V30.5 running on ${PORT}`));
