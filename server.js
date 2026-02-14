@@ -225,9 +225,14 @@ function handleAction(d) {
     }
     
     if (d.type === 'pass') {
-        if(!g.lastHand && !wasPlayAttempt) return; 
+        // 首出不能Pass（除非是无效出牌转Pass）
+        if(!g.lastHand && !wasPlayAttempt) {
+            console.log(`❌ Seat ${d.seat} cannot pass on first play`);
+            return;
+        }
         g.passCnt++;
-        console.log(`⏭️ Seat ${d.seat} passes`);
+        console.log(`⏭️ Seat ${d.seat} passes (count: ${g.passCnt})`);
+    }
     }
 
     let active = 4 - g.finished.length;
@@ -266,6 +271,7 @@ function handleAction(d) {
                 nextTurn = (winner + scan) % 4;
             }
         }
+        console.log(`🔄 Round end! Winner: ${winner}, Next turn: ${nextTurn}, PassCnt: ${g.passCnt}`);
         g.lastHand = null; g.passCnt = 0;
     } else {
         nextTurn = (g.turn + 1) % 4;
@@ -274,6 +280,7 @@ function handleAction(d) {
             nextTurn = (nextTurn + 1) % 4;
             safety++;
         }
+        console.log(`➡️ Next turn: ${nextTurn}, PassCnt: ${g.passCnt}/${active-1}`);
     }
 
     g.turn = nextTurn;
