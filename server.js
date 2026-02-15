@@ -1,4 +1,4 @@
-// server.js - Crayxus V35 (Critical Bug Fixes)
+// server.js - Crayxus V35 (Fixed Bot Stuck Issue)
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -26,7 +26,7 @@ function createDeck() {
         deck.push({ s:'JOKER', v:'Sm', p:POWER['Sm'], seq:19, id:Math.random().toString(36).substr(2) });
         deck.push({ s:'JOKER', v:'Bg', p:POWER['Bg'], seq:20, id:Math.random().toString(36).substr(2) });
     }
-    // Fisher-Yates 洗牌
+    // Fisher-Yates shuffle
     for (let i = deck.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
         [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -46,7 +46,7 @@ function getHandType(c) {
     let vals = Object.keys(m).map(Number).sort((a, b) => a - b);
     let maxNormFreq = vals.length ? Math.max(...Object.values(m)) : 0;
 
-    // 炸弹
+    // Bomb
     if (len >= 4) {
         let kings = c.filter(x => x.s === 'JOKER');
         if (kings.length === 4) return { type:'bomb', val:999, count:6, score:1000 };
@@ -85,12 +85,12 @@ function getHandType(c) {
         if (vals.length <= 2 && maxNormFreq >= 2) return { type:'3+2', val:vals.length ? vals[vals.length - 1] : 15 };
     }
 
-    // 钢板
+    // Plate
     if (len === 6 && vals.length === 2 && vals[1] === vals[0] + 1) {
         if (m[vals[0]] + wild.length >= 3) return { type:'plate', val:vals[0] };
     }
 
-    // 木板
+    // Tube
     if (len === 6 && vals.length === 3) {
         if (vals[1] === vals[0] + 1 && vals[2] === vals[1] + 1) {
             let hasEnough = (m[vals[0]] >= 1 || wild.length > 0) &&
@@ -174,15 +174,10 @@ io.on('connection', (socket) => {
     socket.on('action', (d) => handleAction(d));
     socket.on('botAction', (d) => handleAction(d));
 
-    // ========== 关键修复：requestNewGame 强制重置 ==========
+    // Force Reset
     socket.on('requestNewGame', () => {
         console.log("🔄 requestNewGame received");
-        console.log("  Room count:", room.count);
-        console.log("  Game active:", room.game?.active);
-        console.log("  Game finished:", room.game?.finished);
-
         if (room.count >= 2) {
-            // 强制重置游戏状态，不检查 active
             if (room.game) {
                 room.game.active = false;
                 room.game.finished = [];
@@ -191,13 +186,11 @@ io.on('connection', (socket) => {
                 clearTimeout(room.botTimeout);
                 room.botTimeout = null;
             }
-
             console.log("✅ Starting new game in 1.5 seconds...");
             setTimeout(() => {
                 startGame();
             }, 1500);
         } else {
-            console.log("❌ Not enough players:", room.count);
             socket.emit('err', '玩家不足，请刷新页面重新匹配');
         }
     });
@@ -217,58 +210,31 @@ io.on('connection', (socket) => {
         }
     });
 
-    // 客户端看门狗请求 - 游戏卡住时尝试恢复
+    // Client Watchdog Ping
     socket.on('ping_game', () => {
-        if (!room.game || !room.game.active) {
-            console.log("🐕 ping_game: game not active, ignoring");
-            return;
-        }
+        if (!room.game || !room.game.active) return;
         let g = room.game;
         let currentTurn = g.turn;
-        console.log(`🐕 ping_game received, current turn: seat ${currentTurn}`);
+        console.log(`🐕 ping_game received, turn: ${currentTurn}`);
         
-        // 如果当前轮到的座位超过35秒没动，强制推进
-        if (room.botTimeout) {
-            // 已经有超时计时器在跑，不做额外处理
-            console.log("  → Timeout already set, waiting...");
-            return;
-        }
+        if (room.botTimeout) return; // Timeout already set
         
-        // 没有超时计时器 = 超时逻辑丢失了，重新设置
-        console.log(`  → No timeout set! Re-setting for seat ${currentTurn}`);
-        if (currentTurn === 1 || currentTurn === 3) {
-            // Bot座位，立即auto-pass
-            handleAction({ seat: currentTurn, type: 'pass', cards: [] });
-        } else {
-            // 真人座位，给5秒缓冲后auto-pass/play
-            room.botTimeout = setTimeout(() => {
-                if (room.game && room.game.active && room.game.turn === currentTurn) {
-                    console.log(`🐕 Recovery: auto-action for stuck seat ${currentTurn}`);
-                    if (!g.lastHand) {
-                        let hand = g.hands[currentTurn];
-                        if (hand && hand.length > 0) {
-                            hand.sort((a, b) => a.p - b.p);
-                            let smallest = hand[0];
-                            handleAction({ seat: currentTurn, type: 'play', cards: [smallest], handType: { type: '1', val: smallest.p } });
-                        }
-                    } else {
-                        handleAction({ seat: currentTurn, type: 'pass', cards: [] });
-                    }
-                }
-            }, 5000);
-        }
+        console.log(`  → No timeout set! Recovery initiated for seat ${currentTurn}`);
+        
+        // Immediate action for bots, delay for humans
+        let delay = (currentTurn === 1 || currentTurn === 3) ? 100 : 5000;
+        
+        room.botTimeout = setTimeout(() => {
+            if (room.game && room.game.active && room.game.turn === currentTurn) {
+                forceAutoPlay(currentTurn);
+            }
+        }, delay);
     });
 });
 
 function startGame() {
     console.log("🎮 Starting game...");
-    console.log("  Room players:", Object.keys(room.players));
-    console.log("  Room count:", room.count);
-
-    if (room.count < 2) {
-        console.log("❌ Cannot start: not enough players");
-        return;
-    }
+    if (room.count < 2) return;
 
     let deck = createDeck();
     let hands = [[], [], [], []];
@@ -286,7 +252,6 @@ function startGame() {
     console.log("🃏 Dealing cards...");
     Object.keys(room.players).forEach(sid => {
         let s = room.players[sid];
-        console.log(`  → Player ${sid.substring(0,8)}... (seat ${s}): ${hands[s].length} cards`);
         io.to(sid).emit('dealCards', { cards: hands[s] });
         if (s === 0) {
             io.to(sid).emit('botCards', { bot1: hands[1], bot3: hands[3] });
@@ -295,18 +260,38 @@ function startGame() {
 
     console.log(`📢 gameStart, turn: ${room.game.turn}`);
     io.emit('gameStart', { startTurn: room.game.turn });
-    console.log("✅ Game started");
+}
+
+function forceAutoPlay(seatToPlay) {
+    if (!room.game || !room.game.active || room.game.turn !== seatToPlay) return;
+    
+    console.log(`⚡ Force Auto-Play for seat ${seatToPlay}`);
+    let g = room.game;
+    let hand = g.hands[seatToPlay];
+    
+    // Play smallest card if must play (start of round), else pass
+    if (!g.lastHand) {
+         if (hand && hand.length > 0) {
+            hand.sort((a, b) => a.p - b.p);
+            let smallest = hand[0];
+            console.log(`  → Auto play smallest: ${smallest.v}${smallest.s}`);
+            handleAction({ 
+                seat: seatToPlay, 
+                type: 'play', 
+                cards: [smallest], 
+                handType: { type: '1', val: smallest.p } 
+            });
+        } else {
+            handleAction({ seat: seatToPlay, type: 'pass', cards: [] });
+        }
+    } else {
+        handleAction({ seat: seatToPlay, type: 'pass', cards: [] });
+    }
 }
 
 function handleAction(d) {
-    if (!room.game || !room.game.active) {
-        console.log(`⚠️ handleAction ignored: game not active`);
-        return;
-    }
-    if (d.seat !== room.game.turn) {
-        console.log(`⚠️ handleAction ignored: not seat ${d.seat}'s turn (current: ${room.game.turn})`);
-        return;
-    }
+    if (!room.game || !room.game.active) return;
+    if (d.seat !== room.game.turn) return;
 
     if (room.botTimeout) {
         clearTimeout(room.botTimeout);
@@ -317,57 +302,43 @@ function handleAction(d) {
     let nextTurn = g.turn;
     let wasPlayAttempt = false;
 
-    // ===== 处理出牌 =====
+    // Play Logic
     if (d.type === 'play') {
         wasPlayAttempt = true;
-
-        // 验证 cards 数据完整性
         if (!d.cards || !Array.isArray(d.cards) || d.cards.length === 0) {
-            console.error(`❌ Seat ${d.seat}: play action with no cards, converting to pass`);
-            d.type = 'pass';
-            d.cards = [];
+            d.type = 'pass'; d.cards = [];
         } else {
-            // 验证每张牌
             let validCards = d.cards.filter(c => c && c.s && c.v && c.p !== undefined);
-            if (validCards.length !== d.cards.length) {
-                console.error(`⚠️ Seat ${d.seat}: ${d.cards.length - validCards.length} invalid cards filtered`);
-                d.cards = validCards;
-            }
+            d.cards = validCards;
 
-            let ht = getHandType(d.cards);
+            let ht = d.handType || getHandType(d.cards); // Use provided type or calculate
             if (!ht || !canBeat(d.cards, ht, g.lastHand)) {
-                console.log(`❌ Seat ${d.seat}: invalid play or can't beat`);
-                d.type = 'pass';
-                d.cards = [];
+                console.log(`❌ Seat ${d.seat}: invalid play`);
+                d.type = 'pass'; d.cards = [];
             } else {
-                console.log(`✅ Seat ${d.seat} plays ${ht.type} (${d.cards.length} cards): ${d.cards.map(c => c.v + c.s).join(',')}`);
+                console.log(`✅ Seat ${d.seat} plays ${ht.type}`);
                 d.handType = ht;
                 g.lastHand = { owner: d.seat, type: ht.type, val: ht.val, count: d.cards.length, score: ht.score || 0 };
                 g.passCnt = 0;
-
-                // 从服务器手牌中移除
                 let playedIds = d.cards.map(c => c.id);
                 g.hands[d.seat] = g.hands[d.seat].filter(c => !playedIds.includes(c.id));
 
-                // 检查是否出完
                 if (g.hands[d.seat].length === 0 && !g.finished.includes(d.seat)) {
                     g.finished.push(d.seat);
-                    console.log(`🏁 Seat ${d.seat} finished! Order: ${g.finished.join(',')}`);
                 }
             }
         }
     }
 
-    // ===== 处理过牌 =====
+    // Pass Logic
     if (d.type === 'pass') {
         if (!g.lastHand && !wasPlayAttempt) {
-            // 首出不能pass！自动出最小的一张牌，防止游戏卡死
-            console.log(`⚠️ Seat ${d.seat}: cannot pass on first play, auto-playing smallest card`);
+            // Cannot pass on first play, auto-play smallest
+            console.log(`⚠️ Seat ${d.seat}: illegal pass, forcing play`);
             let hand = g.hands[d.seat];
             if (hand && hand.length > 0) {
                 hand.sort((a, b) => a.p - b.p);
                 let smallest = hand[0];
-                // 转换为出牌操作
                 d.type = 'play';
                 d.cards = [smallest];
                 d.handType = { type: '1', val: smallest.p };
@@ -375,27 +346,20 @@ function handleAction(d) {
                 g.passCnt = 0;
                 let playedIds = [smallest.id];
                 g.hands[d.seat] = g.hands[d.seat].filter(c => !playedIds.includes(c.id));
-                if (g.hands[d.seat].length === 0 && !g.finished.includes(d.seat)) {
-                    g.finished.push(d.seat);
-                }
-                console.log(`  → Auto played: ${smallest.v}${smallest.s}`);
+                if (g.hands[d.seat].length === 0 && !g.finished.includes(d.seat)) g.finished.push(d.seat);
             } else {
-                // 没牌了，强制pass（不应该出现这种情况）
                 g.passCnt++;
-                console.log(`  → No cards left, forced pass`);
             }
         } else {
             g.passCnt++;
-            console.log(`⏭️ Seat ${d.seat} passes (${g.passCnt}/${4 - g.finished.length - 1})`);
         }
     }
 
-    // ===== 检查游戏是否结束 =====
+    // Check Game Over
     let active = 4 - g.finished.length;
     if (active <= 1) {
-        console.log("🏁 Game Over! Finished order:", g.finished.join(','));
-
-        // 计算积分
+        console.log("🏁 Game Over!");
+        // Calc Score
         Object.keys(room.players).forEach(sid => {
             let seat = room.players[sid];
             let mp = g.finished.indexOf(seat) + 1;
@@ -405,33 +369,24 @@ function handleAction(d) {
             else if (mp === 1 || pp === 1) pts = (mp + pp === 4) ? 15 : 5;
             else pts = (mp + pp === 7) ? -15 : -5;
             playerScores[sid] = (playerScores[sid] || 1291) + pts;
-            console.log(`  Seat ${seat}: ${pts >= 0 ? '+' : ''}${pts} → ${playerScores[sid]}`);
         });
 
-        // 先发送最后一手牌的 syncAction (nextTurn=-1 表示游戏结束)
-        let cardsToSend = d.cards || [];
         io.emit('syncAction', {
             seat: d.seat,
             type: d.type,
-            cards: cardsToSend,
-            handType: d.handType || (d.type === 'play' && d.cards ? getHandType(d.cards) : {}),
+            cards: d.cards || [],
+            handType: d.handType,
             nextTurn: -1,
-            isRoundEnd: false  // 不触发清桌，让最后的牌显示出来
+            isRoundEnd: false
         });
-
-        // 标记游戏结束
         g.active = false;
-        console.log("✅ Game marked as inactive");
         return;
     }
 
-    // ===== 计算下一个回合 =====
+    // Next Turn
     if (g.passCnt >= active - 1) {
-        // 一轮结束，赢家接风
         let winner = g.lastHand ? g.lastHand.owner : g.turn;
         nextTurn = winner;
-
-        // 如果赢家已出完，对家接风
         if (g.finished.includes(winner)) {
             let partner = (winner + 2) % 4;
             if (!g.finished.includes(partner)) {
@@ -442,84 +397,35 @@ function handleAction(d) {
                 nextTurn = (winner + scan) % 4;
             }
         }
-        console.log(`🔄 Round end! Winner seat ${winner} → next: ${nextTurn} (接风)`);
         g.lastHand = null;
         g.passCnt = 0;
     } else {
-        // 正常轮转
         nextTurn = (g.turn + 1) % 4;
         let safety = 0;
         while (g.finished.includes(nextTurn) && safety < 10) {
             nextTurn = (nextTurn + 1) % 4;
             safety++;
         }
-        console.log(`➡️ Next: seat ${nextTurn}, pass: ${g.passCnt}/${active - 1}`);
     }
 
     g.turn = nextTurn;
 
-    // ===== 广播同步 =====
-    let cardsToSend = d.cards || [];
     io.emit('syncAction', {
         seat: d.seat,
         type: d.type,
-        cards: cardsToSend,
-        handType: d.handType || (d.type === 'play' && d.cards ? getHandType(d.cards) : {}),
+        cards: d.cards || [],
+        handType: d.handType,
         nextTurn: nextTurn,
         isRoundEnd: (g.lastHand === null)
     });
-    console.log(`📡 Sync: ${d.type}, cards:${cardsToSend.length}, next:${nextTurn}, roundEnd:${g.lastHand === null}`);
 
-    // ===== 通用超时保护（所有座位） =====
-    if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
-
+    // Set Timeout for Next Player
     if (nextTurn === 1 || nextTurn === 3) {
-        // Bot座位：客户端1.5秒后出牌，5秒兜底自动处理
-        room.botTimeout = setTimeout(() => {
-            if (room.game && room.game.active && room.game.turn === nextTurn) {
-                console.log(`🤖 Bot ${nextTurn} timeout (5s) → server auto action`);
-                // 首出不能pass
-                if (!room.game.lastHand) {
-                    let hand = room.game.hands[nextTurn];
-                    if (hand && hand.length > 0) {
-                        hand.sort((a, b) => a.p - b.p);
-                        let smallest = hand[0];
-                        console.log(`  → Bot auto play: ${smallest.v}${smallest.s}`);
-                        handleAction({ seat: nextTurn, type: 'play', cards: [smallest], handType: { type: '1', val: smallest.p } });
-                    } else {
-                        handleAction({ seat: nextTurn, type: 'pass', cards: [] });
-                    }
-                } else {
-                    handleAction({ seat: nextTurn, type: 'pass', cards: [] });
-                }
-            }
-        }, 5000);
+        // Bot: 3s timeout
+        room.botTimeout = setTimeout(() => { forceAutoPlay(nextTurn); }, 3000);
     } else {
-        // 真人座位（seat 0 或 2）：35秒超时保护
-        // 客户端有30秒倒计时+autoPlay，这里是最终兜底
-        room.botTimeout = setTimeout(() => {
-            if (room.game && room.game.active && room.game.turn === nextTurn) {
-                console.log(`⏰ Human seat ${nextTurn} timeout (35s) → server auto pass`);
-                // 首出不能pass，给一张最小的牌
-                if (!g.lastHand) {
-                    let hand = g.hands[nextTurn];
-                    if (hand && hand.length > 0) {
-                        // 出最小的一张牌
-                        hand.sort((a, b) => a.p - b.p);
-                        let smallest = hand[0];
-                        console.log(`  → Auto play smallest card: ${smallest.v}${smallest.s}`);
-                        handleAction({
-                            seat: nextTurn,
-                            type: 'play',
-                            cards: [smallest],
-                            handType: { type: '1', val: smallest.p }
-                        });
-                    }
-                } else {
-                    handleAction({ seat: nextTurn, type: 'pass', cards: [] });
-                }
-            }
-        }, 35000);
+        // Human: 35s timeout
+        room.botTimeout = setTimeout(() => { forceAutoPlay(nextTurn); }, 35000);
     }
 }
 
