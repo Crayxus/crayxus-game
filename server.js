@@ -216,6 +216,48 @@ io.on('connection', (socket) => {
             else io.emit('roomUpdate', { count: room.count });
         }
     });
+
+    // 客户端看门狗请求 - 游戏卡住时尝试恢复
+    socket.on('ping_game', () => {
+        if (!room.game || !room.game.active) {
+            console.log("🐕 ping_game: game not active, ignoring");
+            return;
+        }
+        let g = room.game;
+        let currentTurn = g.turn;
+        console.log(`🐕 ping_game received, current turn: seat ${currentTurn}`);
+        
+        // 如果当前轮到的座位超过35秒没动，强制推进
+        if (room.botTimeout) {
+            // 已经有超时计时器在跑，不做额外处理
+            console.log("  → Timeout already set, waiting...");
+            return;
+        }
+        
+        // 没有超时计时器 = 超时逻辑丢失了，重新设置
+        console.log(`  → No timeout set! Re-setting for seat ${currentTurn}`);
+        if (currentTurn === 1 || currentTurn === 3) {
+            // Bot座位，立即auto-pass
+            handleAction({ seat: currentTurn, type: 'pass', cards: [] });
+        } else {
+            // 真人座位，给5秒缓冲后auto-pass/play
+            room.botTimeout = setTimeout(() => {
+                if (room.game && room.game.active && room.game.turn === currentTurn) {
+                    console.log(`🐕 Recovery: auto-action for stuck seat ${currentTurn}`);
+                    if (!g.lastHand) {
+                        let hand = g.hands[currentTurn];
+                        if (hand && hand.length > 0) {
+                            hand.sort((a, b) => a.p - b.p);
+                            let smallest = hand[0];
+                            handleAction({ seat: currentTurn, type: 'play', cards: [smallest], handType: { type: '1', val: smallest.p } });
+                        }
+                    } else {
+                        handleAction({ seat: currentTurn, type: 'pass', cards: [] });
+                    }
+                }
+            }, 5000);
+        }
+    });
 });
 
 function startGame() {
@@ -319,11 +361,33 @@ function handleAction(d) {
     // ===== 处理过牌 =====
     if (d.type === 'pass') {
         if (!g.lastHand && !wasPlayAttempt) {
-            console.log(`❌ Seat ${d.seat}: cannot pass on first play`);
-            return;
+            // 首出不能pass！自动出最小的一张牌，防止游戏卡死
+            console.log(`⚠️ Seat ${d.seat}: cannot pass on first play, auto-playing smallest card`);
+            let hand = g.hands[d.seat];
+            if (hand && hand.length > 0) {
+                hand.sort((a, b) => a.p - b.p);
+                let smallest = hand[0];
+                // 转换为出牌操作
+                d.type = 'play';
+                d.cards = [smallest];
+                d.handType = { type: '1', val: smallest.p };
+                g.lastHand = { owner: d.seat, type: '1', val: smallest.p, count: 1, score: 0 };
+                g.passCnt = 0;
+                let playedIds = [smallest.id];
+                g.hands[d.seat] = g.hands[d.seat].filter(c => !playedIds.includes(c.id));
+                if (g.hands[d.seat].length === 0 && !g.finished.includes(d.seat)) {
+                    g.finished.push(d.seat);
+                }
+                console.log(`  → Auto played: ${smallest.v}${smallest.s}`);
+            } else {
+                // 没牌了，强制pass（不应该出现这种情况）
+                g.passCnt++;
+                console.log(`  → No cards left, forced pass`);
+            }
+        } else {
+            g.passCnt++;
+            console.log(`⏭️ Seat ${d.seat} passes (${g.passCnt}/${4 - g.finished.length - 1})`);
         }
-        g.passCnt++;
-        console.log(`⏭️ Seat ${d.seat} passes (${g.passCnt}/${4 - g.finished.length - 1})`);
     }
 
     // ===== 检查游戏是否结束 =====
@@ -406,14 +470,43 @@ function handleAction(d) {
     });
     console.log(`📡 Sync: ${d.type}, cards:${cardsToSend.length}, next:${nextTurn}, roundEnd:${g.lastHand === null}`);
 
-    // Bot AI 延迟出牌
+    // ===== 通用超时保护（所有座位） =====
+    if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
+
     if (nextTurn === 1 || nextTurn === 3) {
+        // Bot座位：1.5秒后由host客户端AI出牌，8秒兜底自动Pass
         room.botTimeout = setTimeout(() => {
             if (room.game && room.game.active && room.game.turn === nextTurn) {
-                console.log(`🤖 Bot ${nextTurn} auto-pass (timeout)`);
+                console.log(`🤖 Bot ${nextTurn} timeout → auto pass`);
                 handleAction({ seat: nextTurn, type: 'pass', cards: [] });
             }
         }, 8000);
+    } else {
+        // 真人座位（seat 0 或 2）：35秒超时保护
+        // 客户端有30秒倒计时+autoPlay，这里是最终兜底
+        room.botTimeout = setTimeout(() => {
+            if (room.game && room.game.active && room.game.turn === nextTurn) {
+                console.log(`⏰ Human seat ${nextTurn} timeout (35s) → server auto pass`);
+                // 首出不能pass，给一张最小的牌
+                if (!g.lastHand) {
+                    let hand = g.hands[nextTurn];
+                    if (hand && hand.length > 0) {
+                        // 出最小的一张牌
+                        hand.sort((a, b) => a.p - b.p);
+                        let smallest = hand[0];
+                        console.log(`  → Auto play smallest card: ${smallest.v}${smallest.s}`);
+                        handleAction({
+                            seat: nextTurn,
+                            type: 'play',
+                            cards: [smallest],
+                            handType: { type: '1', val: smallest.p }
+                        });
+                    }
+                } else {
+                    handleAction({ seat: nextTurn, type: 'pass', cards: [] });
+                }
+            }
+        }, 35000);
     }
 }
 
