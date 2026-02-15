@@ -203,23 +203,31 @@ io.on('connection', (socket) => {
 
         console.log(`👤 Player ${socket.id} joined seat ${seat} (${room.count}/4 humans)`);
 
-        // Auto-start logic: wait for more players, with countdown
-        if (room.timer) clearTimeout(room.timer);
-        
-        if (room.count >= 4) {
-            // 4 humans - start immediately
-            console.log("🎮 4 humans! Starting in 2s...");
-            room.timer = setTimeout(() => fillBotsAndStart(), 2000);
-        } else if (room.count >= 2) {
-            // 2-3 humans - wait 8s for more, then fill with bots
-            console.log(`⏳ ${room.count} humans, waiting 8s for more...`);
-            io.emit('matchCountdown', { seconds: 8, playerCount: room.count });
-            room.timer = setTimeout(() => {
-                console.log(`⏰ Timeout: starting with ${room.count} humans, filling bots`);
-                fillBotsAndStart();
-            }, 8000);
+        // Notify host status: seat 0 is always host
+        let hostSid = getHostSid();
+        if (hostSid) {
+            io.to(hostSid).emit('hostStatus', { isHost: true });
         }
-        // 1 human - just wait
+    });
+
+    // Host clicks START - fill bots and begin
+    socket.on('startMatch', () => {
+        let seat = room.players[socket.id];
+        let hostSid = getHostSid();
+        if (socket.id !== hostSid) {
+            socket.emit('err', '只有房主可以开始游戏');
+            return;
+        }
+        if (room.count < 1) {
+            socket.emit('err', '至少需要1名玩家');
+            return;
+        }
+        if (room.game && room.game.active) {
+            socket.emit('err', '游戏已在进行中');
+            return;
+        }
+        console.log(`🎮 Host started match with ${room.count} humans`);
+        fillBotsAndStart();
     });
 
     socket.on('action', (d) => handleAction(d));
