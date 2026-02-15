@@ -474,13 +474,26 @@ function handleAction(d) {
     if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
 
     if (nextTurn === 1 || nextTurn === 3) {
-        // Bot座位：1.5秒后由host客户端AI出牌，8秒兜底自动Pass
+        // Bot座位：客户端1.5秒后出牌，5秒兜底自动处理
         room.botTimeout = setTimeout(() => {
             if (room.game && room.game.active && room.game.turn === nextTurn) {
-                console.log(`🤖 Bot ${nextTurn} timeout → auto pass`);
-                handleAction({ seat: nextTurn, type: 'pass', cards: [] });
+                console.log(`🤖 Bot ${nextTurn} timeout (5s) → server auto action`);
+                // 首出不能pass
+                if (!room.game.lastHand) {
+                    let hand = room.game.hands[nextTurn];
+                    if (hand && hand.length > 0) {
+                        hand.sort((a, b) => a.p - b.p);
+                        let smallest = hand[0];
+                        console.log(`  → Bot auto play: ${smallest.v}${smallest.s}`);
+                        handleAction({ seat: nextTurn, type: 'play', cards: [smallest], handType: { type: '1', val: smallest.p } });
+                    } else {
+                        handleAction({ seat: nextTurn, type: 'pass', cards: [] });
+                    }
+                } else {
+                    handleAction({ seat: nextTurn, type: 'pass', cards: [] });
+                }
             }
-        }, 8000);
+        }, 5000);
     } else {
         // 真人座位（seat 0 或 2）：35秒超时保护
         // 客户端有30秒倒计时+autoPlay，这里是最终兜底
