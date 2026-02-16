@@ -73,7 +73,12 @@ function getHandType(c) {
                 else return { type:'straight', val:vals[vals.length - 1] };
             }
         }
-        if (vals.length <= 2 && maxNormFreq >= 2) return { type:'3+2', val:vals.length ? vals[vals.length - 1] : 15 };
+        // 3+2: val must be the TRIPLE's value, not just highest
+        if (vals.length <= 2 && maxNormFreq >= 2) {
+            let tripleVal = vals[vals.length - 1];
+            for (let v of vals) { if (m[v] >= 3) { tripleVal = v; break; } }
+            return { type:'3+2', val: tripleVal };
+        }
     }
     if (len === 6 && vals.length === 2 && vals[1] === vals[0] + 1) {
         if (m[vals[0]] + wild.length >= 3) return { type:'plate', val:vals[0] };
@@ -428,24 +433,32 @@ function handleAction(d) {
         io.emit('syncAction', {
             seat: d.seat, type: d.type, cards: d.cards || [],
             handType: d.handType, nextTurn: -1, isRoundEnd: false,
-            finishOrder: g.finished  // Send authoritative finish order
+            finishOrder: g.finished
         });
         g.active = false;
         return;
     }
 
-    // Next Turn
-    if (g.passCnt >= active - 1) {
-        let winner = g.lastHand ? g.lastHand.owner : g.turn;
-        nextTurn = winner;
-        if (g.finished.includes(winner)) {
-            let partner = (winner + 2) % 4;
+    // Next Turn — round ends when all OTHER active players have passed
+    // passCnt counts consecutive passes. Round ends when passCnt >= active-1
+    // BUT: if lastHand.owner is finished, we need passCnt >= active (everyone active passed)
+    let roundOwner = g.lastHand ? g.lastHand.owner : g.turn;
+    let ownerStillActive = !g.finished.includes(roundOwner);
+    let passesNeeded = ownerStillActive ? (active - 1) : active;
+    
+    if (g.passCnt >= passesNeeded) {
+        // Round ends — 接风 logic
+        if (ownerStillActive) {
+            nextTurn = roundOwner;
+        } else {
+            // Owner finished: give turn to partner, else next active
+            let partner = (roundOwner + 2) % 4;
             if (!g.finished.includes(partner)) {
                 nextTurn = partner;
             } else {
                 let scan = 1;
-                while (g.finished.includes((winner + scan) % 4) && scan < 5) scan++;
-                nextTurn = (winner + scan) % 4;
+                while (g.finished.includes((roundOwner + scan) % 4) && scan < 5) scan++;
+                nextTurn = (roundOwner + scan) % 4;
             }
         }
         g.lastHand = null;
