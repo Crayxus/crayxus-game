@@ -517,7 +517,9 @@ function handleAction(d) {
 
     // Timeout for next player
     if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
-    if (isBotSeat(nextTurn)) {
+    let isBot = isBotSeat(nextTurn);
+    console.log(`🕐 Setting timeout for seat ${nextTurn}: isBot=${isBot}, delay=${isBot ? 2000 : 65000}ms`);
+    if (isBot) {
         room.botTimeout = setTimeout(() => { 
             if (room.game && room.game.active && room.game.turn === nextTurn) {
                 console.log(`⏰ Bot timeout fired for seat ${nextTurn}`);
@@ -527,7 +529,7 @@ function handleAction(d) {
     } else {
         room.botTimeout = setTimeout(() => { 
             if (room.game && room.game.active && room.game.turn === nextTurn) {
-                console.log(`⏰ Human timeout fired for seat ${nextTurn}`);
+                console.log(`⏰ Human timeout fired for seat ${nextTurn} after 65s`);
                 forceAutoPlay(nextTurn); 
             }
         }, 65000);
@@ -545,7 +547,6 @@ function handleAction(d) {
 
     } catch(err) {
         console.error('handleAction error:', err);
-        if (room.game) 
     }
 }
 
