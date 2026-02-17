@@ -426,6 +426,40 @@ function handleAction(d) {
     }
 
     let active = 4 - g.finished.length;
+    
+    // 双下检查: 头游二游同队 = 一泡污, 直接结束
+    if (g.finished.length >= 2) {
+        let first = g.finished[0];
+        let second = g.finished[1];
+        let arePartners = (first + 2) % 4 === second;
+        if (arePartners && active > 0) {
+            console.log(`🎉 双下! Seats ${first} & ${second} are partners. Game over!`);
+            // Add remaining players
+            for (let i = 0; i < 4; i++) {
+                if (!g.finished.includes(i)) g.finished.push(i);
+            }
+            
+            Object.keys(room.players).forEach(sid => {
+                let seat = room.players[sid];
+                let mp = g.finished.indexOf(seat) + 1;
+                let pp = g.finished.indexOf((seat + 2) % 4) + 1;
+                let pts = 0;
+                if (mp === 1 && pp === 2) pts = 30;       // 双下赢家
+                else if (mp === 2 && pp === 1) pts = 30;   // 双下赢家(队友视角)
+                else pts = -30;                             // 被双下
+                playerScores[sid] = (playerScores[sid] || 1291) + pts;
+            });
+            
+            io.emit('syncAction', {
+                seat: d.seat, type: d.type, cards: d.cards || [],
+                handType: d.handType, nextTurn: -1, isRoundEnd: false,
+                finishOrder: g.finished, shuangXia: true
+            });
+            g.active = false;
+            return;
+        }
+    }
+    
     if (active <= 1) {
         // Add last remaining player
         for (let i = 0; i < 4; i++) {
