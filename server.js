@@ -390,8 +390,6 @@ function forceAutoPlay(seatToPlay) {
 function handleAction(d) {
     if (!room.game || !room.game.active) return;
     if (d.seat !== room.game.turn) return;
-    if (room.game._processing) return;
-    room.game._processing = true;
 
     try {
     let g = room.game;
@@ -466,7 +464,7 @@ function handleAction(d) {
             finishOrder: g.finished
         });
         g.active = false;
-        room.game._processing = false;
+        
         return;
     }
 
@@ -517,13 +515,13 @@ function handleAction(d) {
             for (let i = 0; i < 4; i++) { if (!g.finished.includes(i)) g.finished.push(i); }
             io.emit('syncAction', { seat: d.seat, type: d.type, cards: d.cards || [], handType: d.handType, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
             g.active = false;
-            room.game._processing = false;
+            
             return;
         }
     }
 
     g.turn = nextTurn;
-    room.game._processing = false;
+    
 
     io.emit('syncAction', {
         seat: d.seat, type: d.type, cards: d.cards || [],
@@ -539,7 +537,7 @@ function handleAction(d) {
                 console.log(`⏰ Bot timeout fired for seat ${nextTurn}`);
                 forceAutoPlay(nextTurn); 
             }
-        }, 3000);
+        }, 2000);
     } else {
         room.botTimeout = setTimeout(() => { 
             if (room.game && room.game.active && room.game.turn === nextTurn) {
@@ -559,7 +557,7 @@ function handleAction(d) {
 
     } catch(err) {
         console.error('handleAction error:', err);
-        if (room.game) room.game._processing = false;
+        if (room.game) 
     }
 }
 
