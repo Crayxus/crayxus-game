@@ -216,6 +216,15 @@ io.on('connection', (socket) => {
         if (hostSid) {
             io.to(hostSid).emit('hostStatus', { isHost: true });
         }
+        
+        // Auto-start: 3 seconds after joining, fill bots and go
+        if (room.autoStartTimer) clearTimeout(room.autoStartTimer);
+        room.autoStartTimer = setTimeout(() => {
+            if (!room.game || !room.game.active) {
+                console.log(`🚀 Auto-starting game with ${room.count} humans`);
+                fillBotsAndStart();
+            }
+        }, 3000);
     });
 
     // Host clicks START - fill bots and begin
