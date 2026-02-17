@@ -298,20 +298,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('ping_game', () => {
-        if (!room.game || !room.game.active) return;
-        let g = room.game;
-        let currentTurn = g.turn;
-        console.log(`🐕 ping_game received, turn: ${currentTurn}`);
-        if (room.botTimeout) return;
-        console.log(`  → No timeout set! Recovery for seat ${currentTurn}`);
-        let delay = isBotSeat(currentTurn) ? 100 : 5000;
-        room.botTimeout = setTimeout(() => {
-            if (room.game && room.game.active && room.game.turn === currentTurn) {
-                forceAutoPlay(currentTurn);
-            }
-        }, delay);
-    });
 });
 
 function startGame() {
@@ -544,16 +530,18 @@ function handleAction(d) {
                 console.log(`⏰ Human timeout fired for seat ${nextTurn}`);
                 forceAutoPlay(nextTurn); 
             }
-        }, 35000);
+        }, 65000);
     }
     
-    // Safety: stuck detector
-    setTimeout(() => {
-        if (room.game && room.game.active && room.game.turn === nextTurn) {
-            console.log(`🚨 STUCK DETECTED! Forcing seat ${nextTurn}`);
-            forceAutoPlay(nextTurn);
-        }
-    }, 12000);
+    // Safety: stuck detector - only for bots
+    if (isBotSeat(nextTurn)) {
+        setTimeout(() => {
+            if (room.game && room.game.active && room.game.turn === nextTurn) {
+                console.log(`🚨 STUCK DETECTED! Forcing bot seat ${nextTurn}`);
+                forceAutoPlay(nextTurn);
+            }
+        }, 8000);
+    }
 
     } catch(err) {
         console.error('handleAction error:', err);
