@@ -357,7 +357,7 @@ function forceAutoPlay(seatToPlay) {
         }
         return;
     }
-    console.log(`⚡ Force Auto-Play for seat ${seatToPlay}`);
+    console.log(`⚡ Force Auto-Play for seat ${seatToPlay} (isBot: ${isBotSeat(seatToPlay)})`);
     let g = room.game;
     let hand = g.hands[seatToPlay];
     if (!g.lastHand) {
