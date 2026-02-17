@@ -61,9 +61,12 @@ function getHandType(c) {
     if (len === 3 && (maxNormFreq + wild.length >= 3)) return { type:'3', val:vals.length ? vals[vals.length - 1] : 15 };
 
     if (len === 5) {
-        if (vals.length >= 3 && vals.length + wild.length >= 5) {
-            let gap = vals[vals.length - 1] - vals[0];
-            if (gap <= 4) {
+        // Straights cannot contain 2s (p=15) or jokers
+        let straightNorm = norm.filter(x => x.p <= 14);
+        if (straightNorm.length + wild.length >= 5 && vals.filter(v => v <= 14).length >= 3) {
+            let sVals = vals.filter(v => v <= 14);
+            let gap = sVals[sVals.length - 1] - sVals[0];
+            if (gap <= 4 && sVals.length + wild.length >= 5) {
                 let isFlush = true;
                 if (norm.length > 0) {
                     let firstSuit = norm[0].s;
@@ -237,6 +240,17 @@ io.on('connection', (socket) => {
 
     socket.on('action', (d) => handleAction(d));
     socket.on('botAction', (d) => handleAction(d));
+    
+    socket.on('ping_game', () => {
+        if (room.game && room.game.active) {
+            let currentTurn = room.game.turn;
+            console.log(`📡 ping_game: current turn = seat ${currentTurn}, isBotSeat = ${isBotSeat(currentTurn)}`);
+            if (isBotSeat(currentTurn)) {
+                console.log(`🔧 Forcing bot play for stuck seat ${currentTurn}`);
+                forceAutoPlay(currentTurn);
+            }
+        }
+    });
 
     socket.on('requestNewGame', () => {
         console.log("🔄 requestNewGame received");
@@ -343,6 +357,20 @@ function startGame() {
 
 function forceAutoPlay(seatToPlay) {
     if (!room.game || !room.game.active || room.game.turn !== seatToPlay) return;
+    if (room.game.finished.includes(seatToPlay)) {
+        console.log(`⚠️ forceAutoPlay: seat ${seatToPlay} is finished, skipping to next`);
+        let next = (seatToPlay + 1) % 4;
+        let s = 0;
+        while (room.game.finished.includes(next) && s < 4) { next = (next + 1) % 4; s++; }
+        if (!room.game.finished.includes(next)) {
+            room.game.turn = next;
+            room.game.lastHand = null;
+            room.game.passCnt = 0;
+            io.emit('syncAction', { seat: seatToPlay, type: 'pass', cards: [], nextTurn: next, isRoundEnd: true, finishOrder: room.game.finished });
+            if (isBotSeat(next)) { room.botTimeout = setTimeout(() => forceAutoPlay(next), 3000); }
+        }
+        return;
+    }
     console.log(`⚡ Force Auto-Play for seat ${seatToPlay}`);
     let g = room.game;
     let hand = g.hands[seatToPlay];
@@ -362,8 +390,10 @@ function forceAutoPlay(seatToPlay) {
 function handleAction(d) {
     if (!room.game || !room.game.active) return;
     if (d.seat !== room.game.turn) return;
-    if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
+    if (room.game._processing) return;
+    room.game._processing = true;
 
+    try {
     let g = room.game;
     let nextTurn = g.turn;
     let wasPlayAttempt = false;
@@ -436,6 +466,7 @@ function handleAction(d) {
             finishOrder: g.finished
         });
         g.active = false;
+        room.game._processing = false;
         return;
     }
 
@@ -472,19 +503,63 @@ function handleAction(d) {
         }
     }
 
+    // SAFETY: never give turn to a finished player
+    if (g.finished.includes(nextTurn)) {
+        console.log(`🚨 WARNING: nextTurn ${nextTurn} is finished! Finding next active...`);
+        let safety2 = 0;
+        while (g.finished.includes(nextTurn) && safety2 < 8) {
+            nextTurn = (nextTurn + 1) % 4;
+            safety2++;
+        }
+        // If ALL finished (shouldn't happen since active>1 check above)
+        if (g.finished.includes(nextTurn)) {
+            console.log(`🚨 ALL PLAYERS FINISHED - ending game`);
+            for (let i = 0; i < 4; i++) { if (!g.finished.includes(i)) g.finished.push(i); }
+            io.emit('syncAction', { seat: d.seat, type: d.type, cards: d.cards || [], handType: d.handType, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
+            g.active = false;
+            room.game._processing = false;
+            return;
+        }
+    }
+
     g.turn = nextTurn;
+    room.game._processing = false;
 
     io.emit('syncAction', {
         seat: d.seat, type: d.type, cards: d.cards || [],
         handType: d.handType, nextTurn: nextTurn, isRoundEnd: (g.lastHand === null),
-        finishOrder: g.finished  // Always send current finish order
+        finishOrder: g.finished
     });
 
     // Timeout for next player
+    if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
     if (isBotSeat(nextTurn)) {
-        room.botTimeout = setTimeout(() => { forceAutoPlay(nextTurn); }, 3000);
+        room.botTimeout = setTimeout(() => { 
+            if (room.game && room.game.active && room.game.turn === nextTurn) {
+                console.log(`⏰ Bot timeout fired for seat ${nextTurn}`);
+                forceAutoPlay(nextTurn); 
+            }
+        }, 3000);
     } else {
-        room.botTimeout = setTimeout(() => { forceAutoPlay(nextTurn); }, 35000);
+        room.botTimeout = setTimeout(() => { 
+            if (room.game && room.game.active && room.game.turn === nextTurn) {
+                console.log(`⏰ Human timeout fired for seat ${nextTurn}`);
+                forceAutoPlay(nextTurn); 
+            }
+        }, 35000);
+    }
+    
+    // Safety: stuck detector
+    setTimeout(() => {
+        if (room.game && room.game.active && room.game.turn === nextTurn) {
+            console.log(`🚨 STUCK DETECTED! Forcing seat ${nextTurn}`);
+            forceAutoPlay(nextTurn);
+        }
+    }, 12000);
+
+    } catch(err) {
+        console.error('handleAction error:', err);
+        if (room.game) room.game._processing = false;
     }
 }
 
