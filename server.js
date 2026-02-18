@@ -1,4 +1,4 @@
-// server.js - Crayxus V36 (4-Player Support)
+// server.js - Crayxus V37 (Fixed Multiplayer Lobby)
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -61,7 +61,6 @@ function getHandType(c) {
     if (len === 3 && (maxNormFreq + wild.length >= 3)) return { type:'3', val:vals.length ? vals[vals.length - 1] : 15 };
 
     if (len === 5) {
-        // Straights cannot contain 2s (p=15) or jokers
         let straightNorm = norm.filter(x => x.p <= 14);
         if (straightNorm.length + wild.length >= 5 && vals.filter(v => v <= 14).length >= 3) {
             let sVals = vals.filter(v => v <= 14);
@@ -76,7 +75,6 @@ function getHandType(c) {
                 else return { type:'straight', val:vals[vals.length - 1] };
             }
         }
-        // 3+2: val must be the TRIPLE's value, not just highest
         if (vals.length <= 2 && maxNormFreq >= 2) {
             let tripleVal = vals[vals.length - 1];
             for (let v of vals) { if (m[v] >= 3) { tripleVal = v; break; } }
@@ -114,13 +112,13 @@ function canBeat(newCards, newType, lastHand) {
 }
 
 let room = {
-    // seats: null = empty, 'BOT' = AI, socket.id = human
     seats: [null, null, null, null],
     players: {},  // socket.id -> seat
     count: 0,     // human count
     game: null,
     timer: null,
-    botTimeout: null
+    botTimeout: null,
+    autoStartTimer: null
 };
 
 function resetRoom() {
@@ -132,6 +130,8 @@ function resetRoom() {
     room.timer = null;
     if (room.botTimeout) clearTimeout(room.botTimeout);
     room.botTimeout = null;
+    if (room.autoStartTimer) clearTimeout(room.autoStartTimer);
+    room.autoStartTimer = null;
 }
 
 function isBotSeat(seat) {
@@ -143,7 +143,6 @@ function isHumanSeat(seat) {
 }
 
 function getHostSid() {
-    // Host is the first human player (lowest seat number)
     for (let i = 0; i < 4; i++) {
         if (isHumanSeat(i)) return room.seats[i];
     }
@@ -155,9 +154,7 @@ function fillBotsAndStart() {
     for (let i = 0; i < 4; i++) {
         if (room.seats[i] === null) room.seats[i] = 'BOT';
     }
-    // Determine host (first human seat)
     let hostSid = getHostSid();
-    // Identify which seats are bots
     let botSeats = [];
     for (let i = 0; i < 4; i++) {
         if (isBotSeat(i)) botSeats.push(i);
@@ -175,25 +172,46 @@ function fillBotsAndStart() {
             botSeats: botSeats
         });
     });
+
+    // Broadcast final room state before game starts
+    io.emit('roomUpdate', {
+        count: room.count,
+        seats: room.seats.map(s => s === null ? 'EMPTY' : (s === 'BOT' ? 'BOT' : 'HUMAN'))
+    });
+
     startGame();
 }
 
 io.on('connection', (socket) => {
     console.log(`🔌 Connected: ${socket.id}`);
 
-    socket.on('joinGame', () => {
+    socket.on('joinGame', (data) => {
+        // If already in room, ignore
         if (room.players[socket.id] !== undefined) return;
-        
-        // Find first empty seat
+
+        // If a game is already active, reject new joins
+        if (room.game && room.game.active) {
+            socket.emit('err', '游戏进行中，请稍后再试');
+            return;
+        }
+
+        // Find first empty (null) seat — skip BOT seats from previous games
         let seat = -1;
         for (let i = 0; i < 4; i++) {
             if (room.seats[i] === null) { seat = i; break; }
         }
-        
+
         if (seat === -1) {
-            // All seats taken - if all bots + 0 humans, reset
-            if (room.count === 0) { resetRoom(); seat = 0; }
-            else { socket.emit('err', '房间已满 (Room Full)'); return; }
+            // All seats occupied (by humans or leftover bots)
+            // If no game active and some seats are BOTs from a stale room, reset
+            if (!room.game || !room.game.active) {
+                console.log('🔄 Stale room detected, resetting...');
+                resetRoom();
+                seat = 0;
+            } else {
+                socket.emit('err', '房间已满 (Room Full)');
+                return;
+            }
         }
 
         room.seats[seat] = socket.id;
@@ -201,35 +219,50 @@ io.on('connection', (socket) => {
         room.count++;
 
         let score = playerScores[socket.id] || 1291;
-        socket.emit('initIdentity', { seat: seat, score: score, playerCount: room.count });
-        
-        // Broadcast room update to all
-        io.emit('roomUpdate', { 
-            count: room.count,
-            seats: room.seats.map(s => s === null ? 'EMPTY' : (s === 'BOT' ? 'BOT' : 'HUMAN'))
+
+        // Determine host (first human = lowest seat index)
+        let hostSid = getHostSid();
+        let isHost = (socket.id === hostSid);
+
+        socket.emit('initIdentity', { 
+            seat: seat, 
+            score: score, 
+            playerCount: room.count,
+            isHost: isHost
+        });
+
+        // Broadcast room update to ALL connected players in the room
+        let seatStates = room.seats.map(s => s === null ? 'EMPTY' : (s === 'BOT' ? 'BOT' : 'HUMAN'));
+        Object.keys(room.players).forEach(sid => {
+            io.to(sid).emit('roomUpdate', { 
+                count: room.count,
+                seats: seatStates
+            });
         });
 
         console.log(`👤 Player ${socket.id} joined seat ${seat} (${room.count}/4 humans)`);
 
-        // Notify host status: seat 0 is always host
-        let hostSid = getHostSid();
+        // Notify all players about host status
         if (hostSid) {
-            io.to(hostSid).emit('hostStatus', { isHost: true });
+            Object.keys(room.players).forEach(sid => {
+                io.to(sid).emit('hostStatus', { isHost: (sid === hostSid) });
+            });
         }
-        
-        // Auto-start: 3 seconds after joining, fill bots and go
-        if (room.autoStartTimer) clearTimeout(room.autoStartTimer);
-        room.autoStartTimer = setTimeout(() => {
-            if (!room.game || !room.game.active) {
-                console.log(`🚀 Auto-starting game with ${room.count} humans`);
-                fillBotsAndStart();
-            }
-        }, 3000);
+
+        /* ══════════════════════════════════════════
+           FIX: NO auto-start timer!
+           Game only starts when host clicks START.
+           This gives time for other players to join.
+           ══════════════════════════════════════════ */
     });
 
     // Host clicks START - fill bots and begin
     socket.on('startMatch', () => {
         let seat = room.players[socket.id];
+        if (seat === undefined) {
+            socket.emit('err', '你不在房间中');
+            return;
+        }
         let hostSid = getHostSid();
         if (socket.id !== hostSid) {
             socket.emit('err', '只有房主可以开始游戏');
@@ -249,7 +282,7 @@ io.on('connection', (socket) => {
 
     socket.on('action', (d) => handleAction(d));
     socket.on('botAction', (d) => handleAction(d));
-    
+
     socket.on('ping_game', () => {
         if (room.game && room.game.active) {
             let currentTurn = room.game.turn;
@@ -270,7 +303,6 @@ io.on('connection', (socket) => {
             }
             if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
             console.log("✅ Starting new game in 1.5 seconds...");
-            // Re-fill bots for empty seats
             setTimeout(() => {
                 for (let i = 0; i < 4; i++) {
                     if (room.seats[i] === null) room.seats[i] = 'BOT';
@@ -286,27 +318,50 @@ io.on('connection', (socket) => {
         console.log(`🔌 Disconnected: ${socket.id}`);
         let seat = room.players[socket.id];
         if (seat !== undefined) {
-            room.seats[seat] = null;
             delete room.players[socket.id];
             room.count--;
             if (room.timer) { clearTimeout(room.timer); room.timer = null; }
             if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
-            
-            // If game active, replace disconnected player with bot
+
             if (room.game && room.game.active) {
+                // Replace with bot during active game
                 room.seats[seat] = 'BOT';
-                io.emit('playerLeft', { seat: seat, replaced: 'BOT' });
+                // Notify remaining players
+                Object.keys(room.players).forEach(sid => {
+                    io.to(sid).emit('playerLeft', { seat: seat, replaced: 'BOT' });
+                });
                 console.log(`🤖 Seat ${seat} replaced with bot`);
+
+                // If it was this player's turn, force bot play
+                if (room.game.turn === seat) {
+                    setTimeout(() => forceAutoPlay(seat), 1000);
+                }
+            } else {
+                // Not in game — free the seat so others can join
+                room.seats[seat] = null;
             }
-            
-            if (room.count <= 0) resetRoom();
-            else io.emit('roomUpdate', { 
-                count: room.count,
-                seats: room.seats.map(s => s === null ? 'EMPTY' : (s === 'BOT' ? 'BOT' : 'HUMAN'))
-            });
+
+            if (room.count <= 0) {
+                resetRoom();
+            } else {
+                // Update remaining players
+                let seatStates = room.seats.map(s => s === null ? 'EMPTY' : (s === 'BOT' ? 'BOT' : 'HUMAN'));
+                Object.keys(room.players).forEach(sid => {
+                    io.to(sid).emit('roomUpdate', { 
+                        count: room.count,
+                        seats: seatStates
+                    });
+                });
+                // Re-evaluate host
+                let newHost = getHostSid();
+                if (newHost) {
+                    Object.keys(room.players).forEach(sid => {
+                        io.to(sid).emit('hostStatus', { isHost: (sid === newHost) });
+                    });
+                }
+            }
         }
     });
-
 });
 
 function startGame() {
@@ -322,10 +377,9 @@ function startGame() {
         hands: hands,
         lastHand: null,
         passCnt: 0,
-        finished: []   // Ordered list of seats as they finish
+        finished: []
     };
 
-    // Determine which seats are bots for the host to manage
     let botSeats = [];
     for (let i = 0; i < 4; i++) {
         if (isBotSeat(i)) botSeats.push(i);
@@ -337,8 +391,7 @@ function startGame() {
     Object.keys(room.players).forEach(sid => {
         let s = room.players[sid];
         io.to(sid).emit('dealCards', { cards: hands[s] });
-        
-        // Host gets bot cards to run bot AI client-side
+
         if (sid === hostSid) {
             let botCardData = {};
             botSeats.forEach(bs => { botCardData[bs] = hands[bs]; });
@@ -347,7 +400,10 @@ function startGame() {
     });
 
     console.log(`📢 gameStart, turn: ${room.game.turn}, bots: [${botSeats}]`);
-    io.emit('gameStart', { startTurn: room.game.turn, botSeats: botSeats });
+    // Send to all players in the room
+    Object.keys(room.players).forEach(sid => {
+        io.to(sid).emit('gameStart', { startTurn: room.game.turn, botSeats: botSeats });
+    });
 }
 
 function forceAutoPlay(seatToPlay) {
@@ -435,30 +491,27 @@ function handleAction(d) {
     }
 
     let active = 4 - g.finished.length;
-    
-    // 双下检查: 头游二游同队 = 一泡污, 直接结束
+
+    // 双下检查
     if (g.finished.length >= 2) {
         let first = g.finished[0];
         let second = g.finished[1];
         let arePartners = (first + 2) % 4 === second;
         if (arePartners && active > 0) {
             console.log(`🎉 双下! Seats ${first} & ${second} are partners. Game over!`);
-            // Add remaining players
             for (let i = 0; i < 4; i++) {
                 if (!g.finished.includes(i)) g.finished.push(i);
             }
-            
             Object.keys(room.players).forEach(sid => {
                 let seat = room.players[sid];
                 let mp = g.finished.indexOf(seat) + 1;
                 let pp = g.finished.indexOf((seat + 2) % 4) + 1;
                 let pts = 0;
-                if (mp === 1 && pp === 2) pts = 30;       // 双下赢家
-                else if (mp === 2 && pp === 1) pts = 30;   // 双下赢家(队友视角)
-                else pts = -30;                             // 被双下
+                if (mp === 1 && pp === 2) pts = 30;
+                else if (mp === 2 && pp === 1) pts = 30;
+                else pts = -30;
                 playerScores[sid] = (playerScores[sid] || 1291) + pts;
             });
-            
             io.emit('syncAction', {
                 seat: d.seat, type: d.type, cards: d.cards || [],
                 handType: d.handType, nextTurn: -1, isRoundEnd: false,
@@ -468,14 +521,12 @@ function handleAction(d) {
             return;
         }
     }
-    
+
     if (active <= 1) {
-        // Add last remaining player
         for (let i = 0; i < 4; i++) {
             if (!g.finished.includes(i)) g.finished.push(i);
         }
         console.log("🏁 Game Over! Finish order:", g.finished);
-        
         Object.keys(room.players).forEach(sid => {
             let seat = room.players[sid];
             let mp = g.finished.indexOf(seat) + 1;
@@ -486,30 +537,23 @@ function handleAction(d) {
             else pts = (mp + pp === 7) ? -15 : -5;
             playerScores[sid] = (playerScores[sid] || 1291) + pts;
         });
-
         io.emit('syncAction', {
             seat: d.seat, type: d.type, cards: d.cards || [],
             handType: d.handType, nextTurn: -1, isRoundEnd: false,
             finishOrder: g.finished
         });
         g.active = false;
-        
         return;
     }
 
-    // Next Turn — round ends when all OTHER active players have passed
-    // passCnt counts consecutive passes. Round ends when passCnt >= active-1
-    // BUT: if lastHand.owner is finished, we need passCnt >= active (everyone active passed)
     let roundOwner = g.lastHand ? g.lastHand.owner : g.turn;
     let ownerStillActive = !g.finished.includes(roundOwner);
     let passesNeeded = ownerStillActive ? (active - 1) : active;
-    
+
     if (g.passCnt >= passesNeeded) {
-        // Round ends — 接风 logic
         if (ownerStillActive) {
             nextTurn = roundOwner;
         } else {
-            // Owner finished: give turn to partner, else next active
             let partner = (roundOwner + 2) % 4;
             if (!g.finished.includes(partner)) {
                 nextTurn = partner;
@@ -530,7 +574,6 @@ function handleAction(d) {
         }
     }
 
-    // SAFETY: never give turn to a finished player
     if (g.finished.includes(nextTurn)) {
         console.log(`🚨 WARNING: nextTurn ${nextTurn} is finished! Finding next active...`);
         let safety2 = 0;
@@ -538,19 +581,16 @@ function handleAction(d) {
             nextTurn = (nextTurn + 1) % 4;
             safety2++;
         }
-        // If ALL finished (shouldn't happen since active>1 check above)
         if (g.finished.includes(nextTurn)) {
             console.log(`🚨 ALL PLAYERS FINISHED - ending game`);
             for (let i = 0; i < 4; i++) { if (!g.finished.includes(i)) g.finished.push(i); }
             io.emit('syncAction', { seat: d.seat, type: d.type, cards: d.cards || [], handType: d.handType, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
             g.active = false;
-            
             return;
         }
     }
 
     g.turn = nextTurn;
-    
 
     io.emit('syncAction', {
         seat: d.seat, type: d.type, cards: d.cards || [],
@@ -558,27 +598,25 @@ function handleAction(d) {
         finishOrder: g.finished
     });
 
-    // Timeout for next player
     if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
     let isBot = isBotSeat(nextTurn);
     console.log(`🕐 Setting timeout for seat ${nextTurn}: isBot=${isBot}, delay=${isBot ? 2000 : 65000}ms`);
     if (isBot) {
-        room.botTimeout = setTimeout(() => { 
+        room.botTimeout = setTimeout(() => {
             if (room.game && room.game.active && room.game.turn === nextTurn) {
                 console.log(`⏰ Bot timeout fired for seat ${nextTurn}`);
-                forceAutoPlay(nextTurn); 
+                forceAutoPlay(nextTurn);
             }
         }, 2000);
     } else {
-        room.botTimeout = setTimeout(() => { 
+        room.botTimeout = setTimeout(() => {
             if (room.game && room.game.active && room.game.turn === nextTurn) {
                 console.log(`⏰ Human timeout fired for seat ${nextTurn} after 65s`);
-                forceAutoPlay(nextTurn); 
+                forceAutoPlay(nextTurn);
             }
         }, 65000);
     }
-    
-    // Safety: stuck detector - only for bots
+
     if (isBotSeat(nextTurn)) {
         setTimeout(() => {
             if (room.game && room.game.active && room.game.turn === nextTurn) {
@@ -593,4 +631,4 @@ function handleAction(d) {
     }
 }
 
-http.listen(PORT, () => console.log(`✅ Crayxus Server V36 running on port ${PORT}`));
+http.listen(PORT, () => console.log(`✅ Crayxus Server V37 running on port ${PORT}`));
