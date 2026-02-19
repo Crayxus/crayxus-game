@@ -1487,8 +1487,12 @@ function tProcessAction(d){
     return;
   }
 
-  // Round end: 3 consecutive passes
-  let isRoundEnd=tPassCount>=3&&lastHand;
+  // Round end: all other active players passed
+  let activeCount=4-finishOrder.length;
+  let roundOwner=lastHand?lastHand.owner:-1;
+  let ownerActive=roundOwner>=0&&!finishOrder.includes(roundOwner);
+  let passesNeeded=lastHand?(ownerActive?(activeCount-1):activeCount):999;
+  let isRoundEnd=tPassCount>=passesNeeded&&lastHand;
   if(isRoundEnd){
     lastHand=null;tPassCount=0;
     roundEndTimer=setTimeout(()=>{
@@ -1501,11 +1505,18 @@ function tProcessAction(d){
     },1200);
   }else{updateDim()}
 
-  // Advance turn (skip finished players)
-  let nextTurn=(d.seat+1)%4;
-  for(let i=0;i<4;i++){
-    if(!finishOrder.includes(nextTurn))break;
-    nextTurn=(nextTurn+1)%4;
+  // Advance turn
+  let nextTurn;
+  if(isRoundEnd){
+    // Round owner gets to lead next; if finished, partner leads (接风)
+    nextTurn=ownerActive?roundOwner:(roundOwner+2)%4;
+    while(finishOrder.includes(nextTurn))nextTurn=(nextTurn+1)%4;
+  }else{
+    nextTurn=(d.seat+1)%4;
+    for(let i=0;i<4;i++){
+      if(!finishOrder.includes(nextTurn))break;
+      nextTurn=(nextTurn+1)%4;
+    }
   }
   turn=nextTurn;
   renderUI();
