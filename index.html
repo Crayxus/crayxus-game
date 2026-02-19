@@ -1296,6 +1296,7 @@ function buildDeck(){
 }
 
 function startTrainingGame(isContinue){
+  let prevFinishOrder=finishOrder.slice();
   gameMode='training';
   gameOver=false;isMyTurn=false;lastHand=null;finishOrder=[];
   actionSeq=0;hintOptions=[];hintIndex=0;tPassCount=0;tCoachPending=false;
@@ -1319,8 +1320,14 @@ function startTrainingGame(isContinue){
   tMoveHistory=[];
   if(!onnxSession)loadOnnxModel();
 
-  // Random start turn
-  turn=Math.floor(Math.random()*4);
+  // 1游先出: first game player goes first; subsequent games previous 头游 leads
+  if(!isContinue){
+    turn=0;
+  }else if(prevFinishOrder.length>0){
+    turn=prevFinishOrder[0];
+  }else{
+    turn=Math.floor(Math.random()*4);
+  }
 
   // Enter game UI
   document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
@@ -1333,8 +1340,8 @@ function startTrainingGame(isContinue){
 
   // Training badge
   let tb=document.getElementById('training-badge');if(tb)tb.style.display='block';
-  // Hide AFK in training
-  let afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='none';
+  // Show AFK in training mode too
+  let afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='';
   let afkbadge=document.getElementById('afk-badge');if(afkbadge)afkbadge.style.display='none';
   // Coach panel hidden
   document.getElementById('coach-panel').style.display='none';
@@ -1368,6 +1375,7 @@ function tCheckTurn(){
     startTimer();
     repositionButtons();
     let c=document.getElementById('ctrls');c.style.display='flex';
+    if(afkEnabled) scheduleAFK();
     let bp=document.getElementById('btn-pass');
     if(!lastHand){bp.disabled=true;bp.style.opacity=0.3}
     else{bp.disabled=false;bp.style.opacity=1}
