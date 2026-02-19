@@ -189,6 +189,68 @@ function canBeat(newCards, newType, lastHand) {
 let rooms = {};
 let playerMap = {};
 
+// === Game state persistence (survive Render restarts) ===
+const STATE_FILE = path.join(__dirname, 'game_state.json');
+
+function saveState() {
+    try {
+        let data = {};
+        for (let rid in rooms) {
+            let r = rooms[rid];
+            if (r.game && r.game.active) {
+                data[rid] = {
+                    id: r.id,
+                    seats: r.seats.map(s => (s && s !== 'BOT') ? 'BOT' : s), // all humans become BOT on restart
+                    game: {
+                        active: r.game.active,
+                        turn: r.game.turn,
+                        hands: r.game.hands,
+                        lastHand: r.game.lastHand,
+                        passCnt: r.game.passCnt,
+                        finished: r.game.finished
+                    },
+                    gameCount: r.gameCount,
+                    lastFinished: r.lastFinished || []
+                };
+            }
+        }
+        if (Object.keys(data).length > 0) {
+            fs.writeFileSync(STATE_FILE, JSON.stringify(data));
+            gameLog(`[State] Saved ${Object.keys(data).length} active room(s)`);
+        }
+    } catch (e) { gameLog(`[State] Save error: ${e.message}`); }
+}
+
+function loadState() {
+    try {
+        if (!fs.existsSync(STATE_FILE)) return;
+        let data = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+        for (let rid in data) {
+            let saved = data[rid];
+            rooms[rid] = {
+                id: saved.id,
+                seats: saved.seats,
+                players: {},
+                count: 0, // no humans connected yet
+                game: saved.game,
+                botTimeout: null,
+                gameCount: saved.gameCount || 0,
+                lastFinished: saved.lastFinished || []
+            };
+            gameLog(`[State] Restored room ${rid}: turn=${saved.game.turn}, finished=[${saved.game.finished}]`);
+            // Schedule bot to continue playing
+            scheduleBotTimeout(rid);
+        }
+        // Clean up state file after loading
+        fs.unlinkSync(STATE_FILE);
+    } catch (e) { gameLog(`[State] Load error: ${e.message}`); }
+}
+
+// Save state periodically and on shutdown
+setInterval(saveState, 5000);
+process.on('SIGTERM', () => { gameLog('[Shutdown] SIGTERM received, saving state...'); saveState(); process.exit(0); });
+process.on('SIGINT', () => { gameLog('[Shutdown] SIGINT received, saving state...'); saveState(); process.exit(0); });
+
 function createRoom(id) {
     return { id: id, seats: [null, null, null, null], players: {}, count: 0, game: null, botTimeout: null, gameCount: 0, lastFinished: [] };
 }
@@ -568,4 +630,7 @@ function handleAction(d, socket) {
     scheduleBotTimeout(rid);
 }
 
-http.listen(PORT, () => gameLog(`Crayxus V41.2 Running on port ${PORT}`));
+http.listen(PORT, () => {
+    gameLog(`Crayxus V41.2 Running on port ${PORT}`);
+    loadState();
+});
