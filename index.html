@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Crayxus V41.1 - Stable</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+<style>
+:root{--bg:#0a0a0a;--neon:#00ffcc;--gold:#ffc800;--red:#ff3b30;--panel:rgba(20,22,28,0.98)}
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;font-family:'Segoe UI',sans-serif}
+body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:flex;color:#fff;padding-bottom:env(safe-area-inset-bottom,0px)}
+.screen{position:absolute;width:100%;height:100%;display:none;flex-direction:column;justify-content:center;align-items:center;z-index:100}
+.screen.active{display:flex}
+#boot{background:#000;cursor:pointer}
+.logo{font-size:80px;font-weight:900;color:#fff;text-shadow:0 0 20px var(--neon)}
+#lobby{background:radial-gradient(circle,#1a1a2e 0%,#000 100%)}
+#mode-select{background:radial-gradient(circle,#1a1a2e 0%,#000 100%)}
+.mode-card{width:440px;padding:40px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;backdrop-filter:blur(10px);text-align:center}
+.mode-btns{display:flex;gap:16px;margin-top:24px}
+.mode-btn{flex:1;padding:24px 16px;border-radius:16px;border:2px solid #333;background:rgba(255,255,255,0.04);cursor:pointer;transition:all 0.25s;display:flex;flex-direction:column;align-items:center;gap:8px}
+.mode-btn:hover{border-color:var(--neon);background:rgba(0,255,200,0.06);transform:translateY(-2px)}
+.mode-btn .mode-icon{font-size:40px}
+.mode-btn .mode-name{font-size:18px;font-weight:900;color:#fff}
+.mode-btn .mode-desc{font-size:11px;color:#888;line-height:1.4}
+.mode-btn.training-btn:hover{border-color:var(--gold);background:rgba(255,200,0,0.06)}
+@media(max-width:500px){.mode-card{width:90vw;padding:20px}.mode-btns{flex-direction:column;gap:10px}.mode-btn{padding:16px 12px}}
+#coach-panel{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:800;display:none;flex-direction:column;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+.coach-box{width:500px;max-width:92vw;padding:24px;border-radius:16px;background:#1a1a24;border:2px solid var(--gold);box-shadow:0 0 30px rgba(255,200,0,0.15)}
+.coach-title{font-size:16px;font-weight:900;color:var(--gold);margin-bottom:16px;text-align:center}
+.coach-move{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:8px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.2s}
+.coach-move:hover{border-color:var(--neon);background:rgba(0,255,200,0.05)}
+.coach-move.best{border-color:var(--gold);background:rgba(255,200,0,0.08)}
+.coach-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0}
+.coach-rank.r1{background:var(--gold);color:#000}
+.coach-rank.r2{background:#aaa;color:#000}
+.coach-rank.r3{background:#8b5e3c;color:#fff}
+.coach-cards{display:flex;gap:2px;flex:1;overflow-x:auto;min-width:0}
+.coach-cards .c-mini{width:36px!important;height:50px!important;margin-right:-18px;flex-shrink:0}
+.coach-cards .c-mini .val-txt{font-size:10px}
+.coach-cards .c-mini .center-icon{font-size:14px}
+.coach-info{text-align:right;flex-shrink:0;min-width:70px}
+.coach-type{font-size:11px;color:#aaa}
+.coach-wr{font-size:16px;font-weight:900;color:var(--neon)}
+.coach-dismiss{margin-top:14px;text-align:center}
+.coach-dismiss button{padding:10px 40px;border-radius:30px;border:none;background:var(--gold);color:#000;font-size:14px;font-weight:bold;cursor:pointer}
+.coach-note{text-align:center;margin-top:10px;font-size:11px;color:#555}
+.training-badge{position:absolute;top:10px;left:10px;z-index:500;background:rgba(255,200,0,0.15);color:var(--gold);border:1px solid var(--gold);padding:4px 12px;border-radius:12px;font-size:11px;font-weight:bold;display:none}
+.lobby-card{width:400px;padding:40px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;backdrop-filter:blur(10px)}
+.btn-large{width:100%;padding:15px;border-radius:50px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:18px;font-weight:900;cursor:pointer;margin-top:20px}
+.btn-large:disabled{filter:grayscale(1);opacity:0.5}
+#match{background:rgba(0,0,0,0.95)}
+.match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.seat-grid{display:grid;grid-template-columns:repeat(4,80px);gap:10px;margin:20px 0}
+.seat-slot{width:80px;height:80px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:11px;color:#666;transition:0.3s}
+.seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.1)}
+.seat-slot.bot{border-color:#666;color:#888;border-style:dashed}
+#game-ui{display:none;width:100%;height:100%}
+.dashboard{width:300px;background:var(--panel);border-right:1px solid #333;padding:20px;display:flex;flex-direction:column}
+.rank-val{font-size:50px;font-weight:900}
+.row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px}
+.val-hl{color:var(--gold);font-weight:bold}
+.p-score-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #444;transition:all 0.3s}
+.p-score-row .ps-name{font-size:12px;color:#aaa;font-weight:bold}
+.p-score-row .ps-pts{font-size:18px;font-weight:900;color:#fff}
+.p-score-row.me{border-left-color:var(--gold);background:rgba(255,200,0,0.08)}
+.p-score-row.me .ps-name{color:var(--gold)}
+.p-score-row.partner{border-left-color:var(--neon);background:rgba(0,255,200,0.04)}
+.p-score-row.partner .ps-name{color:var(--neon)}
+.p-score-row.leading .ps-pts{color:var(--gold)}
+#view{flex:1;position:relative;background:radial-gradient(circle,#153c20 0%,#020f04 100%);overflow:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
+.deck-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100px;height:140px;background:linear-gradient(135deg,#1a2980,#26d0ce);border-radius:8px;border:2px solid #fff;box-shadow:0 0 30px rgba(0,255,200,0.5);display:none;z-index:999}
+.p-zone{position:absolute;display:flex;flex-direction:column;align-items:center}
+.p-top{top:20px;left:50%;transform:translateX(-50%)}
+.p-left{top:40%;left:20px;transform:translateY(-50%)}
+.p-right{top:40%;right:calc(20px + env(safe-area-inset-right,0px));transform:translateY(-50%)}
+.timer-ring{width:84px;height:84px;border-radius:50%;display:flex;justify-content:center;align-items:center}
+.av{width:76px;height:76px;border-radius:50%;background:#111;border:3px solid #444;display:flex;justify-content:center;align-items:center;font-size:12px;font-weight:bold;color:#aaa}
+.av.active{border-color:#fff;color:#fff;box-shadow:0 0 20px var(--neon)}
+.av.finished{border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 15px var(--gold)!important}
+.av.human-player{background:#1a1a2e}
+.badge-n{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:none;justify-content:center;align-items:center;border:2px solid #fff;font-size:12px;font-weight:bold;z-index:10}
+.badge-finish{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:1px 8px;border-radius:8px;font-size:10px;font-weight:bold;display:none;z-index:10;white-space:nowrap}
+.badge-type{position:absolute;top:-8px;left:50%;transform:translateX(-50%);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:bold;display:none;z-index:10;white-space:nowrap}
+.badge-type.bot-badge{background:#555;color:#ccc}
+.badge-type.human-badge{background:var(--neon);color:#000}
+.out{position:absolute;display:flex;justify-content:center;align-items:center;z-index:200;height:120px;width:400px;overflow:visible;transition:opacity 0.3s ease,filter 0.3s ease,transform 0.3s ease}
+.out.dimmed{opacity:0.55;filter:grayscale(0.5)}
+.out.highlight{transform:scale(1.05)}
+.o-t{top:130px;left:50%;transform:translateX(-50%)}
+.o-l{top:40%;left:160px;transform:translateY(-50%)}
+.o-r{top:40%;right:160px;transform:translateY(-50%)}
+.o-m{bottom:320px;left:50%;transform:translateX(-50%)}
+.card{width:100px;height:140px;background:#f0f0f0;border-radius:8px;box-shadow:2px 2px 10px rgba(0,0,0,0.5);position:relative;display:flex;flex-direction:column;border:1px solid #ccc}
+.val-txt{font-size:24px;font-weight:900;padding:5px;font-family:Arial}
+.center-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:50px}
+.c-red{color:#d00}.c-blk{color:#111}
+.c-wild{border:2px solid var(--gold);background:#fffdf0;box-shadow:0 0 10px var(--gold)}
+.c-wild::after{content:'\2605';position:absolute;top:2px;right:2px;color:var(--gold);font-size:14px}
+.c-mini{width:70px!important;height:96px!important;margin-right:-35px;flex-shrink:0}
+.c-mini .val-txt{font-size:16px;padding:2px}
+.c-mini .center-icon{font-size:28px}
+
+#hand{
+  position:absolute;
+  bottom:20px;
+  bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  left:0;right:0;
+  display:flex;
+  flex-direction:row;
+  align-items:flex-end;
+  justify-content:center;
+  gap:5px;
+  height:200px;
+  padding:0 8px 0;
+  z-index:300;
+  overflow-x:auto;
+  overflow-y:visible;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+#hand::-webkit-scrollbar{display:none}
+#room-code-input:focus{border-color:var(--neon)!important;box-shadow:0 0 0 2px rgba(0,255,200,0.2)}
+#room-code-input::placeholder{color:#444;letter-spacing:1px;font-weight:normal}
+
+.grp-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;gap:3px}
+.grp-sel-btn{width:26px;height:16px;border-radius:3px;border:1px solid #555;background:rgba(0,0,0,0.55);color:#888;font-size:8px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.1s,border-color 0.1s,color 0.1s;user-select:none;pointer-events:all;flex-shrink:0}
+.grp-sel-btn.all-sel{background:rgba(0,255,200,0.2);border-color:var(--neon);color:var(--neon)}
+.grp-col{position:relative;flex-shrink:0}
+.grp-col .stack-card{position:absolute;left:0;overflow:hidden;border-radius:5px;transition:transform 0.12s ease;cursor:pointer}
+.grp-col .stack-card.card-bottom{overflow:visible}
+.grp-col .stack-card .card{border-radius:5px;box-shadow:1px 2px 6px rgba(0,0,0,0.5);transition:box-shadow 0.12s ease, background 0.12s ease;background:#f5f5f5;position:relative;border:1px solid #ccc}
+.grp-col .stack-card .card .peek-label{position:absolute;top:3px;left:4px;display:flex;flex-direction:column;align-items:flex-start;gap:0px;font-family:Arial,sans-serif;font-weight:900;line-height:1;pointer-events:none}
+.grp-col .stack-card .card .peek-val{font-size:16px;font-weight:900;line-height:1}
+.grp-col .stack-card .card .peek-suit{font-size:13px;line-height:1}
+.grp-col .stack-card .card .card-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.grp-col .stack-card.sel .card{box-shadow:0 0 0 3px var(--neon),0 0 16px rgba(0,255,200,0.5);background:#e4fff8}
+.grp-col .stack-card.sel{transform:translateY(-14px)}
+.grp-col .stack-card:hover .card{filter:brightness(1.08)}
+.grp-col .stack-card:active .card{filter:brightness(1.18)}
+.grp-col .stack-card .card.c-wild{border:2px solid var(--gold);background:#fffdf0;box-shadow:0 0 8px var(--gold)}
+.grp-col .stack-card .card.c-wild::after{content:'\2605';position:absolute;top:2px;right:3px;color:var(--gold);font-size:10px}
+
+.anim-deal{animation:flyIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards}
+@keyframes flyIn{0%{transform:translate(0,-80vh) rotate(180deg) scale(0.3);opacity:0}100%{transform:translate(0,0) rotate(0) scale(1);opacity:1}}
+.card-appear{animation:cardPop 0.25s ease-out forwards}
+@keyframes cardPop{0%{transform:scale(0.5);opacity:0}100%{transform:scale(1);opacity:1}}
+
+.tag{position:absolute;top:-35px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);border:1px solid var(--gold);color:var(--gold);padding:4px 12px;border-radius:12px;font-size:12px;z-index:201;white-space:nowrap}
+.ctrls{position:absolute;bottom:320px;left:50%;transform:translateX(-50%);display:none;gap:20px;z-index:500;transition:bottom 0.2s ease}
+#afk-btn{position:absolute;bottom:20px;right:10px;z-index:500;padding:6px 14px;border-radius:20px;border:none;background:rgba(0,0,0,0.55);color:#888;font-size:12px;font-weight:bold;cursor:pointer;border:1px solid #444;transition:all 0.2s;display:none}
+#afk-btn.afk-on{background:rgba(255,200,0,0.2);color:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(255,200,0,0.3)}
+.elo-float{position:absolute;z-index:600;font-size:20px;font-weight:900;pointer-events:none;opacity:0;text-shadow:0 0 8px currentColor;left:50%;transform:translateX(-50%)}
+@keyframes eloUp{0%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-50px)}}
+#afk-badge{position:absolute;bottom:42px;right:8px;z-index:501;background:var(--gold);color:#000;font-size:10px;font-weight:900;padding:2px 7px;border-radius:10px;display:none;pointer-events:none}
+.p-me{position:absolute;bottom:320px;left:20px;z-index:290;transition:bottom 0.2s ease}
+.btn{padding:12px 40px;border-radius:40px;border:none;font-weight:bold;font-size:16px;cursor:pointer;letter-spacing:1px}
+.b-pass{background:rgba(0,0,0,0.6);color:#fff;border:1px solid #666}
+.b-hint{background:var(--neon);color:#000}
+.b-play{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000}
+.timer-txt{position:absolute;top:-40px;width:100%;text-align:center;color:var(--gold);font-size:16px;font-weight:bold;display:none}
+.toast{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);padding:10px 30px;border-radius:30px;border:1px solid #fff;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.mobile-score{display:none;position:absolute;top:0;left:0;right:0;height:28px;background:rgba(0,0,0,0.7);z-index:450;padding:0 10px;align-items:center;justify-content:space-between;font-size:11px;color:#aaa;border-bottom:1px solid #333}
+.mobile-score .ms-val{color:var(--gold);font-weight:bold}
+.modal{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:1000;display:none;flex-direction:column;justify-content:center;align-items:center}
+.res-box{width:500px;padding:40px;border-radius:20px;background:#1a1a20;border:2px solid var(--gold);text-align:center}
+.res-type{font-size:50px;font-weight:900;margin-bottom:10px}
+.res-score{font-size:80px;font-weight:bold;color:var(--gold);margin-bottom:30px}
+.res-btn{background:var(--neon);color:#000;padding:15px 50px;font-size:20px;font-weight:bold;border:none;border-radius:40px;cursor:pointer}
+
+/* Responsive Styles */
+@media(max-width:1366px){.dashboard{width:200px;padding:10px}.rank-val{font-size:28px}.card{width:72px;height:100px}.val-txt{font-size:16px;padding:3px}.center-icon{font-size:30px}.c-mini{width:50px!important;height:70px!important;margin-right:-25px}.c-mini .val-txt{font-size:11px}.c-mini .center-icon{font-size:18px}.o-m{bottom:260px}.ctrls{bottom:250px}.p-me{bottom:auto}}
+@media(max-width:1194px){.dashboard{width:160px;padding:8px}.rank-val{font-size:24px}.l-item{font-size:9px;padding:4px}.c-mini{width:42px!important;height:58px!important;margin-right:-21px}.c-mini .val-txt{font-size:10px;padding:1px}.c-mini .center-icon{font-size:16px}.out{width:220px;height:72px}.o-t{top:80px}.o-l{left:80px}.o-r{right:80px}.o-m{bottom:250px}.ctrls{gap:8px}.btn{padding:7px 20px;font-size:12px}.p-me{bottom:210px}.p-me .av{width:32px;height:32px;font-size:8px}.timer-ring{width:48px;height:48px}.av{width:42px;height:42px;font-size:9px}.badge-n{width:18px;height:18px;font-size:9px}.badge-type{font-size:7px}.badge-finish{font-size:7px}.tag{font-size:9px;padding:2px 6px;top:-22px}.timer-txt{font-size:12px;top:-24px}.toast{font-size:12px}.res-box{width:360px;padding:24px}.res-type{font-size:30px}.res-score{font-size:44px}.lobby-card{width:320px;padding:22px}.p-top{top:10px}}
+@media(max-height:500px),(max-width:930px){.dashboard{display:none}#game-ui{flex-direction:row}#view{width:100%}.mobile-score{display:flex}}
+@media(max-height:500px){.dashboard{display:none}#view{width:100%}.p-top{top:3px}.p-left{top:30%;left:5px}.p-right{top:30%;right:5px}.timer-ring{width:40px;height:40px}.av{width:34px;height:34px;font-size:8px;border-width:2px}.badge-n{width:16px;height:16px;font-size:8px;top:-2px;right:-2px}.badge-finish{font-size:7px;padding:1px 4px}.badge-type{font-size:7px}.out{width:180px;height:55px}.o-t{top:50px}.o-l{top:30%;left:50px}.o-r{top:30%;right:50px}.o-m{bottom:calc(140px + env(safe-area-inset-bottom,0px))}.c-mini{width:34px!important;height:48px!important;margin-right:-17px}.c-mini .val-txt{font-size:9px;padding:1px}.c-mini .center-icon{font-size:14px}#hand{height:120px;bottom:calc(2px + env(safe-area-inset-bottom,0px));gap:4px;padding:0 6px 4px}.grp-col .stack-card{width:42px;height:60px}.grp-col .stack-card .card{width:42px;height:60px;border-radius:4px}.grp-col .stack-card .card .peek-val{font-size:12px}.grp-col .stack-card .card .peek-suit{font-size:10px}.grp-col .stack-card .card .card-center{font-size:18px}.grp-col .stack-card.sel .card{transform:translateY(-10px)}.ctrls{bottom:calc(130px + env(safe-area-inset-bottom,0px));gap:8px}.btn{padding:6px 16px;font-size:11px}.p-me{bottom:calc(122px + env(safe-area-inset-bottom,0px))}.p-me .av{width:28px;height:28px;font-size:7px}.tag{font-size:8px;padding:2px 5px;top:-18px}.timer-txt{font-size:11px;top:-20px}.toast{font-size:11px;padding:5px 14px}.res-box{width:85vw;max-width:400px;padding:16px}.res-type{font-size:24px}.res-score{font-size:36px;margin-bottom:10px}.res-btn{padding:8px 24px;font-size:14px}.logo{font-size:44px}.lobby-card{width:85vw;max-width:320px;padding:16px}.btn-large{padding:10px;font-size:14px}}
+@media(max-width:430px){.dashboard{display:none}#view{width:100%}#game-ui{flex-direction:column}.p-top{top:5px}.p-left{top:20%;left:3px}.p-right{top:20%;right:3px}.timer-ring{width:36px;height:36px}.av{width:30px;height:30px;font-size:7px;border-width:2px}.badge-n{width:14px;height:14px;font-size:7px;top:-2px;right:-2px}.badge-finish{font-size:6px;padding:1px 3px}.badge-type{font-size:6px;padding:1px 2px}.out{width:140px;height:48px}.o-t{top:48px}.o-l{top:22%;left:36px}.o-r{top:22%;right:36px}.o-m{bottom:52%}.c-mini{width:30px!important;height:42px!important;margin-right:-15px}.c-mini .val-txt{font-size:8px;padding:0}.c-mini .center-icon{font-size:11px}#hand{height:140px;bottom:0;gap:4px;padding:0 4px 4px}.grp-col .stack-card{width:36px;height:52px}.grp-col .stack-card .card{width:36px;height:52px;border-radius:4px}.grp-col .stack-card .card .peek-val{font-size:10px}.grp-col .stack-card .card .peek-suit{font-size:9px}.grp-col .stack-card .card .card-center{font-size:14px}.grp-col .stack-card.sel .card{transform:translateY(-9px)}.c-wild::after{font-size:8px}.ctrls{bottom:46%;gap:6px}.btn{padding:6px 14px;font-size:10px;letter-spacing:0}.p-me{bottom:50%}.p-me .av{width:24px;height:24px;font-size:6px}.tag{font-size:7px;padding:1px 4px;top:-14px}.timer-txt{font-size:10px;top:-16px}.toast{font-size:10px;padding:4px 12px;border-radius:16px}.deck-center{width:36px;height:50px;border-radius:4px}.res-box{width:90vw;padding:16px;border-radius:12px}.res-type{font-size:20px;margin-bottom:4px}.res-score{font-size:32px;margin-bottom:10px}.res-btn{padding:8px 20px;font-size:12px}.logo{font-size:38px}.lobby-card{width:90vw;max-width:300px;padding:14px}.btn-large{padding:10px;font-size:14px}.seat-grid{grid-template-columns:repeat(4,50px);gap:6px}.seat-slot{width:50px;height:50px;font-size:9px}.match-loader{width:32px;height:32px}}
+@media(max-width:375px){#hand{height:120px}.grp-col .stack-card{width:32px;height:46px}.grp-col .stack-card .card{width:32px;height:46px}.grp-col .stack-card .card .peek-val{font-size:9px}.grp-col .stack-card .card .peek-suit{font-size:8px}.grp-col .stack-card .card .card-center{font-size:12px}.out{width:120px;height:44px}.o-l{left:30px}.o-r{right:30px}.ctrls{bottom:80px;gap:4px}.btn{padding:5px 10px;font-size:9px}.p-me{bottom:72px}.av{width:28px;height:28px;font-size:6px}.timer-ring{width:34px;height:34px}}
+@media(hover:none) and (pointer:coarse){.grp-col .stack-card{-webkit-tap-highlight-color:transparent}.grp-col .stack-card:active .card{transform:translateY(-10px);transition:transform 0.08s}.btn{min-height:44px;min-width:44px}.res-btn{min-height:44px}}
+</style>
+</head>
+<body>
+<div id="boot" class="screen active" onclick="bootSystem()">
+  <div class="logo">CRAYXUS</div>
+  <div style="color:var(--gold);margin-top:10px;font-size:28px;font-weight:bold">V41.1</div>
+  <div style="color:#666;margin-top:20px;animation:flash 1.5s infinite">CLICK TO START</div>
+  <style>@keyframes flash{0%,100%{opacity:0.3}50%{opacity:1}}</style>
+</div>
+
+<div id="mode-select" class="screen">
+  <div class="mode-card">
+    <div style="font-size:36px;font-weight:900;margin-bottom:4px">CRAYXUS</div>
+    <div style="color:#888;margin-bottom:8px;font-size:13px">选择游戏模式</div>
+    <div class="mode-btns">
+      <div class="mode-btn" onclick="selectMode('arena')">
+        <div class="mode-icon">⚔️</div>
+        <div class="mode-name">ARENA</div>
+        <div class="mode-desc">2v2 联机对战<br>匹配真人或AI填充</div>
+      </div>
+      <div class="mode-btn training-btn" onclick="selectMode('training')">
+        <div class="mode-icon">🎓</div>
+        <div class="mode-name">TRAINING</div>
+        <div class="mode-desc">1v3 AI 练习<br>每手牌AI教练点评</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="lobby" class="screen">
+  <div class="lobby-card">
+    <div style="font-size:50px;margin-bottom:10px">&#127942;</div>
+    <div style="font-size:24px;font-weight:bold;margin-bottom:5px">SEASON 1</div>
+    <div style="color:#888;margin-bottom:20px">2V2 RANKED &middot; 1-4 PLAYERS</div>
+    <div style="width:100%;padding:15px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:20px">
+      <div class="row"><span>ELO</span><span style="color:var(--neon)" id="lobby-elo">1500</span></div>
+      <div class="row"><span>胜率</span><span style="color:var(--gold)" id="lobby-winrate">0%</span></div>
+    </div>
+    <div style="width:100%;margin-bottom:0px">
+      <div style="font-size:12px;color:#888;margin-bottom:8px;text-align:left">房间码（留空随机匹配）</div>
+      <div style="display:flex;gap:8px">
+        <input id="room-code-input" type="text" maxlength="6" placeholder="输入6位房间码"
+          style="flex:1;padding:12px 16px;border-radius:12px;border:1px solid #444;background:rgba(255,255,255,0.08);
+          color:#fff;font-size:16px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;outline:none;text-align:center"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+          onkeydown="if(event.key==='Enter')document.getElementById('find-btn').click()"/>
+        <button onclick="generateRoomCode()" title="生成房间码"
+          style="padding:12px 14px;border-radius:12px;border:1px solid #444;background:rgba(255,255,255,0.08);
+          color:#aaa;font-size:18px;cursor:pointer">🎲</button>
+      </div>
+      <div id="room-code-display" style="margin-top:8px;font-size:11px;color:#555;text-align:center"></div>
+    </div>
+    <button class="btn-large" id="find-btn" onclick="joinGame()" disabled>CONNECTING...</button>
+    <div id="conn-status" style="margin-top:10px;font-size:12px;color:#666">Connecting...</div>
+  </div>
+</div>
+
+<div id="match" class="screen">
+  <div class="match-loader"></div>
+  <div style="font-size:20px;margin-bottom:10px">GAME ROOM</div>
+  <div class="seat-grid" id="seat-grid">
+    <div class="seat-slot" id="slot-0">空位</div>
+    <div class="seat-slot" id="slot-1">空位</div>
+    <div class="seat-slot" id="slot-2">空位</div>
+    <div class="seat-slot" id="slot-3">空位</div>
+  </div>
+  <div style="color:var(--neon)" id="match-status">Waiting for players...</div>
+  <div id="match-room-code" style="display:none;font-size:13px;color:#555;margin-top:4px;letter-spacing:2px;cursor:pointer"
+    onclick="if(this.dataset.code){navigator.clipboard&&navigator.clipboard.writeText(this.dataset.code);this.innerText='✓ 已复制: '+this.dataset.code;}"
+    title="点击复制房间码"></div>
+  <div style="color:#888;margin-top:10px;font-size:12px" id="match-timer">空位将由AI填充</div>
+  <button id="btn-start-match" onclick="startMatch()" style="display:none;margin-top:20px;padding:15px 50px;border-radius:50px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 0 20px rgba(0,255,200,0.3)">开始游戏 (START)</button>
+  <div id="match-wait-msg" style="display:none;margin-top:20px;color:#888;font-size:14px">等待房主开始游戏...</div>
+</div>
+
+<div id="game-ui">
+  <div class="dashboard">
+    <div style="font-size:12px;color:#888;margin-bottom:5px">SCOREBOARD</div>
+    <div class="row"><span>ELO</span><span class="val-hl" id="disp-elo" style="color:var(--neon)">1500</span></div>
+    <div style="height:1px;background:#333;margin:10px 0"></div>
+    <div id="player-scores" style="flex:1;display:flex;flex-direction:column;gap:6px">
+      <div class="p-score-row me" id="ps-0"><span class="ps-name">YOU</span><span class="ps-pts">0</span></div>
+      <div class="p-score-row" id="ps-1"><span class="ps-name">RIGHT</span><span class="ps-pts">0</span></div>
+      <div class="p-score-row partner" id="ps-2"><span class="ps-name">PARTNER</span><span class="ps-pts">0</span></div>
+      <div class="p-score-row" id="ps-3"><span class="ps-name">LEFT</span><span class="ps-pts">0</span></div>
+    </div>
+    <div style="height:1px;background:#333;margin:10px 0"></div>
+    <div class="row"><span>局数</span><span class="val-hl" id="disp-games">0</span></div>
+    <div class="row"><span>胜率</span><span class="val-hl" id="disp-winrate">0%</span></div>
+    <div style="margin-top:10px;text-align:center"><button id="btn-reset-scores" onclick="resetAllScores()" style="background:#c0392b;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;opacity:0.85">🔄 重置积分</button></div>
+  </div>
+  <div id="view">
+    <div class="training-badge" id="training-badge">🎓 TRAINING</div>
+    <button id="afk-btn" onclick="toggleAFK()">🤖 AFK 自动</button>
+    <div id="afk-badge">AFK</div>
+    <div class="mobile-score" id="mobile-score">
+      <span style="color:var(--gold)">YOU <span class="ms-val" id="ms-p0">0</span></span>
+      <span>R <span class="ms-val" id="ms-p1">0</span></span>
+      <span style="color:var(--neon)">P <span class="ms-val" id="ms-p2">0</span></span>
+      <span>L <span class="ms-val" id="ms-p3">0</span></span>
+      <span>ELO <span class="ms-val" id="ms-elo" style="color:var(--neon)">1500</span></span>
+    </div>
+    <div class="deck-center" id="deck-center"></div>
+    <div class="p-zone p-top"><div class="badge-type" id="type-2"></div><div class="timer-ring" id="tr-2"><div class="av" id="av-2">PARTNER</div></div><div class="badge-n" id="n-2">27</div><div class="badge-finish" id="f-2"></div></div>
+    <div class="p-zone p-left"><div class="badge-type" id="type-3"></div><div class="timer-ring" id="tr-3"><div class="av" id="av-3">LEFT</div></div><div class="badge-n" id="n-3">27</div><div class="badge-finish" id="f-3"></div></div>
+    <div class="p-zone p-right"><div class="badge-type" id="type-1"></div><div class="timer-ring" id="tr-1"><div class="av" id="av-1">RIGHT</div></div><div class="badge-n" id="n-1">27</div><div class="badge-finish" id="f-1"></div></div>
+    <div class="p-zone p-me" id="pzone-me"><div class="av" id="av-0" style="width:50px;height:50px;font-size:10px;border-width:2px">YOU</div><div class="badge-finish" id="f-0"></div></div>
+    <div class="out o-t" id="out-2"></div>
+    <div class="out o-l" id="out-3"></div>
+    <div class="out o-r" id="out-1"></div>
+    <div class="out o-m" id="out-0"></div>
+    <div class="ctrls" id="ctrls">
+      <div class="timer-txt" id="my-timer-txt">60s</div>
+      <button class="btn b-pass" id="btn-pass" onclick="sendPass()">PASS</button>
+      <button class="btn b-hint" onclick="doHint()">HINT</button>
+      <button class="btn b-play" onclick="sendPlay()">PLAY</button>
+    </div>
+    <div id="hand"></div>
+    <div class="toast" id="tst"></div>
+    <div class="elo-float" id="elo-float"></div>
+    <div id="coach-panel">
+      <div class="coach-box">
+        <div class="coach-title">🎓 AI 教练分析</div>
+        <div id="coach-moves"></div>
+        <div class="coach-dismiss"><button onclick="dismissCoach()">继续游戏</button></div>
+        <div class="coach-note" id="coach-note">AI模型加载中...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="result-modal">
+  <div class="res-box">
+    <div class="res-type" id="res-title">VICTORY</div>
+    <div class="res-score" id="res-points">+12</div>
+    <div id="res-elo" style="font-size:18px;margin-bottom:10px;color:var(--neon)"></div>
+    <div style="display:flex;gap:20px;justify-content:center;margin-top:20px">
+      <button class="res-btn" id="btn-continue" onclick="continueGame()" style="background:#0f0">继续游戏</button>
+      <button class="res-btn" onclick="backToLobby()" style="background:#666">返回大厅</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const socket=io('https://crayxus-game.onrender.com');
+let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
+let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
+let roomPlayerCount=1;
+let roundEndTimer=null,actionSeq=0,hintIndex=0,hintOptions=[];
+let botSeats=[1,3],finishOrder=[];
+let myScore=parseInt(localStorage.getItem('crayxus_score'))||0;
+let myRank=parseInt(localStorage.getItem('crayxus_rank'))||46,ladderData=[];
+let playerScores=JSON.parse(localStorage.getItem('crayxus_pscores')||'[0,0,0,0]');
+let totalGames=parseInt(localStorage.getItem('crayxus_games'))||0;
+let totalWins=parseInt(localStorage.getItem('crayxus_wins'))||0;
+let myElo=parseInt(localStorage.getItem('crayxus_elo'))||1500;
+let sessionEloChange=0,lastMoveWasTimeout=false;
+let isMyTurn=false;
+let _pendingGame = null;
+let _autoContinue = false;
+let gameMode='arena'; // 'arena' or 'training'
+
+const AudioSys={
+  ctx:null,
+  init(){this.ctx=new(window.AudioContext||window.webkitAudioContext)()},
+  play(t){
+    if(!this.ctx)return;
+    if(this.ctx.state==='suspended')this.ctx.resume();
+    const o=this.ctx.createOscillator(),g=this.ctx.createGain();
+    o.connect(g);g.connect(this.ctx.destination);
+    const n=this.ctx.currentTime;
+    if(t==='deal'){o.type='sawtooth';o.frequency.setValueAtTime(800,n);g.gain.setValueAtTime(0.05,n);g.gain.linearRampToValueAtTime(0,n+0.05);o.start(n);o.stop(n+0.05)}
+    else if(t==='snap'){o.type='square';o.frequency.setValueAtTime(150,n);g.gain.setValueAtTime(0.2,n);g.gain.linearRampToValueAtTime(0,n+0.1);o.start(n);o.stop(n+0.1)}
+    else if(t==='click'){o.type='triangle';o.frequency.setValueAtTime(600,n);g.gain.setValueAtTime(0.1,n);g.gain.linearRampToValueAtTime(0,n+0.1);o.start(n);o.stop(n+0.1)}
+  }
+};
+
+/* ===== MISSING FUNCTIONS ADDED ===== */
+
+function toast(msg){
+  let t=document.getElementById('tst');
+  t.innerText=msg;t.style.opacity=1;
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>{t.style.opacity=0},2000);
+}
+
+function evaluateMove(type,cards,handType,wasTimeout){
+  if(wasTimeout)return -3;
+  if(type==='pass'){
+    if(lastHand&&lastHand.owner===(mySeat+2)%4)return 2;
+    return 0;
+  }
+  if(!handType)return 0;
+  let ht=handType.type,sc=0;
+  if(!lastHand){
+    if(ht==='straight_flush')sc=5;
+    else if(ht==='straight')sc=4;
+    else if(ht==='plate'||ht==='tube')sc=4;
+    else if(ht==='3+2')sc=3;
+    else if(ht==='2')sc=2;
+    else if(ht==='1')sc=1;
+    else if(ht==='bomb')sc=myCards.length<=4?4:-1;
+    else sc=1;
+  }else{
+    let isTeammate=lastHand.owner===(mySeat+2)%4;
+    if(isTeammate){sc=myCards.length===0?4:-2}
+    else{if(ht==='bomb')sc=myCards.length<=6?3:1;else sc=3}
+  }
+  return Math.max(-5,Math.min(5,sc));
+}
+
+function applyElo(delta){
+  myElo+=delta;sessionEloChange+=delta;
+  localStorage.setItem('crayxus_elo',myElo);
+  let de=document.getElementById('disp-elo');if(de)de.innerText=myElo;
+  let me=document.getElementById('ms-elo');if(me)me.innerText=myElo;
+}
+
+function showEloFloat(delta){
+  let el=document.getElementById('elo-float');if(!el)return;
+  el.style.color=delta>=0?'#00ff88':'#ff4444';
+  el.innerText=(delta>=0?'+':'')+delta+' ELO';
+  el.style.animation='none';el.offsetHeight;
+  el.style.bottom='260px';
+  el.style.opacity='1';
+  el.style.animation='eloUp 1.5s ease-out forwards';
+}
+
+function renderUI(){
+  for(let v=0;v<=3;v++){
+    let seat=(mySeat+v)%4;
+    let nb=document.getElementById('n-'+v);
+    if(nb){
+      let cnt=seat===mySeat?myCards.length:counts[seat];
+      nb.innerText=cnt;
+      nb.style.display=(cnt>0&&cnt<=10)?'flex':'none';
+    }
+    let av=document.getElementById('av-'+v);
+    if(av){
+      av.classList.toggle('active',turn===seat&&!gameOver);
+      if(finishOrder.includes(seat)){
+        av.classList.add('finished');
+        let fb=document.getElementById('f-'+v);
+        if(fb){fb.style.display='block';fb.innerText='#'+(finishOrder.indexOf(seat)+1);}
+      }
+    }
+  }
+}
+
+function startTimer(){
+  stopTimer();
+  timeLeft=60;
+  let tt=document.getElementById('my-timer-txt');
+  if(tt){tt.style.display='block';tt.innerText=timeLeft+'s';tt.style.color='var(--gold)';}
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    if(tt)tt.innerText=timeLeft+'s';
+    if(timeLeft<=10&&tt)tt.style.color='var(--red)';
+    if(timeLeft<=0){stopTimer();autoPlay();}
+  },1000);
+}
+
+function stopTimer(){
+  clearInterval(timerInterval);timerInterval=null;
+  let tt=document.getElementById('my-timer-txt');
+  if(tt){tt.style.display='none';tt.style.color='var(--gold)';}
+}
+
+function startOpponentTimer(){
+  for(let v=1;v<=3;v++){
+    let seat=(mySeat+v)%4;
+    let tr=document.getElementById('tr-'+v);
+    if(tr){
+      tr.style.borderColor=seat===turn?'var(--neon)':'transparent';
+      tr.style.borderWidth=seat===turn?'3px':'0';
+      tr.style.borderStyle='solid';
+    }
+  }
+}
+
+function updateDim(){
+  for(let v=0;v<=3;v++){
+    let el=document.getElementById('out-'+v);
+    if(!el)continue;
+    let seat=(mySeat+v)%4;
+    if(lastHand&&lastHand.owner===seat){
+      el.classList.remove('dimmed');el.classList.add('highlight');
+    }else{
+      el.classList.add('dimmed');el.classList.remove('highlight');
+    }
+  }
+}
+
+function calcResult(){
+  gameOver=true;
+  stopTimer();
+  document.getElementById('ctrls').style.display='none';
+  let myTeam=[mySeat,(mySeat+2)%4],opTeam=[(mySeat+1)%4,(mySeat+3)%4];
+  let myBest=4,opBest=4;
+  finishOrder.forEach((s,i)=>{
+    if(myTeam.includes(s))myBest=Math.min(myBest,i);
+    if(opTeam.includes(s))opBest=Math.min(opBest,i);
+  });
+  let win=myBest<opBest;
+
+  // Score by finish position: 1st=+3, 2nd=+1, 3rd=-1, 4th=-3
+  let posPoints=[3,1,-1,-3];
+  finishOrder.forEach((seat,pos)=>{
+    if(pos<4)playerScores[seat]+=posPoints[pos];
+  });
+
+  // Track stats
+  totalGames++;
+  if(win)totalWins++;
+  localStorage.setItem('crayxus_games',totalGames);
+  localStorage.setItem('crayxus_wins',totalWins);
+  localStorage.setItem('crayxus_pscores',JSON.stringify(playerScores));
+
+  let myPts=0;
+  let myPos=finishOrder.indexOf(mySeat);
+  if(myPos>=0&&myPos<4)myPts=posPoints[myPos];
+
+  document.getElementById('res-title').innerText=win?'VICTORY':'DEFEAT';
+  document.getElementById('res-title').style.color=win?'var(--neon)':'var(--red)';
+  document.getElementById('res-points').innerText=(myPts>0?'+':'')+myPts;
+  document.getElementById('res-points').style.color=win?'var(--gold)':'var(--red)';
+  let eloEl=document.getElementById('res-elo');
+  if(eloEl){
+    let sign=sessionEloChange>=0?'+':'';
+    eloEl.innerText='ELO '+sign+sessionEloChange+' (当前: '+myElo+')';
+    eloEl.style.color=sessionEloChange>=0?'var(--neon)':'var(--red)';
+  }
+  document.getElementById('result-modal').style.display='flex';
+  renderScoreboard();
+}
+
+function continueGame(){
+  document.getElementById('result-modal').style.display='none';
+  if(gameMode==='training'){
+    startTrainingGame(true);
+    return;
+  }
+  let btn=document.getElementById('btn-continue');
+  btn.disabled=true;btn.style.opacity=0.5;btn.innerText='发牌中...';
+  _autoContinue=true;
+  socket.emit('startMatch');
+}
+
+function backToLobby(){
+  document.getElementById('result-modal').style.display='none';
+  document.getElementById('game-ui').style.display='none';
+  gameOver=true;
+  stopTimer();
+  _autoContinue=false;
+  if(gameMode==='training'){
+    switchScreen('mode-select');
+    return;
+  }
+  switchScreen('match');
+  let btn=document.getElementById('btn-start-match');
+  if(btn){btn.disabled=false;btn.style.opacity=1;btn.innerText='▶ 开始游戏 (START)';btn.style.display='block';}
+}
+
+/* ===== END MISSING FUNCTIONS ===== */
+
+function bootSystem(){
+  AudioSys.init();
+  let le=document.getElementById('lobby-elo');if(le)le.innerText=myElo;
+  let lw=document.getElementById('lobby-winrate');if(lw)lw.innerText=totalGames>0?Math.round(totalWins/totalGames*100)+'%':'0%';
+  switchScreen('mode-select');
+}
+
+function selectMode(mode){
+  gameMode=mode;
+  if(mode==='arena'){
+    switchScreen('lobby');
+  }else{
+    startTrainingGame();
+  }
+}
+
+function switchScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  let t=document.getElementById(id);
+  t.style.display='flex';
+  setTimeout(()=>t.classList.add('active'),10);
+}
+
+socket.on('connect',()=>{
+  document.getElementById('conn-status').innerText="Online";
+  document.getElementById('conn-status').style.color="#0f0";
+  let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
+});
+socket.on('disconnect',()=>{
+  document.getElementById('conn-status').innerText="Offline";
+  document.getElementById('conn-status').style.color="#f00";
+});
+socket.on('err', (msg) => {
+  toast("错误: " + msg);
+  if(msg.includes("房间已满")) setTimeout(() => location.reload(), 2000);
+});
+
+socket.on('initIdentity',d=>{
+  mySeat=Number(d.seat);
+  if(d.isHost||d.seat===0){
+    isHost=true;
+    document.getElementById('btn-start-match').style.display='block';
+    document.getElementById('match-wait-msg').style.display='none';
+  } else {
+    document.getElementById('btn-start-match').style.display='none';
+    document.getElementById('match-wait-msg').style.display='block';
+  }
+  document.getElementById('match-status').innerText='Players: 1/4';
+  let mySlot=document.getElementById('slot-'+d.seat);
+  if(mySlot){mySlot.className='seat-slot taken';mySlot.innerText='YOU';}
+});
+
+socket.on('roomUpdate',d=>{
+  roomPlayerCount=d.count;
+  let m=document.getElementById('match-status');
+  m.innerText='Players: '+d.count+'/4';
+  m.style.color=d.count>=4?"#0f0":"var(--neon)";
+  if(d.roomId||d.roomCode){
+    const mc=document.getElementById('match-room-code');
+    const code=d.roomId||d.roomCode;
+    if(mc){mc.style.display='block';mc.dataset.code=code;mc.innerText='房间码: '+code+' (点击复制)';}
+  }
+  if(d.seats)d.seats.forEach((s,i)=>{
+    let sl=document.getElementById('slot-'+i);
+    if(!sl) return;
+    if(s==='HUMAN'){
+      sl.className='seat-slot taken';
+      sl.innerText = (mySeat>=0 && i===mySeat) ? 'YOU' : 'P'+(i+1);
+    } else if(s==='BOT'){
+      sl.className='seat-slot bot';
+      sl.innerText='BOT';
+    } else {
+      sl.className='seat-slot';
+      sl.innerText='空位';
+    }
+  });
+  document.getElementById('match-timer').innerText=d.count+'/4 玩家 · 空位将由AI填充';
+});
+socket.on('matchCountdown',d=>{});
+socket.on('hostStatus',d=>{
+  if(d.isHost){isHost=true;document.getElementById('btn-start-match').style.display='block';document.getElementById('match-wait-msg').style.display='none'}
+  else{isHost=false;document.getElementById('btn-start-match').style.display='none';document.getElementById('match-wait-msg').style.display='block'}
+});
+function startMatch(){
+  let btn=document.getElementById('btn-start-match');
+  btn.disabled=true;btn.style.opacity=0.5;btn.innerText='正在启动...';
+  socket.emit('startMatch');
+}
+socket.on('seatLayout',d=>{isHost=d.isHost;botSeats=d.botSeats||[]});
+socket.on('playerLeft',d=>{
+  toast('座位'+d.seat+'玩家离开，AI接管');
+  if(!botSeats.includes(d.seat))botSeats.push(d.seat);
+});
+
+function _doEnterGame(d){
+  gameOver=false;isMyTurn=false;turn=Number(d.startTurn);lastHand=null;counts=[27,27,27,27];
+  actionSeq=0;hintOptions=[];hintIndex=0;finishOrder=[];
+  if(d.botSeats)botSeats=d.botSeats;
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  let g=document.getElementById('game-ui');g.style.display='flex';g.style.opacity='1';
+  ['out-0','out-1','out-2','out-3'].forEach(id=>{let el=document.getElementById(id);if(el){el.innerHTML='';el.classList.remove('dimmed','highlight')}});
+  let btn=document.getElementById('btn-continue');btn.disabled=false;btn.style.opacity=1;btn.innerText="继续游戏";
+  document.getElementById('result-modal').style.display='none';
+  ['av-0','av-1','av-2','av-3'].forEach(id=>{let el=document.getElementById(id);if(el)el.classList.remove('active','finished')});
+  ['f-0','f-1','f-2','f-3'].forEach(id=>{let el=document.getElementById(id);if(el)el.style.display='none'});
+  updateAvatarLabels();initLadder(!_autoContinue);renderUI();checkTurn();
+  const afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='block';
+  afkEnabled=false;clearTimeout(afkTimer);
+  const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='';afkbtn.innerHTML='🤖 AFK 自动';}
+  const afkbadge=document.getElementById('afk-badge');if(afkbadge)afkbadge.style.display='none';
+  sessionEloChange=0;lastMoveWasTimeout=false;
+  let de=document.getElementById('disp-elo');if(de)de.innerText=myElo;
+  let me=document.getElementById('ms-elo');if(me)me.innerText=myElo;
+  _pendingGame=null;
+}
+
+socket.on('gameStart',d=>{
+  _pendingGame=null;
+  _doEnterGame(d);
+  _autoContinue=false;
+});
+
+function updateAvatarLabels(){
+  let pn=['YOU','RIGHT','PARTNER','LEFT'];
+  for(let v=1;v<=3;v++){
+    let seat=(mySeat+v)%4,av=document.getElementById('av-'+v),tb=document.getElementById('type-'+v);
+    if(botSeats.includes(seat)){
+      av.innerText='BOT';av.classList.remove('human-player');
+      if(tb){tb.style.display='block';tb.className='badge-type bot-badge';tb.innerText='🤖 AI'}
+    }else{
+      av.innerText=pn[v];av.classList.add('human-player');
+      if(tb){tb.style.display='block';tb.className='badge-type human-badge';tb.innerText='👤 P'+(seat+1)}
+    }
+  }
+}
+
+socket.on('dealCards',d=>{
+  if(dealCardsTimeout){clearTimeout(dealCardsTimeout);dealCardsTimeout=null}
+  if(!d.cards||!Array.isArray(d.cards)||d.cards.length===0)return;
+  myCards=d.cards.sort((a,b)=>b.p-a.p);
+  document.getElementById('deck-center').style.display='block';
+  setTimeout(()=>{
+    renderHand(true);
+    let cards=document.querySelectorAll('#hand .stack-card .card'),i=0;
+    let di=setInterval(()=>{
+      if(i>=cards.length){clearInterval(di);document.getElementById('deck-center').style.display='none';return}
+      cards[i].classList.add('anim-deal');
+      if(i%3===0)AudioSys.play('deal');
+      i++;
+    },40);
+  },500);
+});
+
+socket.on('botCards',d=>{botCards={};for(let s in d)botCards[s]=d[s].sort((a,b)=>b.p-a.p)});
+socket.on('syncAction',d=>handleSync(d));
+
+function handleSync(d){
+  if(gameOver&&d.nextTurn!==-1)return;
+  stopTimer();
+  isMyTurn=false;
+  if(mySeat===-1)return;
+  actionSeq++;let currentSeq=actionSeq;
+  if(roundEndTimer){clearTimeout(roundEndTimer);roundEndTimer=null}
+  if(d.finishOrder)finishOrder=d.finishOrder;
+  let viewId=(d.seat-mySeat+4)%4,area=document.getElementById('out-'+viewId);if(!area)return;
+  area.innerHTML='';area.classList.remove('dimmed','highlight');
+  if(d.type==='pass'){
+    area.innerHTML='<span style="font-size:20px;color:#888;font-weight:bold">PASS</span>';
+    if(d.seat===mySeat){let eloDelta=evaluateMove('pass',null,null,false);if(eloDelta!==0){applyElo(eloDelta);showEloFloat(eloDelta)}}
+  }
+  else if(d.type==='play'){
+    AudioSys.play('snap');let tag='';
+    if(d.handType&&d.handType.type){const tm={'bomb':'💣炸弹','straight_flush':'🌈同花顺','straight':'📊顺子','plate':'🛡️钢板','tube':'🚀木板','3+2':'🎯三带二'};tag=tm[d.handType.type]||''}
+    if(tag)area.innerHTML='<div class="tag">'+tag+'</div>';
+    if(d.cards&&Array.isArray(d.cards)&&d.cards.length>0){
+      d.cards.forEach((c,idx)=>{
+        let div=document.createElement('div');
+        let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
+        let txt=c.s==='JOKER'?(c.v==='Bg'?'JR':'jr'):c.v;
+        let ico=c.s==='JOKER'?'🤡':c.s;
+        if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
+        div.className='card c-mini card-appear '+cl;
+        div.style.animationDelay=idx*50+'ms';
+        div.innerHTML='<div class="val-txt">'+txt+'</div><div class="center-icon">'+ico+'</div>';
+        area.appendChild(div);
+      });
+    }else{area.innerHTML='<span style="font-size:16px;color:var(--gold);font-weight:bold">出牌</span>'}
+    lastHand={owner:d.seat,type:d.handType?.type||'unknown',val:d.handType?.val||0,count:d.cards?.length||0,score:d.handType?.score||0};
+    counts[d.seat]-=(d.cards?.length||0);
+    if(d.seat===mySeat&&d.cards&&d.cards.length>0){
+      let playedIds=d.cards.map(x=>x.id);
+      myCards=myCards.filter(c=>!playedIds.includes(c.id));
+      myCards.forEach(c=>c.sel=false);
+      window._pendingPlay=null;
+      renderHand();
+      let eloDelta=evaluateMove('play',d.cards,d.handType,lastMoveWasTimeout);
+      applyElo(eloDelta);showEloFloat(eloDelta);
+      lastMoveWasTimeout=false;
+    }
+    if(botSeats.includes(d.seat)&&d.cards){
+      let pIds=d.cards.map(x=>x.id);
+      if(botCards[d.seat])botCards[d.seat]=botCards[d.seat].filter(c=>!pIds.includes(c.id));
+    }
+  }
+  turn=Number(d.nextTurn);
+  if(turn===-1){
+    for(let s=0;s<4;s++){if(!finishOrder.includes(s))finishOrder.push(s)}
+    gameOver=true;setTimeout(()=>calcResult(),2500);return;
+  }
+  // Check if one team already has both members finished (1st & 2nd) → game over
+  if(finishOrder.length>=2){
+    let team0=[0,2],team1=[1,3];
+    let t0done=team0.every(s=>finishOrder.includes(s));
+    let t1done=team1.every(s=>finishOrder.includes(s));
+    if(t0done||t1done){
+      // Fill remaining seats by card count (fewer cards = higher rank)
+      let remaining=[];
+      for(let s=0;s<4;s++){if(!finishOrder.includes(s))remaining.push(s)}
+      remaining.sort((a,b)=>counts[a]-counts[b]);
+      remaining.forEach(s=>finishOrder.push(s));
+      gameOver=true;renderUI();setTimeout(()=>calcResult(),2000);return;
+    }
+  }
+  if(d.isRoundEnd){
+    lastHand=null;
+    roundEndTimer=setTimeout(()=>{
+      if(actionSeq!==currentSeq)return;
+      ['out-0','out-1','out-2','out-3'].forEach(id=>{
+        let el=document.getElementById(id);
+        if(el){el.classList.add('dimmed');setTimeout(()=>{if(actionSeq===currentSeq){el.innerHTML='';el.classList.remove('dimmed')}},300)}
+      });
+      roundEndTimer=null;
+    },1200);
+  }else{updateDim()}
+  renderUI();checkTurn();resetWatchdog();
+}
+
+let watchdogTimer=null;
+function resetWatchdog(){
+  if(watchdogTimer)clearTimeout(watchdogTimer);
+  if(gameOver||turn===-1)return;
+  watchdogTimer=setTimeout(()=>{
+    if(gameOver||turn===-1)return;
+    if(botSeats.includes(turn)){
+      runBot(turn);
+    } else if(turn!==mySeat){
+      socket.emit('ping_game');
+    }
+  }, 5000);
+}
+
+function checkTurn(){
+  if(turn===-1||gameOver)return;
+  if(turn===mySeat){
+    isMyTurn=true;
+    startTimer();
+    repositionButtons();
+    let c=document.getElementById('ctrls');
+    c.style.display='flex';
+    if(afkEnabled) scheduleAFK();
+    let bp=document.getElementById('btn-pass');
+    if(!lastHand){bp.disabled=true;bp.style.opacity=0.3}
+    else{bp.disabled=false;bp.style.opacity=1}
+  }else{
+    isMyTurn=false;
+    stopTimer();startOpponentTimer();
+    document.getElementById('ctrls').style.display='none';
+    if(botSeats.includes(turn)){
+      const botTurn=turn;
+      const jitter = isHost ? 600 : (800 + Math.floor(Math.random()*400));
+      setTimeout(()=>{
+        if(!gameOver&&turn===botTurn&&botSeats.includes(botTurn)){runBot(botTurn);}
+      }, jitter);
+    }
+  }
+}
+
+function sendPlay(){
+  if(!isMyTurn){return toast("还没轮到你");}
+  hintOptions=[];hintIndex=0;
+  let sel=myCards.filter(c=>c.sel);
+  if(!sel.length)return toast("请选牌");
+  let type=getHandType(sel);
+  if(!type)return toast("无效牌型 ("+sel.length+"张)");
+  if(lastHand&&!canBeat(sel,type,lastHand))return toast("压不过");
+  let cs=sel.map(c=>({s:c.s,v:c.v,p:c.p,seq:c.seq,id:c.id}));
+  socket.emit('action',{seat:mySeat,type:'play',cards:cs,handType:type});
+  window._pendingPlay={ids:sel.map(c=>c.id)};
+}
+
+function sendPass(){
+  if(!isMyTurn){return toast("还没轮到你");}
+  hintOptions=[];hintIndex=0;
+  socket.emit('action',{seat:mySeat,type:'pass'});
+}
+
+function doHint(){
+  myCards.forEach(c=>c.sel=false);
+  if(!lastHand){
+    let g=analyzeHand(myCards);
+    if(hintOptions.length===0||hintIndex>=hintOptions.length){
+      hintOptions=[];
+      if(g.singles.length){let vs=g.singles.filter(s=>s[0].s!=='JOKER');vs.sort((a,b)=>a[0].p-b[0].p);if(vs.length)hintOptions.push({cards:vs[0],label:'单牌'})}
+      if(g.pairs.length){g.pairs.sort((a,b)=>a[0].p-b[0].p);hintOptions.push({cards:g.pairs[0],label:'对子'})}
+      if(g.triples.length){g.triples.sort((a,b)=>a[0].p-b[0].p);hintOptions.push({cards:g.triples[0],label:'三条'})}
+      if(g.fullhouses.length)hintOptions.push({cards:g.fullhouses[0],label:'三带二'});
+      if(g.straights.length)hintOptions.push({cards:g.straights[0],label:'顺子'});
+      if(g.straight_flushes.length)hintOptions.push({cards:g.straight_flushes[0],label:'同花顺'});
+      if(g.plates.length)hintOptions.push({cards:g.plates[0],label:'钢板'});
+      if(g.tubes.length)hintOptions.push({cards:g.tubes[0],label:'木板'});
+      if(g.bombs.length){g.bombs.sort((a,b)=>a.length-b.length||a[0].p-b[0].p);g.bombs.forEach(b=>hintOptions.push({cards:b,label:'炸弹'}))}
+      if(!hintOptions.length&&myCards.length)hintOptions.push({cards:[myCards[myCards.length-1]],label:'单牌'});
+      hintIndex=0;
+    }
+    if(hintOptions.length){let opt=hintOptions[hintIndex];opt.cards.forEach(c=>c.sel=true);toast('提示: '+opt.label+' ('+(hintIndex+1)+'/'+hintOptions.length+')');hintIndex++}
+  }else{
+    hintOptions=[];hintIndex=0;
+    let g=analyzeHand(myCards),pick=findMatch(g,lastHand);
+    if(!pick&&lastHand.owner!==(mySeat+2)%4)pick=findBomb(g,lastHand);
+    if(!pick&&lastHand.owner!==(mySeat+2)%4&&g.straight_flushes.length){
+      let sf=g.straight_flushes[0];
+      let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};
+      if(canBeat(sf,sft,lastHand))pick=sf;
+    }
+    if(pick)pick.forEach(c=>c.sel=true);else toast("没牌可出");
+  }
+  renderHand();AudioSys.play('click');
+}
+
+function autoPlay(){
+  lastMoveWasTimeout=true;
+  toast("超时自动出牌");doHint();
+  let s=myCards.filter(c=>c.sel);
+  if(s.length>0)setTimeout(sendPlay,500);
+  else if(!lastHand&&myCards.length>0){myCards[myCards.length-1].sel=true;renderHand();setTimeout(sendPlay,500)}
+  else sendPass();
+}
+
+function runBot(seat){
+  try{
+    let hand=botCards[seat];
+    if(!hand||hand.length===0){socket.emit('botAction',{seat,type:'pass',cards:[]});return}
+    let g=analyzeHand(hand),best=null;
+    if(!lastHand){
+      // First play priority: clear most cards with combos
+      if(hand.length<=4&&g.bombs.length){
+        let b=g.bombs[g.bombs.length-1];
+        if(b.length>=hand.length){best=hand.slice()}else best=b;
+      }
+      if(!best&&g.straight_flushes.length){g.straight_flushes.sort((a,b)=>a[0].p-b[0].p);best=g.straight_flushes[0]}
+      if(!best&&g.straights.length){g.straights.sort((a,b)=>a[0].p-b[0].p);best=g.straights[0]}
+      if(!best&&g.plates.length){g.plates.sort((a,b)=>a[0].p-b[0].p);best=g.plates[0]}
+      if(!best&&g.tubes.length){g.tubes.sort((a,b)=>a[0].p-b[0].p);best=g.tubes[0]}
+      if(!best&&g.fullhouses.length){
+        g.fullhouses.sort((a,b)=>{
+          let at=0,bt=0,am={},bm={};
+          a.forEach(c=>am[c.p]=(am[c.p]||0)+1);b.forEach(c=>bm[c.p]=(bm[c.p]||0)+1);
+          for(let v in am)if(am[v]>=3)at=Number(v);for(let v in bm)if(bm[v]>=3)bt=Number(v);
+          return at-bt;
+        });
+        best=g.fullhouses[0];
+      }
+      if(!best&&g.pairs.length){
+        g.pairs.sort((a,b)=>a[0].p-b[0].p);
+        let picked=false;
+        for(let p of g.pairs){
+          let pv=p[0].p;
+          if(!g.triples.some(t=>t[0].p===pv)){best=p;picked=true;break}
+        }
+        if(!picked)best=g.pairs[0];
+      }
+      if(!best&&g.singles.length){
+        let normals=g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');
+        normals.sort((a,b)=>a[0].p-b[0].p);
+        if(normals.length)best=normals[0];
+        else{g.singles.sort((a,b)=>a[0].p-b[0].p);best=g.singles[0]}
+      }
+      if(!best){hand.sort((a,b)=>a.p-b.p);best=[hand[0]]}
+    }else{
+      // Follow play
+      let isTeammate=lastHand.owner===(seat+2)%4;
+      if(isTeammate){
+        // Teammate played: pass unless can clear all remaining
+        let matchPlay=findMatch(g,lastHand);
+        if(matchPlay&&matchPlay.length>=hand.length)best=matchPlay;
+        else best=null;
+      }else{
+        // Opponent played: beat with smallest possible
+        best=findMatch(g,lastHand);
+        if(!best){
+          if(hand.length<=8||lastHand.type==='bomb')best=findBomb(g,lastHand);
+        }
+        if(!best&&g.straight_flushes.length){
+          for(let sf of g.straight_flushes){
+            let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};
+            if(canBeat(sf,sft,lastHand)){best=sf;break}
+          }
+        }
+      }
+    }
+    if(best){
+      let type=getHandType(best);
+      if(type)socket.emit('botAction',{seat,type:'play',cards:best,handType:type});
+      else{if(!lastHand){let c=[hand.sort((a,b)=>a.p-b.p)[0]];socket.emit('botAction',{seat,type:'play',cards:c,handType:{type:'1',val:c[0].p}})}else socket.emit('botAction',{seat,type:'pass',cards:[]})}
+    }else socket.emit('botAction',{seat,type:'pass',cards:[]});
+  }catch(e){
+    console.error('Bot error:',e);
+    if(!lastHand&&botCards[seat]&&botCards[seat].length>0){let c=[botCards[seat].sort((a,b)=>a.p-b.p)[0]];socket.emit('botAction',{seat,type:'play',cards:c,handType:{type:'1',val:c[0].p}})}
+    else socket.emit('botAction',{seat,type:'pass',cards:[]});
+  }
+}
+
+function generateRoomCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code='';for(let i=0;i<6;i++)code+=chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById('room-code-input').value=code;
+  const disp=document.getElementById('room-code-display');
+  disp.style.color='var(--neon)';
+  disp.innerText='✓ 已生成，分享给朋友后点击开始';
+}
+
+function joinGame(){
+  const codeInput = document.getElementById('room-code-input');
+  const code = codeInput ? codeInput.value.toUpperCase() : '';
+  switchScreen('match');
+  socket.emit('joinGame', { roomCode: code });
+}
+
+function renderHand(isDealing=false){
+  const h=document.getElementById('hand');
+  h.innerHTML='';
+  myCards.sort((a,b)=>b.p-a.p||(a.s>b.s?1:-1));
+  const groups=[];
+  let curP=null,curGrp=null;
+  myCards.forEach(c=>{
+    if(c.p!==curP){curGrp={p:c.p,cards:[c]};groups.push(curGrp);curP=c.p}
+    else curGrp.cards.push(c);
+  });
+  const totalCols = groups.length;
+  const GAP = 5;
+  const viewW = Math.min(window.innerWidth, document.getElementById('view').offsetWidth||window.innerWidth);
+  const availW = viewW - 20;
+  let CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
+  CW = Math.max(44, Math.min(100, CW));
+  const CH = Math.round(CW * 1.42);
+  const PEEK = Math.round(CW * 36/66);
+  const fVal  = Math.max(10, Math.round(CW * 18/66));
+  const fSuit = Math.max(9, Math.round(CW * 15/66));
+  const fCenter = Math.max(14, Math.round(CW * 32/66));
+
+  groups.forEach(gr=>{
+    const n = gr.cards.length;
+    const stackH = CH + (n-1)*PEEK;
+    const allSel = gr.cards.every(c=>c.sel);
+    const wrap = document.createElement('div');
+    wrap.className = 'grp-wrap';
+    const col = document.createElement('div');
+    col.className = 'grp-col';
+    col.style.cssText = `width:${CW}px;height:${stackH}px;`;
+    gr.cards.forEach((c,ci)=>{
+      const isBottom = ci === n-1;
+      const stackCard = document.createElement('div');
+      stackCard.className = 'stack-card' + (c.sel?' sel':'') + (isBottom?' card-bottom':'');
+      const topPos = stackH - CH - (n-1-ci)*PEEK;
+      const clipH = isBottom ? CH : PEEK;
+      stackCard.style.cssText = `top:${topPos}px;width:${CW}px;height:${clipH}px;z-index:${ci+1};`;
+      const isRed = ['♥','♦'].includes(c.s) || c.v==='Bg';
+      const colorClass = isRed ? 'c-red' : 'c-blk';
+      const isWild = c.v==='2' && c.s==='♥';
+      const isJoker = c.s==='JOKER';
+      let dispVal, dispSuit;
+      if(isJoker){ dispVal = c.v==='Bg' ? '大' : '小'; dispSuit = '王'; }
+      else{ dispVal = c.v; dispSuit = c.s; }
+      const dealStyle = isDealing ? 'opacity:0;' : '';
+      const wildClass = isWild ? ' c-wild' : '';
+      stackCard.innerHTML = `<div class="card ${colorClass}${wildClass}" style="${dealStyle}width:${CW}px;height:${CH}px;">
+        <div class="peek-label">
+          <span class="peek-val" style="font-size:${fVal}px">${dispVal}</span>
+          <span class="peek-suit" style="font-size:${fSuit}px">${dispSuit}</span>
+        </div>
+        <div class="card-center" style="font-size:${fCenter}px">${isJoker?(c.v==='Bg'?'🤡':'🤡'):dispSuit}</div>
+      </div>`;
+      stackCard.onclick = e=>{
+        e.stopPropagation(); c.sel=!c.sel; renderHand(); AudioSys.play('click');
+      };
+      col.appendChild(stackCard);
+    });
+    wrap.appendChild(col);
+    const selBtn = document.createElement('button');
+    selBtn.className = 'grp-sel-btn' + (allSel?' all-sel':'');
+    selBtn.textContent = allSel ? '✓全' : '全选';
+    selBtn.style.width = CW+'px';
+    selBtn.onclick = e=>{
+      e.stopPropagation();
+      const nowAll = gr.cards.every(c=>c.sel);
+      gr.cards.forEach(c=>c.sel=!nowAll);
+      renderHand(); AudioSys.play('click');
+    };
+    wrap.appendChild(selBtn);
+    h.appendChild(wrap);
+  });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>repositionButtons()));
+}
+
+function repositionButtons(){
+  const handEl = document.getElementById('hand');
+  if(!handEl) return;
+  const vh = window.innerHeight;
+  const isMobile = vh < 500 || window.innerWidth < 500;
+  let maxWrapH = 0;
+  handEl.querySelectorAll('.grp-wrap').forEach(w=>{
+    const r = w.getBoundingClientRect();
+    if(r.height > maxWrapH) maxWrapH = r.height;
+  });
+  if(maxWrapH < 20 && myCards.length > 0){
+    const grpCounts = {};
+    myCards.forEach(c=>{ grpCounts[c.p] = (grpCounts[c.p]||0)+1; });
+    const maxN = Math.max(...Object.values(grpCounts));
+    const totalCols = Object.keys(grpCounts).length;
+    const GAP = 5;
+    const viewW = document.getElementById('view').offsetWidth || window.innerWidth;
+    const availW = viewW - 20;
+    let CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
+    CW = Math.max(44, Math.min(100, CW));
+    const CH = Math.round(CW * 1.42);
+    const PEEK = Math.round(CW * 36/66);
+    const SEL_BTN_H = 20;
+    maxWrapH = CH + (maxN-1)*PEEK + SEL_BTN_H + 3;
+  }
+  const maxHandH = Math.floor(vh * 0.58);
+  const handBottom = isMobile ? Math.round(vh * 0.01) : 20;
+  const newHandH = Math.min(maxWrapH + 4, maxHandH);
+  handEl.style.height = newHandH + 'px';
+  const btnGap = isMobile ? 10 : 18;
+  const btnBottom = handBottom + newHandH + btnGap;
+  const ctrls = document.getElementById('ctrls');
+  const pme   = document.getElementById('pzone-me');
+  if(ctrls) ctrls.style.bottom = btnBottom + 'px';
+  if(pme)   pme.style.bottom   = (btnBottom + 4) + 'px';
+  const afkBtn=document.getElementById('afk-btn');
+  const afkBadge=document.getElementById('afk-badge');
+  if(afkBtn){afkBtn.style.bottom=(handBottom+Math.round(newHandH/2)-15)+'px';afkBtn.style.right='10px'}
+  if(afkBadge){afkBadge.style.bottom=(handBottom+newHandH-5)+'px';afkBadge.style.right='8px'}
+}
+window.addEventListener('resize', ()=>{
+  if(myCards.length > 0) requestAnimationFrame(()=>requestAnimationFrame(()=>{ renderHand(); }));
+});
+
+let afkEnabled = false;
+let afkTimer = null;
+const AFK_DELAY = 1200;
+
+function toggleAFK(){
+  afkEnabled = !afkEnabled;
+  const btn = document.getElementById('afk-btn');
+  const badge = document.getElementById('afk-badge');
+  if(afkEnabled){
+    btn.className = 'afk-on';
+    btn.innerHTML = '🤖 AFK <span style="color:#0f0">ON</span>';
+    badge.style.display = 'block';
+    toast('AFK 自动打牌已开启');
+    if(isMyTurn) scheduleAFK();
+  } else {
+    btn.className = '';
+    btn.innerHTML = '🤖 AFK 自动';
+    badge.style.display = 'none';
+    clearTimeout(afkTimer);
+    toast('AFK 自动打牌已关闭');
+  }
+}
+
+function scheduleAFK(){
+  if(!afkEnabled || !isMyTurn) return;
+  clearTimeout(afkTimer);
+  afkTimer = setTimeout(()=>{
+    if(!afkEnabled || !isMyTurn || gameOver) return;
+    doAFKPlay();
+  }, AFK_DELAY);
+}
+
+function doAFKPlay(){
+  if(!isMyTurn || gameOver) return;
+  myCards.forEach(c=>c.sel=false);
+  const g = analyzeHand(myCards);
+  let pick = null;
+  if(!lastHand){
+    if(g.singles.length){
+      const normals = g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');
+      normals.sort((a,b)=>a[0].p-b[0].p);
+      pick = normals.length ? normals[0] : g.singles[0];
+    }
+  } else {
+    pick = findMatch(g, lastHand);
+    if(!pick && lastHand.owner !== (mySeat+2)%4){
+      pick = findBomb(g, lastHand);
+    }
+  }
+  if(pick && pick.length > 0){
+    pick.forEach(c=>c.sel=true);
+    renderHand();
+    setTimeout(()=>{if(isMyTurn && afkEnabled) sendPlay();}, 300);
+  } else {
+    if(lastHand) {
+      setTimeout(()=>{if(isMyTurn && afkEnabled) sendPass();}, 300);
+    } else {
+      if(myCards.length > 0){
+        const sorted = [...myCards].filter(c=>c.s!=='JOKER').sort((a,b)=>a.p-b.p);
+        const weakest = sorted.length ? sorted[0] : myCards[0];
+        weakest.sel = true;
+        renderHand();
+        setTimeout(()=>{if(isMyTurn && afkEnabled) sendPlay();}, 300);
+      }
+    }
+  }
+}
+
+function getHandType(c){if(!c.length)return null;let wild=c.filter(x=>x.v==='2'&&x.s==='♥'),norm=c.filter(x=>!(x.v==='2'&&x.s==='♥'));norm.sort((a,b)=>a.p-b.p);let len=c.length,m={};norm.forEach(x=>m[x.p]=(m[x.p]||0)+1);let vals=Object.keys(m).map(Number).sort((a,b)=>a-b),mf=vals.length?Math.max(...Object.values(m)):0;if(len>=4){let k=c.filter(x=>x.s==='JOKER');if(k.length===4)return{type:'bomb',val:999,count:6,score:1000};if(vals.length===1&&mf>=1&&mf+wild.length>=4&&mf+wild.length===len){let v=vals[0];return{type:'bomb',val:v,count:len,score:len*100}}if(wild.length===0&&mf===len&&vals.length===1){let v=vals[0];return{type:'bomb',val:v,count:len,score:len*100}}}if(len===1)return{type:'1',val:c[0].p};if(len===2&&(mf+wild.length>=2))return{type:'2',val:vals.length?vals[vals.length-1]:15};if(len===3&&(mf+wild.length>=3))return{type:'3',val:vals.length?vals[vals.length-1]:15};if(len===5){let sVals=vals.filter(v=>v<=14);if(sVals.length>=3&&sVals.length+wild.length>=5){let gap=sVals[sVals.length-1]-sVals[0];if(gap<=4){let isF=true;if(norm.length>0){let fs=norm[0].s;for(let cd of norm){if(cd.s!==fs||cd.p>14){isF=false;break}}}let allStraightable=norm.every(x=>x.p<=14);if(isF&&norm.length+wild.length>=5&&allStraightable)return{type:'straight_flush',val:sVals[sVals.length-1],score:550};else if(allStraightable)return{type:'straight',val:sVals[sVals.length-1]}}}if(vals.length<=2&&mf>=2){let tv=vals[vals.length-1];for(let vv of vals){if(m[vv]>=3){tv=vv;break}}return{type:'3+2',val:tv}}}if(len===6&&vals.length===2&&vals[1]===vals[0]+1){if(m[vals[0]]+wild.length>=3)return{type:'plate',val:vals[0]}}if(len===6&&vals.length===3){if(vals[1]===vals[0]+1&&vals[2]===vals[1]+1){let ok=(m[vals[0]]>=1||wild.length>0)&&(m[vals[1]]>=1||wild.length>0)&&(m[vals[2]]>=1||wild.length>0);if(ok)return{type:'tube',val:vals[0]}}}return null}
+
+function canBeat(c,t,l){let nb=(t.type==='bomb'||t.type==='straight_flush'),lb=(l.type==='bomb'||l.type==='straight_flush');if(nb&&!lb)return true;if(!nb&&lb)return false;if(nb&&lb){let ns=t.score||(t.type==='bomb'?t.count*100:550),ls=l.score||(l.type==='bomb'?l.count*100:550);if(ns>ls)return true;if(ns<ls)return false;return t.val>l.val}if(t.type!==l.type)return false;if(c.length!==l.count)return false;return t.val>l.val}
+
+function analyzeHand(h){let wild=h.filter(x=>x.v==='2'&&x.s==='♥'),norm=h.filter(x=>!(x.v==='2'&&x.s==='♥'));let m={};norm.forEach(c=>m[c.p]=(m[c.p]||[]).concat(c));let vals=Object.keys(m).map(Number).sort((a,b)=>a-b);let r={singles:[],pairs:[],triples:[],bombs:[],plates:[],tubes:[],straights:[],straight_flushes:[],fullhouses:[]};vals.forEach(v=>{let g=m[v];if(g.length>=4){r.bombs.push([...g])}if(g.length+wild.length>=4&&g.length<4){let need=4-g.length;if(need<=wild.length)r.bombs.push(g.concat(wild.slice(0,need)))}if(g.length>=3)r.triples.push(g.slice(0,3));if(g.length>=2)r.pairs.push(g.slice(0,2));if(g.length>=1)r.singles.push(g.slice(0,1));});r.bombs.sort((a,b)=>b.length-a.length||b[0].p-a[0].p);for(let i=0;i<r.triples.length-1;i++){if(r.triples[i][0].p<=14&&r.triples[i+1][0].p<=14&&r.triples[i+1][0].p===r.triples[i][0].p+1)r.plates.push(r.triples[i].concat(r.triples[i+1]))}for(let i=0;i<r.pairs.length-2;i++){if(r.pairs[i][0].p<=14&&r.pairs[i+2][0].p<=14&&r.pairs[i+1][0].p===r.pairs[i][0].p+1&&r.pairs[i+2][0].p===r.pairs[i+1][0].p+1)r.tubes.push(r.pairs[i].concat(r.pairs[i+1],r.pairs[i+2]))}let straightVals=vals.filter(v=>v<=14);for(let i=0;i<straightVals.length-4;i++){let ok=true;for(let j=0;j<4;j++){if(straightVals[i+j+1]!==straightVals[i+j]+1){ok=false;break}}if(ok){let seq=[];for(let j=0;j<5;j++)seq.push(m[straightVals[i+j]][0]);r.straights.push(seq)}}let nj=norm.filter(c=>c.s!=='JOKER'&&c.p<=14);for(let suit of ['♠','♥','♣','♦']){let sc=nj.filter(c=>c.s===suit);if(sc.length>=5){sc.sort((a,b)=>a.p-b.p);for(let i=0;i<=sc.length-5;i++){let seq=sc.slice(i,i+5),ok=true;for(let j=0;j<4;j++){if(seq[j+1].p!==seq[j].p+1){ok=false;break}}if(ok)r.straight_flushes.push(seq)}}}for(let ti=0;ti<r.triples.length;ti++){for(let pi=0;pi<r.pairs.length;pi++){if(r.triples[ti][0].p!==r.pairs[pi][0].p)r.fullhouses.push(r.triples[ti].concat(r.pairs[pi]))}}return r}
+
+function findMatch(g,l){if(l.type==='1'){for(let s of g.singles)if(s[0].p>l.val)return s}if(l.type==='2'){for(let p of g.pairs)if(p[0].p>l.val)return p}if(l.type==='3'){for(let t of g.triples)if(t[0].p>l.val)return t}if(l.type==='plate'){for(let p of g.plates)if(p[0].p>l.val)return p}if(l.type==='tube'){for(let t of g.tubes)if(t[0].p>l.val)return t}if(l.type==='straight'){for(let s of g.straights){let mv=Math.max(...s.map(c=>c.p));if(mv>l.val)return s}}if(l.type==='straight_flush'){for(let sf of g.straight_flushes){let mv=Math.max(...sf.map(c=>c.p));if(mv>l.val)return sf}}if(l.type==='3+2'){for(let fh of g.fullhouses){let tm={};fh.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm){if(tm[v]>=3)tv=Number(v)}if(tv>l.val)return fh}}return null}
+
+function findBomb(g,l){for(let b of g.bombs){let t={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,t,l))return b}return null}
+
+function initLadder(resetScores){if(resetScores){playerScores=[0,0,0,0];localStorage.setItem('crayxus_pscores','[0,0,0,0]')}renderScoreboard()}
+
+function resetAllScores(){
+  playerScores=[0,0,0,0];
+  totalGames=0;totalWins=0;
+  localStorage.setItem('crayxus_pscores','[0,0,0,0]');
+  localStorage.setItem('crayxus_games','0');
+  localStorage.setItem('crayxus_wins','0');
+  renderScoreboard();
+}
+
+function renderLadder(){renderScoreboard()}
+
+function renderScoreboard(){
+  let names=['YOU','RIGHT','PARTNER','LEFT'];
+  for(let i=0;i<4;i++){
+    let seat=(mySeat+i)%4;
+    let el=document.getElementById('ps-'+i);
+    if(!el)continue;
+    let nameEl=el.querySelector('.ps-name');
+    let ptsEl=el.querySelector('.ps-pts');
+    if(nameEl){
+      if(i===0)nameEl.innerText='YOU';
+      else if(i===2)nameEl.innerText='PARTNER';
+      else{
+        let isBot=botSeats.includes(seat);
+        nameEl.innerText=(isBot?'BOT ':'P'+(seat+1)+' ')+names[i];
+      }
+    }
+    if(ptsEl)ptsEl.innerText=playerScores[seat];
+  }
+  // Highlight leading
+  let maxS=Math.max(...playerScores);
+  for(let i=0;i<4;i++){
+    let seat=(mySeat+i)%4;
+    let el=document.getElementById('ps-'+i);
+    if(el)el.classList.toggle('leading',playerScores[seat]===maxS&&maxS>0);
+  }
+  // Mobile scores
+  for(let i=0;i<4;i++){
+    let seat=(mySeat+i)%4;
+    let ms=document.getElementById('ms-p'+i);
+    if(ms)ms.innerText=playerScores[seat];
+  }
+  // Stats
+  let dg=document.getElementById('disp-games');if(dg)dg.innerText=totalGames;
+  let dw=document.getElementById('disp-winrate');if(dw)dw.innerText=totalGames>0?Math.round(totalWins/totalGames*100)+'%':'0%';
+}
+
+/* ===== TRAINING MODE ENGINE ===== */
+let tLocalCards={};  // seat -> cards array
+let tPassCount=0;    // consecutive passes
+let tCoachPending=false;
+let tPlayedCards={};
+let tBombCounts=[0,0,0,0];
+let onnxSession=null;
+const ONNX_MODEL_URL='onnx_model/guandan_ai.onnx';
+
+function buildDeck(){
+  const suits=['♠','♥','♣','♦'];
+  const vals=[{v:'3',p:3},{v:'4',p:4},{v:'5',p:5},{v:'6',p:6},{v:'7',p:7},{v:'8',p:8},{v:'9',p:9},{v:'10',p:10},{v:'J',p:11},{v:'Q',p:12},{v:'K',p:13},{v:'A',p:14},{v:'2',p:15}];
+  let deck=[],id=0;
+  for(let d=0;d<2;d++){
+    for(let s of suits){
+      for(let vv of vals){
+        deck.push({s:s,v:vv.v,p:vv.p,seq:id,id:id});id++;
+      }
+    }
+    deck.push({s:'JOKER',v:'Sm',p:16,seq:id,id:id});id++;
+    deck.push({s:'JOKER',v:'Bg',p:17,seq:id,id:id});id++;
+  }
+  // shuffle
+  for(let i=deck.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [deck[i],deck[j]]=[deck[j],deck[i]];
+  }
+  return deck;
+}
+
+function startTrainingGame(isContinue){
+  gameMode='training';
+  gameOver=false;isMyTurn=false;lastHand=null;finishOrder=[];
+  actionSeq=0;hintOptions=[];hintIndex=0;tPassCount=0;tCoachPending=false;
+  mySeat=0;
+  botSeats=[1,2,3];
+  counts=[27,27,27,27];
+  sessionEloChange=0;lastMoveWasTimeout=false;
+
+  // Build and deal
+  let deck=buildDeck();
+  tLocalCards={};
+  for(let s=0;s<4;s++){
+    tLocalCards[s]=deck.slice(s*27,(s+1)*27).sort((a,b)=>b.p-a.p);
+  }
+  myCards=tLocalCards[0].map(c=>({...c,sel:false}));
+  tLocalCards[0]=myCards;
+  botCards={};
+  for(let s=1;s<=3;s++) botCards[s]=[...tLocalCards[s]];
+  tPlayedCards={};for(let s=0;s<4;s++)tPlayedCards[s]=new Float32Array(54);
+  tBombCounts=[0,0,0,0];
+  if(!onnxSession)loadOnnxModel();
+
+  // Random start turn
+  turn=Math.floor(Math.random()*4);
+
+  // Enter game UI
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  let g=document.getElementById('game-ui');g.style.display='flex';g.style.opacity='1';
+  ['out-0','out-1','out-2','out-3'].forEach(id=>{let el=document.getElementById(id);if(el){el.innerHTML='';el.classList.remove('dimmed','highlight')}});
+  let btn=document.getElementById('btn-continue');btn.disabled=false;btn.style.opacity=1;btn.innerText="再来一局";
+  document.getElementById('result-modal').style.display='none';
+  ['av-0','av-1','av-2','av-3'].forEach(id=>{let el=document.getElementById(id);if(el)el.classList.remove('active','finished')});
+  ['f-0','f-1','f-2','f-3'].forEach(id=>{let el=document.getElementById(id);if(el)el.style.display='none'});
+
+  // Training badge
+  let tb=document.getElementById('training-badge');if(tb)tb.style.display='block';
+  // Hide AFK in training
+  let afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='none';
+  let afkbadge=document.getElementById('afk-badge');if(afkbadge)afkbadge.style.display='none';
+  // Coach panel hidden
+  document.getElementById('coach-panel').style.display='none';
+
+  let de=document.getElementById('disp-elo');if(de)de.innerText=myElo;
+  let me=document.getElementById('ms-elo');if(me)me.innerText=myElo;
+
+  updateAvatarLabels();initLadder(false);renderUI();
+
+  // Deal animation
+  document.getElementById('deck-center').style.display='block';
+  setTimeout(()=>{
+    renderHand(true);
+    let cards=document.querySelectorAll('#hand .stack-card .card'),i=0;
+    let di=setInterval(()=>{
+      if(i>=cards.length){clearInterval(di);document.getElementById('deck-center').style.display='none';return}
+      cards[i].classList.add('anim-deal');
+      if(i%3===0)AudioSys.play('deal');
+      i++;
+    },40);
+  },300);
+
+  setTimeout(()=>tCheckTurn(),1200);
+}
+
+function tCheckTurn(){
+  if(gameOver||turn===-1)return;
+  renderUI();
+  if(turn===mySeat){
+    isMyTurn=true;
+    startTimer();
+    repositionButtons();
+    let c=document.getElementById('ctrls');c.style.display='flex';
+    let bp=document.getElementById('btn-pass');
+    if(!lastHand){bp.disabled=true;bp.style.opacity=0.3}
+    else{bp.disabled=false;bp.style.opacity=1}
+  }else{
+    isMyTurn=false;
+    stopTimer();startOpponentTimer();
+    document.getElementById('ctrls').style.display='none';
+    // Bot plays
+    let botSeat=turn;
+    setTimeout(()=>{
+      if(!gameOver&&turn===botSeat)tRunBot(botSeat);
+    },600+Math.floor(Math.random()*400));
+  }
+}
+
+function tRunBot(seat){
+  let hand=tLocalCards[seat];
+  if(!hand||hand.length===0){tProcessAction({seat,type:'pass',cards:[]});return}
+  let g=analyzeHand(hand),best=null;
+  if(!lastHand){
+    if(hand.length<=4&&g.bombs.length){
+      let b=g.bombs[g.bombs.length-1];
+      if(b.length>=hand.length)best=hand.slice();else best=b;
+    }
+    if(!best&&g.straight_flushes.length){g.straight_flushes.sort((a,b)=>a[0].p-b[0].p);best=g.straight_flushes[0]}
+    if(!best&&g.straights.length){g.straights.sort((a,b)=>a[0].p-b[0].p);best=g.straights[0]}
+    if(!best&&g.plates.length){g.plates.sort((a,b)=>a[0].p-b[0].p);best=g.plates[0]}
+    if(!best&&g.tubes.length){g.tubes.sort((a,b)=>a[0].p-b[0].p);best=g.tubes[0]}
+    if(!best&&g.fullhouses.length){
+      g.fullhouses.sort((a,b)=>{
+        let at=0,bt=0,am={},bm={};
+        a.forEach(c=>am[c.p]=(am[c.p]||0)+1);b.forEach(c=>bm[c.p]=(bm[c.p]||0)+1);
+        for(let v in am)if(am[v]>=3)at=Number(v);for(let v in bm)if(bm[v]>=3)bt=Number(v);
+        return at-bt;
+      });
+      best=g.fullhouses[0];
+    }
+    if(!best&&g.pairs.length){
+      g.pairs.sort((a,b)=>a[0].p-b[0].p);
+      let picked=false;
+      for(let p of g.pairs){if(!g.triples.some(t=>t[0].p===p[0].p)){best=p;picked=true;break}}
+      if(!picked)best=g.pairs[0];
+    }
+    if(!best&&g.singles.length){
+      let normals=g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');
+      normals.sort((a,b)=>a[0].p-b[0].p);
+      if(normals.length)best=normals[0];else{g.singles.sort((a,b)=>a[0].p-b[0].p);best=g.singles[0]}
+    }
+    if(!best){hand.sort((a,b)=>a.p-b.p);best=[hand[0]]}
+  }else{
+    let isTeammate=lastHand.owner===(seat+2)%4;
+    if(isTeammate){
+      let matchPlay=findMatch(g,lastHand);
+      if(matchPlay&&matchPlay.length>=hand.length)best=matchPlay;else best=null;
+    }else{
+      best=findMatch(g,lastHand);
+      if(!best&&(hand.length<=8||lastHand.type==='bomb'))best=findBomb(g,lastHand);
+      if(!best&&g.straight_flushes.length){
+        for(let sf of g.straight_flushes){
+          let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};
+          if(canBeat(sf,sft,lastHand)){best=sf;break}
+        }
+      }
+    }
+  }
+  if(best){
+    let type=getHandType(best);
+    if(type)tProcessAction({seat,type:'play',cards:best,handType:type});
+    else tProcessAction({seat,type:'pass',cards:[]});
+  }else tProcessAction({seat,type:'pass',cards:[]});
+}
+
+function tProcessAction(d){
+  if(gameOver)return;
+  stopTimer();isMyTurn=false;
+  actionSeq++;let currentSeq=actionSeq;
+  if(roundEndTimer){clearTimeout(roundEndTimer);roundEndTimer=null}
+
+  // Snapshot hand before processing (for coach)
+  let prePlayHand=null;
+  let prePlayLastHand=lastHand?{...lastHand}:null;
+  let prePlayedSnap=null;
+  let preBombSnap=null;
+  if(d.seat===mySeat&&d.type==='play'){
+    prePlayHand=myCards.map(c=>({...c}));
+    prePlayedSnap={};for(let s=0;s<4;s++)prePlayedSnap[s]=new Float32Array(tPlayedCards[s]);
+    preBombSnap=[...tBombCounts];
+  }
+
+  let viewId=(d.seat-mySeat+4)%4;
+  let area=document.getElementById('out-'+viewId);
+  if(area){
+    area.innerHTML='';area.classList.remove('dimmed','highlight');
+    if(d.type==='pass'){
+      area.innerHTML='<span style="font-size:20px;color:#888;font-weight:bold">PASS</span>';
+      if(d.seat===mySeat){
+        let eloDelta=evaluateMove('pass',null,null,false);
+        if(eloDelta!==0){applyElo(eloDelta);showEloFloat(eloDelta)}
+      }
+    }else if(d.type==='play'){
+      AudioSys.play('snap');
+      let tag='';
+      if(d.handType&&d.handType.type){
+        const tm={'bomb':'💣炸弹','straight_flush':'🌈同花顺','straight':'📊顺子','plate':'🛡️钢板','tube':'🚀木板','3+2':'🎯三带二'};
+        tag=tm[d.handType.type]||'';
+      }
+      if(tag)area.innerHTML='<div class="tag">'+tag+'</div>';
+      if(d.cards&&d.cards.length>0){
+        d.cards.forEach((c,idx)=>{
+          let div=document.createElement('div');
+          let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
+          let txt=c.s==='JOKER'?(c.v==='Bg'?'JR':'jr'):c.v;
+          let ico=c.s==='JOKER'?'🤡':c.s;
+          if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
+          div.className='card c-mini card-appear '+cl;
+          div.style.animationDelay=idx*50+'ms';
+          div.innerHTML='<div class="val-txt">'+txt+'</div><div class="center-icon">'+ico+'</div>';
+          area.appendChild(div);
+        });
+      }
+      lastHand={owner:d.seat,type:d.handType?.type||'unknown',val:d.handType?.val||0,count:d.cards?.length||0,score:d.handType?.score||0};
+      counts[d.seat]-=(d.cards?.length||0);
+
+      // Remove cards from local storage
+      let pIds=d.cards.map(x=>x.id);
+      tLocalCards[d.seat]=tLocalCards[d.seat].filter(c=>!pIds.includes(c.id));
+      d.cards.forEach(c=>{tPlayedCards[d.seat][cardToUid(c)]+=1});
+      if(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush'))tBombCounts[d.seat]++;
+
+      if(d.seat===mySeat){
+        myCards=tLocalCards[0];
+        myCards.forEach(c=>c.sel=false);
+        renderHand();
+        let eloDelta=evaluateMove('play',d.cards,d.handType,lastMoveWasTimeout);
+        applyElo(eloDelta);showEloFloat(eloDelta);
+        lastMoveWasTimeout=false;
+      }
+      if(d.seat!==mySeat&&botCards[d.seat]){
+        botCards[d.seat]=tLocalCards[d.seat];
+      }
+    }
+  }
+
+  // Track passes for round end
+  if(d.type==='pass'){tPassCount++}else{tPassCount=0}
+
+  // Check finish
+  if(d.type==='play'&&tLocalCards[d.seat].length===0&&!finishOrder.includes(d.seat)){
+    finishOrder.push(d.seat);
+  }
+
+  // Check game over: both teammates finished or 3 players done
+  let isOver=false;
+  if(finishOrder.length>=2){
+    let team0=[0,2],team1=[1,3];
+    if(team0.every(s=>finishOrder.includes(s))||team1.every(s=>finishOrder.includes(s))){
+      let remaining=[];
+      for(let s=0;s<4;s++){if(!finishOrder.includes(s))remaining.push(s)}
+      remaining.sort((a,b)=>counts[a]-counts[b]);
+      remaining.forEach(s=>finishOrder.push(s));
+      isOver=true;
+    }
+  }
+  if(finishOrder.length>=3){
+    for(let s=0;s<4;s++){if(!finishOrder.includes(s))finishOrder.push(s)}
+    isOver=true;
+  }
+
+  if(isOver){
+    gameOver=true;renderUI();
+    setTimeout(()=>calcResult(),2000);
+    return;
+  }
+
+  // Round end: 3 consecutive passes
+  let isRoundEnd=tPassCount>=3&&lastHand;
+  if(isRoundEnd){
+    lastHand=null;tPassCount=0;
+    roundEndTimer=setTimeout(()=>{
+      if(actionSeq!==currentSeq)return;
+      ['out-0','out-1','out-2','out-3'].forEach(id=>{
+        let el=document.getElementById(id);
+        if(el){el.classList.add('dimmed');setTimeout(()=>{if(actionSeq===currentSeq){el.innerHTML='';el.classList.remove('dimmed')}},300)}
+      });
+      roundEndTimer=null;
+    },1200);
+  }else{updateDim()}
+
+  // Advance turn (skip finished players)
+  let nextTurn=(d.seat+1)%4;
+  for(let i=0;i<4;i++){
+    if(!finishOrder.includes(nextTurn))break;
+    nextTurn=(nextTurn+1)%4;
+  }
+  turn=nextTurn;
+  renderUI();
+
+  // If human just played, show coach BEFORE advancing
+  if(d.seat===mySeat&&d.type==='play'&&!gameOver){
+    tCoachPending=true;
+    setTimeout(()=>showCoachPanel(d,prePlayHand,prePlayLastHand,prePlayedSnap,preBombSnap),400);
+    return;
+  }
+
+  setTimeout(()=>tCheckTurn(),isRoundEnd?1400:400);
+}
+
+// Override sendPlay/sendPass for training mode
+let _origSendPlay=sendPlay,_origSendPass=sendPass;
+sendPlay=function(){
+  if(gameMode!=='training')return _origSendPlay();
+  if(!isMyTurn)return toast("还没轮到你");
+  hintOptions=[];hintIndex=0;
+  let sel=myCards.filter(c=>c.sel);
+  if(!sel.length)return toast("请选牌");
+  let type=getHandType(sel);
+  if(!type)return toast("无效牌型 ("+sel.length+"张)");
+  if(lastHand&&!canBeat(sel,type,lastHand))return toast("压不过");
+  tProcessAction({seat:mySeat,type:'play',cards:sel,handType:type});
+};
+sendPass=function(){
+  if(gameMode!=='training')return _origSendPass();
+  if(!isMyTurn)return toast("还没轮到你");
+  hintOptions=[];hintIndex=0;
+  tProcessAction({seat:mySeat,type:'pass',cards:[]});
+};
+
+/* ===== AI COACH (ONNX Model) ===== */
+const SUIT_IDX_MAP={'♠':0,'♥':1,'♣':2,'♦':3};
+const WILD_UID=25;
+const HT_IDX_MAP={single:0,pair:1,triple:2,fullhouse:3,straight:4,straight_flush:5,plate:6,tube:7,bomb:8,pass:9,bomb5:10,bomb6:11,bomb7:12,bomb8:13,joker_bomb:14};
+const FE_TYPE_MAP={'1':'single','2':'pair','3':'triple','3+2':'fullhouse',bomb:'bomb',straight:'straight',straight_flush:'straight_flush',plate:'plate',tube:'tube'};
+
+function cardToUid(c){
+  if(c.s==='JOKER')return c.v==='Bg'?53:52;
+  return SUIT_IDX_MAP[c.s]*13+(c.p-3);
+}
+function cardsToVec54(cards){
+  const v=new Float32Array(54);
+  for(const c of cards)v[cardToUid(c)]+=1;
+  return v;
+}
+function encodeState322(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts){
+  const v=new Float32Array(322);let o=0;
+  const hv=cardsToVec54(handCards);
+  v.set(hv,o);o+=54;
+  v.set(myPl,o);o+=54;
+  v.set(loPl,o);o+=54;
+  v.set(paPl,o);o+=54;
+  v.set(roPl,o);o+=54;
+  if(lh){
+    let ht=lh.type||'pass',mp=FE_TYPE_MAP[ht]||ht;
+    if(mp==='bomb'&&lh.val===999)mp='joker_bomb';
+    else if(mp==='bomb'&&(lh.count||4)>4)mp='bomb'+Math.min(lh.count||4,8);
+    let idx=HT_IDX_MAP[mp];if(idx===undefined)idx=HT_IDX_MAP.pass;
+    if(idx<15)v[o+idx]=1;
+  }else v[o+HT_IDX_MAP.pass]=1;
+  o+=15;
+  if(lh&&lh.val!==undefined&&lh.val!==999){v[o+Math.min(Math.max(lh.val-3,0),14)]=1}
+  o+=15;
+  if(lh)v[o]=(lh.count||0)/8;
+  o+=1;
+  for(let i=0;i<4;i++)v[o+i]=cnts[(seat+i)%4]/27;o+=4;
+  for(let i=0;i<4;i++)v[o+i]=finOrd.includes((seat+i)%4)?1:0;o+=4;
+  let ac=[];for(let i=0;i<4;i++){let rs=(seat+i)%4;if(!finOrd.includes(rs))ac.push(cnts[rs])}
+  if(ac.length){let myC=cnts[seat],mn=Math.min(...ac);v[o]=(myC===mn&&myC>0)?1:0;let p2=(seat+2)%4;v[o+1]=(cnts[p2]===mn&&!finOrd.includes(p2))?1:0}
+  v[o+2]=lh?0:1;o+=3;
+  for(let i=0;i<4;i++)v[o+i]=(27-cnts[(seat+i)%4])/27;o+=4;
+  for(let i=0;i<4;i++)v[o+i]=(bCnts[(seat+i)%4]||0)/4;o+=4;
+  v[o]=hv[WILD_UID]/2;
+  v[o+1]=(myPl[WILD_UID]+loPl[WILD_UID]+paPl[WILD_UID]+roPl[WILD_UID])/4;
+  return v;
+}
+async function runModelBatch(sv,mvs){
+  if(!onnxSession)return null;
+  const n=mvs.length,buf=new Float32Array(n*376);
+  for(let i=0;i<n;i++){buf.set(sv,i*376);buf.set(mvs[i],i*376+322)}
+  const t=new ort.Tensor('float32',buf,[n,376]);
+  const r=await onnxSession.run({input:t});
+  const ms=r.move_score.data,wr=r.win_prob.data,out=[];
+  for(let i=0;i<n;i++)out.push({ms:ms[i],wr:wr[i]});
+  return out;
+}
+async function loadOnnxModel(){
+  try{
+    onnxSession=await ort.InferenceSession.create(ONNX_MODEL_URL);
+    console.log('ONNX coach model loaded');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='AI模型已加载';
+  }catch(e){
+    console.warn('ONNX model not available, using heuristic:',e.message);
+    onnxSession=null;
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='模型未加载 · 使用启发式规则';
+  }
+}
+
+function coachScoreHeuristic(move,g,hand){
+  let base=50,cards=move.cards,label=move.label;
+  let remaining=(hand||myCards).length-cards.length;
+  if(label==='PASS'){
+    if(lastHand&&lastHand.owner===(mySeat+2)%4)return 68+Math.random()*8;
+    return 40+Math.random()*10;
+  }
+  if(remaining===0)return 92+Math.random()*7;
+  if(label==='同花顺')base+=30;
+  else if(label==='顺子')base+=22;
+  else if(label==='钢板'||label==='木板')base+=20;
+  else if(label==='三带二')base+=18;
+  else if(label==='炸弹'){
+    let opCards=Math.min(counts[1]||27,counts[3]||27);
+    if(opCards<=5||remaining<=4)base+=25;else base-=5;
+  }
+  else if(label==='对子')base+=8;
+  else if(label==='三条')base+=10;
+  else if(label==='单牌'){
+    if(cards[0].p<=8)base+=5;
+    else if(cards[0].p>=15)base-=8;
+  }
+  base+=cards.length*2;
+  if(label==='单牌'||label==='对子'){
+    let cardP=cards[0].p;
+    if(g.triples.some(t=>t[0].p===cardP))base-=12;
+    if(g.bombs.some(b=>b[0].p===cardP))base-=20;
+  }
+  base+=Math.random()*6-3;
+  return Math.max(5,Math.min(98,Math.round(base)));
+}
+
+async function getCoachSuggestions(hand,prevLastHand,prePlayedSnap,preBombSnap){
+  let h=hand||myCards;
+  let lh=prevLastHand!==undefined?prevLastHand:lastHand;
+  let moves=[];
+  let g=analyzeHand(h);
+  if(!lh){
+    g.singles.forEach(s=>moves.push({cards:s,label:'单牌'}));
+    g.pairs.forEach(p=>moves.push({cards:p,label:'对子'}));
+    g.triples.forEach(t=>moves.push({cards:t,label:'三条'}));
+    g.fullhouses.forEach(f=>moves.push({cards:f,label:'三带二'}));
+    g.straights.forEach(s=>moves.push({cards:s,label:'顺子'}));
+    g.straight_flushes.forEach(s=>moves.push({cards:s,label:'同花顺'}));
+    g.plates.forEach(p=>moves.push({cards:p,label:'钢板'}));
+    g.tubes.forEach(t=>moves.push({cards:t,label:'木板'}));
+    g.bombs.forEach(b=>moves.push({cards:b,label:'炸弹'}));
+  }else{
+    if(lh.type==='1')g.singles.filter(s=>s[0].p>lh.val).forEach(s=>moves.push({cards:s,label:'单牌'}));
+    if(lh.type==='2')g.pairs.filter(p=>p[0].p>lh.val).forEach(p=>moves.push({cards:p,label:'对子'}));
+    if(lh.type==='3')g.triples.filter(t=>t[0].p>lh.val).forEach(t=>moves.push({cards:t,label:'三条'}));
+    if(lh.type==='3+2')g.fullhouses.filter(f=>{let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm)if(tm[v]>=3)tv=Number(v);return tv>lh.val}).forEach(f=>moves.push({cards:f,label:'三带二'}));
+    if(lh.type==='straight')g.straights.filter(s=>Math.max(...s.map(c=>c.p))>lh.val).forEach(s=>moves.push({cards:s,label:'顺子'}));
+    if(lh.type==='straight_flush')g.straight_flushes.filter(s=>Math.max(...s.map(c=>c.p))>lh.val).forEach(s=>moves.push({cards:s,label:'同花顺'}));
+    if(lh.type==='plate')g.plates.filter(p=>p[0].p>lh.val).forEach(p=>moves.push({cards:p,label:'钢板'}));
+    if(lh.type==='tube')g.tubes.filter(t=>t[0].p>lh.val).forEach(t=>moves.push({cards:t,label:'木板'}));
+    g.bombs.forEach(b=>{let bt={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,bt,lh))moves.push({cards:b,label:'炸弹'})});
+    g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};if(canBeat(sf,sft,lh))moves.push({cards:sf,label:'同花顺'})});
+    moves.push({cards:[],label:'PASS'});
+  }
+  let seen=new Set();
+  moves=moves.filter(m=>{let key=m.cards.map(c=>c.id).sort().join(',')+':'+m.label;if(seen.has(key))return false;seen.add(key);return true});
+  if(onnxSession&&prePlayedSnap){
+    try{
+      let lo=(mySeat+1)%4,pa=(mySeat+2)%4,ro=(mySeat+3)%4;
+      let preC=[...counts];preC[mySeat]=h.length;
+      let bc=preBombSnap||tBombCounts;
+      let sv=encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc);
+      let mvs=moves.map(m=>cardsToVec54(m.cards));
+      let res=await runModelBatch(sv,mvs);
+      if(res){for(let i=0;i<moves.length;i++)moves[i].winRate=Math.round(Math.max(0,Math.min(100,res[i].wr*100)))}
+      else moves.forEach(m=>{m.winRate=coachScoreHeuristic(m,g,h)});
+    }catch(e){console.error('Model inference error:',e);moves.forEach(m=>{m.winRate=coachScoreHeuristic(m,g,h)})}
+  }else{
+    moves.forEach(m=>{m.winRate=coachScoreHeuristic(m,g,h)});
+  }
+  moves.sort((a,b)=>b.winRate-a.winRate);
+  return moves.slice(0,3);
+}
+
+async function showCoachPanel(lastAction,preHand,preLastHand,prePlayedSnap,preBombSnap){
+  let suggestions=await getCoachSuggestions(preHand,preLastHand,prePlayedSnap,preBombSnap);
+  if(suggestions.length===0){dismissCoach();return}
+  let container=document.getElementById('coach-moves');
+  container.innerHTML='';
+  suggestions.forEach((s,idx)=>{
+    let div=document.createElement('div');
+    div.className='coach-move'+(idx===0?' best':'');
+    let rankClass='r'+(idx+1);
+    let cardsHtml='';
+    if(s.label==='PASS'){
+      cardsHtml='<span style="color:#888;font-size:14px;font-weight:bold;padding:8px">PASS</span>';
+    }else{
+      s.cards.forEach(c=>{
+        let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
+        let txt=c.s==='JOKER'?(c.v==='Bg'?'JR':'jr'):c.v;
+        let ico=c.s==='JOKER'?'🤡':c.s;
+        if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
+        cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div class="val-txt" style="font-size:10px;padding:2px">'+txt+'</div><div class="center-icon" style="font-size:14px">'+ico+'</div></div>';
+      });
+    }
+    div.innerHTML=
+      '<div class="coach-rank '+rankClass+'">'+(idx+1)+'</div>'+
+      '<div class="coach-cards">'+cardsHtml+'</div>'+
+      '<div class="coach-info"><div class="coach-type">'+s.label+'</div><div class="coach-wr">'+s.winRate+'%</div></div>';
+    container.appendChild(div);
+  });
+  document.getElementById('coach-panel').style.display='flex';
+}
+
+function dismissCoach(){
+  document.getElementById('coach-panel').style.display='none';
+  tCoachPending=false;
+  if(!gameOver)setTimeout(()=>tCheckTurn(),300);
+}
+</script>
+</body>
+</html>

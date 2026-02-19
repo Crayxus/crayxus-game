@@ -8,6 +8,9 @@ const io = require('socket.io')(http, {
     pingInterval: 5000
 });
 
+const path = require('path');
+app.use(express.static(path.join(__dirname)));
+
 const PORT = process.env.PORT || 3000;
 
 /* =========================================
