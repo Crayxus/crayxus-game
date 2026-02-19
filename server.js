@@ -53,7 +53,10 @@ function createDeck() {
 function getHandType(c) {
     if (!c || !c.length) return null;
     let wild = c.filter(x => x.v === '2' && x.s === '♥');
+    let jokers = c.filter(x => x.s === 'JOKER');
     let norm = c.filter(x => !(x.v === '2' && x.s === '♥'));
+    // Wild cards (红桃2) cannot combine with Jokers
+    if (wild.length > 0 && jokers.length > 0) return null;
     norm.sort((a, b) => a.p - b.p);
     let len = c.length;
     let m = {};
@@ -317,6 +320,8 @@ io.on('connection', (socket) => {
         if (seat < 0 || seat > 3) return;
         // Only rejoin if seat is BOT (was converted on disconnect)
         if (room.seats[seat] !== 'BOT') { socket.emit('err', '座位已被占用'); return; }
+        // If game already ended, no point rejoining - treat as room gone
+        if (!room.game || !room.game.active) { socket.emit('err', '房间已不存在'); return; }
 
         // Clean up any previous mapping
         if (playerMap[socket.id]) {
