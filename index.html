@@ -743,20 +743,26 @@ socket.on('syncAction',d=>handleSync(d));
 // Handle turn correction when client/server are out of sync
 socket.on('turnCorrection',d=>{
   if(gameOver||!d)return;
-  console.warn('[turnCorrection] Server says turn is',d.serverTurn,'we thought it was',turn);
+  let oldTurn=turn;
+  console.warn('[turnCorrection] Server says turn is',d.serverTurn,'we thought it was',oldTurn);
   if(d.finishOrder)finishOrder=d.finishOrder;
   if(d.lastHand!==undefined){
     if(d.lastHand===null){lastHand=null;}
     else{lastHand=d.lastHand;}
   }
   turn=d.serverTurn;
-  renderUI();checkTurn();resetWatchdog();
+  // Only re-trigger turn chain if turn actually changed — avoids redundant bot runs
+  if(turn!==oldTurn){
+    botRunningForTurn=-1;
+    renderUI();checkTurn();
+  }
+  resetWatchdog();
 });
 
 // Handle full game state resync
 socket.on('gameSync',d=>{
   if(gameOver||!d)return;
-  console.warn('[gameSync] Resyncing: turn=',d.turn,'finishOrder=',d.finishOrder);
+  console.warn('[gameSync] Resyncing: turn=',d.turn,'finishOrder=',d.finishOrder,'counts=',d.counts);
   turn=d.turn;
   if(d.lastHand!==undefined){
     if(d.lastHand===null){lastHand=null;}
@@ -764,6 +770,12 @@ socket.on('gameSync',d=>{
   }
   if(d.finishOrder)finishOrder=d.finishOrder;
   if(d.counts){for(let i=0;i<4;i++)counts[i]=d.counts[i];}
+  // Restore bot hands from server (host only) — critical for desync recovery
+  if(d.botHands){
+    for(let seat in d.botHands){botCards[Number(seat)]=d.botHands[seat];}
+    console.warn('[gameSync] Bot hands restored:',Object.keys(d.botHands).map(s=>s+':'+d.botHands[s].length));
+  }
+  botRunningForTurn=-1; // Clear bot lock so next checkTurn can run
   renderUI();checkTurn();resetWatchdog();
 });
 
@@ -850,6 +862,7 @@ function handleSync(d){
       roundEndTimer=null;
     },1200);
   }else{updateDim()}
+  botRunningForTurn=-1; // Reset bot lock on every new sync
   renderUI();checkTurn();resetWatchdog();
   }catch(e){
     console.error('handleSync error:',e);
@@ -864,6 +877,7 @@ function handleSync(d){
 let watchdogTimer=null;
 let watchdogRetries=0;
 let watchdogLastTurn=-1;
+let botRunningForTurn=-1; // Debounce: prevent running same bot turn twice
 function resetWatchdog(keepRetries){
   if(watchdogTimer)clearTimeout(watchdogTimer);
   if(!keepRetries){watchdogRetries=0;watchdogLastTurn=turn;}
@@ -883,6 +897,7 @@ function resetWatchdog(keepRetries){
       socket.emit('requestSync');
       watchdogRetries=0;
     }else if(botSeats.includes(turn)){
+      botRunningForTurn=-1; // Allow watchdog retry
       await runBot(turn);
     } else if(turn!==mySeat){
       socket.emit('ping_game');
@@ -909,9 +924,12 @@ function checkTurn(){
     document.getElementById('ctrls').style.display='none';
     if(botSeats.includes(turn)){
       const botTurn=turn;
+      if(botRunningForTurn===botTurn)return; // Already scheduled for this turn
+      botRunningForTurn=botTurn;
       const jitter = isHost ? 600 : (800 + Math.floor(Math.random()*400));
       setTimeout(async ()=>{
         if(!gameOver&&turn===botTurn&&botSeats.includes(botTurn)){await runBot(botTurn);}
+        if(botRunningForTurn===botTurn)botRunningForTurn=-1;
       }, jitter);
       resetWatchdog();
     }
