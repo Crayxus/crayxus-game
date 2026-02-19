@@ -298,13 +298,22 @@ io.on('connection', (socket) => {
         let rid = playerMap[socket.id];
         if (!rid || !rooms[rid] || !rooms[rid].game || !rooms[rid].game.active) return;
         let r = rooms[rid].game;
-        gameLog(`[Sync] Room ${rid}: Client ${rooms[rid].players[socket.id]} requested resync, turn=${r.turn}, finished=[${r.finished}]`);
-        socket.emit('gameSync', {
+        let room = rooms[rid];
+        gameLog(`[Sync] Room ${rid}: Client ${room.players[socket.id]} requested resync, turn=${r.turn}, finished=[${r.finished}]`);
+        let data = {
             turn: r.turn,
             lastHand: r.lastHand,
             finishOrder: r.finished,
-            counts: r.hands.map(h => h.length)
-        });
+            counts: r.hands.map(h => h.length),
+            passCnt: r.passCnt
+        };
+        // Send bot hands to host for full state recovery
+        if (socket.id === getHostSid(room)) {
+            let bh = {};
+            for (let i = 0; i < 4; i++) { if (room.seats[i] === 'BOT') bh[i] = r.hands[i]; }
+            data.botHands = bh;
+        }
+        socket.emit('gameSync', data);
     });
 
     // 掉线处理
