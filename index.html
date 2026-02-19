@@ -327,10 +327,11 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 </div>
 
 <script>
-const socket=io('https://crayxus-game.onrender.com');
+const socket=io('https://crayxus-game.onrender.com',{reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
 let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
 let roomPlayerCount=1;
+let myRoomCode=null;
 let roundEndTimer=null,actionSeq=0,hintIndex=0,hintOptions=[];
 let autoContinueTimer=null,autoContinueLeft=0;
 let botSeats=[1,3],finishOrder=[];
@@ -607,18 +608,38 @@ socket.on('connect',()=>{
   document.getElementById('conn-status').innerText="Online";
   document.getElementById('conn-status').style.color="#0f0";
   let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
+  // Auto-rejoin room after reconnect
+  if(myRoomCode && mySeat>=0){
+    socket.emit('rejoinGame',{roomCode:myRoomCode,seat:mySeat});
+  }
 });
 socket.on('disconnect',()=>{
-  document.getElementById('conn-status').innerText="Offline";
-  document.getElementById('conn-status').style.color="#f00";
+  document.getElementById('conn-status').innerText="Reconnecting...";
+  document.getElementById('conn-status').style.color="#ff0";
 });
 socket.on('err', (msg) => {
   toast("错误: " + msg);
   if(msg.includes("房间已满")) setTimeout(() => location.reload(), 2000);
+  if(msg.includes("房间已不存在")){myRoomCode=null;mySeat=-1;}
+});
+
+// Rejoin: restore game state after reconnect
+socket.on('rejoinState',d=>{
+  console.warn('[rejoin] Restoring game state: turn=',d.turn,'finished=',d.finished);
+  gameOver=false;
+  myCards=d.hands.sort((a,b)=>b.p-a.p);
+  turn=d.turn;
+  lastHand=d.lastHand;
+  if(d.counts){for(let i=0;i<4;i++)counts[i]=d.counts[i];}
+  if(d.finished)finishOrder=d.finished;
+  switchScreen('game-screen');
+  renderHand();renderUI();checkTurn();
+  toast('已重连回游戏');
 });
 
 socket.on('initIdentity',d=>{
   mySeat=Number(d.seat);
+  myRoomCode=d.roomCode;
   if(d.isHost||d.seat===0){
     isHost=true;
     document.getElementById('btn-start-match').style.display='block';
