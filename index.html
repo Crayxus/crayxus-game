@@ -322,6 +322,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
       <button class="res-btn" id="btn-continue" onclick="continueGame()" style="background:#0f0">继续游戏</button>
       <button class="res-btn" onclick="backToLobby()" style="background:#666">返回大厅</button>
     </div>
+    <div id="auto-continue-countdown" style="margin-top:12px;font-size:13px;color:#888"></div>
   </div>
 </div>
 
@@ -331,6 +332,7 @@ let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
 let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
 let roomPlayerCount=1;
 let roundEndTimer=null,actionSeq=0,hintIndex=0,hintOptions=[];
+let autoContinueTimer=null,autoContinueLeft=0;
 let botSeats=[1,3],finishOrder=[];
 let myScore=parseInt(localStorage.getItem('crayxus_score'))||0;
 let myRank=parseInt(localStorage.getItem('crayxus_rank'))||46,ladderData=[];
@@ -523,9 +525,32 @@ function calcResult(){
   }
   document.getElementById('result-modal').style.display='flex';
   renderScoreboard();
+  // Auto-continue countdown (30 seconds)
+  startAutoContinue();
+}
+
+function startAutoContinue(){
+  stopAutoContinue();
+  autoContinueLeft=30;
+  let el=document.getElementById('auto-continue-countdown');
+  if(el)el.innerText='自动继续: '+autoContinueLeft+'s';
+  autoContinueTimer=setInterval(()=>{
+    autoContinueLeft--;
+    if(el)el.innerText='自动继续: '+autoContinueLeft+'s';
+    if(autoContinueLeft<=0){
+      stopAutoContinue();
+      continueGame();
+    }
+  },1000);
+}
+function stopAutoContinue(){
+  if(autoContinueTimer){clearInterval(autoContinueTimer);autoContinueTimer=null;}
+  let el=document.getElementById('auto-continue-countdown');
+  if(el)el.innerText='';
 }
 
 function continueGame(){
+  stopAutoContinue();
   document.getElementById('result-modal').style.display='none';
   if(gameMode==='training'){
     startTrainingGame(true);
@@ -538,6 +563,7 @@ function continueGame(){
 }
 
 function backToLobby(){
+  stopAutoContinue();
   document.getElementById('result-modal').style.display='none';
   document.getElementById('game-ui').style.display='none';
   gameOver=true;
@@ -946,7 +972,15 @@ function doHint(){
 
 function autoPlay(){
   lastMoveWasTimeout=true;
-  toast("超时自动出牌");doHint();
+  // Auto-enable AFK on timeout so the game keeps playing
+  if(!afkEnabled){
+    afkEnabled=true;
+    const btn=document.getElementById('afk-btn');
+    const badge=document.getElementById('afk-badge');
+    if(btn){btn.className='afk-on';btn.innerHTML='🤖 AFK <span style="color:#0f0">ON</span>';}
+    if(badge)badge.style.display='block';
+  }
+  toast("超时 - AFK自动打牌已开启");doHint();
   let s=myCards.filter(c=>c.sel);
   if(s.length>0)setTimeout(sendPlay,500);
   else if(!lastHand&&myCards.length>0){myCards[myCards.length-1].sel=true;renderHand();setTimeout(sendPlay,500)}
