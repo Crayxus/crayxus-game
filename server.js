@@ -239,6 +239,8 @@ io.on('connection', (socket) => {
         let r = rooms[playerMap[socket.id]];
         if (!r) return;
         if (getHostSid(r) !== socket.id) return;
+        // Don't start if a game is already active
+        if (r.game && r.game.active) return;
         // 填补 BOT 并开始
         for (let i = 0; i < 4; i++) if (r.seats[i] === null) r.seats[i] = 'BOT';
         
@@ -277,7 +279,20 @@ io.on('connection', (socket) => {
 
     socket.on('action', d => handleAction(d, socket));
     socket.on('botAction', d => handleAction(d, socket));
-    
+
+    // Client requests game state resync
+    socket.on('requestSync', () => {
+        let rid = playerMap[socket.id];
+        if (!rid || !rooms[rid] || !rooms[rid].game || !rooms[rid].game.active) return;
+        let r = rooms[rid].game;
+        socket.emit('gameSync', {
+            turn: r.turn,
+            lastHand: r.lastHand,
+            finishOrder: r.finished,
+            counts: r.hands.map(h => h.length)
+        });
+    });
+
     // 掉线处理
     socket.on('disconnect', () => {
         let rid = playerMap[socket.id];
@@ -300,7 +315,11 @@ function handleAction(d, socket) {
     let rid = playerMap[socket.id];
     if (!rid || !rooms[rid] || !rooms[rid].game || !rooms[rid].game.active) return;
     let r = rooms[rid].game;
-    if (d.seat !== r.turn) return;
+    if (d.seat !== r.turn) {
+        // Send turn correction so client can resync
+        socket.emit('turnCorrection', { serverTurn: r.turn, yourSeat: d.seat, finishOrder: r.finished, lastHand: r.lastHand });
+        return;
+    }
 
     // 核心出牌逻辑
     let nextTurn = r.turn;
@@ -325,12 +344,30 @@ function handleAction(d, socket) {
 
     // 结算与流转
     let active = 4 - r.finished.length;
-    if (active <= 1) { // 游戏结束
+    if (active <= 1) { // 游戏结束 (3+ players finished)
         // Save finish order for next game's 头游先出
         rooms[rid].lastFinished = r.finished.slice();
         io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
         rooms[rid].game.active = false;
         return;
+    }
+
+    // Check team completion: both teammates finished → game over
+    if (r.finished.length >= 2) {
+        let team0 = [0, 2], team1 = [1, 3];
+        let t0done = team0.every(s => r.finished.includes(s));
+        let t1done = team1.every(s => r.finished.includes(s));
+        if (t0done || t1done) {
+            // Add remaining players to finish order by card count
+            let remaining = [];
+            for (let s = 0; s < 4; s++) { if (!r.finished.includes(s)) remaining.push(s); }
+            remaining.sort((a, b) => r.hands[a].length - r.hands[b].length);
+            remaining.forEach(s => r.finished.push(s));
+            rooms[rid].lastFinished = r.finished.slice();
+            io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
+            rooms[rid].game.active = false;
+            return;
+        }
     }
 
     // 轮转逻辑
