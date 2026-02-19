@@ -651,6 +651,9 @@ socket.on('playerLeft',d=>{
 function _doEnterGame(d){
   gameOver=false;isMyTurn=false;turn=Number(d.startTurn);lastHand=null;counts=[27,27,27,27];
   actionSeq=0;hintOptions=[];hintIndex=0;finishOrder=[];
+  tPlayedCards={};for(let s=0;s<4;s++)tPlayedCards[s]=new Float32Array(54);
+  tBombCounts=[0,0,0,0];
+  if(!onnxSession)loadOnnxModel();
   if(d.botSeats)botSeats=d.botSeats;
   document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
   let g=document.getElementById('game-ui');g.style.display='flex';g.style.opacity='1';
@@ -743,6 +746,10 @@ function handleSync(d){
     }else{area.innerHTML='<span style="font-size:16px;color:var(--gold);font-weight:bold">出牌</span>'}
     lastHand={owner:d.seat,type:d.handType?.type||'unknown',val:d.handType?.val||0,count:d.cards?.length||0,score:d.handType?.score||0};
     counts[d.seat]-=(d.cards?.length||0);
+    if(d.cards&&d.cards.length>0&&tPlayedCards[d.seat]){
+      d.cards.forEach(c=>{tPlayedCards[d.seat][cardToUid(c)]+=1});
+      if(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush'))tBombCounts[d.seat]++;
+    }
     if(d.seat===mySeat&&d.cards&&d.cards.length>0){
       let playedIds=d.cards.map(x=>x.id);
       myCards=myCards.filter(c=>!playedIds.includes(c.id));
@@ -795,10 +802,10 @@ let watchdogTimer=null;
 function resetWatchdog(){
   if(watchdogTimer)clearTimeout(watchdogTimer);
   if(gameOver||turn===-1)return;
-  watchdogTimer=setTimeout(()=>{
+  watchdogTimer=setTimeout(async ()=>{
     if(gameOver||turn===-1)return;
     if(botSeats.includes(turn)){
-      runBot(turn);
+      await runBot(turn);
     } else if(turn!==mySeat){
       socket.emit('ping_game');
     }
@@ -824,8 +831,8 @@ function checkTurn(){
     if(botSeats.includes(turn)){
       const botTurn=turn;
       const jitter = isHost ? 600 : (800 + Math.floor(Math.random()*400));
-      setTimeout(()=>{
-        if(!gameOver&&turn===botTurn&&botSeats.includes(botTurn)){runBot(botTurn);}
+      setTimeout(async ()=>{
+        if(!gameOver&&turn===botTurn&&botSeats.includes(botTurn)){await runBot(botTurn);}
       }, jitter);
     }
   }
@@ -892,78 +899,93 @@ function autoPlay(){
   else sendPass();
 }
 
-function runBot(seat){
+async function modelPickMove(seat,hand){
+  if(!onnxSession||!tPlayedCards[seat])return undefined;
+  try{
+    let moves=[],g=analyzeHand(hand);
+    let isTeammate=lastHand&&lastHand.owner===(seat+2)%4;
+    if(!lastHand){
+      g.singles.forEach(s=>moves.push(s));g.pairs.forEach(p=>moves.push(p));
+      g.triples.forEach(t=>moves.push(t));g.fullhouses.forEach(f=>moves.push(f));
+      g.straights.forEach(s=>moves.push(s));g.straight_flushes.forEach(s=>moves.push(s));
+      g.plates.forEach(p=>moves.push(p));g.tubes.forEach(t=>moves.push(t));
+      g.bombs.forEach(b=>moves.push(b));
+    }else if(isTeammate){
+      let match=findMatch(g,lastHand);
+      if(match&&match.length>=hand.length)moves.push(match);
+      moves.push([]);
+    }else{
+      if(lastHand.type==='1')g.singles.filter(s=>s[0].p>lastHand.val).forEach(s=>moves.push(s));
+      if(lastHand.type==='2')g.pairs.filter(p=>p[0].p>lastHand.val).forEach(p=>moves.push(p));
+      if(lastHand.type==='3')g.triples.filter(t=>t[0].p>lastHand.val).forEach(t=>moves.push(t));
+      if(lastHand.type==='3+2')g.fullhouses.forEach(f=>{let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm)if(tm[v]>=3)tv=Number(v);if(tv>lastHand.val)moves.push(f)});
+      if(lastHand.type==='straight')g.straights.filter(s=>Math.max(...s.map(c=>c.p))>lastHand.val).forEach(s=>moves.push(s));
+      if(lastHand.type==='straight_flush')g.straight_flushes.filter(s=>Math.max(...s.map(c=>c.p))>lastHand.val).forEach(s=>moves.push(s));
+      if(lastHand.type==='plate')g.plates.filter(p=>p[0].p>lastHand.val).forEach(p=>moves.push(p));
+      if(lastHand.type==='tube')g.tubes.filter(t=>t[0].p>lastHand.val).forEach(t=>moves.push(t));
+      g.bombs.forEach(b=>{let bt={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,bt,lastHand))moves.push(b)});
+      g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};if(canBeat(sf,sft,lastHand))moves.push(sf)});
+      moves.push([]);
+    }
+    if(moves.length===0)return null;
+    let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
+    let sv=encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts]);
+    let mvs=moves.map(m=>cardsToVec54(m));
+    let res=await runModelBatch(sv,mvs);
+    if(!res)return undefined;
+    let bestIdx=0,bestScore=-Infinity;
+    for(let i=0;i<res.length;i++){
+      let score=res[i].ms*0.4+res[i].wr*0.6;
+      if(score>bestScore){bestScore=score;bestIdx=i}
+    }
+    return moves[bestIdx]; // [] = PASS, null = couldn't determine
+  }catch(e){console.error('modelPickMove error:',e);return undefined}
+}
+
+async function runBot(seat){
   try{
     let hand=botCards[seat];
     if(!hand||hand.length===0){socket.emit('botAction',{seat,type:'pass',cards:[]});return}
-    let g=analyzeHand(hand),best=null;
-    if(!lastHand){
-      // First play priority: clear most cards with combos
-      if(hand.length<=4&&g.bombs.length){
-        let b=g.bombs[g.bombs.length-1];
-        if(b.length>=hand.length){best=hand.slice()}else best=b;
-      }
-      if(!best&&g.straight_flushes.length){g.straight_flushes.sort((a,b)=>a[0].p-b[0].p);best=g.straight_flushes[0]}
-      if(!best&&g.straights.length){g.straights.sort((a,b)=>a[0].p-b[0].p);best=g.straights[0]}
-      if(!best&&g.plates.length){g.plates.sort((a,b)=>a[0].p-b[0].p);best=g.plates[0]}
-      if(!best&&g.tubes.length){g.tubes.sort((a,b)=>a[0].p-b[0].p);best=g.tubes[0]}
-      if(!best&&g.fullhouses.length){
-        g.fullhouses.sort((a,b)=>{
-          let at=0,bt=0,am={},bm={};
-          a.forEach(c=>am[c.p]=(am[c.p]||0)+1);b.forEach(c=>bm[c.p]=(bm[c.p]||0)+1);
-          for(let v in am)if(am[v]>=3)at=Number(v);for(let v in bm)if(bm[v]>=3)bt=Number(v);
-          return at-bt;
-        });
-        best=g.fullhouses[0];
-      }
-      if(!best&&g.pairs.length){
-        g.pairs.sort((a,b)=>a[0].p-b[0].p);
-        let picked=false;
-        for(let p of g.pairs){
-          let pv=p[0].p;
-          if(!g.triples.some(t=>t[0].p===pv)){best=p;picked=true;break}
-        }
-        if(!picked)best=g.pairs[0];
-      }
-      if(!best&&g.singles.length){
-        let normals=g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');
-        normals.sort((a,b)=>a[0].p-b[0].p);
-        if(normals.length)best=normals[0];
-        else{g.singles.sort((a,b)=>a[0].p-b[0].p);best=g.singles[0]}
-      }
-      if(!best){hand.sort((a,b)=>a.p-b.p);best=[hand[0]]}
-    }else{
-      // Follow play
-      let isTeammate=lastHand.owner===(seat+2)%4;
-      if(isTeammate){
-        // Teammate played: pass unless can clear all remaining
-        let matchPlay=findMatch(g,lastHand);
-        if(matchPlay&&matchPlay.length>=hand.length)best=matchPlay;
-        else best=null;
-      }else{
-        // Opponent played: beat with smallest possible
-        best=findMatch(g,lastHand);
-        if(!best){
-          if(hand.length<=8||lastHand.type==='bomb')best=findBomb(g,lastHand);
-        }
-        if(!best&&g.straight_flushes.length){
-          for(let sf of g.straight_flushes){
-            let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};
-            if(canBeat(sf,sft,lastHand)){best=sf;break}
-          }
-        }
-      }
+    let best=await modelPickMove(seat,hand);
+    if(best===undefined){
+      // Fallback to heuristic
+      best=heuristicPickMove(seat,hand);
     }
-    if(best){
+    if(best&&best.length>0){
       let type=getHandType(best);
       if(type)socket.emit('botAction',{seat,type:'play',cards:best,handType:type});
-      else{if(!lastHand){let c=[hand.sort((a,b)=>a.p-b.p)[0]];socket.emit('botAction',{seat,type:'play',cards:c,handType:{type:'1',val:c[0].p}})}else socket.emit('botAction',{seat,type:'pass',cards:[]})}
-    }else socket.emit('botAction',{seat,type:'pass',cards:[]});
+      else socket.emit('botAction',{seat,type:'pass',cards:[]});
+    }else{
+      socket.emit('botAction',{seat,type:'pass',cards:[]});
+    }
   }catch(e){
     console.error('Bot error:',e);
     if(!lastHand&&botCards[seat]&&botCards[seat].length>0){let c=[botCards[seat].sort((a,b)=>a.p-b.p)[0]];socket.emit('botAction',{seat,type:'play',cards:c,handType:{type:'1',val:c[0].p}})}
     else socket.emit('botAction',{seat,type:'pass',cards:[]});
   }
+}
+
+function heuristicPickMove(seat,hand){
+  let g=analyzeHand(hand),best=null;
+  if(!lastHand){
+    if(hand.length<=4&&g.bombs.length){let b=g.bombs[g.bombs.length-1];if(b.length>=hand.length)best=hand.slice();else best=b}
+    if(!best&&g.straights.length){g.straights.sort((a,b)=>a[0].p-b[0].p);best=g.straights[0]}
+    if(!best&&g.plates.length){g.plates.sort((a,b)=>a[0].p-b[0].p);best=g.plates[0]}
+    if(!best&&g.tubes.length){g.tubes.sort((a,b)=>a[0].p-b[0].p);best=g.tubes[0]}
+    if(!best&&g.fullhouses.length){g.fullhouses.sort((a,b)=>{let at=0,bt=0,am={},bm={};a.forEach(c=>am[c.p]=(am[c.p]||0)+1);b.forEach(c=>bm[c.p]=(bm[c.p]||0)+1);for(let v in am)if(am[v]>=3)at=Number(v);for(let v in bm)if(bm[v]>=3)bt=Number(v);return at-bt});best=g.fullhouses[0]}
+    if(!best&&g.pairs.length){g.pairs.sort((a,b)=>a[0].p-b[0].p);let picked=false;for(let p of g.pairs){if(!g.triples.some(t=>t[0].p===p[0].p)){best=p;picked=true;break}}if(!picked)best=g.pairs[0]}
+    if(!best&&g.singles.length){let normals=g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');normals.sort((a,b)=>a[0].p-b[0].p);if(normals.length)best=normals[0];else{g.singles.sort((a,b)=>a[0].p-b[0].p);best=g.singles[0]}}
+    if(!best){hand.sort((a,b)=>a.p-b.p);best=[hand[0]]}
+  }else{
+    let isTeammate=lastHand.owner===(seat+2)%4;
+    if(isTeammate){let matchPlay=findMatch(g,lastHand);if(matchPlay&&matchPlay.length>=hand.length)best=matchPlay;else best=null}
+    else{
+      best=findMatch(g,lastHand);
+      if(!best&&(hand.length<=8||lastHand.type==='bomb'))best=findBomb(g,lastHand);
+      if(!best&&g.straight_flushes.length){for(let sf of g.straight_flushes){let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};if(canBeat(sf,sft,lastHand)){best=sf;break}}}
+    }
+  }
+  return best;
 }
 
 function generateRoomCode(){
@@ -1345,63 +1367,18 @@ function tCheckTurn(){
     document.getElementById('ctrls').style.display='none';
     // Bot plays
     let botSeat=turn;
-    setTimeout(()=>{
-      if(!gameOver&&turn===botSeat)tRunBot(botSeat);
+    setTimeout(async ()=>{
+      if(!gameOver&&turn===botSeat)await tRunBot(botSeat);
     },600+Math.floor(Math.random()*400));
   }
 }
 
-function tRunBot(seat){
+async function tRunBot(seat){
   let hand=tLocalCards[seat];
   if(!hand||hand.length===0){tProcessAction({seat,type:'pass',cards:[]});return}
-  let g=analyzeHand(hand),best=null;
-  if(!lastHand){
-    if(hand.length<=4&&g.bombs.length){
-      let b=g.bombs[g.bombs.length-1];
-      if(b.length>=hand.length)best=hand.slice();else best=b;
-    }
-    if(!best&&g.straight_flushes.length){g.straight_flushes.sort((a,b)=>a[0].p-b[0].p);best=g.straight_flushes[0]}
-    if(!best&&g.straights.length){g.straights.sort((a,b)=>a[0].p-b[0].p);best=g.straights[0]}
-    if(!best&&g.plates.length){g.plates.sort((a,b)=>a[0].p-b[0].p);best=g.plates[0]}
-    if(!best&&g.tubes.length){g.tubes.sort((a,b)=>a[0].p-b[0].p);best=g.tubes[0]}
-    if(!best&&g.fullhouses.length){
-      g.fullhouses.sort((a,b)=>{
-        let at=0,bt=0,am={},bm={};
-        a.forEach(c=>am[c.p]=(am[c.p]||0)+1);b.forEach(c=>bm[c.p]=(bm[c.p]||0)+1);
-        for(let v in am)if(am[v]>=3)at=Number(v);for(let v in bm)if(bm[v]>=3)bt=Number(v);
-        return at-bt;
-      });
-      best=g.fullhouses[0];
-    }
-    if(!best&&g.pairs.length){
-      g.pairs.sort((a,b)=>a[0].p-b[0].p);
-      let picked=false;
-      for(let p of g.pairs){if(!g.triples.some(t=>t[0].p===p[0].p)){best=p;picked=true;break}}
-      if(!picked)best=g.pairs[0];
-    }
-    if(!best&&g.singles.length){
-      let normals=g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');
-      normals.sort((a,b)=>a[0].p-b[0].p);
-      if(normals.length)best=normals[0];else{g.singles.sort((a,b)=>a[0].p-b[0].p);best=g.singles[0]}
-    }
-    if(!best){hand.sort((a,b)=>a.p-b.p);best=[hand[0]]}
-  }else{
-    let isTeammate=lastHand.owner===(seat+2)%4;
-    if(isTeammate){
-      let matchPlay=findMatch(g,lastHand);
-      if(matchPlay&&matchPlay.length>=hand.length)best=matchPlay;else best=null;
-    }else{
-      best=findMatch(g,lastHand);
-      if(!best&&(hand.length<=8||lastHand.type==='bomb'))best=findBomb(g,lastHand);
-      if(!best&&g.straight_flushes.length){
-        for(let sf of g.straight_flushes){
-          let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};
-          if(canBeat(sf,sft,lastHand)){best=sf;break}
-        }
-      }
-    }
-  }
-  if(best){
+  let best=await modelPickMove(seat,hand);
+  if(best===undefined)best=heuristicPickMove(seat,hand);
+  if(best&&best.length>0){
     let type=getHandType(best);
     if(type)tProcessAction({seat,type:'play',cards:best,handType:type});
     else tProcessAction({seat,type:'pass',cards:[]});
