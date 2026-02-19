@@ -4,8 +4,8 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
     cors: { origin: "*", methods: ["GET", "POST"] },
-    pingTimeout: 10000,
-    pingInterval: 5000
+    pingTimeout: 30000,
+    pingInterval: 10000
 });
 
 const path = require('path');
@@ -242,6 +242,57 @@ io.on('connection', (socket) => {
         
         if (hostSid) {
             Object.keys(room.players).forEach(sid => io.to(sid).emit('hostStatus', { isHost: (sid===hostSid) }));
+        }
+    });
+
+    // Reconnect: player rejoins their seat
+    socket.on('rejoinGame', (data) => {
+        if (!data || !data.roomCode) return;
+        let rid = data.roomCode.trim().toUpperCase();
+        let room = rooms[rid];
+        if (!room) { socket.emit('err', '房间已不存在'); return; }
+        let seat = data.seat;
+        if (seat < 0 || seat > 3) return;
+        // Only rejoin if seat is BOT (was converted on disconnect)
+        if (room.seats[seat] !== 'BOT') { socket.emit('err', '座位已被占用'); return; }
+
+        // Clean up any previous mapping
+        if (playerMap[socket.id]) {
+            let oldRid = playerMap[socket.id];
+            if (rooms[oldRid]) {
+                let oldSeat = rooms[oldRid].players[socket.id];
+                if (oldSeat !== undefined) {
+                    rooms[oldRid].seats[oldSeat] = (rooms[oldRid].game && rooms[oldRid].game.active) ? 'BOT' : null;
+                    rooms[oldRid].count--;
+                }
+                delete rooms[oldRid].players[socket.id];
+            }
+            delete playerMap[socket.id];
+        }
+
+        socket.join(rid);
+        room.seats[seat] = socket.id;
+        room.players[socket.id] = seat;
+        room.count++;
+        playerMap[socket.id] = rid;
+
+        gameLog(`[Rejoin] Room ${rid}: seat ${seat} rejoined, count=${room.count}`);
+
+        let hostSid = getHostSid(room);
+        socket.emit('initIdentity', { seat, score: 1291, isHost: (socket.id===hostSid), roomCode: rid });
+        io.to(rid).emit('roomUpdate', { count: room.count, seats: room.seats.map(s=>s===null?'EMPTY':(s==='BOT'?'BOT':'HUMAN')), roomId: rid });
+
+        // If game is active, sync current state to the reconnected player
+        if (room.game && room.game.active) {
+            let g = room.game;
+            socket.emit('rejoinState', {
+                hands: g.hands[seat],
+                turn: g.turn,
+                lastHand: g.lastHand,
+                counts: g.hands.map(h => h.length),
+                finished: g.finished,
+                passCnt: g.passCnt
+            });
         }
     });
 
