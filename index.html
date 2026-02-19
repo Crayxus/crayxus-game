@@ -1723,6 +1723,9 @@ function dismissCoach(){
   tCoachPending=false;
   if(!gameOver)setTimeout(()=>tCheckTurn(),300);
 }
+
+// Preload ONNX model on page load so it's ready when game starts
+loadOnnxModel();
 </script>
 </body>
 </html>
