@@ -263,6 +263,9 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
       <div class="p-score-row" id="ps-1"><span class="ps-name">RIGHT</span><span class="ps-pts">0</span></div>
       <div class="p-score-row partner" id="ps-2"><span class="ps-name">PARTNER</span><span class="ps-pts">0</span></div>
       <div class="p-score-row" id="ps-3"><span class="ps-name">LEFT</span><span class="ps-pts">0</span></div>
+      <div style="height:1px;background:#555;margin:4px 0"></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#888"><span>我方</span><span class="val-hl" id="disp-team-my">0</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#888"><span>对方</span><span class="val-hl" id="disp-team-op" style="color:#ff6b6b">0</span></div>
     </div>
     <div style="height:1px;background:#333;margin:10px 0"></div>
     <div class="row"><span>局数</span><span class="val-hl" id="disp-games">0</span></div>
@@ -312,7 +315,8 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 <div class="modal" id="result-modal">
   <div class="res-box">
     <div class="res-type" id="res-title">VICTORY</div>
-    <div class="res-score" id="res-points">+12</div>
+    <div id="res-desc" style="font-size:22px;color:#ccc;margin-bottom:8px"></div>
+    <div class="res-score" id="res-points">+4</div>
     <div id="res-elo" style="font-size:18px;margin-bottom:10px;color:var(--neon)"></div>
     <div style="display:flex;gap:20px;justify-content:center;margin-top:20px">
       <button class="res-btn" id="btn-continue" onclick="continueGame()" style="background:#0f0">继续游戏</button>
@@ -483,11 +487,19 @@ function calcResult(){
   });
   let win=myBest<opBest;
 
-  // Score by finish position: 1st=+3, 2nd=+1, 3rd=-1, 4th=-3
-  let posPoints=[3,1,-1,-3];
-  finishOrder.forEach((seat,pos)=>{
-    if(pos<4)playerScores[seat]+=posPoints[pos];
-  });
+  // Official team scoring: based on 头游's teammate finish position
+  let headSeat=finishOrder[0]; // 头游
+  let headMate=(headSeat+2)%4; // 头游's teammate
+  let matePos=finishOrder.indexOf(headMate); // teammate's finish position (0-indexed)
+  let teamPts,resultDesc;
+  if(matePos===1){teamPts=4;resultDesc='双上'}        // both 1st & 2nd
+  else if(matePos===2){teamPts=2;resultDesc='头游+三游'} // 1st & 3rd
+  else{teamPts=1;resultDesc='头游+末游'}               // 1st & 4th
+
+  let winTeam=[headSeat,headMate];
+  let loseTeam=[];for(let s=0;s<4;s++){if(!winTeam.includes(s))loseTeam.push(s)}
+  winTeam.forEach(s=>playerScores[s]+=teamPts);
+  // Losing team gets 0 (official rules: no deduction)
 
   // Track stats
   totalGames++;
@@ -496,14 +508,13 @@ function calcResult(){
   localStorage.setItem('crayxus_wins',totalWins);
   localStorage.setItem('crayxus_pscores',JSON.stringify(playerScores));
 
-  let myPts=0;
-  let myPos=finishOrder.indexOf(mySeat);
-  if(myPos>=0&&myPos<4)myPts=posPoints[myPos];
+  let myPts=win?teamPts:0;
 
   document.getElementById('res-title').innerText=win?'VICTORY':'DEFEAT';
   document.getElementById('res-title').style.color=win?'var(--neon)':'var(--red)';
-  document.getElementById('res-points').innerText=(myPts>0?'+':'')+myPts;
-  document.getElementById('res-points').style.color=win?'var(--gold)':'var(--red)';
+  document.getElementById('res-desc').innerText=resultDesc+(win?' (我方)':' (对方)');
+  document.getElementById('res-points').innerText=win?'+'+teamPts:'0';
+  document.getElementById('res-points').style.color=win?'var(--gold)':'#888';
   let eloEl=document.getElementById('res-elo');
   if(eloEl){
     let sign=sessionEloChange>=0?'+':'';
@@ -1200,13 +1211,18 @@ function renderScoreboard(){
     }
     if(ptsEl)ptsEl.innerText=playerScores[seat];
   }
-  // Highlight leading
-  let maxS=Math.max(...playerScores);
+  // Highlight leading team
+  let myTeamPts=playerScores[mySeat];
+  let opTeamPts=playerScores[(mySeat+1)%4];
+  let maxS=Math.max(myTeamPts,opTeamPts);
   for(let i=0;i<4;i++){
     let seat=(mySeat+i)%4;
     let el=document.getElementById('ps-'+i);
     if(el)el.classList.toggle('leading',playerScores[seat]===maxS&&maxS>0);
   }
+  // Team totals
+  let tmEl=document.getElementById('disp-team-my');if(tmEl)tmEl.innerText=myTeamPts;
+  let toEl=document.getElementById('disp-team-op');if(toEl)toEl.innerText=opTeamPts;
   // Mobile scores
   for(let i=0;i<4;i++){
     let seat=(mySeat+i)%4;
