@@ -1,4 +1,4 @@
-// server.js - Crayxus V41 (Fixed Rules & Room Logic)
+// server.js - Crayxus V41.2 (Bot Timeout & Logging)
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -9,9 +9,19 @@ const io = require('socket.io')(http, {
 });
 
 const path = require('path');
+const fs = require('fs');
 app.use(express.static(path.join(__dirname)));
 
 const PORT = process.env.PORT || 3000;
+
+// Game event logging
+const LOG_FILE = path.join(__dirname, 'game_log.txt');
+function gameLog(msg) {
+    const ts = new Date().toISOString();
+    const line = `[${ts}] ${msg}\n`;
+    console.log(msg);
+    fs.appendFile(LOG_FILE, line, () => {});
+}
 
 /* =========================================
    核心游戏逻辑 (必须与前端完全一致)
@@ -184,7 +194,7 @@ function createRoom(id) {
 }
 
 function getRoom(roomId) {
-    if (!rooms[roomId]) { rooms[roomId] = createRoom(roomId); console.log(`🏠 New Room: ${roomId}`); }
+    if (!rooms[roomId]) { rooms[roomId] = createRoom(roomId); gameLog(`[Room] New room created: ${roomId}`); }
     return rooms[roomId];
 }
 
@@ -275,6 +285,9 @@ io.on('connection', (socket) => {
         });
         
         io.to(r.id).emit('gameStart', { startTurn: r.game.turn, botSeats });
+        gameLog(`[Game] Room ${playerMap[socket.id]}: Game #${r.gameCount} started, turn=${startTurn}, bots=[${botSeats}]`);
+        // If first turn is a bot, schedule auto-pass
+        scheduleBotTimeout(playerMap[socket.id]);
     });
 
     socket.on('action', d => handleAction(d, socket));
@@ -285,6 +298,7 @@ io.on('connection', (socket) => {
         let rid = playerMap[socket.id];
         if (!rid || !rooms[rid] || !rooms[rid].game || !rooms[rid].game.active) return;
         let r = rooms[rid].game;
+        gameLog(`[Sync] Room ${rid}: Client ${rooms[rid].players[socket.id]} requested resync, turn=${r.turn}, finished=[${r.finished}]`);
         socket.emit('gameSync', {
             turn: r.turn,
             lastHand: r.lastHand,
@@ -298,25 +312,111 @@ io.on('connection', (socket) => {
         let rid = playerMap[socket.id];
         if (rid && rooms[rid]) {
             let r = rooms[rid], seat = r.players[socket.id];
+            gameLog(`[Disconnect] Room ${rid}: seat ${seat} disconnected, count=${r.count-1}`);
             delete r.players[socket.id]; delete playerMap[socket.id]; r.count--;
             r.seats[seat] = (r.game && r.game.active) ? 'BOT' : null;
-            
-            if (r.count <= 0) delete rooms[rid];
+
+            if (r.count <= 0) {
+                if (r.botTimeout) clearTimeout(r.botTimeout);
+                delete rooms[rid];
+            }
             else {
                 io.to(rid).emit('roomUpdate', { count: r.count, seats: r.seats.map(s=>!s?'EMPTY':(s==='BOT'?'BOT':'HUMAN')), roomId:rid });
                 let h = getHostSid(r);
                 if(h) Object.keys(r.players).forEach(s => io.to(s).emit('hostStatus', { isHost: (s===h) }));
+                // If disconnected player's seat became BOT and it's their turn, schedule auto-pass
+                if (r.game && r.game.active && r.game.turn === seat) {
+                    scheduleBotTimeout(rid);
+                }
             }
         }
     });
 });
 
+function scheduleBotTimeout(rid) {
+    let room = rooms[rid];
+    if (!room || !room.game || !room.game.active) return;
+    // Clear any existing bot timeout
+    if (room.botTimeout) { clearTimeout(room.botTimeout); room.botTimeout = null; }
+    let r = room.game;
+    let currentTurn = r.turn;
+    // Only schedule if current turn is a BOT seat
+    if (room.seats[currentTurn] !== 'BOT') return;
+    // Auto-pass the bot after 8 seconds if no action received
+    room.botTimeout = setTimeout(() => {
+        room.botTimeout = null;
+        if (!room.game || !room.game.active) return;
+        if (room.game.turn !== currentTurn) return; // Turn already advanced
+        gameLog(`[BotTimeout] Room ${rid}: Auto-acting bot seat ${currentTurn}, lastHand=${g.lastHand?g.lastHand.type:'none'}, hand=${g.hands[currentTurn]?g.hands[currentTurn].length:0} cards`);
+        let g = room.game;
+        let d;
+        // If bot must lead (no lastHand), play weakest card instead of passing
+        if (!g.lastHand && g.hands[currentTurn] && g.hands[currentTurn].length > 0) {
+            let weakest = g.hands[currentTurn].reduce((a, b) => a.p <= b.p ? a : b);
+            d = { seat: currentTurn, type: 'play', cards: [weakest], handType: { type: '1', val: weakest.p } };
+            g.lastHand = { owner: currentTurn, type: '1', val: weakest.p, count: 1, score: 0 };
+            g.passCnt = 0;
+            g.hands[currentTurn] = g.hands[currentTurn].filter(c => c.id !== weakest.id);
+            if (g.hands[currentTurn].length === 0) g.finished.push(currentTurn);
+        } else {
+            // Pass
+            d = { seat: currentTurn, type: 'pass', cards: [] };
+            g.passCnt++;
+        }
+        let active = 4 - g.finished.length;
+        if (active <= 1) {
+            room.lastFinished = g.finished.slice();
+            gameLog(`[GameEnd] Room ${rid}: BotTimeout game over (active<=1), finishOrder=[${g.finished}]`);
+            io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
+            g.active = false;
+            return;
+        }
+        // Check team completion
+        if (g.finished.length >= 2) {
+            let team0 = [0, 2], team1 = [1, 3];
+            let t0done = team0.every(s => g.finished.includes(s));
+            let t1done = team1.every(s => g.finished.includes(s));
+            if (t0done || t1done) {
+                let remaining = [];
+                for (let s = 0; s < 4; s++) { if (!g.finished.includes(s)) remaining.push(s); }
+                remaining.sort((a, b) => g.hands[a].length - g.hands[b].length);
+                remaining.forEach(s => g.finished.push(s));
+                room.lastFinished = g.finished.slice();
+                gameLog(`[GameEnd] Room ${rid}: BotTimeout team completion, finishOrder=[${g.finished}]`);
+                io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
+                g.active = false;
+                return;
+            }
+        }
+        // Turn advancement
+        let roundOwner = g.lastHand ? g.lastHand.owner : g.turn;
+        let ownerActive = !g.finished.includes(roundOwner);
+        let passesNeeded = ownerActive ? (active - 1) : active;
+        let nextTurn;
+        if (g.passCnt >= passesNeeded) {
+            nextTurn = ownerActive ? roundOwner : (roundOwner + 2) % 4;
+            while (g.finished.includes(nextTurn)) nextTurn = (nextTurn + 1) % 4;
+            g.lastHand = null; g.passCnt = 0;
+        } else {
+            nextTurn = (g.turn + 1) % 4;
+            while (g.finished.includes(nextTurn)) nextTurn = (nextTurn + 1) % 4;
+        }
+        g.turn = nextTurn;
+        io.to(room.id).emit('syncAction', { ...d, nextTurn, isRoundEnd: (g.lastHand === null), finishOrder: g.finished });
+        // Recursively schedule for next bot
+        scheduleBotTimeout(rid);
+    }, 8000);
+}
+
 function handleAction(d, socket) {
     let rid = playerMap[socket.id];
     if (!rid || !rooms[rid] || !rooms[rid].game || !rooms[rid].game.active) return;
     let r = rooms[rid].game;
+    // Clear bot timeout since a real action is coming in
+    if (rooms[rid].botTimeout) { clearTimeout(rooms[rid].botTimeout); rooms[rid].botTimeout = null; }
     if (d.seat !== r.turn) {
         // Send turn correction so client can resync
+        gameLog(`[TurnMismatch] Room ${rid}: seat ${d.seat} tried to act but turn is ${r.turn}`);
         socket.emit('turnCorrection', { serverTurn: r.turn, yourSeat: d.seat, finishOrder: r.finished, lastHand: r.lastHand });
         return;
     }
@@ -347,6 +447,7 @@ function handleAction(d, socket) {
     if (active <= 1) { // 游戏结束 (3+ players finished)
         // Save finish order for next game's 头游先出
         rooms[rid].lastFinished = r.finished.slice();
+        gameLog(`[GameEnd] Room ${rid}: Game over (active<=1), finishOrder=[${r.finished}]`);
         io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
         rooms[rid].game.active = false;
         return;
@@ -364,6 +465,7 @@ function handleAction(d, socket) {
             remaining.sort((a, b) => r.hands[a].length - r.hands[b].length);
             remaining.forEach(s => r.finished.push(s));
             rooms[rid].lastFinished = r.finished.slice();
+            gameLog(`[GameEnd] Room ${rid}: Team completion, finishOrder=[${r.finished}]`);
             io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
             rooms[rid].game.active = false;
             return;
@@ -386,7 +488,10 @@ function handleAction(d, socket) {
     }
     
     r.turn = nextTurn;
+    gameLog(`[Action] Room ${rid}: seat ${d.seat} ${d.type}${d.type==='play'?' '+((d.handType||{}).type||'?'):''}→next=${nextTurn} pass=${r.passCnt} finished=[${r.finished}]`);
     io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn, isRoundEnd: (r.lastHand === null), finishOrder: r.finished });
+    // Schedule server-side bot auto-pass if it's a bot's turn
+    scheduleBotTimeout(rid);
 }
 
-http.listen(PORT, () => console.log(`✅ Crayxus V41 Running on port ${PORT}`));
+http.listen(PORT, () => gameLog(`Crayxus V41.2 Running on port ${PORT}`));
