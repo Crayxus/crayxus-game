@@ -325,7 +325,7 @@ io.on('connection', (socket) => {
             delete r.players[socket.id]; delete playerMap[socket.id]; r.count--;
             r.seats[seat] = (r.game && r.game.active) ? 'BOT' : null;
 
-            if (r.count <= 0) {
+            if (r.count <= 0 && !(r.game && r.game.active)) {
                 if (r.botTimeout) clearTimeout(r.botTimeout);
                 delete rooms[rid];
             }
@@ -342,6 +342,16 @@ io.on('connection', (socket) => {
     });
 });
 
+// Clean up empty rooms after game ends
+function cleanupEmptyRoom(rid) {
+    let room = rooms[rid];
+    if (room && room.count <= 0) {
+        gameLog(`[Cleanup] Room ${rid}: no human players, removing room`);
+        if (room.botTimeout) clearTimeout(room.botTimeout);
+        delete rooms[rid];
+    }
+}
+
 function scheduleBotTimeout(rid) {
     let room = rooms[rid];
     if (!room || !room.game || !room.game.active) return;
@@ -356,8 +366,8 @@ function scheduleBotTimeout(rid) {
         room.botTimeout = null;
         if (!room.game || !room.game.active) return;
         if (room.game.turn !== currentTurn) return; // Turn already advanced
-        gameLog(`[BotTimeout] Room ${rid}: Auto-acting bot seat ${currentTurn}, lastHand=${g.lastHand?g.lastHand.type:'none'}, hand=${g.hands[currentTurn]?g.hands[currentTurn].length:0} cards`);
         let g = room.game;
+        gameLog(`[BotTimeout] Room ${rid}: Auto-acting bot seat ${currentTurn}, lastHand=${g.lastHand?g.lastHand.type:'none'}, hand=${g.hands[currentTurn]?g.hands[currentTurn].length:0} cards`);
         let d;
         // If bot must lead (no lastHand), play weakest card instead of passing
         if (!g.lastHand && g.hands[currentTurn] && g.hands[currentTurn].length > 0) {
@@ -378,6 +388,7 @@ function scheduleBotTimeout(rid) {
             gameLog(`[GameEnd] Room ${rid}: BotTimeout game over (active<=1), finishOrder=[${g.finished}]`);
             io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
             g.active = false;
+            cleanupEmptyRoom(rid);
             return;
         }
         // Check team completion
@@ -394,6 +405,7 @@ function scheduleBotTimeout(rid) {
                 gameLog(`[GameEnd] Room ${rid}: BotTimeout team completion, finishOrder=[${g.finished}]`);
                 io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
                 g.active = false;
+                cleanupEmptyRoom(rid);
                 return;
             }
         }
@@ -459,6 +471,7 @@ function handleAction(d, socket) {
         gameLog(`[GameEnd] Room ${rid}: Game over (active<=1), finishOrder=[${r.finished}]`);
         io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
         rooms[rid].game.active = false;
+        cleanupEmptyRoom(rid);
         return;
     }
 
@@ -477,6 +490,7 @@ function handleAction(d, socket) {
             gameLog(`[GameEnd] Room ${rid}: Team completion, finishOrder=[${r.finished}]`);
             io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
             rooms[rid].game.active = false;
+            cleanupEmptyRoom(rid);
             return;
         }
     }
