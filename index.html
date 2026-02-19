@@ -953,7 +953,7 @@ async function runBot(seat){
     let hand=botCards[seat];
     if(!hand||hand.length===0){socket.emit('botAction',{seat,type:'pass',cards:[]});return}
     let best=await modelPickMove(seat,hand);
-    if(best===undefined){
+    if(best==null){
       // Fallback to heuristic
       best=heuristicPickMove(seat,hand);
     }
@@ -1388,7 +1388,7 @@ async function tRunBot(seat){
     let hand=tLocalCards[seat];
     if(!hand||hand.length===0){tProcessAction({seat,type:'pass',cards:[]});return}
     let best=await modelPickMove(seat,hand);
-    if(best===undefined)best=heuristicPickMove(seat,hand);
+    if(best==null)best=heuristicPickMove(seat,hand);
     if(best&&best.length>0){
       let type=getHandType(best);
       if(type)tProcessAction({seat,type:'play',cards:best,handType:type});
