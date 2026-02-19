@@ -714,7 +714,35 @@ socket.on('dealCards',d=>{
 socket.on('botCards',d=>{botCards={};for(let s in d)botCards[s]=d[s].sort((a,b)=>b.p-a.p)});
 socket.on('syncAction',d=>handleSync(d));
 
+// Handle turn correction when client/server are out of sync
+socket.on('turnCorrection',d=>{
+  if(gameOver||!d)return;
+  console.warn('[turnCorrection] Server says turn is',d.serverTurn,'we thought it was',turn);
+  if(d.finishOrder)finishOrder=d.finishOrder;
+  if(d.lastHand!==undefined){
+    if(d.lastHand===null){lastHand=null;}
+    else{lastHand=d.lastHand;}
+  }
+  turn=d.serverTurn;
+  renderUI();checkTurn();resetWatchdog();
+});
+
+// Handle full game state resync
+socket.on('gameSync',d=>{
+  if(gameOver||!d)return;
+  console.warn('[gameSync] Resyncing: turn=',d.turn,'finishOrder=',d.finishOrder);
+  turn=d.turn;
+  if(d.lastHand!==undefined){
+    if(d.lastHand===null){lastHand=null;}
+    else{lastHand=d.lastHand;}
+  }
+  if(d.finishOrder)finishOrder=d.finishOrder;
+  if(d.counts){for(let i=0;i<4;i++)counts[i]=d.counts[i];}
+  renderUI();checkTurn();resetWatchdog();
+});
+
 function handleSync(d){
+  try{
   if(gameOver&&d.nextTurn!==-1)return;
   stopTimer();
   isMyTurn=false;
@@ -722,7 +750,7 @@ function handleSync(d){
   actionSeq++;let currentSeq=actionSeq;
   if(roundEndTimer){clearTimeout(roundEndTimer);roundEndTimer=null}
   if(d.finishOrder)finishOrder=d.finishOrder;
-  let viewId=(d.seat-mySeat+4)%4,area=document.getElementById('out-'+viewId);if(!area)return;
+  let viewId=(d.seat-mySeat+4)%4,area=document.getElementById('out-'+viewId);if(!area){turn=Number(d.nextTurn);renderUI();checkTurn();resetWatchdog();return}
   area.innerHTML='';area.classList.remove('dimmed','highlight');
   if(d.type==='pass'){
     area.innerHTML='<span style="font-size:20px;color:#888;font-weight:bold">PASS</span>';
@@ -797,20 +825,43 @@ function handleSync(d){
     },1200);
   }else{updateDim()}
   renderUI();checkTurn();resetWatchdog();
+  }catch(e){
+    console.error('handleSync error:',e);
+    // Ensure turn chain continues even if rendering fails
+    if(d&&d.nextTurn!==undefined){
+      turn=Number(d.nextTurn);
+      if(turn!==-1&&!gameOver){renderUI();checkTurn();resetWatchdog();}
+    }
+  }
 }
 
 let watchdogTimer=null;
-function resetWatchdog(){
+let watchdogRetries=0;
+let watchdogLastTurn=-1;
+function resetWatchdog(keepRetries){
   if(watchdogTimer)clearTimeout(watchdogTimer);
+  if(!keepRetries){watchdogRetries=0;watchdogLastTurn=turn;}
   if(gameOver||turn===-1)return;
   watchdogTimer=setTimeout(async ()=>{
     if(gameOver||turn===-1)return;
-    if(botSeats.includes(turn)){
+    // Track retries for same turn
+    if(turn===watchdogLastTurn){
+      watchdogRetries++;
+    }else{
+      watchdogRetries=0;
+      watchdogLastTurn=turn;
+    }
+    // After 3 retries (15 seconds stuck), request full resync from server
+    if(watchdogRetries>=3){
+      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, requesting resync');
+      socket.emit('requestSync');
+      watchdogRetries=0;
+    }else if(botSeats.includes(turn)){
       await runBot(turn);
     } else if(turn!==mySeat){
       socket.emit('ping_game');
     }
-    resetWatchdog();
+    resetWatchdog(true);
   }, 5000);
 }
 
