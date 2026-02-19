@@ -180,7 +180,7 @@ let rooms = {};
 let playerMap = {};
 
 function createRoom(id) {
-    return { id: id, seats: [null, null, null, null], players: {}, count: 0, game: null, botTimeout: null };
+    return { id: id, seats: [null, null, null, null], players: {}, count: 0, game: null, botTimeout: null, gameCount: 0, lastFinished: [] };
 }
 
 function getRoom(roomId) {
@@ -246,7 +246,18 @@ io.on('connection', (socket) => {
         let hands = [[],[],[],[]];
         for(let i=0; i<108; i++) hands[i%4].push(deck[i]);
         
-        r.game = { active: true, turn: Math.floor(Math.random()*4), hands: hands, lastHand: null, passCnt: 0, finished: [] };
+        r.gameCount++;
+        // 1游先出: first game host goes first; subsequent games 头游 leads
+        let startTurn;
+        if(r.gameCount === 1){
+            startTurn = r.players[socket.id] || 0;
+        }else if(r.lastFinished.length > 0){
+            startTurn = r.lastFinished[0];
+        }else{
+            startTurn = Math.floor(Math.random()*4);
+        }
+
+        r.game = { active: true, turn: startTurn, hands: hands, lastHand: null, passCnt: 0, finished: [] };
         
         // 分发牌数据
         let botSeats = [], hostSid = getHostSid(r);
@@ -315,6 +326,8 @@ function handleAction(d, socket) {
     // 结算与流转
     let active = 4 - r.finished.length;
     if (active <= 1) { // 游戏结束
+        // Save finish order for next game's 头游先出
+        rooms[rid].lastFinished = r.finished.slice();
         io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
         rooms[rid].game.active = false;
         return;
