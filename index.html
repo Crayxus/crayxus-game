@@ -653,6 +653,7 @@ function _doEnterGame(d){
   actionSeq=0;hintOptions=[];hintIndex=0;finishOrder=[];
   tPlayedCards={};for(let s=0;s<4;s++)tPlayedCards[s]=new Float32Array(54);
   tBombCounts=[0,0,0,0];
+  tMoveHistory=[];
   if(!onnxSession)loadOnnxModel();
   if(d.botSeats)botSeats=d.botSeats;
   document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
@@ -809,6 +810,7 @@ function resetWatchdog(){
     } else if(turn!==mySeat){
       socket.emit('ping_game');
     }
+    resetWatchdog();
   }, 5000);
 }
 
@@ -834,6 +836,7 @@ function checkTurn(){
       setTimeout(async ()=>{
         if(!gameOver&&turn===botTurn&&botSeats.includes(botTurn)){await runBot(botTurn);}
       }, jitter);
+      resetWatchdog();
     }
   }
 }
@@ -931,11 +934,14 @@ async function modelPickMove(seat,hand){
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
     let sv=encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts]);
     let mvs=moves.map(m=>cardsToVec54(m));
-    let res=await runModelBatch(sv,mvs);
+    let res=await Promise.race([
+      runModelBatch(sv,mvs,seat),
+      new Promise(resolve=>setTimeout(()=>resolve(null),5000))
+    ]);
     if(!res)return undefined;
     let bestIdx=0,bestScore=-Infinity;
     for(let i=0;i<res.length;i++){
-      let score=res[i].ms*0.4+res[i].wr*0.6;
+      let score=dmcMode?res[i].ms:(res[i].ms*0.4+res[i].wr*0.6);
       if(score>bestScore){bestScore=score;bestIdx=i}
     }
     return moves[bestIdx]; // [] = PASS, null = couldn't determine
@@ -1263,7 +1269,10 @@ let tCoachPending=false;
 let tPlayedCards={};
 let tBombCounts=[0,0,0,0];
 let onnxSession=null;
-const ONNX_MODEL_URL='onnx_model/guandan_ai.onnx';
+let dmcMode=false; // true if using DMC dual-input model
+let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool} for history encoding
+const ONNX_MODEL_URL_DMC='onnx_model/guandan_dmc.onnx';
+const ONNX_MODEL_URL_OLD='onnx_model/guandan_ai.onnx';
 
 function buildDeck(){
   const suits=['♠','♥','♣','♦'];
@@ -1307,6 +1316,7 @@ function startTrainingGame(isContinue){
   for(let s=1;s<=3;s++) botCards[s]=[...tLocalCards[s]];
   tPlayedCards={};for(let s=0;s<4;s++)tPlayedCards[s]=new Float32Array(54);
   tBombCounts=[0,0,0,0];
+  tMoveHistory=[];
   if(!onnxSession)loadOnnxModel();
 
   // Random start turn
@@ -1374,15 +1384,26 @@ function tCheckTurn(){
 }
 
 async function tRunBot(seat){
-  let hand=tLocalCards[seat];
-  if(!hand||hand.length===0){tProcessAction({seat,type:'pass',cards:[]});return}
-  let best=await modelPickMove(seat,hand);
-  if(best===undefined)best=heuristicPickMove(seat,hand);
-  if(best&&best.length>0){
-    let type=getHandType(best);
-    if(type)tProcessAction({seat,type:'play',cards:best,handType:type});
-    else tProcessAction({seat,type:'pass',cards:[]});
-  }else tProcessAction({seat,type:'pass',cards:[]});
+  try{
+    let hand=tLocalCards[seat];
+    if(!hand||hand.length===0){tProcessAction({seat,type:'pass',cards:[]});return}
+    let best=await modelPickMove(seat,hand);
+    if(best===undefined)best=heuristicPickMove(seat,hand);
+    if(best&&best.length>0){
+      let type=getHandType(best);
+      if(type)tProcessAction({seat,type:'play',cards:best,handType:type});
+      else tProcessAction({seat,type:'pass',cards:[]});
+    }else tProcessAction({seat,type:'pass',cards:[]});
+  }catch(e){
+    console.error('tRunBot error:',e);
+    let hand=tLocalCards[seat];
+    if(!lastHand&&hand&&hand.length>0){
+      let c=[hand.sort((a,b)=>a.p-b.p)[0]];
+      tProcessAction({seat,type:'play',cards:c,handType:{type:'1',val:c[0].p}});
+    }else{
+      tProcessAction({seat,type:'pass',cards:[]});
+    }
+  }
 }
 
 function tProcessAction(d){
@@ -1408,6 +1429,7 @@ function tProcessAction(d){
     area.innerHTML='';area.classList.remove('dimmed','highlight');
     if(d.type==='pass'){
       area.innerHTML='<span style="font-size:20px;color:#888;font-weight:bold">PASS</span>';
+      tMoveHistory.push({seat:d.seat,cards:[],isBomb:false});
       if(d.seat===mySeat){
         let eloDelta=evaluateMove('pass',null,null,false);
         if(eloDelta!==0){applyElo(eloDelta);showEloFloat(eloDelta)}
@@ -1441,6 +1463,7 @@ function tProcessAction(d){
       tLocalCards[d.seat]=tLocalCards[d.seat].filter(c=>!pIds.includes(c.id));
       d.cards.forEach(c=>{tPlayedCards[d.seat][cardToUid(c)]+=1});
       if(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush'))tBombCounts[d.seat]++;
+      tMoveHistory.push({seat:d.seat,cards:d.cards.map(c=>cardToUid(c)),isBomb:!!(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush'))});
 
       if(d.seat===mySeat){
         myCards=tLocalCards[0];
@@ -1597,25 +1620,75 @@ function encodeState322(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts)
   v[o+1]=(myPl[WILD_UID]+loPl[WILD_UID]+paPl[WILD_UID]+roPl[WILD_UID])/4;
   return v;
 }
-async function runModelBatch(sv,mvs){
+async function runModelBatch(sv,mvs,observerSeat){
   if(!onnxSession)return null;
-  const n=mvs.length,buf=new Float32Array(n*376);
-  for(let i=0;i<n;i++){buf.set(sv,i*376);buf.set(mvs[i],i*376+322)}
-  const t=new ort.Tensor('float32',buf,[n,376]);
-  const r=await onnxSession.run({input:t});
-  const ms=r.move_score.data,wr=r.win_prob.data,out=[];
-  for(let i=0;i<n;i++)out.push({ms:ms[i],wr:wr[i]});
-  return out;
+  const n=mvs.length;
+  if(dmcMode){
+    // DMC dual-input: history (n,15,62) + state_action (n,376)
+    const hBuf=new Float32Array(n*15*62);
+    const hist=encodeHistoryTensor(observerSeat!==undefined?observerSeat:mySeat);
+    for(let i=0;i<n;i++)hBuf.set(hist,i*15*62);
+    const saBuf=new Float32Array(n*376);
+    for(let i=0;i<n;i++){saBuf.set(sv,i*376);saBuf.set(mvs[i],i*376+322)}
+    const hT=new ort.Tensor('float32',hBuf,[n,15,62]);
+    const saT=new ort.Tensor('float32',saBuf,[n,376]);
+    const r=await onnxSession.run({history:hT,state_action:saT});
+    const qv=r.q_value.data,out=[];
+    for(let i=0;i<n;i++)out.push({ms:qv[i],wr:Math.max(0,Math.min(1,(qv[i]+4)/8))});
+    return out;
+  }else{
+    // Legacy single-input model
+    const buf=new Float32Array(n*376);
+    for(let i=0;i<n;i++){buf.set(sv,i*376);buf.set(mvs[i],i*376+322)}
+    const t=new ort.Tensor('float32',buf,[n,376]);
+    const r=await onnxSession.run({input:t});
+    const ms=r.move_score.data,wr=r.win_prob.data,out=[];
+    for(let i=0;i<n;i++)out.push({ms:ms[i],wr:wr[i]});
+    return out;
+  }
+}
+function encodeHistoryStep(uids,actorSeat,observerSeat,isBomb){
+  const v=new Float32Array(62);
+  if(uids.length>0){for(const u of uids)v[u]+=1}
+  else v[58]=1; // pass flag
+  const rel=(actorSeat-observerSeat+4)%4;
+  v[54+rel]=1;
+  v[59]=isBomb?1:0;
+  v[60]=uids.length/8;
+  return v;
+}
+function encodeHistoryTensor(observerSeat){
+  const SEQ=15,DIM=62,buf=new Float32Array(SEQ*DIM);
+  const hist=tMoveHistory;
+  const n=hist.length,start=Math.max(0,n-SEQ);
+  const steps=hist.slice(start);
+  const offset=SEQ-steps.length;
+  for(let i=0;i<steps.length;i++){
+    const s=steps[i];
+    const step=encodeHistoryStep(s.cards,s.seat,observerSeat,s.isBomb);
+    buf.set(step,(offset+i)*DIM);
+  }
+  return buf;
 }
 async function loadOnnxModel(){
+  // Try DMC model first, fall back to legacy
   try{
-    onnxSession=await ort.InferenceSession.create(ONNX_MODEL_URL);
-    console.log('ONNX coach model loaded');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='AI模型已加载';
+    onnxSession=await ort.InferenceSession.create(ONNX_MODEL_URL_DMC);
+    dmcMode=true;
+    console.log('DMC ONNX model loaded');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC AI模型已加载';
   }catch(e){
-    console.warn('ONNX model not available, using heuristic:',e.message);
-    onnxSession=null;
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='模型未加载 · 使用启发式规则';
+    console.warn('DMC model not available, trying legacy:',e.message);
+    try{
+      onnxSession=await ort.InferenceSession.create(ONNX_MODEL_URL_OLD);
+      dmcMode=false;
+      console.log('Legacy ONNX model loaded');
+      let cn=document.getElementById('coach-note');if(cn)cn.innerText='AI模型已加载';
+    }catch(e2){
+      console.warn('No ONNX model available:',e2.message);
+      onnxSession=null;dmcMode=false;
+      let cn=document.getElementById('coach-note');if(cn)cn.innerText='模型未加载 · 使用启发式规则';
+    }
   }
 }
 
@@ -1688,7 +1761,7 @@ async function getCoachSuggestions(hand,prevLastHand,prePlayedSnap,preBombSnap){
       let bc=preBombSnap||tBombCounts;
       let sv=encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc);
       let mvs=moves.map(m=>cardsToVec54(m.cards));
-      let res=await runModelBatch(sv,mvs);
+      let res=await runModelBatch(sv,mvs,mySeat);
       if(res){for(let i=0;i<moves.length;i++)moves[i].winRate=Math.round(Math.max(0,Math.min(100,res[i].wr*100)))}
       else moves.forEach(m=>{m.winRate=coachScoreHeuristic(m,g,h)});
     }catch(e){console.error('Model inference error:',e);moves.forEach(m=>{m.winRate=coachScoreHeuristic(m,g,h)})}
@@ -1700,6 +1773,7 @@ async function getCoachSuggestions(hand,prevLastHand,prePlayedSnap,preBombSnap){
 }
 
 async function showCoachPanel(lastAction,preHand,preLastHand,prePlayedSnap,preBombSnap){
+  try{
   let suggestions=await getCoachSuggestions(preHand,preLastHand,prePlayedSnap,preBombSnap);
   if(suggestions.length===0){dismissCoach();return}
   let container=document.getElementById('coach-moves');
@@ -1727,6 +1801,10 @@ async function showCoachPanel(lastAction,preHand,preLastHand,prePlayedSnap,preBo
     container.appendChild(div);
   });
   document.getElementById('coach-panel').style.display='flex';
+  }catch(e){
+    console.error('Coach panel error:',e);
+    dismissCoach();
+  }
 }
 
 function dismissCoach(){
