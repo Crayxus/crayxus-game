@@ -1221,16 +1221,20 @@ function renderHand(isDealing=false){
       const isWild = c.v==='2' && c.s==='♥';
       const isJoker = c.s==='JOKER';
       let dispVal, dispSuit;
-      if(isJoker){ dispVal = c.v==='Bg' ? '大' : '小'; dispSuit = '王'; }
+      if(isJoker){ dispVal = '★'; dispSuit = ''; }
       else{ dispVal = c.v; dispSuit = c.s; }
       const dealStyle = isDealing ? 'opacity:0;' : '';
       const wildClass = isWild ? ' c-wild' : '';
+      const jokerCenter = isJoker ? `<div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <div style="font-size:${Math.round(fCenter*0.7)}px;line-height:1">🃏</div>
+        <div style="display:flex;flex-direction:column;align-items:center;font-family:Arial,sans-serif;font-weight:900;font-size:${Math.round(fVal*0.6)}px;line-height:1.1;letter-spacing:1px">${'JOKER'.split('').map(ch=>`<span>${ch}</span>`).join('')}</div>
+      </div>` : '';
       stackCard.innerHTML = `<div class="card ${colorClass}${wildClass}" style="${dealStyle}width:${CW}px;height:${CH}px;">
         <div class="peek-label">
           <span class="peek-val" style="font-size:${fVal}px">${dispVal}</span>
           <span class="peek-suit" style="font-size:${fSuit}px">${dispSuit}</span>
         </div>
-        <div class="card-center" style="font-size:${fCenter}px">${isJoker?(c.v==='Bg'?'🤡':'🤡'):dispSuit}</div>
+        <div class="card-center" style="font-size:${fCenter}px">${isJoker?jokerCenter:dispSuit}</div>
       </div>`;
       stackCard.onclick = e=>{
         e.stopPropagation(); c.sel=!c.sel; renderHand(); AudioSys.play('click');
