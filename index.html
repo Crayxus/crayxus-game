@@ -856,8 +856,8 @@ function handleSync(d){
       d.cards.forEach((c,idx)=>{
         let div=document.createElement('div');
         let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
-        let txt=c.s==='JOKER'?(c.v==='Bg'?'JR':'jr'):c.v;
-        let ico=c.s==='JOKER'?'🤡':c.s;
+        let txt=c.s==='JOKER'?'★':c.v;
+        let ico=c.s==='JOKER'?'🃏':c.s;
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
         div.className='card c-mini card-appear '+cl;
         div.style.animationDelay=idx*50+'ms';
@@ -1968,8 +1968,8 @@ async function showCoachPanel(lastAction,preHand,preLastHand,prePlayedSnap,preBo
     }else{
       s.cards.forEach(c=>{
         let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
-        let txt=c.s==='JOKER'?(c.v==='Bg'?'JR':'jr'):c.v;
-        let ico=c.s==='JOKER'?'🤡':c.s;
+        let txt=c.s==='JOKER'?'★':c.v;
+        let ico=c.s==='JOKER'?'🃏':c.s;
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
         cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div class="val-txt" style="font-size:10px;padding:2px">'+txt+'</div><div class="center-icon" style="font-size:14px">'+ico+'</div></div>';
       });
