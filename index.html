@@ -793,11 +793,12 @@ function handleSync(d){
         let div=document.createElement('div');
         let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
         let txt=c.s==='JOKER'?'':c.v;
-        let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:1px;line-height:1;writing-mode:vertical-lr;position:absolute;left:1px;top:50%;transform:translateY(-50%)">JOKER</span><span style="position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:12px">🃏</span>':c.s;
+        let ico=c.s==='JOKER'?'':c.s;
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
         div.className='card c-mini card-appear '+cl;
         div.style.animationDelay=idx*50+'ms';
-        div.innerHTML='<div class="val-txt">'+txt+'</div><div class="center-icon">'+ico+'</div>';
+        if(c.s==='JOKER'){div.innerHTML='<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:38px;line-height:1">🃏</div>';}
+        else{div.innerHTML='<div class="val-txt">'+txt+'</div><div class="center-icon">'+ico+'</div>';}
         area.appendChild(div);
       });
     }else{area.innerHTML='<span style="font-size:16px;color:var(--gold);font-weight:bold">出牌</span>'}
@@ -1599,11 +1600,12 @@ function tProcessAction(d){
           let div=document.createElement('div');
           let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
           let txt=c.s==='JOKER'?'':c.v;
-          let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:1px;line-height:1;writing-mode:vertical-lr;position:absolute;left:1px;top:50%;transform:translateY(-50%)">JOKER</span><span style="position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:12px">🃏</span>':c.s;
+          let ico=c.s==='JOKER'?'':c.s;
           if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
           div.className='card c-mini card-appear '+cl;
           div.style.animationDelay=idx*50+'ms';
-          div.innerHTML='<div class="val-txt">'+txt+'</div><div class="center-icon">'+ico+'</div>';
+          if(c.s==='JOKER'){div.innerHTML='<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:38px;line-height:1">🃏</div>';}
+          else{div.innerHTML='<div class="val-txt">'+txt+'</div><div class="center-icon">'+ico+'</div>';}
           area.appendChild(div);
         });
       }
@@ -1941,9 +1943,10 @@ async function showCoachPanel(lastAction,preHand,preLastHand,prePlayedSnap,preBo
       s.cards.forEach(c=>{
         let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
         let txt=c.s==='JOKER'?'':c.v;
-        let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:1px;line-height:1;writing-mode:vertical-lr;position:absolute;left:1px;top:50%;transform:translateY(-50%)">JOKER</span><span style="position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:12px">🃏</span>':c.s;
+        let ico=c.s==='JOKER'?'':c.s;
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
-        cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div class="val-txt" style="font-size:10px;padding:2px">'+txt+'</div><div class="center-icon" style="font-size:14px">'+ico+'</div></div>';
+        if(c.s==='JOKER'){cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:28px;line-height:1">🃏</div></div>';}
+        else{cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div class="val-txt" style="font-size:10px;padding:2px">'+txt+'</div><div class="center-icon" style="font-size:14px">'+ico+'</div></div>';}
       });
     }
     div.innerHTML=
