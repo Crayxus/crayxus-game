@@ -327,7 +327,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 </div>
 
 <script>
-const socket=io({reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
+const socket=io('https://crayxus-game.onrender.com',{reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
 let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
 let roomPlayerCount=1;
