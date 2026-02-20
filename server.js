@@ -1,4 +1,4 @@
-// server.js - Crayxus V41.2 (Bot Timeout & Logging)
+// server.js - Crayxus V42 (Local Mode)
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -192,68 +192,6 @@ function canBeat(newCards, newType, lastHand) {
 let rooms = {};
 let playerMap = {};
 
-// === Game state persistence (survive Render restarts) ===
-const STATE_FILE = path.join(__dirname, 'game_state.json');
-
-function saveState() {
-    try {
-        let data = {};
-        for (let rid in rooms) {
-            let r = rooms[rid];
-            if (r.game && r.game.active) {
-                data[rid] = {
-                    id: r.id,
-                    seats: r.seats.map(s => (s && s !== 'BOT') ? 'BOT' : s), // all humans become BOT on restart
-                    game: {
-                        active: r.game.active,
-                        turn: r.game.turn,
-                        hands: r.game.hands,
-                        lastHand: r.game.lastHand,
-                        passCnt: r.game.passCnt,
-                        finished: r.game.finished
-                    },
-                    gameCount: r.gameCount,
-                    lastFinished: r.lastFinished || []
-                };
-            }
-        }
-        if (Object.keys(data).length > 0) {
-            fs.writeFileSync(STATE_FILE, JSON.stringify(data));
-            gameLog(`[State] Saved ${Object.keys(data).length} active room(s)`);
-        }
-    } catch (e) { gameLog(`[State] Save error: ${e.message}`); }
-}
-
-function loadState() {
-    try {
-        if (!fs.existsSync(STATE_FILE)) return;
-        let data = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
-        for (let rid in data) {
-            let saved = data[rid];
-            rooms[rid] = {
-                id: saved.id,
-                seats: saved.seats,
-                players: {},
-                count: 0, // no humans connected yet
-                game: saved.game,
-                botTimeout: null,
-                gameCount: saved.gameCount || 0,
-                lastFinished: saved.lastFinished || []
-            };
-            gameLog(`[State] Restored room ${rid}: turn=${saved.game.turn}, finished=[${saved.game.finished}]`);
-            // Schedule bot to continue playing
-            scheduleBotTimeout(rid);
-        }
-        // Clean up state file after loading
-        fs.unlinkSync(STATE_FILE);
-    } catch (e) { gameLog(`[State] Load error: ${e.message}`); }
-}
-
-// Save state periodically and on shutdown
-setInterval(saveState, 5000);
-process.on('SIGTERM', () => { gameLog('[Shutdown] SIGTERM received, saving state...'); saveState(); process.exit(0); });
-process.on('SIGINT', () => { gameLog('[Shutdown] SIGINT received, saving state...'); saveState(); process.exit(0); });
-
 function createRoom(id) {
     return { id: id, seats: [null, null, null, null], players: {}, count: 0, game: null, botTimeout: null, gameCount: 0, lastFinished: [] };
 }
@@ -266,6 +204,19 @@ function getRoom(roomId) {
 function getHostSid(room) {
     for (let i = 0; i < 4; i++) { if (room.seats[i] && room.seats[i] !== 'BOT') return room.seats[i]; }
     return null;
+}
+
+function destroyRoom(rid) {
+    let room = rooms[rid];
+    if (!room) return;
+    if (room.botTimeout) clearTimeout(room.botTimeout);
+    if (room.game) room.game.active = false;
+    // Notify remaining players
+    io.to(rid).emit('roomDestroyed', { reason: 'Player disconnected' });
+    // Clean up all player mappings
+    Object.keys(room.players).forEach(sid => { delete playerMap[sid]; });
+    delete rooms[rid];
+    gameLog(`[Room] Destroyed room ${rid}`);
 }
 
 io.on('connection', (socket) => {
@@ -307,59 +258,6 @@ io.on('connection', (socket) => {
         
         if (hostSid) {
             Object.keys(room.players).forEach(sid => io.to(sid).emit('hostStatus', { isHost: (sid===hostSid) }));
-        }
-    });
-
-    // Reconnect: player rejoins their seat
-    socket.on('rejoinGame', (data) => {
-        if (!data || !data.roomCode) return;
-        let rid = data.roomCode.trim().toUpperCase();
-        let room = rooms[rid];
-        if (!room) { socket.emit('err', '房间已不存在'); return; }
-        let seat = data.seat;
-        if (seat < 0 || seat > 3) return;
-        // Only rejoin if seat is BOT (was converted on disconnect)
-        if (room.seats[seat] !== 'BOT') { socket.emit('err', '座位已被占用'); return; }
-        // If game already ended, no point rejoining - treat as room gone
-        if (!room.game || !room.game.active) { socket.emit('err', '房间已不存在'); return; }
-
-        // Clean up any previous mapping
-        if (playerMap[socket.id]) {
-            let oldRid = playerMap[socket.id];
-            if (rooms[oldRid]) {
-                let oldSeat = rooms[oldRid].players[socket.id];
-                if (oldSeat !== undefined) {
-                    rooms[oldRid].seats[oldSeat] = (rooms[oldRid].game && rooms[oldRid].game.active) ? 'BOT' : null;
-                    rooms[oldRid].count--;
-                }
-                delete rooms[oldRid].players[socket.id];
-            }
-            delete playerMap[socket.id];
-        }
-
-        socket.join(rid);
-        room.seats[seat] = socket.id;
-        room.players[socket.id] = seat;
-        room.count++;
-        playerMap[socket.id] = rid;
-
-        gameLog(`[Rejoin] Room ${rid}: seat ${seat} rejoined, count=${room.count}`);
-
-        let hostSid = getHostSid(room);
-        socket.emit('initIdentity', { seat, score: 1291, isHost: (socket.id===hostSid), roomCode: rid });
-        io.to(rid).emit('roomUpdate', { count: room.count, seats: room.seats.map(s=>s===null?'EMPTY':(s==='BOT'?'BOT':'HUMAN')), roomId: rid });
-
-        // If game is active, sync current state to the reconnected player
-        if (room.game && room.game.active) {
-            let g = room.game;
-            socket.emit('rejoinState', {
-                hands: g.hands[seat],
-                turn: g.turn,
-                lastHand: g.lastHand,
-                counts: g.hands.map(h => h.length),
-                finished: g.finished,
-                passCnt: g.passCnt
-            });
         }
     });
 
@@ -411,51 +309,13 @@ io.on('connection', (socket) => {
     socket.on('action', d => handleAction(d, socket));
     socket.on('botAction', d => handleAction(d, socket));
 
-    // Client requests game state resync
-    socket.on('requestSync', () => {
-        let rid = playerMap[socket.id];
-        if (!rid || !rooms[rid] || !rooms[rid].game || !rooms[rid].game.active) return;
-        let r = rooms[rid].game;
-        let room = rooms[rid];
-        gameLog(`[Sync] Room ${rid}: Client ${room.players[socket.id]} requested resync, turn=${r.turn}, finished=[${r.finished}]`);
-        let data = {
-            turn: r.turn,
-            lastHand: r.lastHand,
-            finishOrder: r.finished,
-            counts: r.hands.map(h => h.length),
-            passCnt: r.passCnt
-        };
-        // Send bot hands to host for full state recovery
-        if (socket.id === getHostSid(room)) {
-            let bh = {};
-            for (let i = 0; i < 4; i++) { if (room.seats[i] === 'BOT') bh[i] = r.hands[i]; }
-            data.botHands = bh;
-        }
-        socket.emit('gameSync', data);
-    });
-
-    // 掉线处理
+    // 掉线处理: 人类断开 → 直接销毁房间
     socket.on('disconnect', () => {
         let rid = playerMap[socket.id];
         if (rid && rooms[rid]) {
             let r = rooms[rid], seat = r.players[socket.id];
-            gameLog(`[Disconnect] Room ${rid}: seat ${seat} disconnected, count=${r.count-1}`);
-            delete r.players[socket.id]; delete playerMap[socket.id]; r.count--;
-            r.seats[seat] = (r.game && r.game.active) ? 'BOT' : null;
-
-            if (r.count <= 0 && !(r.game && r.game.active)) {
-                if (r.botTimeout) clearTimeout(r.botTimeout);
-                delete rooms[rid];
-            }
-            else {
-                io.to(rid).emit('roomUpdate', { count: r.count, seats: r.seats.map(s=>!s?'EMPTY':(s==='BOT'?'BOT':'HUMAN')), roomId:rid });
-                let h = getHostSid(r);
-                if(h) Object.keys(r.players).forEach(s => io.to(s).emit('hostStatus', { isHost: (s===h) }));
-                // If disconnected player's seat became BOT and it's their turn, schedule auto-pass
-                if (r.game && r.game.active && r.game.turn === seat) {
-                    scheduleBotTimeout(rid);
-                }
-            }
+            gameLog(`[Disconnect] Room ${rid}: seat ${seat} disconnected, destroying room`);
+            destroyRoom(rid);
         }
     });
 });
@@ -636,6 +496,5 @@ function handleAction(d, socket) {
 }
 
 http.listen(PORT, () => {
-    gameLog(`Crayxus V41.2 Running on port ${PORT}`);
-    loadState();
+    gameLog(`Crayxus V42 (Local Mode) Running on port ${PORT}`);
 });
