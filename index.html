@@ -231,7 +231,6 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
       <div id="room-code-display" style="margin-top:8px;font-size:11px;color:#555;text-align:center"></div>
     </div>
     <button class="btn-large" id="find-btn" onclick="joinGame()" disabled>CONNECTING...</button>
-    <button class="btn-large" id="rejoin-btn" onclick="rejoinPrevGame()" style="display:none;background:linear-gradient(135deg,#ff6b00,#ff9500);margin-top:8px">REJOIN GAME</button>
     <div id="conn-status" style="margin-top:10px;font-size:12px;color:#666">Connecting...</div>
   </div>
 </div>
@@ -328,13 +327,11 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 </div>
 
 <script>
-const socket=io('https://crayxus-game.onrender.com',{reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
+const socket=io({reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
 let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
 let roomPlayerCount=1;
-let myRoomCode=localStorage.getItem('crayxus_roomCode')||null;
-let mySavedSeat=parseInt(localStorage.getItem('crayxus_seat'));
-if(!isNaN(mySavedSeat)&&mySavedSeat>=0) mySeat=mySavedSeat;
+let myRoomCode=null;
 let roundEndTimer=null,actionSeq=0,hintIndex=0,hintOptions=[];
 let autoContinueTimer=null,autoContinueLeft=0;
 let botSeats=[1,3],finishOrder=[];
@@ -483,7 +480,6 @@ function updateDim(){
 
 function calcResult(){
   gameOver=true;
-  localStorage.removeItem('crayxus_roomCode');localStorage.removeItem('crayxus_seat');
   stopTimer();
   document.getElementById('ctrls').style.display='none';
   let myTeam=[mySeat,(mySeat+2)%4],opTeam=[(mySeat+1)%4,(mySeat+3)%4];
@@ -612,67 +608,24 @@ socket.on('connect',()=>{
   document.getElementById('conn-status').innerText="Online";
   document.getElementById('conn-status').style.color="#0f0";
   let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
-  let rj=document.getElementById('rejoin-btn');
-  // If we were in a game (game-screen active), auto-rejoin silently
-  let gs=document.getElementById('game-screen');
-  if(myRoomCode && mySeat>=0 && gs && gs.classList.contains('active')){
-    socket.emit('rejoinGame',{roomCode:myRoomCode,seat:mySeat});
-    if(rj)rj.style.display='none';
-  } else if(myRoomCode && mySeat>=0){
-    // On main menu with saved game - show rejoin button, let user choose
-    if(rj)rj.style.display='block';
-  } else {
-    if(rj)rj.style.display='none';
-  }
 });
 socket.on('disconnect',()=>{
   document.getElementById('conn-status').innerText="Reconnecting...";
   document.getElementById('conn-status').style.color="#ff0";
 });
+socket.on('roomDestroyed',d=>{
+  toast('房间已关闭');
+  gameOver=true;
+  switchScreen('main-menu');
+});
 socket.on('err', (msg) => {
   toast("错误: " + msg);
   if(msg.includes("房间已满")) setTimeout(() => location.reload(), 2000);
-  if(msg.includes("房间已不存在") || msg.includes("座位已被占用")){
-    myRoomCode=null;mySeat=-1;
-    localStorage.removeItem('crayxus_roomCode');localStorage.removeItem('crayxus_seat');
-    let rj=document.getElementById('rejoin-btn');if(rj)rj.style.display='none';
-    document.getElementById('conn-status').innerText="Online";
-    document.getElementById('conn-status').style.color="#0f0";
-    // If user was trying to rejoin (on match screen), fall back to new game
-    let matchScreen = document.getElementById('match');
-    if(matchScreen && matchScreen.classList.contains('active')){
-      toast('上局已结束，正在开始新游戏...');
-      socket.emit('joinGame', { roomCode: '' });
-    }
-  }
-});
-
-// Rejoin: restore game state after reconnect
-socket.on('rejoinState',d=>{
-  console.warn('[rejoin] Restoring game state: turn=',d.turn,'finished=',d.finished,'counts=',d.counts);
-  gameOver=false;
-  isMyTurn=false;
-  myCards=d.hands.sort((a,b)=>b.p-a.p);
-  turn=d.turn;
-  lastHand=d.lastHand;
-  if(d.counts){for(let i=0;i<4;i++)counts[i]=d.counts[i];}
-  if(d.finished)finishOrder=d.finished;
-  // Mark all other seats as BOT (since we're the only human)
-  botSeats=[];
-  for(let i=0;i<4;i++){if(i!==mySeat)botSeats.push(i);}
-  switchScreen('game-screen');
-  updateAvatarLabels();
-  renderHand();renderUI();checkTurn();
-  document.getElementById('conn-status').innerText="Online";
-  document.getElementById('conn-status').style.color="#0f0";
-  toast('已重连回游戏');
 });
 
 socket.on('initIdentity',d=>{
   mySeat=Number(d.seat);
   myRoomCode=d.roomCode;
-  localStorage.setItem('crayxus_roomCode',d.roomCode);
-  localStorage.setItem('crayxus_seat',d.seat);
   if(d.isHost||d.seat===0){
     isHost=true;
     document.getElementById('btn-start-match').style.display='block';
@@ -813,26 +766,6 @@ socket.on('turnCorrection',d=>{
   resetWatchdog();
 });
 
-// Handle full game state resync
-socket.on('gameSync',d=>{
-  if(gameOver||!d)return;
-  console.warn('[gameSync] Resyncing: turn=',d.turn,'finishOrder=',d.finishOrder,'counts=',d.counts);
-  turn=d.turn;
-  if(d.lastHand!==undefined){
-    if(d.lastHand===null){lastHand=null;}
-    else{lastHand=d.lastHand;}
-  }
-  if(d.finishOrder)finishOrder=d.finishOrder;
-  if(d.counts){for(let i=0;i<4;i++)counts[i]=d.counts[i];}
-  // Restore bot hands from server (host only) — critical for desync recovery
-  if(d.botHands){
-    for(let seat in d.botHands){botCards[Number(seat)]=d.botHands[seat];}
-    console.warn('[gameSync] Bot hands restored:',Object.keys(d.botHands).map(s=>s+':'+d.botHands[s].length));
-  }
-  botRunningForTurn=-1; // Clear bot lock so next checkTurn can run
-  renderUI();checkTurn();resetWatchdog();
-});
-
 function handleSync(d){
   try{
   if(gameOver&&d.nextTurn!==-1)return;
@@ -947,8 +880,7 @@ function resetWatchdog(keepRetries){
     }
     // After 3 retries (15 seconds stuck), request full resync from server
     if(watchdogRetries>=3){
-      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, requesting resync');
-      socket.emit('requestSync');
+      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing bot retry');
       watchdogRetries=0;
     }else if(botSeats.includes(turn)){
       botRunningForTurn=-1; // Allow watchdog retry
@@ -1161,21 +1093,11 @@ function generateRoomCode(){
 }
 
 function joinGame(){
-  // Clear any saved game - user wants a new game
   myRoomCode=null;mySeat=-1;
-  localStorage.removeItem('crayxus_roomCode');localStorage.removeItem('crayxus_seat');
-  let rj=document.getElementById('rejoin-btn');if(rj)rj.style.display='none';
   const codeInput = document.getElementById('room-code-input');
   const code = codeInput ? codeInput.value.toUpperCase() : '';
   switchScreen('match');
   socket.emit('joinGame', { roomCode: code });
-}
-
-function rejoinPrevGame(){
-  if(!myRoomCode || mySeat<0){toast('没有可恢复的游戏');return;}
-  switchScreen('match');
-  toast('正在重连到游戏...');
-  socket.emit('rejoinGame',{roomCode:myRoomCode,seat:mySeat});
 }
 
 function renderHand(isDealing=false){
