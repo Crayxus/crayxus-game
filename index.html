@@ -792,8 +792,8 @@ function handleSync(d){
       d.cards.forEach((c,idx)=>{
         let div=document.createElement('div');
         let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
-        let txt=c.s==='JOKER'?'★':c.v;
-        let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:0;line-height:1;writing-mode:vertical-lr">JOKER</span>':c.s;
+        let txt=c.s==='JOKER'?'':c.v;
+        let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:1px;line-height:1;writing-mode:vertical-lr;position:absolute;left:1px;top:50%;transform:translateY(-50%)">JOKER</span><span style="position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:12px">🃏</span>':c.s;
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
         div.className='card c-mini card-appear '+cl;
         div.style.animationDelay=idx*50+'ms';
@@ -1162,16 +1162,16 @@ function renderHand(isDealing=false){
       else{ dispVal = c.v; dispSuit = c.s; }
       const dealStyle = isDealing ? 'opacity:0;' : '';
       const wildClass = isWild ? ' c-wild' : '';
-      const jokerCenter = isJoker ? `<div style="display:flex;flex-direction:column;align-items:center;gap:0">
-        <div style="font-size:${Math.round(fCenter*0.7)}px;line-height:1">🃏</div>
-        <div style="display:flex;flex-direction:column;align-items:center;font-family:Arial,sans-serif;font-weight:900;font-size:${Math.round(fVal*0.6)}px;line-height:1.1;letter-spacing:1px">${'JOKER'.split('').map(ch=>`<span>${ch}</span>`).join('')}</div>
+      const jokerCenter = isJoker ? `<div style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none">
+        <div style="position:absolute;left:2px;top:50%;transform:translateY(-50%);writing-mode:vertical-lr;font-family:Arial,sans-serif;font-weight:900;font-size:${Math.max(Math.round(fVal*0.55),8)}px;letter-spacing:2px;line-height:1">JOKER</div>
+        <div style="position:absolute;top:50%;left:55%;transform:translate(-50%,-50%);font-size:${Math.round(fCenter*1.3)}px;line-height:1">🃏</div>
       </div>` : '';
       stackCard.innerHTML = `<div class="card ${colorClass}${wildClass}" style="${dealStyle}width:${CW}px;height:${CH}px;">
         <div class="peek-label">
-          <span class="peek-val" style="font-size:${fVal}px">${dispVal}</span>
+          <span class="peek-val" style="font-size:${fVal}px">${isJoker?'':dispVal}</span>
           <span class="peek-suit" style="font-size:${fSuit}px">${dispSuit}</span>
         </div>
-        <div class="card-center" style="font-size:${fCenter}px">${isJoker?jokerCenter:dispSuit}</div>
+        ${isJoker?jokerCenter:`<div class="card-center" style="font-size:${fCenter}px">${dispSuit}</div>`}
       </div>`;
       stackCard.onclick = e=>{
         e.stopPropagation(); c.sel=!c.sel; renderHand(); AudioSys.play('click');
@@ -1313,7 +1313,42 @@ function canBeat(c,t,l){let nb=(t.type==='bomb'||t.type==='straight_flush'),lb=(
 
 function analyzeHand(h){let wild=h.filter(x=>x.v==='2'&&x.s==='♥'),norm=h.filter(x=>!(x.v==='2'&&x.s==='♥'));let m={};norm.forEach(c=>m[c.p]=(m[c.p]||[]).concat(c));let vals=Object.keys(m).map(Number).sort((a,b)=>a-b);let r={singles:[],pairs:[],triples:[],bombs:[],plates:[],tubes:[],straights:[],straight_flushes:[],fullhouses:[]};vals.forEach(v=>{let g=m[v];if(g.length>=4){r.bombs.push([...g])}if(g.length+wild.length>=4&&g.length<4&&!g.some(x=>x.s==='JOKER')){let need=4-g.length;if(need<=wild.length)r.bombs.push(g.concat(wild.slice(0,need)))}if(g.length>=3)r.triples.push(g.slice(0,3));if(g.length>=2)r.pairs.push(g.slice(0,2));if(g.length>=1)r.singles.push(g.slice(0,1));});r.bombs.sort((a,b)=>b.length-a.length||b[0].p-a[0].p);for(let i=0;i<r.triples.length-1;i++){if(r.triples[i][0].p<=14&&r.triples[i+1][0].p<=14&&r.triples[i+1][0].p===r.triples[i][0].p+1)r.plates.push(r.triples[i].concat(r.triples[i+1]))}for(let i=0;i<r.pairs.length-2;i++){if(r.pairs[i][0].p<=14&&r.pairs[i+2][0].p<=14&&r.pairs[i+1][0].p===r.pairs[i][0].p+1&&r.pairs[i+2][0].p===r.pairs[i+1][0].p+1)r.tubes.push(r.pairs[i].concat(r.pairs[i+1],r.pairs[i+2]))}let straightVals=vals.filter(v=>v<=14);for(let i=0;i<straightVals.length-4;i++){let ok=true;for(let j=0;j<4;j++){if(straightVals[i+j+1]!==straightVals[i+j]+1){ok=false;break}}if(ok){let seq=[];for(let j=0;j<5;j++)seq.push(m[straightVals[i+j]][0]);r.straights.push(seq)}}let nj=norm.filter(c=>c.s!=='JOKER'&&c.p<=14);for(let suit of ['♠','♥','♣','♦']){let sc=nj.filter(c=>c.s===suit);if(sc.length>=5){sc.sort((a,b)=>a.p-b.p);for(let i=0;i<=sc.length-5;i++){let seq=sc.slice(i,i+5),ok=true;for(let j=0;j<4;j++){if(seq[j+1].p!==seq[j].p+1){ok=false;break}}if(ok)r.straight_flushes.push(seq)}}}for(let ti=0;ti<r.triples.length;ti++){for(let pi=0;pi<r.pairs.length;pi++){if(r.triples[ti][0].p!==r.pairs[pi][0].p)r.fullhouses.push(r.triples[ti].concat(r.pairs[pi]))}}return r}
 
-function findMatch(g,l){if(l.type==='1'){for(let s of g.singles)if(s[0].p>l.val)return s}if(l.type==='2'){for(let p of g.pairs)if(p[0].p>l.val)return p}if(l.type==='3'){for(let t of g.triples)if(t[0].p>l.val)return t}if(l.type==='plate'){for(let p of g.plates)if(p[0].p>l.val)return p}if(l.type==='tube'){for(let t of g.tubes)if(t[0].p>l.val)return t}if(l.type==='straight'){for(let s of g.straights){let mv=Math.max(...s.map(c=>c.p));if(mv>l.val)return s}}if(l.type==='straight_flush'){for(let sf of g.straight_flushes){let mv=Math.max(...sf.map(c=>c.p));if(mv>l.val)return sf}}if(l.type==='3+2'){for(let fh of g.fullhouses){let tm={};fh.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm){if(tm[v]>=3)tv=Number(v)}if(tv>l.val)return fh}}return null}
+function findMatch(g,l){
+  let cntMap={};myCards.forEach(c=>cntMap[c.p]=(cntMap[c.p]||0)+1);
+  if(l.type==='1'){
+    // Prefer natural singles (count==1)
+    let nat=g.singles.filter(s=>s[0].p>l.val&&cntMap[s[0].p]===1);
+    if(nat.length)return nat[0];
+    for(let s of g.singles)if(s[0].p>l.val)return s;
+  }
+  if(l.type==='2'){
+    // Prefer natural pairs (count==2)
+    let nat=g.pairs.filter(p=>p[0].p>l.val&&cntMap[p[0].p]===2);
+    if(nat.length)return nat[0];
+    for(let p of g.pairs)if(p[0].p>l.val)return p;
+  }
+  if(l.type==='3'){
+    // Prefer natural triples (count==3)
+    let nat=g.triples.filter(t=>t[0].p>l.val&&cntMap[t[0].p]===3);
+    if(nat.length)return nat[0];
+    for(let t of g.triples)if(t[0].p>l.val)return t;
+  }
+  if(l.type==='plate'){for(let p of g.plates)if(p[0].p>l.val)return p}
+  if(l.type==='tube'){for(let t of g.tubes)if(t[0].p>l.val)return t}
+  if(l.type==='straight'){for(let s of g.straights){let mv=Math.max(...s.map(c=>c.p));if(mv>l.val)return s}}
+  if(l.type==='straight_flush'){for(let sf of g.straight_flushes){let mv=Math.max(...sf.map(c=>c.p));if(mv>l.val)return sf}}
+  if(l.type==='3+2'){
+    // Prefer fullhouses with natural triple (count==3) + natural pair (count==2)
+    let valid=g.fullhouses.filter(fh=>{let tm={};fh.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm){if(tm[v]>=3)tv=Number(v)}return tv>l.val});
+    let nat=valid.filter(fh=>{let tm={};fh.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let triOk=false,pairOk=false;for(let v in tm){if(tm[v]>=3&&cntMap[Number(v)]===3)triOk=true;if(tm[v]===2&&cntMap[Number(v)]===2)pairOk=true}return triOk&&pairOk});
+    if(nat.length)return nat[0];
+    // Fallback: at least natural triple
+    let natTri=valid.filter(fh=>{let tm={};fh.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);for(let v in tm){if(tm[v]>=3&&cntMap[Number(v)]===3)return true}return false});
+    if(natTri.length)return natTri[0];
+    if(valid.length)return valid[0];
+  }
+  return null;
+}
 
 function findBomb(g,l){for(let b of g.bombs){let t={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,t,l))return b}return null}
 
@@ -1563,8 +1598,8 @@ function tProcessAction(d){
         d.cards.forEach((c,idx)=>{
           let div=document.createElement('div');
           let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
-          let txt=c.s==='JOKER'?(c.v==='Bg'?'JR':'jr'):c.v;
-          let ico=c.s==='JOKER'?'🤡':c.s;
+          let txt=c.s==='JOKER'?'':c.v;
+          let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:1px;line-height:1;writing-mode:vertical-lr;position:absolute;left:1px;top:50%;transform:translateY(-50%)">JOKER</span><span style="position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:12px">🃏</span>':c.s;
           if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
           div.className='card c-mini card-appear '+cl;
           div.style.animationDelay=idx*50+'ms';
@@ -1905,8 +1940,8 @@ async function showCoachPanel(lastAction,preHand,preLastHand,prePlayedSnap,preBo
     }else{
       s.cards.forEach(c=>{
         let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
-        let txt=c.s==='JOKER'?'★':c.v;
-        let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:0;line-height:1;writing-mode:vertical-lr">JOKER</span>':c.s;
+        let txt=c.s==='JOKER'?'':c.v;
+        let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:1px;line-height:1;writing-mode:vertical-lr;position:absolute;left:1px;top:50%;transform:translateY(-50%)">JOKER</span><span style="position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:12px">🃏</span>':c.s;
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
         cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div class="val-txt" style="font-size:10px;padding:2px">'+txt+'</div><div class="center-icon" style="font-size:14px">'+ico+'</div></div>';
       });
