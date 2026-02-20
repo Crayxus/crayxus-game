@@ -294,9 +294,9 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
     <div class="out o-m" id="out-0"></div>
     <div class="ctrls" id="ctrls">
       <div class="timer-txt" id="my-timer-txt">60s</div>
-      <button class="btn b-pass" id="btn-pass" onclick="sendPass()">PASS</button>
-      <button class="btn b-hint" onclick="doHint()">HINT</button>
-      <button class="btn b-play" onclick="sendPlay()">PLAY</button>
+      <button class="btn b-pass" id="btn-pass" onclick="sendPass()">过牌</button>
+      <button class="btn b-hint" onclick="doHint()">提示/重选</button>
+      <button class="btn b-play" onclick="sendPlay()">出牌</button>
     </div>
     <div id="hand"></div>
     <div class="toast" id="tst"></div>
@@ -609,6 +609,9 @@ socket.on('connect',()=>{
   document.getElementById('conn-status').style.color="#0f0";
   let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
 });
+// Notify server immediately when browser tab is closed/refreshed
+window.addEventListener('beforeunload',()=>{socket.emit('leaveGame');socket.disconnect();});
+window.addEventListener('pagehide',()=>{socket.emit('leaveGame');socket.disconnect();});
 socket.on('disconnect',()=>{
   document.getElementById('conn-status').innerText="Reconnecting...";
   document.getElementById('conn-status').style.color="#ff0";
@@ -790,7 +793,7 @@ function handleSync(d){
         let div=document.createElement('div');
         let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
         let txt=c.s==='JOKER'?'★':c.v;
-        let ico=c.s==='JOKER'?'🃏':c.s;
+        let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:0;line-height:1;writing-mode:vertical-lr">JOKER</span>':c.s;
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
         div.className='card c-mini card-appear '+cl;
         div.style.animationDelay=idx*50+'ms';
@@ -943,14 +946,24 @@ function sendPass(){
 
 function doHint(){
   myCards.forEach(c=>c.sel=false);
+  // Count cards per power value for natural grouping detection
+  let cntMap={};myCards.forEach(c=>cntMap[c.p]=(cntMap[c.p]||0)+1);
   if(!lastHand){
     let g=analyzeHand(myCards);
-    if(hintOptions.length===0||hintIndex>=hintOptions.length){
+    // If we've cycled through all options, reset and deselect
+    if(hintIndex>0&&hintOptions.length>0&&hintIndex>=hintOptions.length){
+      hintOptions=[];hintIndex=0;toast('已重选');renderHand();AudioSys.play('click');return;
+    }
+    if(hintOptions.length===0){
       hintOptions=[];
-      if(g.singles.length){let vs=g.singles.filter(s=>s[0].s!=='JOKER');vs.sort((a,b)=>a[0].p-b[0].p);if(vs.length)hintOptions.push({cards:vs[0],label:'单牌'})}
-      if(g.pairs.length){g.pairs.sort((a,b)=>a[0].p-b[0].p);hintOptions.push({cards:g.pairs[0],label:'对子'})}
-      if(g.triples.length){g.triples.sort((a,b)=>a[0].p-b[0].p);hintOptions.push({cards:g.triples[0],label:'三条'})}
-      if(g.fullhouses.length)hintOptions.push({cards:g.fullhouses[0],label:'三带二'});
+      // Singles: prefer cards that are truly alone (count==1), exclude jokers
+      if(g.singles.length){let vs=g.singles.filter(s=>s[0].s!=='JOKER'&&cntMap[s[0].p]===1);vs.sort((a,b)=>a[0].p-b[0].p);if(!vs.length)vs=g.singles.filter(s=>s[0].s!=='JOKER');vs.sort((a,b)=>a[0].p-b[0].p);if(vs.length)hintOptions.push({cards:vs[0],label:'单牌'})}
+      // Pairs: prefer natural pairs (count==2), not from triples/bombs
+      if(g.pairs.length){let np=g.pairs.filter(p=>cntMap[p[0].p]===2);np.sort((a,b)=>a[0].p-b[0].p);if(np.length)hintOptions.push({cards:np[0],label:'对子'});else{g.pairs.sort((a,b)=>a[0].p-b[0].p);hintOptions.push({cards:g.pairs[0],label:'对子'})}}
+      // Triples: prefer natural triples (count==3), not from bombs
+      if(g.triples.length){let nt=g.triples.filter(t=>cntMap[t[0].p]===3);nt.sort((a,b)=>a[0].p-b[0].p);if(nt.length)hintOptions.push({cards:nt[0],label:'三条'});else{g.triples.sort((a,b)=>a[0].p-b[0].p);hintOptions.push({cards:g.triples[0],label:'三条'})}}
+      // Fullhouses: prefer natural triple (count==3) + natural pair (count==2)
+      if(g.fullhouses.length){let nfh=g.fullhouses.filter(f=>{let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let triOk=false,pairOk=false;for(let v in tm){if(tm[v]>=3&&cntMap[Number(v)]===3)triOk=true;if(tm[v]===2&&cntMap[Number(v)]===2)pairOk=true}return triOk&&pairOk});if(nfh.length)hintOptions.push({cards:nfh[0],label:'三带二'});else if(g.fullhouses.length)hintOptions.push({cards:g.fullhouses[0],label:'三带二'})}
       if(g.straights.length)hintOptions.push({cards:g.straights[0],label:'顺子'});
       if(g.straight_flushes.length)hintOptions.push({cards:g.straight_flushes[0],label:'同花顺'});
       if(g.plates.length)hintOptions.push({cards:g.plates[0],label:'钢板'});
@@ -961,6 +974,8 @@ function doHint(){
     }
     if(hintOptions.length){let opt=hintOptions[hintIndex];opt.cards.forEach(c=>c.sel=true);toast('提示: '+opt.label+' ('+(hintIndex+1)+'/'+hintOptions.length+')');hintIndex++}
   }else{
+    // If already showing a hint, next click resets
+    if(hintOptions.length>0&&hintIndex>0){hintOptions=[];hintIndex=0;toast('已重选');renderHand();AudioSys.play('click');return;}
     hintOptions=[];hintIndex=0;
     let g=analyzeHand(myCards),pick=findMatch(g,lastHand);
     if(!pick&&lastHand.owner!==(mySeat+2)%4)pick=findBomb(g,lastHand);
@@ -969,7 +984,7 @@ function doHint(){
       let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};
       if(canBeat(sf,sft,lastHand))pick=sf;
     }
-    if(pick)pick.forEach(c=>c.sel=true);else toast("没牌可出");
+    if(pick){pick.forEach(c=>c.sel=true);hintOptions=[{cards:pick}];hintIndex=1;}else toast("没牌可出");
   }
   renderHand();AudioSys.play('click');
 }
@@ -1891,7 +1906,7 @@ async function showCoachPanel(lastAction,preHand,preLastHand,prePlayedSnap,preBo
       s.cards.forEach(c=>{
         let cl=(['♥','♦'].includes(c.s)||c.v==='Bg')?'c-red':'c-blk';
         let txt=c.s==='JOKER'?'★':c.v;
-        let ico=c.s==='JOKER'?'🃏':c.s;
+        let ico=c.s==='JOKER'?'<span style="font-size:7px;font-weight:900;letter-spacing:0;line-height:1;writing-mode:vertical-lr">JOKER</span>':c.s;
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
         cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div class="val-txt" style="font-size:10px;padding:2px">'+txt+'</div><div class="center-icon" style="font-size:14px">'+ico+'</div></div>';
       });
