@@ -309,6 +309,16 @@ io.on('connection', (socket) => {
     socket.on('action', d => handleAction(d, socket));
     socket.on('botAction', d => handleAction(d, socket));
 
+    // 主动离开: 浏览器关闭/刷新时客户端发送
+    socket.on('leaveGame', () => {
+        let rid = playerMap[socket.id];
+        if (rid && rooms[rid]) {
+            let r = rooms[rid], seat = r.players[socket.id];
+            gameLog(`[Leave] Room ${rid}: seat ${seat} left, destroying room`);
+            destroyRoom(rid);
+        }
+    });
+
     // 掉线处理: 人类断开 → 直接销毁房间
     socket.on('disconnect', () => {
         let rid = playerMap[socket.id];
