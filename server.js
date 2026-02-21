@@ -275,14 +275,15 @@ io.on('connection', (socket) => {
         for(let i=0; i<108; i++) hands[i%4].push(deck[i]);
         
         r.gameCount++;
-        // 1游先出: first game host goes first; subsequent games 头游 leads
-        let startTurn;
-        if(r.gameCount === 1){
-            startTurn = r.players[socket.id] || 0;
-        }else if(r.lastFinished.length > 0){
-            startTurn = r.lastFinished[0];
-        }else{
-            startTurn = Math.floor(Math.random()*4);
+        // High card: each player draws a random card, highest goes first
+        let highCards = [];
+        for(let i=0; i<4; i++){
+            let idx = Math.floor(Math.random() * hands[i].length);
+            highCards.push(hands[i][idx]);
+        }
+        let maxP = -1, startTurn = 0;
+        for(let i=0; i<4; i++){
+            if(highCards[i].p > maxP || (highCards[i].p === maxP && Math.random()>0.5)){ maxP = highCards[i].p; startTurn = i; }
         }
 
         r.game = { active: true, turn: startTurn, hands: hands, lastHand: null, passCnt: 0, finished: [] };
@@ -300,7 +301,7 @@ io.on('connection', (socket) => {
             }
         });
         
-        io.to(r.id).emit('gameStart', { startTurn: r.game.turn, botSeats });
+        io.to(r.id).emit('gameStart', { startTurn: r.game.turn, botSeats, highCards });
         gameLog(`[Game] Room ${playerMap[socket.id]}: Game #${r.gameCount} started, turn=${startTurn}, bots=[${botSeats}]`);
         // If first turn is a bot, schedule auto-pass
         scheduleBotTimeout(playerMap[socket.id]);
