@@ -178,11 +178,28 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 @media(max-width:430px){.dashboard{display:none}#view{width:100%}#game-ui{flex-direction:column}.p-top{top:5px}.p-left{top:20%;left:3px}.p-right{top:20%;right:3px}.timer-ring{width:36px;height:36px}.av{width:30px;height:30px;font-size:7px;border-width:2px}.badge-n{width:14px;height:14px;font-size:7px;top:-2px;right:-2px}.badge-finish{font-size:6px;padding:1px 3px}.badge-type{font-size:6px;padding:1px 2px}.out{width:140px;height:48px}.o-t{top:48px}.o-l{top:22%;left:36px}.o-r{top:22%;right:36px}.o-m{bottom:52%}.c-mini{width:30px!important;height:42px!important;margin-right:-15px}.c-mini .val-txt{font-size:8px;padding:0}.c-mini .center-icon{font-size:11px}#hand{height:140px;bottom:0;gap:4px;padding:0 4px 4px}.grp-col .stack-card{width:36px;height:52px}.grp-col .stack-card .card{width:36px;height:52px;border-radius:4px}.grp-col .stack-card .card .peek-val{font-size:10px}.grp-col .stack-card .card .peek-suit{font-size:9px}.grp-col .stack-card .card .card-center{font-size:14px}.grp-col .stack-card.sel .card{transform:translateY(-9px)}.c-wild::after{font-size:8px}.ctrls{bottom:46%;gap:6px}.btn{padding:6px 14px;font-size:10px;letter-spacing:0}.p-me{bottom:50%}.p-me .av{width:24px;height:24px;font-size:6px}.tag{font-size:7px;padding:1px 4px;top:-14px}.timer-txt{font-size:10px;top:-16px}.toast{font-size:10px;padding:4px 12px;border-radius:16px}.deck-center{width:36px;height:50px;border-radius:4px}.res-box{width:90vw;padding:16px;border-radius:12px}.res-type{font-size:20px;margin-bottom:4px}.res-score{font-size:32px;margin-bottom:10px}.res-btn{padding:8px 20px;font-size:12px}.logo{font-size:38px}.lobby-card{width:90vw;max-width:300px;padding:14px}.btn-large{padding:10px;font-size:14px}.seat-grid{grid-template-columns:repeat(4,50px);gap:6px}.seat-slot{width:50px;height:50px;font-size:9px}.match-loader{width:32px;height:32px}}
 @media(max-width:375px){#hand{height:120px}.grp-col .stack-card{width:32px;height:46px}.grp-col .stack-card .card{width:32px;height:46px}.grp-col .stack-card .card .peek-val{font-size:9px}.grp-col .stack-card .card .peek-suit{font-size:8px}.grp-col .stack-card .card .card-center{font-size:12px}.out{width:120px;height:44px}.o-l{left:30px}.o-r{right:30px}.ctrls{bottom:80px;gap:4px}.btn{padding:5px 10px;font-size:9px}.p-me{bottom:72px}.av{width:28px;height:28px;font-size:6px}.timer-ring{width:34px;height:34px}}
 @media(hover:none) and (pointer:coarse){.grp-col .stack-card{-webkit-tap-highlight-color:transparent}.grp-col .stack-card:active .card{transform:translateY(-10px);transition:transform 0.08s}.btn{min-height:44px;min-width:44px}.res-btn{min-height:44px}}
+#highcard-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:900;display:none;flex-direction:column;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+#highcard-overlay .hc-title{font-size:20px;font-weight:900;color:var(--gold);margin-bottom:24px}
+#highcard-overlay .hc-row{display:flex;gap:20px;margin-bottom:20px}
+.hc-slot{display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;transform:scale(0.5);transition:all 0.4s ease}
+.hc-slot.show{opacity:1;transform:scale(1)}
+.hc-slot.winner{transform:scale(1.15)}
+.hc-slot .hc-label{font-size:13px;color:#888;font-weight:bold}
+.hc-slot .hc-label.win{color:var(--gold)}
+.hc-slot .hc-card{width:70px;height:100px;background:#f0f0f0;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #666;transition:border-color 0.3s}
+.hc-slot.winner .hc-card{border-color:var(--gold);box-shadow:0 0 20px rgba(255,200,0,0.5)}
+.hc-card .hc-val{font-size:22px;font-weight:900}
+.hc-card .hc-suit{font-size:28px}
+.hc-card.c-red{color:#d00}.hc-card.c-blk{color:#111}
 </style>
 </head>
 <body>
 <div id="boot" class="screen active" onclick="bootSystem()">
   <div class="logo">CRAYXUS</div>
+<div id="highcard-overlay">
+  <div class="hc-title">翻牌定先手</div>
+  <div class="hc-row" id="hc-row"></div>
+</div>
   <div style="color:var(--gold);margin-top:10px;font-size:28px;font-weight:bold">V41.1</div>
   <div style="color:#666;margin-top:20px;animation:flash 1.5s infinite">CLICK TO START</div>
   <style>@keyframes flash{0%,100%{opacity:0.3}50%{opacity:1}}</style>
@@ -712,9 +729,38 @@ function _doEnterGame(d){
 
 socket.on('gameStart',d=>{
   _pendingGame=null;
-  _doEnterGame(d);
-  _autoContinue=false;
+  if(d.highCards&&d.highCards.length===4){
+    showHighCard(d.highCards,d.startTurn,()=>{_doEnterGame(d);_autoContinue=false;});
+  }else{
+    _doEnterGame(d);_autoContinue=false;
+  }
 });
+
+function showHighCard(cards,winner,cb){
+  let overlay=document.getElementById('highcard-overlay');
+  let row=document.getElementById('hc-row');
+  let labels=['YOU','RIGHT','PARTNER','LEFT'];
+  row.innerHTML='';
+  for(let i=0;i<4;i++){
+    let seat=(mySeat+i)%4;
+    let c=cards[seat];
+    let isRed=['♥','♦'].includes(c.s)||c.v==='Bg';
+    let val=c.s==='JOKER'?(c.v==='Bg'?'大王':'小王'):c.v;
+    let suit=c.s==='JOKER'?'★':c.s;
+    let slot=document.createElement('div');
+    slot.className='hc-slot';
+    slot.dataset.seat=seat;
+    slot.innerHTML=`<div class="hc-label">${labels[i]}</div><div class="hc-card ${isRed?'c-red':'c-blk'}"><div class="hc-val">${val}</div><div class="hc-suit">${suit}</div></div>`;
+    row.appendChild(slot);
+  }
+  overlay.style.display='flex';
+  let slots=row.querySelectorAll('.hc-slot');
+  slots.forEach((s,i)=>setTimeout(()=>s.classList.add('show'),300+i*400));
+  setTimeout(()=>{
+    slots.forEach(s=>{if(Number(s.dataset.seat)===winner){s.classList.add('winner');s.querySelector('.hc-label').classList.add('win');s.querySelector('.hc-label').textContent+=' 先出';}});
+  },300+4*400);
+  setTimeout(()=>{overlay.style.display='none';cb();},300+4*400+1500);
+}
 
 function updateAvatarLabels(){
   let pn=['YOU','RIGHT','PARTNER','LEFT'];
@@ -797,7 +843,7 @@ function handleSync(d){
         if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
         div.className='card c-mini card-appear '+cl;
         div.style.animationDelay=idx*50+'ms';
-        if(c.s==='JOKER'){div.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;position:relative"><div style="font-size:64px;line-height:1;margin-top:-4px">★</div><div style="position:absolute;bottom:2px;font-size:8px;font-weight:900;letter-spacing:0.5px;font-family:Arial,sans-serif">JOKER</div></div>';}
+        if(c.s==='JOKER'){div.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden"><div style="font-size:44px;line-height:1">★</div><div style="font-size:9px;font-weight:900;letter-spacing:0.5px;font-family:Arial,sans-serif;margin-top:-2px">JOKER</div></div>';}
         else{div.innerHTML='<div class="val-txt">'+txt+'</div><div class="center-icon">'+ico+'</div>';}
         area.appendChild(div);
       });
@@ -1165,7 +1211,7 @@ function renderHand(isDealing=false){
       const wildClass = isWild ? ' c-wild' : '';
       const jokerCenter = isJoker ? `<div style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none">
         <div style="position:absolute;left:1px;top:50%;transform:translateY(-50%);writing-mode:vertical-lr;font-family:Arial,sans-serif;font-weight:900;font-size:${Math.max(Math.round(fVal*0.55),8)}px;letter-spacing:2px;line-height:1">JOKER</div>
-        <div style="position:absolute;top:48%;left:55%;transform:translate(-50%,-50%);font-size:${Math.round(CH*0.8)}px;line-height:1">★</div>
+        <div style="position:absolute;top:48%;left:55%;transform:translate(-50%,-50%);font-size:${Math.round(CH*0.55)}px;line-height:1">★</div>
       </div>` : '';
       stackCard.innerHTML = `<div class="card ${colorClass}${wildClass}" style="${dealStyle}width:${CW}px;height:${CH}px;">
         <div class="peek-label">
@@ -1604,7 +1650,7 @@ function tProcessAction(d){
           if(c.v==='2'&&c.s==='♥')cl+=' c-wild';
           div.className='card c-mini card-appear '+cl;
           div.style.animationDelay=idx*50+'ms';
-          if(c.s==='JOKER'){div.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;position:relative"><div style="font-size:64px;line-height:1;margin-top:-4px">★</div><div style="position:absolute;bottom:2px;font-size:8px;font-weight:900;letter-spacing:0.5px;font-family:Arial,sans-serif">JOKER</div></div>';}
+          if(c.s==='JOKER'){div.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden"><div style="font-size:44px;line-height:1">★</div><div style="font-size:9px;font-weight:900;letter-spacing:0.5px;font-family:Arial,sans-serif;margin-top:-2px">JOKER</div></div>';}
           else{div.innerHTML='<div class="val-txt">'+txt+'</div><div class="center-icon">'+ico+'</div>';}
           area.appendChild(div);
         });
