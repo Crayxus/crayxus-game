@@ -1,4 +1,4 @@
-const CACHE_NAME = 'guandan-ai-v1';
+const CACHE_NAME = 'guandan-ai-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -21,7 +21,7 @@ const ASSETS = [
 ];
 
 // Model cached separately (large file, cache-first)
-const MODEL_URL = './model/guandan_dmc.onnx';
+const MODEL_URL = './onnx_model/guandan_dmc.onnx';
 
 self.addEventListener('install', event => {
     event.waitUntil(
