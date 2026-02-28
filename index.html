@@ -281,6 +281,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
   <div class="dashboard">
     <div style="font-size:12px;color:#888;margin-bottom:5px">SCOREBOARD</div>
     <div class="row"><span>ELO</span><span class="val-hl" id="disp-elo" style="color:var(--neon)">1500</span></div>
+    <div id="ai-model-badge" style="font-size:10px;color:#555;margin-top:2px;margin-bottom:4px">AI: 加载中...</div>
     <div style="height:1px;background:#333;margin:10px 0"></div>
     <div id="player-scores" style="flex:1;display:flex;flex-direction:column;gap:6px">
       <div class="p-score-row me" id="ps-0"><span class="ps-name">YOU</span><span class="ps-pts">0</span></div>
@@ -1080,7 +1081,8 @@ async function modelPickMove(seat,hand){
       g.triples.forEach(t=>moves.push(t));g.fullhouses.forEach(f=>moves.push(f));
       g.straights.forEach(s=>moves.push(s));g.straight_flushes.forEach(s=>moves.push(s));
       g.plates.forEach(p=>moves.push(p));g.tubes.forEach(t=>moves.push(t));
-      g.bombs.forEach(b=>moves.push(b));
+      // Only include bombs as lead option when hand is getting short (<=15 cards)
+      if(hand.length<=15) g.bombs.forEach(b=>moves.push(b));
     }else if(isTeammate){
       let match=findMatch(g,lastHand);
       if(match&&match.length>=hand.length)moves.push(match);
@@ -1924,6 +1926,7 @@ async function loadOnnxModel(){
     dmcMode=true;
     setProgress(100,'AI Ready ✓');
     let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC AI模型已加载';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC 78% (77MB) ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e){
     console.warn('DMC model not available, trying legacy:',e.message);
     try{
