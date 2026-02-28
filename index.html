@@ -1624,6 +1624,57 @@ let onnxSession=null;
 let dmcMode=false; // true if using DMC dual-input model
 let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool} for history encoding
 const ONNX_MODEL_URL_DMC='onnx_model/guandan_dmc.onnx';
+const MCTS_API='http://localhost:8000';
+let mctsAvailable=false; // detected at startup
+
+async function checkMCTS(){
+  try{
+    let r=await fetch(MCTS_API+'/health',{signal:AbortSignal.timeout(1500)});
+    if(r.ok){mctsAvailable=true;console.log('%c[MCTS] Server online','color:#0f0;font-weight:bold');}
+  }catch(e){mctsAvailable=false;}
+}
+
+// Serialize current game state for MCTS API
+function serializeState(seat){
+  let hands={};
+  for(let s=0;s<4;s++){
+    hands[String(s)]=(tLocalCards[s]||[]).map(c=>cardToUid(c));
+  }
+  let played={};
+  for(let s=0;s<4;s++){
+    played[String(s)]=Array.from(tPlayedCards[s]||new Float32Array(54));
+  }
+  let lh=lastHand?{owner:lastHand.owner,type:lastHand.type,val:lastHand.val,count:lastHand.count,score:lastHand.score||0}:null;
+  let hist=tMoveHistory.map(m=>({seat:m.seat,cards:Array.isArray(m.cards)?m.cards:[],is_bomb:!!m.isBomb}));
+  return{seat,hands,played_cards:played,last_hand:lh,counts:[...counts],finish_order:[...finishOrder],bomb_counts:[...tBombCounts],pass_count:tPassCount,move_history:hist};
+}
+
+// Call MCTS server, returns array of uids (best move) or null on failure
+async function callMCTS(seat){
+  if(!mctsAvailable)return null;
+  try{
+    let body=serializeState(seat);
+    let r=await fetch(MCTS_API+'/pick_move',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body),signal:AbortSignal.timeout(8000)
+    });
+    if(!r.ok)return null;
+    let data=await r.json();
+    let uids=data.move_uids;
+    if(!Array.isArray(uids))return null;
+    if(uids.length===0)return[]; // PASS
+    // Convert uids back to card objects from tLocalCards
+    let handMap={};
+    (tLocalCards[seat]||[]).forEach(c=>{ let u=cardToUid(c); if(!handMap[u])handMap[u]=[]; handMap[u].push(c); });
+    let result=[];
+    for(let u of uids){if(handMap[u]&&handMap[u].length){result.push(handMap[u].shift());}else{return null;}}
+    return result;
+  }catch(e){
+    if(e.name!=='AbortError')console.warn('[MCTS] API error:',e.message);
+    mctsAvailable=false; // stop retrying after failure
+    return null;
+  }
+}
 const ONNX_MODEL_URL_OLD='onnx_model/guandan_ai.onnx';
 
 function buildDeck(){
@@ -1747,7 +1798,13 @@ async function tRunBot(seat){
   try{
     let hand=tLocalCards[seat];
     if(!hand||hand.length===0){tProcessAction({seat,type:'pass',cards:[]});return}
-    let best=await beamPickMove(seat,hand);
+    // Try MCTS server first, fall back to beam search
+    let best=null;
+    if(mctsAvailable){
+      let uids=await callMCTS(seat);
+      if(uids!==null)best=uids;
+    }
+    if(best===null)best=await beamPickMove(seat,hand);
     if(best==null)best=heuristicPickMove(seat,hand);
     if(best&&best.length>0){
       let type=getHandType(best);
@@ -2216,6 +2273,8 @@ function dismissCoach(){
 
 // Preload ONNX model on page load so it's ready when game starts
 loadOnnxModel();
+// Check if local MCTS server is available
+checkMCTS();
 
 // Unregister any old service workers to clear stale cache errors
 if('serviceWorker' in navigator){
