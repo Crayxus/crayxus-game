@@ -1,0 +1,20 @@
+{
+    "name": "AI掼蛋",
+    "short_name": "AI掼蛋",
+    "description": "智能掼蛋陪练 - 纯前端AI对战",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "portrait",
+    "theme_color": "#0a0a0a",
+    "background_color": "#0a0a0a",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='64' fill='%230a0a0a'/><text x='256' y='380' text-anchor='middle' font-size='320'>🃏</text></svg>",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["games", "entertainment"],
+    "lang": "zh-CN"
+}
