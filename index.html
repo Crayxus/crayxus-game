@@ -1118,6 +1118,117 @@ async function modelPickMove(seat,hand){
   }catch(e){console.error('modelPickMove error:',e);return undefined}
 }
 
+// ---- BEAM SEARCH (lookahead) ----
+// Heuristic move simulator for beam search (no model, no globals except analyzeHand/getHandType)
+function simHeuristicMove(hand,simLastHand,seat){
+  if(!hand||hand.length===0)return[];
+  let g=analyzeHand(hand);
+  if(!simLastHand){
+    if(g.singles.length){let normals=g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');normals.sort((a,b)=>a[0].p-b[0].p);return normals.length?normals[0]:g.singles[0]}
+    let h=[...hand].sort((a,b)=>a.p-b.p);return[h[0]];
+  }
+  if(simLastHand.owner===(seat+2)%4)return[]; // teammate winning, pass
+  if(simLastHand.type==='1'){for(let s of g.singles)if(s[0].p>simLastHand.val)return s}
+  else if(simLastHand.type==='2'){for(let p of g.pairs)if(p[0].p>simLastHand.val)return p}
+  else if(simLastHand.type==='3'){for(let t of g.triples)if(t[0].p>simLastHand.val)return t}
+  else if(simLastHand.type==='straight'){for(let s of g.straights)if(Math.max(...s.map(c=>c.p))>simLastHand.val)return s}
+  else if(simLastHand.type==='3+2'){for(let f of g.fullhouses){let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm)if(tm[v]>=3)tv=Number(v);if(tv>simLastHand.val)return f}}
+  else if(simLastHand.type==='plate'){for(let p of g.plates)if(p[0].p>simLastHand.val)return p}
+  else if(simLastHand.type==='tube'){for(let t of g.tubes)if(t[0].p>simLastHand.val)return t}
+  return[];
+}
+// Score a simulated state: fewer my/teammate cards = good, fewer opp cards = bad
+function simStateScore(simHands,seat,simFinishOrder){
+  let my=simHands[seat]?simHands[seat].length:0;
+  let tm=simHands[(seat+2)%4]?simHands[(seat+2)%4].length:0;
+  let op1=simHands[(seat+1)%4]?simHands[(seat+1)%4].length:0;
+  let op2=simHands[(seat+3)%4]?simHands[(seat+3)%4].length:0;
+  let score=-my*12-tm*4+op1*4+op2*4;
+  let myPos=simFinishOrder.indexOf(seat),tmPos=simFinishOrder.indexOf((seat+2)%4);
+  let op1Pos=simFinishOrder.indexOf((seat+1)%4),op2Pos=simFinishOrder.indexOf((seat+3)%4);
+  if(myPos===0)score+=300;else if(myPos===1)score+=100;
+  if(tmPos===0)score+=150;else if(tmPos===1)score+=60;
+  if(op1Pos===0)score-=200;
+  if(op2Pos===0)score-=200;
+  return score;
+}
+// Beam search: score top-K candidates with model, then simulate 3 turns forward for each
+async function beamPickMove(seat,hand){
+  if(!onnxSession||!tPlayedCards[seat])return undefined;
+  try{
+    let moves=[],g=analyzeHand(hand);
+    let isTeammate=lastHand&&lastHand.owner===(seat+2)%4;
+    if(!lastHand){
+      g.singles.forEach(s=>moves.push(s));g.pairs.forEach(p=>moves.push(p));
+      g.triples.forEach(t=>moves.push(t));g.fullhouses.forEach(f=>moves.push(f));
+      g.straights.forEach(s=>moves.push(s));g.straight_flushes.forEach(s=>moves.push(s));
+      g.plates.forEach(p=>moves.push(p));g.tubes.forEach(t=>moves.push(t));
+      if(hand.length<=15)g.bombs.forEach(b=>moves.push(b));
+    }else if(isTeammate){
+      let match=findMatch(g,lastHand);
+      if(match&&match.length>=hand.length)moves.push(match);
+      moves.push([]);
+    }else{
+      if(lastHand.type==='1')g.singles.filter(s=>s[0].p>lastHand.val).forEach(s=>moves.push(s));
+      if(lastHand.type==='2')g.pairs.filter(p=>p[0].p>lastHand.val).forEach(p=>moves.push(p));
+      if(lastHand.type==='3')g.triples.filter(t=>t[0].p>lastHand.val).forEach(t=>moves.push(t));
+      if(lastHand.type==='3+2')g.fullhouses.forEach(f=>{let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm)if(tm[v]>=3)tv=Number(v);if(tv>lastHand.val)moves.push(f)});
+      if(lastHand.type==='straight')g.straights.filter(s=>Math.max(...s.map(c=>c.p))>lastHand.val).forEach(s=>moves.push(s));
+      if(lastHand.type==='straight_flush')g.straight_flushes.filter(s=>Math.max(...s.map(c=>c.p))>lastHand.val).forEach(s=>moves.push(s));
+      if(lastHand.type==='plate')g.plates.filter(p=>p[0].p>lastHand.val).forEach(p=>moves.push(p));
+      if(lastHand.type==='tube')g.tubes.filter(t=>t[0].p>lastHand.val).forEach(t=>moves.push(t));
+      g.bombs.forEach(b=>{let bt={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,bt,lastHand))moves.push(b)});
+      g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};if(canBeat(sf,sft,lastHand))moves.push(sf)});
+      moves.push([]);
+    }
+    if(moves.length===0)return null;
+    if(moves.length===1)return moves[0];
+    let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
+    let sv=encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts]);
+    let mvs=moves.map(m=>cardsToVec54(m));
+    let res=await Promise.race([runModelBatch(sv,mvs,seat),new Promise(r=>setTimeout(()=>r(null),5000))]);
+    if(!res)return undefined;
+    const K=Math.min(5,moves.length);
+    let scored=moves.map((m,i)=>({move:m,qScore:dmcMode?res[i].ms:(res[i].ms*0.4+res[i].wr*0.6)}));
+    scored.sort((a,b)=>b.qScore-a.qScore);
+    let candidates=scored.slice(0,K);
+    // Skip lookahead when top candidate is clearly dominant
+    if(candidates.length>1&&candidates[0].qScore-candidates[1].qScore>0.3)return candidates[0].move;
+    // Forward simulate each candidate
+    let bestMove=candidates[0].move,bestTotal=-Infinity;
+    for(let cand of candidates){
+      let simHands={};for(let s=0;s<4;s++)simHands[s]=tLocalCards[s]?[...tLocalCards[s]]:[];
+      let simFinishOrder=[...finishOrder],simLastHand=lastHand?{...lastHand}:null,simPassCount=tPassCount;
+      if(cand.move.length>0){
+        let ids=new Set(cand.move.map(c=>c.id));
+        simHands[seat]=simHands[seat].filter(c=>!ids.has(c.id));
+        if(simHands[seat].length===0&&!simFinishOrder.includes(seat))simFinishOrder.push(seat);
+        let ht=getHandType(cand.move);
+        simLastHand=ht?{owner:seat,type:ht.type,val:ht.val,count:cand.move.length,score:ht.score||0}:null;
+        simPassCount=0;
+      }else{simPassCount++;if(simPassCount>=3){simLastHand=null;simPassCount=0;}}
+      // Simulate the 3 opponents' next moves
+      for(let step=0;step<3;step++){
+        let simSeat=(seat+1+step)%4;
+        if(simFinishOrder.includes(simSeat))continue;
+        let simHand=simHands[simSeat];if(!simHand||simHand.length===0)continue;
+        let simMove=simHeuristicMove(simHand,simLastHand,simSeat);
+        if(simMove.length>0){
+          let sids=new Set(simMove.map(c=>c.id));
+          simHands[simSeat]=simHand.filter(c=>!sids.has(c.id));
+          if(simHands[simSeat].length===0&&!simFinishOrder.includes(simSeat))simFinishOrder.push(simSeat);
+          let ht2=getHandType(simMove);
+          if(ht2)simLastHand={owner:simSeat,type:ht2.type,val:ht2.val,count:simMove.length,score:ht2.score||0};
+          simPassCount=0;
+        }else{simPassCount++;if(simPassCount>=3){simLastHand=null;simPassCount=0;}}
+      }
+      let simScore=cand.qScore*60+simStateScore(simHands,seat,simFinishOrder);
+      if(simScore>bestTotal){bestTotal=simScore;bestMove=cand.move;}
+    }
+    return bestMove;
+  }catch(e){console.error('beamPickMove error:',e);return undefined}
+}
+
 async function runBot(seat){
   try{
     let hand=botCards[seat];
@@ -1605,7 +1716,7 @@ async function tRunBot(seat){
   try{
     let hand=tLocalCards[seat];
     if(!hand||hand.length===0){tProcessAction({seat,type:'pass',cards:[]});return}
-    let best=await modelPickMove(seat,hand);
+    let best=await beamPickMove(seat,hand);
     if(best==null)best=heuristicPickMove(seat,hand);
     if(best&&best.length>0){
       let type=getHandType(best);
