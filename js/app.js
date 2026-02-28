@@ -133,7 +133,7 @@
 
             setProgress(5, 'Fetching AI model...');
 
-            const MODEL_PATH = 'model/guandan_dmc.onnx';
+            const MODEL_PATH = 'onnx_model/guandan_dmc.onnx';
             let buffer = null;
 
             // Step 1: Download model file
