@@ -1123,8 +1123,6 @@ async function modelPickMove(seat,hand){
     let bestIdx=0,bestScore=-Infinity;
     for(let i=0;i<res.length;i++){
       let score=dmcMode?res[i].ms:(res[i].ms*0.4+res[i].wr*0.6);
-      // Slight penalty for pass to encourage active play
-      if(moves[i].length===0) score-=0.4;
       if(score>bestScore){bestScore=score;bestIdx=i}
     }
     return moves[bestIdx]; // [] = PASS, null = couldn't determine
