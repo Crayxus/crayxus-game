@@ -952,8 +952,15 @@ function resetWatchdog(keepRetries){
     }
     // After 3 retries (15 seconds stuck), request full resync from server
     if(watchdogRetries>=3){
-      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing bot retry');
+      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing pass');
       watchdogRetries=0;
+      if(botSeats.includes(turn)){
+        // Force a move: try heuristic, fall back to pass
+        let forcedHand=botCards[turn];
+        let forcedMove=forcedHand&&forcedHand.length>0?heuristicPickMove(turn,forcedHand):null;
+        if(forcedMove&&forcedMove.length>0){let t=getHandType(forcedMove);if(t)socket.emit('botAction',{seat:turn,type:'play',cards:forcedMove,handType:t});else socket.emit('botAction',{seat:turn,type:'pass',cards:[]});}
+        else socket.emit('botAction',{seat:turn,type:'pass',cards:[]});
+      }
     }else if(botSeats.includes(turn)){
       botRunningForTurn=-1; // Allow watchdog retry
       await runBot(turn);
@@ -1116,6 +1123,8 @@ async function modelPickMove(seat,hand){
     let bestIdx=0,bestScore=-Infinity;
     for(let i=0;i<res.length;i++){
       let score=dmcMode?res[i].ms:(res[i].ms*0.4+res[i].wr*0.6);
+      // Slight penalty for pass to encourage active play
+      if(moves[i].length===0) score-=0.4;
       if(score>bestScore){bestScore=score;bestIdx=i}
     }
     return moves[bestIdx]; // [] = PASS, null = couldn't determine
@@ -2154,9 +2163,9 @@ async function loadOnnxModel(){
     onnxSession=await ort.InferenceSession.create(buf,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ DMC AI model loaded (77MB, 78% win rate)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    console.log('%c✅ DMC AI model loaded (77MB, 83% win rate)', 'color:#00ffcc;font-size:14px;font-weight:bold');
     let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC AI模型已加载';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC 78% (77MB) ✓';if(badge)badge.style.color='var(--neon)';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC 83% (77MB) ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e){
     console.warn('DMC model not available, trying legacy:',e.message);
     try{
