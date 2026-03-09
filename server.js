@@ -210,6 +210,10 @@ function destroyRoom(rid) {
     let room = rooms[rid];
     if (!room) return;
     if (room.botTimeout) clearTimeout(room.botTimeout);
+    // Clear any pending reconnect timers
+    if (room.disconnected) {
+        Object.values(room.disconnected).forEach(d => { if (d.timer) clearTimeout(d.timer); });
+    }
     if (room.game) room.game.active = false;
     // Notify remaining players
     io.to(rid).emit('roomDestroyed', { reason: 'Player disconnected' });
@@ -320,13 +324,66 @@ io.on('connection', (socket) => {
         }
     });
 
-    // 掉线处理: 人类断开 → 直接销毁房间
+    // 掉线处理: 人类断开 → 给30秒重连窗口，超时才销毁
     socket.on('disconnect', () => {
         let rid = playerMap[socket.id];
         if (rid && rooms[rid]) {
             let r = rooms[rid], seat = r.players[socket.id];
-            gameLog(`[Disconnect] Room ${rid}: seat ${seat} disconnected, destroying room`);
-            destroyRoom(rid);
+            gameLog(`[Disconnect] Room ${rid}: seat ${seat} disconnected, waiting 30s for reconnect`);
+            // Store disconnect info for potential reconnection
+            if (!r.disconnected) r.disconnected = {};
+            r.disconnected[socket.id] = { seat, time: Date.now() };
+            // Grace period: destroy after 30 seconds if not reconnected
+            r.disconnected[socket.id].timer = setTimeout(() => {
+                if (rooms[rid] && r.disconnected && r.disconnected[socket.id]) {
+                    gameLog(`[Disconnect] Room ${rid}: seat ${seat} reconnect timeout, destroying room`);
+                    destroyRoom(rid);
+                }
+            }, 30000);
+        }
+    });
+
+    // Reconnection: client sends rejoinGame after reconnecting
+    socket.on('rejoinGame', (data) => {
+        if (!data || !data.roomCode) return;
+        let rid = data.roomCode;
+        let room = rooms[rid];
+        if (!room) { socket.emit('roomDestroyed', { reason: 'Room no longer exists' }); return; }
+        // Find the disconnected seat to reclaim
+        let reclaimSeat = -1;
+        if (room.disconnected) {
+            for (let oldSid in room.disconnected) {
+                if (room.disconnected[oldSid].seat === data.seat) {
+                    reclaimSeat = room.disconnected[oldSid].seat;
+                    clearTimeout(room.disconnected[oldSid].timer);
+                    delete room.disconnected[oldSid];
+                    delete playerMap[oldSid];
+                    break;
+                }
+            }
+        }
+        if (reclaimSeat === -1) { socket.emit('roomDestroyed', { reason: 'Seat no longer available' }); return; }
+        // Reclaim the seat
+        socket.join(rid);
+        room.seats[reclaimSeat] = socket.id;
+        room.players[socket.id] = reclaimSeat;
+        playerMap[socket.id] = rid;
+        gameLog(`[Reconnect] Room ${rid}: seat ${reclaimSeat} reconnected as ${socket.id}`);
+        // Send current game state to reconnected player
+        let g = room.game;
+        if (g && g.active) {
+            socket.emit('rejoinState', {
+                seat: reclaimSeat,
+                cards: g.hands[reclaimSeat],
+                turn: g.turn,
+                lastHand: g.lastHand,
+                counts: g.hands.map(h => h.length),
+                finishOrder: g.finished,
+                botSeats: room.seats.map((s, i) => s === 'BOT' ? i : -1).filter(i => i >= 0),
+                roomCode: rid
+            });
+        } else {
+            socket.emit('roomDestroyed', { reason: 'Game ended during disconnect' });
         }
     });
 });

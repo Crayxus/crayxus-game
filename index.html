@@ -637,6 +637,32 @@ socket.on('connect',()=>{
   document.getElementById('conn-status').innerText="Online";
   document.getElementById('conn-status').style.color="#0f0";
   let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
+  // If we were in a game, try to rejoin
+  if(myRoomCode && mySeat >= 0 && !gameOver) {
+    console.log('[Reconnect] Attempting to rejoin room', myRoomCode, 'seat', mySeat);
+    socket.emit('rejoinGame', { roomCode: myRoomCode, seat: mySeat });
+  }
+});
+socket.on('rejoinState', d => {
+  console.log('%c[Reconnect] Successfully rejoined game!', 'color:#0f0;font-weight:bold');
+  toast('已重新连接');
+  mySeat = d.seat;
+  myCards = d.cards.sort((a, b) => b.p - a.p);
+  myCards.forEach(c => c.sel = false);
+  turn = d.turn;
+  lastHand = d.lastHand;
+  counts = d.counts;
+  finishOrder = d.finishOrder || [];
+  botSeats = d.botSeats || [];
+  myRoomCode = d.roomCode;
+  gameOver = false;
+  isMyTurn = false;
+  botRunningForTurn = -1;
+  renderHand();
+  updateAvatarLabels();
+  renderUI();
+  checkTurn();
+  resetWatchdog();
 });
 // Notify server immediately when browser tab is closed/refreshed
 window.addEventListener('beforeunload',()=>{socket.emit('leaveGame');socket.disconnect();});
@@ -825,11 +851,9 @@ socket.on('turnCorrection',d=>{
     else{lastHand=d.lastHand;}
   }
   turn=d.serverTurn;
-  // Only re-trigger turn chain if turn actually changed — avoids redundant bot runs
-  if(turn!==oldTurn){
-    botRunningForTurn=-1;
-    renderUI();checkTurn();
-  }
+  // Always re-trigger turn chain to fix stuck isMyTurn state
+  botRunningForTurn=-1;
+  renderUI();checkTurn();
   resetWatchdog();
 });
 
@@ -960,6 +984,14 @@ function resetWatchdog(keepRetries){
         let forcedMove=forcedHand&&forcedHand.length>0?heuristicPickMove(turn,forcedHand):null;
         if(forcedMove&&forcedMove.length>0){let t=getHandType(forcedMove);if(t)socket.emit('botAction',{seat:turn,type:'play',cards:forcedMove,handType:t});else socket.emit('botAction',{seat:turn,type:'pass',cards:[]});}
         else socket.emit('botAction',{seat:turn,type:'pass',cards:[]});
+      } else if(turn===mySeat){
+        // Human player stuck — connection might be dead, try rejoining
+        console.warn('[Watchdog] Human turn stuck, checking connection...');
+        if(socket.connected && myRoomCode){
+          socket.emit('rejoinGame', { roomCode: myRoomCode, seat: mySeat });
+        } else if(!socket.connected){
+          toast('连接已断开，正在重连...');
+        }
       }
     }else if(botSeats.includes(turn)){
       botRunningForTurn=-1; // Allow watchdog retry
