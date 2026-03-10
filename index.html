@@ -154,6 +154,16 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 #afk-btn.afk-on{background:rgba(255,200,0,0.2);color:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(255,200,0,0.3)}
 .elo-float{position:absolute;z-index:600;font-size:20px;font-weight:900;pointer-events:none;opacity:0;text-shadow:0 0 8px currentColor;left:50%;transform:translateX(-50%)}
 @keyframes eloUp{0%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-50px)}}
+/* EVO Hand Power Display */
+#evo-bar{position:absolute;bottom:270px;left:50%;transform:translateX(-50%);z-index:550;display:none;align-items:center;gap:10px;background:rgba(0,0,0,0.85);border:1px solid rgba(255,200,0,0.4);border-radius:16px;padding:6px 18px;backdrop-filter:blur(6px);pointer-events:none;transition:opacity 0.6s ease}
+#evo-bar.show{display:flex}
+#evo-bar.fade{opacity:0}
+.evo-icon{font-size:18px}
+.evo-score{font-size:22px;font-weight:900;text-shadow:0 0 10px currentColor}
+.evo-tier{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px}
+.evo-detail{font-size:10px;color:#888;margin-left:4px}
+@keyframes evoPulse{0%{transform:translateX(-50%) scale(0.8);opacity:0}50%{transform:translateX(-50%) scale(1.05)}100%{transform:translateX(-50%) scale(1);opacity:1}}
+#evo-bar.anim{animation:evoPulse 0.5s ease-out forwards}
 #afk-badge{position:absolute;bottom:42px;right:8px;z-index:501;background:var(--gold);color:#000;font-size:10px;font-weight:900;padding:2px 7px;border-radius:10px;display:none;pointer-events:none}
 .p-me{position:absolute;bottom:320px;left:20px;z-index:290;transition:bottom 0.2s ease}
 .btn{padding:12px 40px;border-radius:40px;border:none;font-weight:bold;font-size:16px;cursor:pointer;letter-spacing:1px}
@@ -326,6 +336,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
       <button class="btn b-hint" onclick="doHint()">提示/重选</button>
       <button class="btn b-play" onclick="sendPlay()">出牌</button>
     </div>
+    <div id="evo-bar"><span class="evo-icon">⚡</span><span class="evo-score" id="evo-score">--</span><span class="evo-tier" id="evo-tier">EVO</span><span class="evo-detail" id="evo-detail"></span></div>
     <div id="hand"></div>
     <div class="toast" id="tst"></div>
     <div class="elo-float" id="elo-float"></div>
@@ -355,7 +366,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 </div>
 
 <script>
-const socket=io(location.origin,{autoConnect:false,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
+const socket=io('https://crayxus-game.onrender.com',{autoConnect:false,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
 let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
 let roomPlayerCount=1;
@@ -389,6 +400,149 @@ const AudioSys={
     else if(t==='click'){o.type='triangle';o.frequency.setValueAtTime(600,n);g.gain.setValueAtTime(0.1,n);g.gain.linearRampToValueAtTime(0,n+0.1);o.start(n);o.stop(n+0.1)}
   }
 };
+
+/* ===== EVO HAND POWER SYSTEM ===== */
+let evoVisible=false;
+const BOMB_SCORES_EVO={joker_bomb:200,bomb8:180,bomb7:150,bomb6:120,straight_flush:100,bomb5:80,bomb4:50};
+
+function calcEVO(cards){
+  // cards = array of {p, s, v, id} where p=power(3-17), s=suit symbol, v=display value
+  const vc={};
+  cards.forEach(c=>{
+    let val=c.p; // p is the power value (3=3, ..., 14=A, 15=2, 16=SmJoker, 17=BgJoker)
+    vc[val]=(vc[val]||0)+1;
+  });
+  // Suit-value counts for straight flush detection
+  const suitMap={'♠':'spade','♥':'heart','♣':'club','♦':'diamond'};
+  const svCounts={};
+  cards.forEach(c=>{
+    if(c.s==='JOKER')return;
+    const suit=suitMap[c.s]||'unknown';
+    const key=suit+'_'+c.p;
+    svCounts[key]=(svCounts[key]||0)+1;
+  });
+
+  // Bombs
+  let bombScore=0,numBombs=0;
+  for(const[val,count]of Object.entries(vc)){
+    const v=parseInt(val);
+    if(v>=16)continue;
+    if(count>=4){numBombs++;const bt=count>=8?'bomb8':`bomb${count}`;bombScore+=(BOMB_SCORES_EVO[bt]||50);}
+  }
+  const jokerCount=(vc[16]||0)+(vc[17]||0);
+  if(jokerCount>=4){numBombs++;bombScore+=BOMB_SCORES_EVO.joker_bomb;}
+
+  // Straight flush (5+ consecutive same suit)
+  let sfCount=0;
+  for(const suit of ['spade','heart','club','diamond']){
+    const sv=[];
+    for(const[key,cnt]of Object.entries(svCounts)){
+      const[s,v]=key.split('_');
+      if(s===suit&&parseInt(v)<=14&&cnt>0)sv.push(parseInt(v));
+    }
+    sv.sort((a,b)=>a-b);
+    if(sv.length>=5){let run=1;for(let i=1;i<sv.length;i++){if(sv[i]===sv[i-1]+1){run++;if(run>=5){sfCount++;break;}}else run=1;}}
+  }
+  if(sfCount>0)bombScore+=sfCount*BOMB_SCORES_EVO.straight_flush;
+
+  // Control cards
+  const bigJ=vc[17]||0,smJ=vc[16]||0,num2=vc[15]||0,numA=vc[14]||0,numK=vc[13]||0;
+  const wildCount=cards.filter(c=>c.s==='♥'&&c.p===15).length;
+  const controlScore=bigJ*20+smJ*16+num2*10+numA*7+numK*4+wildCount*12;
+
+  // Structure
+  let singles=0,pairs=0,triples=0;
+  for(const[val,count]of Object.entries(vc)){
+    const v=parseInt(val);if(v>=16)continue;
+    if(count===1)singles++;else if(count===2)pairs++;else if(count===3)triples++;
+  }
+
+  // Sequences
+  const vals=Object.keys(vc).map(Number).filter(v=>v<=14&&vc[v]>=1).sort((a,b)=>a-b);
+  let maxRun=0;if(vals.length>=2){let run=1;for(let i=1;i<vals.length;i++){if(vals[i]===vals[i-1]+1){run++;maxRun=Math.max(maxRun,run);}else run=1;}}
+  const seqBonus=maxRun>=5?(maxRun-4)*5:0;
+
+  // Pair sequences
+  const pairVals=Object.keys(vc).map(Number).filter(v=>v<=14&&vc[v]>=2).sort((a,b)=>a-b);
+  let maxPR=0;if(pairVals.length>=2){let run=1;for(let i=1;i<pairVals.length;i++){if(pairVals[i]===pairVals[i-1]+1){run++;maxPR=Math.max(maxPR,run);}else run=1;}}
+  const pairSeqBonus=maxPR>=3?(maxPR-2)*8:0;
+
+  const rawScore=bombScore*1.5+controlScore*1.0+seqBonus+pairSeqBonus+triples*6+pairs*3-singles*3;
+  return {rawScore,numBombs,controlScore,singles,pairs,triples,sfCount};
+}
+
+// Pre-built percentile table (approximation from Monte Carlo)
+let _evoTable=null;
+function _buildEvoTable(){
+  // Quick seeded PRNG for reproducibility
+  let seed=42;
+  function rng(){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return(seed>>>0)/4294967296;}
+
+  const scores=[];
+  const allUids=[];
+  // Build 2 decks: 4 suits × 13 values × 2 + 4 jokers = 108
+  const suitSyms=['♠','♥','♣','♦'];
+  const valNames={3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A',15:'2'};
+  for(let d=0;d<2;d++){
+    for(const s of suitSyms)for(let v=3;v<=15;v++)allUids.push({p:v,s:s,v:valNames[v],id:allUids.length});
+    allUids.push({p:16,s:'JOKER',v:'Sm',id:allUids.length});
+    allUids.push({p:17,s:'JOKER',v:'Bg',id:allUids.length});
+  }
+  for(let trial=0;trial<3000;trial++){
+    // Fisher-Yates shuffle
+    const deck=[...allUids];
+    for(let i=deck.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+    for(let seat=0;seat<4;seat++){
+      const hand=deck.slice(seat*27,(seat+1)*27);
+      scores.push(calcEVO(hand).rawScore);
+    }
+  }
+  scores.sort((a,b)=>a-b);
+  return scores;
+}
+function evoPercentile(rawScore){
+  if(!_evoTable)_evoTable=_buildEvoTable();
+  let lo=0,hi=_evoTable.length;
+  while(lo<hi){const mid=(lo+hi)>>1;if(_evoTable[mid]<rawScore)lo=mid+1;else hi=mid;}
+  return Math.round(100*lo/_evoTable.length);
+}
+
+function getEvoTier(pct){
+  if(pct>=90)return{name:'S',label:'神牌',color:'#ff4444',bg:'rgba(255,68,68,0.2)'};
+  if(pct>=75)return{name:'A',label:'强牌',color:'#00ffcc',bg:'rgba(0,255,200,0.15)'};
+  if(pct>=55)return{name:'B',label:'好牌',color:'#58a6ff',bg:'rgba(88,166,255,0.15)'};
+  if(pct>=35)return{name:'C',label:'普通',color:'#aaa',bg:'rgba(170,170,170,0.1)'};
+  if(pct>=15)return{name:'D',label:'弱牌',color:'#ff8c00',bg:'rgba(255,140,0,0.15)'};
+  return{name:'F',label:'烂牌',color:'#ff3b3b',bg:'rgba(255,59,59,0.2)'};
+}
+
+function showEVO(cards){
+  const info=calcEVO(cards);
+  const pct=evoPercentile(info.rawScore);
+  const tier=getEvoTier(pct);
+  const bar=document.getElementById('evo-bar');
+  const scoreEl=document.getElementById('evo-score');
+  const tierEl=document.getElementById('evo-tier');
+  const detailEl=document.getElementById('evo-detail');
+  scoreEl.textContent=pct;
+  scoreEl.style.color=tier.color;
+  tierEl.textContent=tier.name+' '+tier.label;
+  tierEl.style.color=tier.color;
+  tierEl.style.background=tier.bg;
+  let details=[];
+  if(info.numBombs>0)details.push('💣×'+info.numBombs);
+  if(info.sfCount>0)details.push('🌈同花顺');
+  detailEl.textContent=details.join(' ');
+  bar.className='show anim';
+  evoVisible=true;
+}
+
+function hideEVO(){
+  if(!evoVisible)return;
+  const bar=document.getElementById('evo-bar');
+  bar.classList.add('fade');
+  setTimeout(()=>{bar.className='';evoVisible=false;},600);
+}
 
 /* ===== MISSING FUNCTIONS ADDED ===== */
 
@@ -808,6 +962,8 @@ socket.on('dealCards',d=>{
       if(i%3===0)AudioSys.play('deal');
       i++;
     },40);
+    // Show EVO after deal animation
+    setTimeout(()=>showEVO(myCards),cards.length*40+200);
   },500);
 });
 
@@ -825,9 +981,11 @@ socket.on('turnCorrection',d=>{
     else{lastHand=d.lastHand;}
   }
   turn=d.serverTurn;
-  // Always re-trigger turn chain to fix stuck isMyTurn state
-  botRunningForTurn=-1;
-  renderUI();checkTurn();
+  // Only re-trigger turn chain if turn actually changed — avoids redundant bot runs
+  if(turn!==oldTurn){
+    botRunningForTurn=-1;
+    renderUI();checkTurn();
+  }
   resetWatchdog();
 });
 
@@ -836,6 +994,8 @@ function handleSync(d){
   if(gameOver&&d.nextTurn!==-1)return;
   stopTimer();
   isMyTurn=false;
+  // Hide EVO on first action (any player plays or passes)
+  if(evoVisible)hideEVO();
   if(mySeat===-1)return;
   actionSeq++;let currentSeq=actionSeq;
   if(roundEndTimer){clearTimeout(roundEndTimer);roundEndTimer=null}
@@ -950,15 +1110,8 @@ function resetWatchdog(keepRetries){
     }
     // After 3 retries (15 seconds stuck), request full resync from server
     if(watchdogRetries>=3){
-      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing pass');
+      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing bot retry');
       watchdogRetries=0;
-      if(botSeats.includes(turn)){
-        // Force a move: try heuristic, fall back to pass
-        let forcedHand=botCards[turn];
-        let forcedMove=forcedHand&&forcedHand.length>0?heuristicPickMove(turn,forcedHand):null;
-        if(forcedMove&&forcedMove.length>0){let t=getHandType(forcedMove);if(t)socket.emit('botAction',{seat:turn,type:'play',cards:forcedMove,handType:t});else socket.emit('botAction',{seat:turn,type:'pass',cards:[]});}
-        else socket.emit('botAction',{seat:turn,type:'pass',cards:[]});
-      }
     }else if(botSeats.includes(turn)){
       botRunningForTurn=-1; // Allow watchdog retry
       await runBot(turn);
@@ -1111,7 +1264,7 @@ async function modelPickMove(seat,hand){
     }
     if(moves.length===0)return null;
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
-    let sv=encodeState326(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts]);
+    let sv=encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
     let mvs=moves.map(m=>cardsToVec54(m));
     let res=await Promise.race([
       runModelBatch(sv,mvs,seat),
@@ -1198,7 +1351,7 @@ async function beamPickMove(seat,hand){
     if(moves.length===0)return null;
     if(moves.length===1)return moves[0];
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
-    let sv=encodeState326(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts]);
+    let sv=encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
     let mvs=moves.map(m=>cardsToVec54(m));
     let res=await Promise.race([runModelBatch(sv,mvs,seat),new Promise(r=>setTimeout(()=>r(null),5000))]);
     if(!res)return undefined;
@@ -1253,7 +1406,7 @@ async function beamPickMove(seat,hand){
       }else if(newHand&&newHand.length>0){
         let newMoves=genMoves(newHand,simLH,seat,simFO);
         if(newMoves.length>0){
-          let newSv=encodeState326(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC);
+          let newSv=encodeState322(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1);
           let newMvs=newMoves.map(m=>cardsToVec54(m));
           let newRes=await Promise.race([runModelBatch(newSv,newMvs,seat),new Promise(r=>setTimeout(()=>r(null),3000))]);
           if(newRes){
@@ -2036,7 +2189,7 @@ function cardsToVec54(cards){
   for(const c of cards)v[cardToUid(c)]+=1;
   return v;
 }
-function encodeState326(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts){
+function encodeState322(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner){
   const v=new Float32Array(326);let o=0;
   const hv=cardsToVec54(handCards);
   v.set(hv,o);o+=54;
@@ -2065,12 +2218,9 @@ function encodeState326(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts)
   for(let i=0;i<4;i++)v[o+i]=(bCnts[(seat+i)%4]||0)/4;o+=4;
   v[o]=hv[WILD_UID]/2;
   v[o+1]=(myPl[WILD_UID]+loPl[WILD_UID]+paPl[WILD_UID]+roPl[WILD_UID])/4;
-  o+=2;
-  // [322:326] last hand owner relative position one-hot (me/right/partner/left)
-  if(lh&&lh.owner!==undefined&&lh.owner>=0){
-    const rel=(lh.owner-seat+4)%4;
-    v[o+rel]=1;
-  }
+  o+=2; // o=322
+  if(lhOwner!==undefined&&lhOwner!==null&&lhOwner>=0){const rp=(lhOwner-seat+4)%4;v[o+rp]=1}
+  // o+=4; // o=326
   return v;
 }
 async function runModelBatch(sv,mvs,observerSeat){
@@ -2091,9 +2241,9 @@ async function runModelBatch(sv,mvs,observerSeat){
     return out;
   }else{
     // Legacy single-input model
-    const buf=new Float32Array(n*376);
-    for(let i=0;i<n;i++){buf.set(sv,i*376);buf.set(mvs[i],i*376+322)}
-    const t=new ort.Tensor('float32',buf,[n,376]);
+    const buf=new Float32Array(n*380);
+    for(let i=0;i<n;i++){buf.set(sv,i*380);buf.set(mvs[i],i*380+326)}
+    const t=new ort.Tensor('float32',buf,[n,380]);
     const r=await onnxSession.run({input:t});
     const ms=r.move_score.data,wr=r.win_prob.data,out=[];
     for(let i=0;i<n;i++)out.push({ms:ms[i],wr:wr[i]});
@@ -2159,9 +2309,9 @@ async function loadOnnxModel(){
     onnxSession=await ort.InferenceSession.create(buf,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ DMC AI model loaded (77MB, 83% win rate)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    console.log('%c✅ DMC AI model loaded (77MB, 78% win rate)', 'color:#00ffcc;font-size:14px;font-weight:bold');
     let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC AI模型已加载';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC 83% (77MB) ✓';if(badge)badge.style.color='var(--neon)';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC 78% (77MB) ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e){
     console.warn('DMC model not available, trying legacy:',e.message);
     try{
@@ -2251,7 +2401,7 @@ async function getCoachSuggestions(hand,prevLastHand,prePlayedSnap,preBombSnap){
       let lo=(mySeat+1)%4,pa=(mySeat+2)%4,ro=(mySeat+3)%4;
       let preC=[...counts];preC[mySeat]=h.length;
       let bc=preBombSnap||tBombCounts;
-      let sv=encodeState326(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc);
+      let sv=encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1);
       let mvs=moves.map(m=>cardsToVec54(m.cards));
       let res=await runModelBatch(sv,mvs,mySeat);
       if(res){for(let i=0;i<moves.length;i++)moves[i].winRate=Math.round(Math.max(0,Math.min(100,res[i].wr*100)))}
