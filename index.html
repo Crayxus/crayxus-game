@@ -994,8 +994,8 @@ function handleSync(d){
   if(gameOver&&d.nextTurn!==-1)return;
   stopTimer();
   isMyTurn=false;
-  // Hide EVO on first action (any player plays or passes)
-  if(evoVisible)hideEVO();
+  // Hide EVO when I play my first card (not when others play)
+  if(evoVisible && d.seat===mySeat && d.type==='play')hideEVO();
   if(mySeat===-1)return;
   actionSeq++;let currentSeq=actionSeq;
   if(roundEndTimer){clearTimeout(roundEndTimer);roundEndTimer=null}
