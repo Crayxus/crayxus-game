@@ -1897,37 +1897,45 @@ function calcResult(){
   // Upgrade mode: advance winning team's level
   let upgradeMsg='';
   if(gameMode==='casual'&&casualMode==='upgrade'){
-    let winTeamIdx=winTeam.includes(mySeat)?0:1;
-    lastWinTeam=winTeamIdx;
-    let advance=0;
-    if(teamPts===4)advance=3;      // 双上 +3
-    else if(teamPts===2)advance=2;  // 头游+三游 +2
-    else advance=1;                 // 头游+末游 +1
-    let curLvl=teamLevels[winTeamIdx];
-    let newLvl=curLvl+advance;
-    let idxA=LEVEL_ORDER.length-1; // A的索引=12
-    // 打A之前：最多升到A，不能跳过A
-    if(curLvl<idxA&&newLvl>idxA) newLvl=idxA;
-    // 打A时：必须双上才能过A，否则留在A
-    if(curLvl>=idxA){
-      if(teamPts===4) newLvl=idxA+1; // 双上过A
-      else newLvl=idxA; // 没双上，留在A
-    }
-    teamLevels[winTeamIdx]=Math.min(newLvl,LEVEL_ORDER.length-1);
-    upgradeRound++;
-    let myLvl=LEVEL_ORDER[teamLevels[0]],opLvl=LEVEL_ORDER[teamLevels[1]];
-    upgradeMsg=`\n我方打${myLvl} · 对方打${opLvl}`;
-    // 打A且双上 → 过A胜利
-    if(curLvl>=idxA&&teamPts===4){
-      let who=winTeamIdx===0?'我方':'对方';
-      upgradeMsg+=`\n🏆 ${who}双上过A，升级模式胜利！`;
-      window._upgradeFinished=true;
-    }else if(curLvl>=idxA&&winTeamIdx===(winTeam.includes(mySeat)?0:1)){
-      upgradeMsg+='\n⚠️ 打A必须双上才能过关！';
+    if(gameMode==='casual'&&(gameMode!=='training')){
+      // Multiplayer: server already computed levels via _applyServerUpgradeResult
+      let myLvl=LEVEL_ORDER[teamLevels[0]],opLvl=LEVEL_ORDER[teamLevels[1]];
+      upgradeMsg=`\n我方打${myLvl} · 对方打${opLvl}`;
+      if(window._upgradeFinished){
+        let who=(lastWinTeam===0)===(mySeat%2===0)?'我方':'对方';
+        upgradeMsg+=`\n🏆 ${who}双上过A，升级模式胜利！`;
+      }
+    } else {
+      // Training (local): compute locally
+      let winTeamIdx=winTeam.includes(mySeat)?0:1;
+      lastWinTeam=winTeamIdx;
+      let advance=0;
+      if(teamPts===4)advance=3;
+      else if(teamPts===2)advance=2;
+      else advance=1;
+      let curLvl=teamLevels[winTeamIdx];
+      let newLvl=curLvl+advance;
+      let idxA=LEVEL_ORDER.length-1;
+      if(curLvl<idxA&&newLvl>idxA) newLvl=idxA;
+      if(curLvl>=idxA){
+        if(teamPts===4) newLvl=idxA+1;
+        else newLvl=idxA;
+      }
+      teamLevels[winTeamIdx]=Math.min(newLvl,LEVEL_ORDER.length-1);
+      upgradeRound++;
+      let myLvl=LEVEL_ORDER[teamLevels[0]],opLvl=LEVEL_ORDER[teamLevels[1]];
+      upgradeMsg=`\n我方打${myLvl} · 对方打${opLvl}`;
+      if(curLvl>=idxA&&teamPts===4){
+        let who=winTeamIdx===0?'我方':'对方';
+        upgradeMsg+=`\n🏆 ${who}双上过A，升级模式胜利！`;
+        window._upgradeFinished=true;
+      }else if(curLvl>=idxA&&winTeamIdx===(winTeam.includes(mySeat)?0:1)){
+        upgradeMsg+='\n⚠️ 打A必须双上才能过关！';
+      }
     }
     // Update HUD
-    let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=myLvl;
-    let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=opLvl;
+    let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=LEVEL_ORDER[teamLevels[0]];
+    let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1]];
     let wv=document.getElementById('up-wild-val');if(wv)wv.innerText=LEVEL_ORDER[teamLevels[lastWinTeam]];
   }
 
@@ -2243,6 +2251,24 @@ socket.on('playerLeft',d=>{
   if(!botSeats.includes(d.seat))botSeats.push(d.seat);
 });
 
+// Apply upgrade result from server (multiplayer upgrade mode)
+function _applyServerUpgradeResult(ur){
+  if(!ur)return;
+  console.log('[Upgrade] Server result:',ur);
+  teamLevels=ur.teamLevels||teamLevels;
+  currentWildValue=ur.currentWildValue||currentWildValue;
+  upgradeRound=ur.upgradeRound||upgradeRound;
+  lastWinTeam=ur.winTeamIdx!=null?ur.winTeamIdx:lastWinTeam;
+  if(ur.upgradeFinished) window._upgradeFinished=true;
+  // Update HUD
+  let ml=document.getElementById('up-my-lvl');
+  let ol=document.getElementById('up-op-lvl');
+  let wv=document.getElementById('up-wild-val');
+  if(ml)ml.innerText=LEVEL_ORDER[teamLevels[0]];
+  if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1]];
+  if(wv)wv.innerText=currentWildValue;
+}
+
 function _doEnterGame(d){
   gameOver=false;isMyTurn=false;turn=d._blockTurn?-99:Number(d.startTurn);lastHand=null;counts=[27,27,27,27];
   actionSeq=0;hintOptions=[];hintIndex=0;finishOrder=[];
@@ -2280,6 +2306,19 @@ function _doEnterGame(d){
     if(pme)pme.style.display='none';
     if(aiBtn)aiBtn.style.display='block';
     if(evoBar)evoBar.style.display='none';
+    // Toggle fixed/upgrade HUD
+    let fixedS=document.getElementById('fixed-stats');
+    let upgradeS=document.getElementById('upgrade-stats');
+    if(casualMode==='upgrade'){
+      if(fixedS)fixedS.style.display='none';
+      if(upgradeS)upgradeS.style.display='flex';
+      let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=LEVEL_ORDER[teamLevels[0]];
+      let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1]];
+      let wv=document.getElementById('up-wild-val');if(wv)wv.innerText=currentWildValue;
+    }else{
+      if(fixedS)fixedS.style.display='flex';
+      if(upgradeS)upgradeS.style.display='none';
+    }
   }
   // Sync arena HUD name
   let arenaName=document.getElementById('arena-name');
@@ -2302,8 +2341,14 @@ function _doEnterGame(d){
 socket.on('gameStart',d=>{
   _pendingGame=null;
   if(d.tribute){
-    // Tribute mode: block turns before entering game UI
     d._blockTurn=true;
+  }
+  // Apply upgrade state from server
+  if(d.upgradeState && gameMode==='casual' && casualMode==='upgrade'){
+    teamLevels=d.upgradeState.teamLevels||[0,0];
+    currentWildValue=d.upgradeState.currentWildValue||'2';
+    upgradeRound=d.upgradeState.upgradeRound||0;
+    console.log('[Upgrade] Server state: levels=',teamLevels,'wild=',currentWildValue);
   }
   _doEnterGame(d);
   _autoContinue=false;
@@ -2575,6 +2620,7 @@ function handleSync(d){
   turn=Number(d.nextTurn);
   if(turn===-1){
     for(let s=0;s<4;s++){if(!finishOrder.includes(s))finishOrder.push(s)}
+    if(d.upgradeResult) _applyServerUpgradeResult(d.upgradeResult);
     gameOver=true;setTimeout(()=>calcResult(),2500);return;
   }
   // Check if one team already has both members finished (1st & 2nd) → game over
@@ -2583,11 +2629,11 @@ function handleSync(d){
     let t0done=team0.every(s=>finishOrder.includes(s));
     let t1done=team1.every(s=>finishOrder.includes(s));
     if(t0done||t1done){
-      // Fill remaining seats by card count (fewer cards = higher rank)
       let remaining=[];
       for(let s=0;s<4;s++){if(!finishOrder.includes(s))remaining.push(s)}
       remaining.sort((a,b)=>counts[a]-counts[b]);
       remaining.forEach(s=>finishOrder.push(s));
+      if(d.upgradeResult) _applyServerUpgradeResult(d.upgradeResult);
       gameOver=true;renderUI();setTimeout(()=>calcResult(),2000);return;
     }
   }

@@ -27,21 +27,34 @@ function gameLog(msg) {
 /* =========================================
    核心游戏逻辑 (必须与前端完全一致)
    ========================================= */
-const POWER = {'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15,'Sm':16,'Bg':17};
+const BASE_POWER = {'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15,'Sm':16,'Bg':17};
 const SEQ_VAL = {'A':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13};
 const SUITS = ['♠','♥','♣','♦'];
 const POINTS = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
+const LEVEL_ORDER = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 
-let playerScores = {}; 
+let playerScores = {};
 
-function createDeck() {
+// Get power for a card value given current wild value
+function getPower(v, wildValue) {
+    if (v === 'Sm') return 16;
+    if (v === 'Bg') return 17;
+    if (wildValue && wildValue !== '2') {
+        if (v === wildValue) return 15; // Level card is highest non-joker
+        if (v === '2') return 2;        // Regular 2 drops to lowest
+    }
+    return BASE_POWER[v] || 0;
+}
+
+function createDeck(wildValue) {
+    let wv = wildValue || '2';
     let deck = [];
     for (let i = 0; i < 2; i++) {
         SUITS.forEach(s => POINTS.forEach(v => deck.push({
-            s, v, p: POWER[v], seq: SEQ_VAL[v] || 0, id: Math.random().toString(36).substr(2)
+            s, v, p: getPower(v, wv), seq: SEQ_VAL[v] || 0, id: Math.random().toString(36).substr(2)
         })));
-        deck.push({ s:'JOKER', v:'Sm', p:POWER['Sm'], seq:19, id:Math.random().toString(36).substr(2) });
-        deck.push({ s:'JOKER', v:'Bg', p:POWER['Bg'], seq:20, id:Math.random().toString(36).substr(2) });
+        deck.push({ s:'JOKER', v:'Sm', p:16, seq:19, id:Math.random().toString(36).substr(2) });
+        deck.push({ s:'JOKER', v:'Bg', p:17, seq:20, id:Math.random().toString(36).substr(2) });
     }
     for (let i = deck.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
@@ -50,13 +63,15 @@ function createDeck() {
     return deck;
 }
 
-// 这里的逻辑必须与前端 V39 一致，否则服务器会拒绝合法牌型
-function getHandType(c) {
+// 这里的逻辑必须与前端一致，否则服务器会拒绝合法牌型
+// wildValue: the current level card value (e.g. '5' when playing level 5)
+function getHandType(c, wildValue) {
     if (!c || !c.length) return null;
-    let wild = c.filter(x => x.v === '2' && x.s === '♥');
+    let wv = wildValue || '2';
+    let wild = c.filter(x => x.v === wv && x.s === '♥');
     let jokers = c.filter(x => x.s === 'JOKER');
-    let norm = c.filter(x => !(x.v === '2' && x.s === '♥'));
-    // Wild cards (红桃2) cannot combine with Jokers
+    let norm = c.filter(x => !(x.v === wv && x.s === '♥'));
+    // Wild cards cannot combine with Jokers
     if (wild.length > 0 && jokers.length > 0) return null;
     norm.sort((a, b) => a.p - b.p);
     let len = c.length;
@@ -69,7 +84,7 @@ function getHandType(c) {
     if (len >= 4) {
         let kings = c.filter(x => x.s === 'JOKER');
         if (kings.length === 4) return { type:'bomb', val:999, count:6, score:1000 };
-        // 含有红桃2的炸弹
+        // 含百搭的炸弹
         if (len === 4 && (maxNormFreq + wild.length >= 4) && maxNormFreq >= 1) {
             let v = vals.length ? vals[vals.length - 1] : 15;
             return { type:'bomb', val:v, count:4, score:400 };
@@ -89,35 +104,22 @@ function getHandType(c) {
 
     // 顺子 / 同花顺 (5张)
     if (len === 5) {
-        const HEART = '♥';
-        const isWildCard = x => x.v==='2' && x.s===HEART;
-        // 掼蛋顺子面值: 3..K=3..13, A=14, 2=15
-        const faceRankG = x => {
-            if(x.v==='A') return 14;
-            if(x.v==='K') return 13;
-            if(x.v==='Q') return 12;
-            if(x.v==='J') return 11;
-            const n = parseInt(x.v);
-            if(!isNaN(n)) return n===2 ? 15 : n; 
-            return x.p;
-        };
+        const isWildCard = x => x.v === wv && x.s === '♥';
+        // 顺子面值: use card power for ranking
+        const faceRankG = x => x.p;
 
         const strCards = c.filter(x => x.s!=='JOKER' && !isWildCard(x));
         const fWilds   = wild.length;
         const fValsSet = new Set(strCards.map(faceRankG));
         const fVals    = [...fValsSet].sort((a,b)=>a-b);
 
-        // 可能的顺子窗口
+        // 可能的顺子窗口 (based on actual power values)
         const windows = [];
-        for(let lo=3; lo<=10; lo++) windows.push([lo,lo+1,lo+2,lo+3,lo+4]); // 3-7 ... 10-A
-        windows.push([11,12,13,14,15]); // J-2
-        windows.push([12,13,14,15,3]);  // Q-3 (wrap? usually strictly A-2-3-4-5)
-        windows.push([13,14,15,3,4]);   // K-4
-        windows.push([14,15,3,4,5]);    // A-5 (Top straight in typical rules, but handled as A=1 below usually)
+        for(let lo=3; lo<=10; lo++) windows.push([lo,lo+1,lo+2,lo+3,lo+4]);
+        windows.push([11,12,13,14,15]); // J-K-A-2/level
 
         let isStraight=false, straightHighVal=0;
-        
-        // 检查普通顺子
+
         if(strCards.length + fWilds === 5 && fVals.length >= 1){
             for(const win of windows){
                 const winSet = new Set(win);
@@ -126,14 +128,13 @@ function getHandType(c) {
                 const missing = win.length - inWin;
                 if(outOfWin===0 && missing<=fWilds){
                     isStraight=true;
-                    straightHighVal = Math.max(...win.filter(r=>r<=14)); 
-                    if(win.includes(15)) straightHighVal=15; 
+                    straightHighVal = Math.max(...win);
                     break;
                 }
             }
-            // A-2-3-4-5 特殊处理 (A=1)
+            // A-2-3-4-5 特殊处理
             if(!isStraight){
-                const aLowVals = fVals.map(r=> r===14?1 : r===15?2 : r).sort((a,b)=>a-b);
+                const aLowVals = fVals.map(r=> r===14?1 : r===15?2 : r===2?2 : r).sort((a,b)=>a-b);
                 const missing = [1,2,3,4,5].filter(r=>!new Set(aLowVals).has(r)).length;
                 const outOfWin = aLowVals.filter(r=>r>5).length;
                 if(outOfWin===0 && missing<=fWilds){ isStraight=true; straightHighVal=5; }
@@ -193,12 +194,21 @@ function canBeat(newCards, newType, lastHand) {
 let rooms = {};
 let playerMap = {};
 
-function createRoom(id, mode) {
-    return { id: id, mode: mode||'arena', seats: [null, null, null, null], players: {}, playerInfo: {}, count: 0, game: null, botTimeout: null, gameCount: 0, lastFinished: [] };
+function createRoom(id, mode, casualMode) {
+    return {
+        id: id, mode: mode||'arena', casualMode: casualMode||'fixed',
+        seats: [null, null, null, null], players: {}, playerInfo: {}, count: 0,
+        game: null, botTimeout: null, gameCount: 0, lastFinished: [],
+        // Upgrade mode state
+        teamLevels: [0, 0],  // [team0 idx, team1 idx] into LEVEL_ORDER
+        currentWildValue: '2',
+        lastWinTeam: 0,
+        upgradeRound: 0
+    };
 }
 
-function getRoom(roomId, mode) {
-    if (!rooms[roomId]) { rooms[roomId] = createRoom(roomId, mode); gameLog(`[Room] New room created: ${roomId} (${mode||'arena'})`); }
+function getRoom(roomId, mode, casualMode) {
+    if (!rooms[roomId]) { rooms[roomId] = createRoom(roomId, mode, casualMode); gameLog(`[Room] New room created: ${roomId} (${mode||'arena'}, ${casualMode||'fixed'})`); }
     return rooms[roomId];
 }
 
@@ -309,9 +319,10 @@ io.on('connection', (socket) => {
     socket.on('joinGame', (data) => {
         if (playerMap[socket.id]) return; // 已在房间忽略
 
-        // 1. 确定房间号 — 休闲和竞技用不同前缀
+        // 1. 确定房间号 — 休闲和竞技用不同前缀，升级和定蛋分开
         const mode = (data && data.mode) || 'arena';
-        const prefix = mode === 'casual' ? 'CAS' : 'PUB';
+        const casualMode = (data && data.casualMode) || 'fixed';
+        const prefix = mode === 'casual' ? (casualMode === 'upgrade' ? 'UPG' : 'CAS') : 'PUB';
         let roomId = prefix + "LIC";
         if (data && data.roomCode) roomId = data.roomCode.trim().toUpperCase();
         else {
@@ -320,7 +331,7 @@ io.on('connection', (socket) => {
             if(rooms[roomId] && rooms[roomId].count>=4) roomId = prefix+Math.floor(Math.random()*1000);
         }
 
-        let room = getRoom(roomId, mode);
+        let room = getRoom(roomId, mode, casualMode);
         if (room.game && room.game.active) { socket.emit('err', '游戏进行中'); return; }
 
         // 2. 分配座位
@@ -366,7 +377,14 @@ io.on('connection', (socket) => {
         // 填补 BOT 并开始
         for (let i = 0; i < 4; i++) if (r.seats[i] === null) r.seats[i] = 'BOT';
 
-        let deck = createDeck();
+        // Upgrade mode: set wild value based on winning team's level
+        if (r.casualMode === 'upgrade') {
+            r.currentWildValue = LEVEL_ORDER[r.teamLevels[r.lastWinTeam]];
+        } else {
+            r.currentWildValue = '2';
+        }
+
+        let deck = createDeck(r.currentWildValue);
         let hands = [[],[],[],[]];
         for(let i=0; i<108; i++) hands[i%4].push(deck[i]);
 
@@ -374,15 +392,13 @@ io.on('connection', (socket) => {
         let botSeats = [], hostSid = getHostSid(r);
         for(let i=0; i<4; i++) if(r.seats[i]==='BOT') botSeats.push(i);
 
-        // Check if tribute is needed (gameCount > 1 and previous finish order exists)
-        let doTribute = r.gameCount > 1 && r.lastFinished && r.lastFinished.length >= 4;
+        // Check if tribute is needed (upgrade mode, gameCount > 1, previous finish order exists)
+        let doTribute = r.casualMode === 'upgrade' && r.gameCount > 1 && r.lastFinished && r.lastFinished.length >= 4;
         let startTurn = 0;
 
         if (doTribute) {
-            // 头游先出 (will be overridden if 进贡 happens)
             startTurn = r.lastFinished[0];
         } else {
-            // High card: each player draws a random card, highest goes first
             let highCards = [];
             for(let i=0; i<4; i++){
                 let idx = Math.floor(Math.random() * hands[i].length);
@@ -392,11 +408,10 @@ io.on('connection', (socket) => {
             for(let i=0; i<4; i++){
                 if(highCards[i].p > maxP || (highCards[i].p === maxP && Math.random()>0.5)){ maxP = highCards[i].p; startTurn = i; }
             }
-            // Store highCards for client animation
             r._highCards = highCards;
         }
 
-        r.game = { active: true, turn: startTurn, hands: hands, lastHand: null, passCnt: 0, finished: [] };
+        r.game = { active: true, turn: startTurn, hands: hands, lastHand: null, passCnt: 0, finished: [], wildValue: r.currentWildValue };
 
         // 分发牌数据
         Object.keys(r.players).forEach(sid => {
@@ -408,14 +423,22 @@ io.on('connection', (socket) => {
             }
         });
 
+        // Build upgrade state for clients
+        let upgradeState = null;
+        if (r.casualMode === 'upgrade') {
+            upgradeState = {
+                teamLevels: r.teamLevels.slice(),
+                currentWildValue: r.currentWildValue,
+                upgradeRound: r.upgradeRound
+            };
+        }
+
         if (doTribute) {
-            // Emit gameStart without highCards (tribute mode)
-            io.to(r.id).emit('gameStart', { startTurn, botSeats, tribute: true });
-            gameLog(`[Game] Room ${r.id}: Game #${r.gameCount} started with TRIBUTE, finishOrder=[${r.lastFinished}]`);
-            // Execute tribute phase on server
+            io.to(r.id).emit('gameStart', { startTurn, botSeats, tribute: true, upgradeState });
+            gameLog(`[Game] Room ${r.id}: Game #${r.gameCount} started with TRIBUTE, wild=${r.currentWildValue}, levels=[${r.teamLevels}]`);
             executeServerTribute(r.id, r.lastFinished, botSeats);
         } else {
-            io.to(r.id).emit('gameStart', { startTurn: r.game.turn, botSeats, highCards: r._highCards });
+            io.to(r.id).emit('gameStart', { startTurn: r.game.turn, botSeats, highCards: r._highCards, upgradeState });
             gameLog(`[Game] Room ${r.id}: Game #${r.gameCount} started, turn=${startTurn}, bots=[${botSeats}]`);
             // If first turn is a bot, schedule auto-pass
             scheduleBotTimeout(r.id);
@@ -510,8 +533,9 @@ function scheduleBotTimeout(rid) {
         let active = 4 - g.finished.length;
         if (active <= 1) {
             room.lastFinished = g.finished.slice();
+            let upgradeResult = computeUpgradeResult(room);
             gameLog(`[GameEnd] Room ${rid}: BotTimeout game over (active<=1), finishOrder=[${g.finished}]`);
-            io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
+            io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished, upgradeResult });
             g.active = false;
             cleanupEmptyRoom(rid);
             return;
@@ -527,8 +551,9 @@ function scheduleBotTimeout(rid) {
                 remaining.sort((a, b) => g.hands[a].length - g.hands[b].length);
                 remaining.forEach(s => g.finished.push(s));
                 room.lastFinished = g.finished.slice();
+                let upgradeResult = computeUpgradeResult(room);
                 gameLog(`[GameEnd] Room ${rid}: BotTimeout team completion, finishOrder=[${g.finished}]`);
-                io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished });
+                io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished, upgradeResult });
                 g.active = false;
                 cleanupEmptyRoom(rid);
                 return;
@@ -568,9 +593,10 @@ function handleAction(d, socket) {
     }
 
     // 核心出牌逻辑
+    let wv = r.wildValue || rooms[rid].currentWildValue || '2';
     let nextTurn = r.turn;
     if (d.type === 'play') {
-        let ht = d.handType || getHandType(d.cards);
+        let ht = d.handType || getHandType(d.cards, wv);
         // 服务器端二次验证：如果不合法，视为PASS
         if (!ht || !canBeat(d.cards, ht, r.lastHand)) {
             d.type = 'pass'; d.cards = [];
@@ -591,10 +617,10 @@ function handleAction(d, socket) {
     // 结算与流转
     let active = 4 - r.finished.length;
     if (active <= 1) { // 游戏结束 (3+ players finished)
-        // Save finish order for next game's 头游先出
         rooms[rid].lastFinished = r.finished.slice();
+        let upgradeResult = computeUpgradeResult(rooms[rid]);
         gameLog(`[GameEnd] Room ${rid}: Game over (active<=1), finishOrder=[${r.finished}]`);
-        io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
+        io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished, upgradeResult });
         rooms[rid].game.active = false;
         cleanupEmptyRoom(rid);
         return;
@@ -606,14 +632,14 @@ function handleAction(d, socket) {
         let t0done = team0.every(s => r.finished.includes(s));
         let t1done = team1.every(s => r.finished.includes(s));
         if (t0done || t1done) {
-            // Add remaining players to finish order by card count
             let remaining = [];
             for (let s = 0; s < 4; s++) { if (!r.finished.includes(s)) remaining.push(s); }
             remaining.sort((a, b) => r.hands[a].length - r.hands[b].length);
             remaining.forEach(s => r.finished.push(s));
             rooms[rid].lastFinished = r.finished.slice();
+            let upgradeResult = computeUpgradeResult(rooms[rid]);
             gameLog(`[GameEnd] Room ${rid}: Team completion, finishOrder=[${r.finished}]`);
-            io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished });
+            io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished, upgradeResult });
             rooms[rid].game.active = false;
             cleanupEmptyRoom(rid);
             return;
@@ -640,6 +666,69 @@ function handleAction(d, socket) {
     io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn, isRoundEnd: (r.lastHand === null), finishOrder: r.finished });
     // Schedule server-side bot auto-pass if it's a bot's turn
     scheduleBotTimeout(rid);
+}
+
+/* =========================================
+   Upgrade Mode: Level Advancement
+   ========================================= */
+function computeUpgradeResult(room) {
+    if (room.casualMode !== 'upgrade') return null;
+    let fo = room.lastFinished;
+    if (!fo || fo.length < 4) return null;
+
+    let headSeat = fo[0];
+    let headMate = (headSeat + 2) % 4;
+    let matePos = fo.indexOf(headMate);
+
+    // Determine winning team and points
+    let winTeam = [headSeat, headMate];
+    let teamPts = 0;
+    if (matePos === 1) teamPts = 4;      // 双上
+    else if (matePos === 2) teamPts = 2;  // 头游+三游
+    else teamPts = 1;                     // 头游+末游
+
+    // Determine which team index won (team0=[0,2], team1=[1,3])
+    let winTeamIdx = (headSeat % 2 === 0) ? 0 : 1;
+    room.lastWinTeam = winTeamIdx;
+
+    // Compute advancement
+    let advance = 0;
+    if (teamPts === 4) advance = 3;
+    else if (teamPts === 2) advance = 2;
+    else advance = 1;
+
+    let curLvl = room.teamLevels[winTeamIdx];
+    let newLvl = curLvl + advance;
+    let idxA = LEVEL_ORDER.length - 1; // A = index 12
+
+    // Before reaching A: can't skip over A
+    if (curLvl < idxA && newLvl > idxA) newLvl = idxA;
+    // At A: must get 双上 to pass
+    if (curLvl >= idxA) {
+        if (teamPts === 4) newLvl = idxA + 1; // 双上过A
+        else newLvl = idxA; // Stay at A
+    }
+
+    room.teamLevels[winTeamIdx] = Math.min(newLvl, LEVEL_ORDER.length - 1);
+    room.upgradeRound++;
+
+    let gameOver = (curLvl >= idxA && teamPts === 4); // Passed A = game victory
+
+    let result = {
+        winTeamIdx,
+        winTeam,
+        teamPts,
+        advance,
+        teamLevels: room.teamLevels.slice(),
+        myLvl: LEVEL_ORDER[room.teamLevels[0]],
+        opLvl: LEVEL_ORDER[room.teamLevels[1]],
+        currentWildValue: LEVEL_ORDER[room.teamLevels[room.lastWinTeam]],
+        upgradeRound: room.upgradeRound,
+        upgradeFinished: gameOver
+    };
+
+    gameLog(`[Upgrade] Room ${room.id}: team${winTeamIdx} wins ${teamPts}pts, advance ${advance}, levels=[${room.teamLevels}], wild=${result.currentWildValue}${gameOver ? ' GAME OVER' : ''}`);
+    return result;
 }
 
 /* =========================================
