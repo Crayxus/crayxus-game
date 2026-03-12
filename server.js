@@ -31,6 +31,8 @@ function gameLog(msg) {
    ========================================= */
 const BASE_POWER = {'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15,'Sm':16,'Bg':17};
 const SEQ_VAL = {'A':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13};
+// Straight sequence rank: 2 sits between A-low and 3; A can be high(14) or low(1)
+const STR_RANK = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
 const SUITS = ['♠','♥','♣','♦'];
 const POINTS = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
 const LEVEL_ORDER = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -82,10 +84,10 @@ function getHandType(c, wildValue) {
     norm.forEach(x => m[x.p] = (m[x.p] || 0) + 1);
     let vals = Object.keys(m).map(Number).sort((a, b) => a - b);
     let maxNormFreq = vals.length ? Math.max(...Object.values(m)) : 0;
-    // Face-based grouping (for sequences: straights, plates, tubes)
-    let mFace = {};
-    norm.forEach(x => { let f = BASE_POWER[x.v] || x.p; mFace[f] = (mFace[f] || 0) + 1; });
-    let faceVals = Object.keys(mFace).map(Number).sort((a, b) => a - b);
+    // Sequence-based grouping (for plates, tubes): uses STR_RANK where 2=2,3=3,...,A=14
+    let mSeq = {};
+    norm.forEach(x => { let f = STR_RANK[x.v] || x.p; mSeq[f] = (mSeq[f] || 0) + 1; });
+    let seqVals = Object.keys(mSeq).map(Number).sort((a, b) => a - b);
 
     // 炸弹 (4张以上, 或4王)
     if (len >= 4) {
@@ -112,26 +114,25 @@ function getHandType(c, wildValue) {
     // 顺子 / 同花顺 (5张)
     if (len === 5) {
         const isWildCard = x => x.v === wv && x.s === '♥';
-        // 顺子面值: ALWAYS use BASE face rank (not dynamic power) for sequence detection
-        const faceRankG = x => BASE_POWER[x.v] || x.p;
+        // Use STR_RANK for sequence detection: 2=2,3=3,...,K=13,A=14
+        const seqRankG = x => STR_RANK[x.v] || 0;
 
         const strCards = c.filter(x => x.s!=='JOKER' && !isWildCard(x));
         const fWilds   = wild.length;
-        const fValsSet = new Set(strCards.map(faceRankG));
-        const fVals    = [...fValsSet].sort((a,b)=>a-b);
+        const sValsSet = new Set(strCards.map(seqRankG));
+        const sVals    = [...sValsSet].sort((a,b)=>a-b);
 
-        // 可能的顺子窗口 (based on BASE face values: 3-14=A, 15=2)
+        // 顺子窗口: 2-3-4-5-6 through 10-J-Q-K-A
         const windows = [];
-        for(let lo=3; lo<=10; lo++) windows.push([lo,lo+1,lo+2,lo+3,lo+4]);
-        windows.push([11,12,13,14,15]); // J-Q-K-A-2
+        for(let lo=2; lo<=10; lo++) windows.push([lo,lo+1,lo+2,lo+3,lo+4]);
 
         let isStraight=false, straightHighVal=0;
 
-        if(strCards.length + fWilds === 5 && fVals.length >= 1){
+        if(strCards.length + fWilds === 5 && sVals.length >= 1){
             for(const win of windows){
                 const winSet = new Set(win);
-                const outOfWin = fVals.filter(r=>!winSet.has(r)).length;
-                const inWin = fVals.filter(r=>winSet.has(r)).length;
+                const outOfWin = sVals.filter(r=>!winSet.has(r)).length;
+                const inWin = sVals.filter(r=>winSet.has(r)).length;
                 const missing = win.length - inWin;
                 if(outOfWin===0 && missing<=fWilds){
                     isStraight=true;
@@ -139,9 +140,9 @@ function getHandType(c, wildValue) {
                     break;
                 }
             }
-            // A-2-3-4-5 特殊处理
+            // A-2-3-4-5 特殊处理 (A wraps to 1)
             if(!isStraight){
-                const aLowVals = fVals.map(r=> r===14?1 : r===15?2 : r).sort((a,b)=>a-b);
+                const aLowVals = sVals.map(r=> r===14?1 : r).sort((a,b)=>a-b);
                 const missing = [1,2,3,4,5].filter(r=>!new Set(aLowVals).has(r)).length;
                 const outOfWin = aLowVals.filter(r=>r>5).length;
                 if(outOfWin===0 && missing<=fWilds){ isStraight=true; straightHighVal=5; }
@@ -163,15 +164,15 @@ function getHandType(c, wildValue) {
             return { type:'3+2', val: tripleVal };
         }
     }
-    // 钢板 (两个连续三张) - use face values for sequence check
-    if (len === 6 && faceVals.length === 2 && faceVals[1] === faceVals[0] + 1) {
-        if (mFace[faceVals[0]] + wild.length >= 3) return { type:'plate', val:faceVals[0] };
+    // 钢板 (两个连续三张) - use STR_RANK for sequence check
+    if (len === 6 && seqVals.length === 2 && seqVals[1] === seqVals[0] + 1) {
+        if (mSeq[seqVals[0]] + wild.length >= 3) return { type:'plate', val:seqVals[0] };
     }
-    // 木板 (三个连续对子) - use face values for sequence check
-    if (len === 6 && faceVals.length === 3) {
-        if (faceVals[1] === faceVals[0] + 1 && faceVals[2] === faceVals[1] + 1) {
-            let hasEnough = (mFace[faceVals[0]] >= 1 || wild.length > 0) && (mFace[faceVals[1]] >= 1 || wild.length > 0) && (mFace[faceVals[2]] >= 1 || wild.length > 0);
-            if (hasEnough) return { type:'tube', val:faceVals[0] };
+    // 木板 (三个连续对子) - use STR_RANK for sequence check
+    if (len === 6 && seqVals.length === 3) {
+        if (seqVals[1] === seqVals[0] + 1 && seqVals[2] === seqVals[1] + 1) {
+            let hasEnough = (mSeq[seqVals[0]] >= 1 || wild.length > 0) && (mSeq[seqVals[1]] >= 1 || wild.length > 0) && (mSeq[seqVals[2]] >= 1 || wild.length > 0);
+            if (hasEnough) return { type:'tube', val:seqVals[0] };
         }
     }
     return null;
