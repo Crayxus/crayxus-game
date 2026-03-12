@@ -325,7 +325,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('joinGame', (data) => {
-        gameLog(`[joinGame] sid=${socket.id} data=${JSON.stringify(data)} alreadyIn=${!!playerMap[socket.id]}`);
+        gameLog(`[joinGame] sid=${socket.id} mode=${data&&data.mode} casual=${data&&data.casualMode} room=${data&&data.roomCode} alreadyIn=${!!playerMap[socket.id]}`);
         if (playerMap[socket.id]) return; // 已在房间忽略
 
         // 1. 确定房间号 — 休闲和竞技用不同前缀，升级和定蛋分开
@@ -369,6 +369,7 @@ io.on('connection', (socket) => {
             playersInfo[info.seat] = { avatarUrl: info.avatarUrl, nickname: info.nickname };
         }
 
+        gameLog(`[joinGame] OK: sid=${socket.id} seat=${seat} room=${roomId} host=${socket.id===hostSid}`);
         socket.emit('initIdentity', { seat, score: 1291, isHost: (socket.id===hostSid), roomCode: roomId, playersInfo });
         io.to(roomId).emit('roomUpdate', { count: room.count, seats: room.seats.map(s=>s===null?'EMPTY':(s==='BOT'?'BOT':'HUMAN')), roomId, playersInfo });
         

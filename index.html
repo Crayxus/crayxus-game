@@ -2177,14 +2177,6 @@ socket.on('connect',()=>{
   document.getElementById('conn-status').innerText="Online";
   document.getElementById('conn-status').style.color="#0f0";
   let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
-  // Reconnect: if stuck on match screen, re-join
-  if(currentScreen==='match' && mySeat===-1){
-    socket.emit('joinGame', {
-      roomCode: myRoomCode||'', mode: gameMode||'arena', casualMode: casualMode||'fixed',
-      avatarUrl: localStorage.getItem('crayxus_wx_avatar')||'',
-      nickname: localStorage.getItem('crayxus_wx_nickname')||''
-    });
-  }
 });
 // Notify server immediately when browser tab is closed/refreshed
 window.addEventListener('beforeunload',()=>{socket.emit('leaveGame');socket.disconnect();});
