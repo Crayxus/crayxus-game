@@ -365,29 +365,40 @@ io.on('connection', (socket) => {
         if (r.game && r.game.active) return;
         // 填补 BOT 并开始
         for (let i = 0; i < 4; i++) if (r.seats[i] === null) r.seats[i] = 'BOT';
-        
+
         let deck = createDeck();
         let hands = [[],[],[],[]];
         for(let i=0; i<108; i++) hands[i%4].push(deck[i]);
-        
+
         r.gameCount++;
-        // High card: each player draws a random card, highest goes first
-        let highCards = [];
-        for(let i=0; i<4; i++){
-            let idx = Math.floor(Math.random() * hands[i].length);
-            highCards.push(hands[i][idx]);
-        }
-        let maxP = -1, startTurn = 0;
-        for(let i=0; i<4; i++){
-            if(highCards[i].p > maxP || (highCards[i].p === maxP && Math.random()>0.5)){ maxP = highCards[i].p; startTurn = i; }
+        let botSeats = [], hostSid = getHostSid(r);
+        for(let i=0; i<4; i++) if(r.seats[i]==='BOT') botSeats.push(i);
+
+        // Check if tribute is needed (gameCount > 1 and previous finish order exists)
+        let doTribute = r.gameCount > 1 && r.lastFinished && r.lastFinished.length >= 4;
+        let startTurn = 0;
+
+        if (doTribute) {
+            // 头游先出 (will be overridden if 进贡 happens)
+            startTurn = r.lastFinished[0];
+        } else {
+            // High card: each player draws a random card, highest goes first
+            let highCards = [];
+            for(let i=0; i<4; i++){
+                let idx = Math.floor(Math.random() * hands[i].length);
+                highCards.push(hands[i][idx]);
+            }
+            let maxP = -1;
+            for(let i=0; i<4; i++){
+                if(highCards[i].p > maxP || (highCards[i].p === maxP && Math.random()>0.5)){ maxP = highCards[i].p; startTurn = i; }
+            }
+            // Store highCards for client animation
+            r._highCards = highCards;
         }
 
         r.game = { active: true, turn: startTurn, hands: hands, lastHand: null, passCnt: 0, finished: [] };
-        
+
         // 分发牌数据
-        let botSeats = [], hostSid = getHostSid(r);
-        for(let i=0; i<4; i++) if(r.seats[i]==='BOT') botSeats.push(i);
-        
         Object.keys(r.players).forEach(sid => {
             let s = r.players[sid];
             io.to(sid).emit('dealCards', { cards: hands[s] });
@@ -396,11 +407,31 @@ io.on('connection', (socket) => {
                 io.to(sid).emit('botCards', bots);
             }
         });
-        
-        io.to(r.id).emit('gameStart', { startTurn: r.game.turn, botSeats, highCards });
-        gameLog(`[Game] Room ${playerMap[socket.id]}: Game #${r.gameCount} started, turn=${startTurn}, bots=[${botSeats}]`);
-        // If first turn is a bot, schedule auto-pass
-        scheduleBotTimeout(playerMap[socket.id]);
+
+        if (doTribute) {
+            // Emit gameStart without highCards (tribute mode)
+            io.to(r.id).emit('gameStart', { startTurn, botSeats, tribute: true });
+            gameLog(`[Game] Room ${r.id}: Game #${r.gameCount} started with TRIBUTE, finishOrder=[${r.lastFinished}]`);
+            // Execute tribute phase on server
+            executeServerTribute(r.id, r.lastFinished, botSeats);
+        } else {
+            io.to(r.id).emit('gameStart', { startTurn: r.game.turn, botSeats, highCards: r._highCards });
+            gameLog(`[Game] Room ${r.id}: Game #${r.gameCount} started, turn=${startTurn}, bots=[${botSeats}]`);
+            // If first turn is a bot, schedule auto-pass
+            scheduleBotTimeout(r.id);
+        }
+    });
+
+    // Human player returns a card during tribute 还贡 phase
+    socket.on('tributeReturn', (data) => {
+        let rid = playerMap[socket.id];
+        if (!rid || !rooms[rid]) return;
+        let room = rooms[rid];
+        if (room._tributeReturnResolve && data && data.card) {
+            let resolve = room._tributeReturnResolve;
+            delete room._tributeReturnResolve;
+            resolve(data.card);
+        }
     });
 
     socket.on('action', d => handleAction(d, socket));
@@ -600,6 +631,200 @@ function handleAction(d, socket) {
     io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn, isRoundEnd: (r.lastHand === null), finishOrder: r.finished });
     // Schedule server-side bot auto-pass if it's a bot's turn
     scheduleBotTimeout(rid);
+}
+
+/* =========================================
+   Server-side Tribute (进贡/还贡/抗贡)
+   ========================================= */
+function executeServerTribute(rid, finishOrder, botSeats) {
+    let room = rooms[rid];
+    if (!room || !room.game) return;
+    let g = room.game;
+    let fo = finishOrder;
+    let headSeat = fo[0]; // 头游 (1st place)
+    let lastSeat = fo[3]; // 末游 (4th place)
+
+    // Check 双上: both teammates finished 1st & 2nd
+    let isDualUp = fo.length >= 2 && ((fo[0] + 2) % 4 === fo[1]);
+
+    // Check 抗贡: 末游 has 2+ big jokers
+    let lastHand = g.hands[lastSeat];
+    let bigJokers = lastHand.filter(c => c.s === 'JOKER' && c.v === 'Bg');
+
+    if (bigJokers.length >= 2) {
+        // === 抗贡 (Shield) ===
+        gameLog(`[Tribute] Room ${rid}: 抗贡! Seat ${lastSeat} has ${bigJokers.length} big jokers`);
+        io.to(rid).emit('tributeAction', {
+            action: 'shield',
+            seat: lastSeat,
+            cards: bigJokers.map(c => ({ s: c.s, v: c.v, p: c.p, id: c.id }))
+        });
+        // 抗贡: 头游先出
+        g.turn = headSeat;
+        setTimeout(() => {
+            if (!room.game || !room.game.active) return;
+            io.to(rid).emit('tributeComplete', { startTurn: headSeat });
+            // Re-send updated hands to all players
+            broadcastUpdatedHands(room, botSeats);
+            scheduleBotTimeout(rid);
+        }, 2500);
+        return;
+    }
+
+    // === 进贡/还贡 ===
+    let pairs = isDualUp ? [[lastSeat, headSeat], [fo[2], fo[1]]] : [[lastSeat, headSeat]];
+    gameLog(`[Tribute] Room ${rid}: ${isDualUp ? '双上' : '普通'}进贡, pairs=${JSON.stringify(pairs)}`);
+
+    // Process tribute pairs sequentially with delays
+    processTributePairs(rid, pairs, 0, botSeats);
+}
+
+function processTributePairs(rid, pairs, pairIndex, botSeats) {
+    let room = rooms[rid];
+    if (!room || !room.game || !room.game.active) return;
+    if (pairIndex >= pairs.length) {
+        // All tribute done - 末游先出 (giver of first pair starts)
+        let startTurn = pairs[0][0]; // lastSeat
+        room.game.turn = startTurn;
+        io.to(rid).emit('tributeComplete', { startTurn });
+        broadcastUpdatedHands(room, botSeats);
+        gameLog(`[Tribute] Room ${rid}: Tribute complete, startTurn=${startTurn}`);
+        scheduleBotTimeout(rid);
+        return;
+    }
+
+    let [fromSeat, toSeat] = pairs[pairIndex];
+    let g = room.game;
+    let fromHand = g.hands[fromSeat];
+    let toHand = g.hands[toSeat];
+
+    // --- 进贡: giver sends highest card ---
+    let best = fromHand.reduce((a, b) => b.p > a.p ? b : a, fromHand[0]);
+    let bestIdx = fromHand.indexOf(best);
+    if (bestIdx >= 0) fromHand.splice(bestIdx, 1);
+    toHand.push(best);
+    toHand.sort((a, b) => b.p - a.p);
+
+    let bestCard = { s: best.s, v: best.v, p: best.p, seq: best.seq, id: best.id };
+    io.to(rid).emit('tributeAction', {
+        action: 'give',
+        fromSeat, toSeat,
+        card: bestCard,
+        pairIndex
+    });
+    gameLog(`[Tribute] Room ${rid}: 进贡 seat ${fromSeat} → seat ${toSeat}, card=${best.v}${best.s}`);
+
+    // Update hands for affected human players
+    sendHandUpdate(room, fromSeat);
+    sendHandUpdate(room, toSeat);
+
+    // After animation delay, proceed to 还贡
+    setTimeout(() => {
+        if (!room.game || !room.game.active) return;
+        processTributeReturn(rid, pairs, pairIndex, fromSeat, toSeat, botSeats);
+    }, 2800);
+}
+
+function processTributeReturn(rid, pairs, pairIndex, fromSeat, toSeat, botSeats) {
+    let room = rooms[rid];
+    if (!room || !room.game || !room.game.active) return;
+    let g = room.game;
+
+    // Check if receiver (toSeat) is a human player
+    let isHuman = room.seats[toSeat] !== 'BOT';
+
+    if (isHuman) {
+        // Ask human player to pick a return card
+        let receiverSid = room.seats[toSeat];
+        io.to(receiverSid).emit('tributePickReturn', { fromSeat, toSeat });
+        gameLog(`[Tribute] Room ${rid}: Waiting for human seat ${toSeat} to pick return card`);
+
+        // Set up a promise-like mechanism with timeout
+        let resolved = false;
+        room._tributeReturnResolve = (card) => {
+            if (resolved) return;
+            resolved = true;
+            completeTributeReturn(rid, pairs, pairIndex, fromSeat, toSeat, card, botSeats);
+        };
+
+        // Timeout: auto-pick lowest card after 30 seconds
+        setTimeout(() => {
+            if (resolved) return;
+            resolved = true;
+            delete room._tributeReturnResolve;
+            let toHand = g.hands[toSeat];
+            toHand.sort((a, b) => b.p - a.p);
+            let autoCard = toHand[toHand.length - 1];
+            gameLog(`[Tribute] Room ${rid}: Human seat ${toSeat} timeout, auto-returning lowest card`);
+            completeTributeReturn(rid, pairs, pairIndex, fromSeat, toSeat, autoCard, botSeats);
+        }, 30000);
+    } else {
+        // Bot auto-returns lowest card
+        let toHand = g.hands[toSeat];
+        toHand.sort((a, b) => b.p - a.p);
+        let retCard = toHand[toHand.length - 1];
+        completeTributeReturn(rid, pairs, pairIndex, fromSeat, toSeat, retCard, botSeats);
+    }
+}
+
+function completeTributeReturn(rid, pairs, pairIndex, fromSeat, toSeat, retCard, botSeats) {
+    let room = rooms[rid];
+    if (!room || !room.game || !room.game.active) return;
+    let g = room.game;
+    let toHand = g.hands[toSeat];
+    let fromHand = g.hands[fromSeat];
+
+    // Find and remove the card from receiver's hand (match by id)
+    let retIdx = toHand.findIndex(c => c.id === retCard.id);
+    if (retIdx >= 0) {
+        retCard = toHand[retIdx]; // Use the actual card object
+        toHand.splice(retIdx, 1);
+    } else {
+        // Fallback: remove lowest card
+        toHand.sort((a, b) => b.p - a.p);
+        retCard = toHand.pop();
+    }
+    fromHand.push(retCard);
+    fromHand.sort((a, b) => b.p - a.p);
+    toHand.sort((a, b) => b.p - a.p);
+
+    let retCardData = { s: retCard.s, v: retCard.v, p: retCard.p, seq: retCard.seq, id: retCard.id };
+    io.to(rid).emit('tributeAction', {
+        action: 'return',
+        fromSeat, toSeat,
+        card: retCardData,
+        pairIndex
+    });
+    gameLog(`[Tribute] Room ${rid}: 还贡 seat ${toSeat} → seat ${fromSeat}, card=${retCard.v}${retCard.s}`);
+
+    // Update hands for affected human players
+    sendHandUpdate(room, fromSeat);
+    sendHandUpdate(room, toSeat);
+
+    // After animation delay, proceed to next pair or complete
+    setTimeout(() => {
+        if (!room.game || !room.game.active) return;
+        processTributePairs(rid, pairs, pairIndex + 1, botSeats);
+    }, 2500);
+}
+
+function sendHandUpdate(room, seat) {
+    let sid = room.seats[seat];
+    if (sid && sid !== 'BOT') {
+        io.to(sid).emit('handUpdate', { cards: room.game.hands[seat].sort((a, b) => b.p - a.p) });
+    }
+}
+
+function broadcastUpdatedHands(room, botSeats) {
+    let hostSid = getHostSid(room);
+    Object.keys(room.players).forEach(sid => {
+        let s = room.players[sid];
+        io.to(sid).emit('handUpdate', { cards: room.game.hands[s].sort((a, b) => b.p - a.p) });
+        if (sid === hostSid) {
+            let bots = {}; botSeats.forEach(bs => bots[bs] = room.game.hands[bs]);
+            io.to(sid).emit('botCards', bots);
+        }
+    });
 }
 
 http.listen(PORT, () => {

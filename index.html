@@ -345,12 +345,8 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
   z-index:0;pointer-events:none}
 @keyframes holoGridPulse{0%,100%{opacity:0.5}50%{opacity:0.9}}
 
-/* --- Scanline sweep --- */
-.holo-scanline{position:absolute;top:0;left:0;width:100%;height:2px;
-  background:linear-gradient(90deg,transparent,#00ffff,transparent);
-  opacity:0.25;z-index:50;pointer-events:none;
-  animation:holoScanDown 8s linear infinite}
-@keyframes holoScanDown{0%{top:-2px}100%{top:100%}}
+/* --- Scanline sweep (disabled) --- */
+.holo-scanline{display:none}
 
 /* --- Corner decorations --- */
 .holo-corner{position:absolute;width:40px;height:40px;z-index:20;opacity:0.35;pointer-events:none}
@@ -2123,7 +2119,7 @@ socket.on('playerLeft',d=>{
 });
 
 function _doEnterGame(d){
-  gameOver=false;isMyTurn=false;turn=Number(d.startTurn);lastHand=null;counts=[27,27,27,27];
+  gameOver=false;isMyTurn=false;turn=d._blockTurn?-99:Number(d.startTurn);lastHand=null;counts=[27,27,27,27];
   actionSeq=0;hintOptions=[];hintIndex=0;finishOrder=[];
   tPlayedCards={};for(let s=0;s<4;s++)tPlayedCards[s]=new Float32Array(54);
   tBombCounts=[0,0,0,0];tPassCount=0;
@@ -2180,9 +2176,17 @@ function _doEnterGame(d){
 
 socket.on('gameStart',d=>{
   _pendingGame=null;
+  if(d.tribute){
+    // Tribute mode: block turns before entering game UI
+    d._blockTurn=true;
+  }
   _doEnterGame(d);
   _autoContinue=false;
-  if(d.highCards&&d.highCards.length===4) showHighCard(d.highCards,d.startTurn);
+  if(d.tribute){
+    console.log('[GameStart] Tribute mode, waiting for tribute events...');
+  } else if(d.highCards&&d.highCards.length===4){
+    showHighCard(d.highCards,d.startTurn);
+  }
 });
 
 function showHighCard(cards,winner){
@@ -2268,6 +2272,99 @@ socket.on('dealCards',d=>{
 });
 
 socket.on('botCards',d=>{botCards={};for(let s in d)botCards[s]=d[s].sort((a,b)=>b.p-a.p)});
+
+// Hand update from server (during tribute or other server-side card changes)
+socket.on('handUpdate',d=>{
+  if(!d||!d.cards)return;
+  myCards=d.cards.sort((a,b)=>b.p-a.p).map(c=>({...c,sel:false}));
+  renderHand(false);
+});
+
+// Tribute events from server
+socket.on('tributeAction',d=>{
+  if(!d)return;
+  console.log('[Tribute] action:',d.action,d);
+  let pn=['YOU','RIGHT','PARTNER','LEFT'];
+
+  if(d.action==='shield'){
+    // 抗贡: 末游 shows both big jokers
+    _clearOutZones();
+    if(d.cards) d.cards.forEach(c=>_renderTributeCard(d.seat,c));
+    _showTributeLabel(d.seat,'抗贡','shield');
+    let viewId=(d.seat-mySeat+4)%4;
+    let area=document.getElementById('out-'+viewId);
+    if(area){
+      let shield=document.createElement('div');
+      shield.className='tribute-shield-icon';
+      shield.textContent='🛡️';
+      area.appendChild(shield);
+    }
+    AudioSys.play('snap');
+    setTimeout(()=>_clearOutZones(),2200);
+  }
+  else if(d.action==='give'){
+    // 进贡: show card flying from giver to receiver
+    _clearOutZones();
+    _renderTributeCard(d.fromSeat,d.card);
+    _showTributeLabel(d.fromSeat,'进贡','give');
+    AudioSys.play('snap');
+    setTimeout(()=>{
+      _clearOutZones();
+      _renderTributeCard(d.toSeat,d.card);
+      let toName=pn[(d.toSeat-mySeat+4)%4];
+      _showTributeLabel(d.toSeat,toName+' 收到','give');
+      AudioSys.play('deal');
+    },1500);
+  }
+  else if(d.action==='return'){
+    // 还贡: show card returning from receiver to giver
+    _clearOutZones();
+    _renderTributeCard(d.toSeat,d.card);
+    _showTributeLabel(d.toSeat,'还贡','return');
+    AudioSys.play('snap');
+    setTimeout(()=>{
+      _clearOutZones();
+      _renderTributeCard(d.fromSeat,d.card);
+      let fromName=pn[(d.fromSeat-mySeat+4)%4];
+      _showTributeLabel(d.fromSeat,fromName+' 收到','return');
+      AudioSys.play('deal');
+    },1200);
+    setTimeout(()=>_clearOutZones(),2400);
+  }
+});
+
+// Server asks human player to pick a return card for 还贡
+socket.on('tributePickReturn',d=>{
+  console.log('[Tribute] Pick return card for seat',d.toSeat);
+  // Use the existing _pickReturnCard() UI
+  window._tributePickMode=true;
+  myCards.forEach(c=>c.sel=false);
+  renderHand(false);
+  let bar=document.getElementById('tribute-pick-bar');
+  let btn=document.getElementById('tpb-confirm');
+  bar.style.display='block';
+  btn.disabled=true;
+  btn.onclick=()=>{
+    let picked=myCards.find(c=>c.sel);
+    if(!picked)return;
+    window._tributePickMode=false;
+    bar.style.display='none';
+    myCards.forEach(c=>c.sel=false);
+    // Send chosen card back to server
+    socket.emit('tributeReturn',{card:{s:picked.s,v:picked.v,p:picked.p,seq:picked.seq,id:picked.id}});
+  };
+});
+
+// Tribute phase complete - game can start
+socket.on('tributeComplete',d=>{
+  console.log('[Tribute] Complete, startTurn=',d.startTurn);
+  _clearOutZones();
+  turn=d.startTurn;
+  renderHand(false);
+  renderUI();
+  checkTurn();
+});
+
 socket.on('syncAction',d=>handleSync(d));
 
 // Handle turn correction when client/server are out of sync
@@ -2424,7 +2521,7 @@ function resetWatchdog(keepRetries){
 }
 
 function checkTurn(){
-  if(turn===-1||gameOver)return;
+  if(turn===-1||turn===-99||gameOver)return;
   if(turn===mySeat){
     isMyTurn=true;
     startTimer();
