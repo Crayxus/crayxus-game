@@ -4182,6 +4182,15 @@ function ensureQR(){
 }
 
 let _wxSessionId=null;
+let _wxCurrentStats=null;
+
+// Re-register session when socket reconnects (so relay uses current socket ID)
+socket.on('connect',function(){
+  if(_wxSessionId&&_wxCurrentStats){
+    socket.emit('wx-login-register',{sessionId:_wxSessionId,stats:_wxCurrentStats});
+    console.log('[QR] Re-registered session on reconnect:',_wxSessionId);
+  }
+});
 
 function generateLoginQR(){
   // Build session ID
@@ -4228,6 +4237,9 @@ function generateLoginQR(){
     }
   };
 
+  // Save stats for reconnect re-registration
+  _wxCurrentStats=currentStats;
+
   // Register this session on the server
   if(!socket.connected)socket.connect();
   socket.emit('wx-login-register',{sessionId:_wxSessionId,stats:currentStats});
@@ -4248,7 +4260,22 @@ socket.on('wx-login-success',function(data){
   const popup=document.getElementById('qr-login-popup');
   if(popup)popup.style.display='none';
 
-  // Apply immediately
+  // Apply avatar directly to all avatar elements
+  if(data.avatarUrl){
+    ['holo-avatar','casual-avatar','arena-avatar','av-0'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.innerHTML='<img src="'+data.avatarUrl+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+    });
+  }
+  // Apply nickname directly to all name elements
+  if(data.nickname){
+    ['holo-player-name','casual-name','arena-name'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.innerText=data.nickname;
+    });
+  }
+
+  // Also call legacy apply
   if(window._applyWeChatProfile)window._applyWeChatProfile();
 
   // Show success toast
