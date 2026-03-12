@@ -985,7 +985,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
   </div>
 
   <!-- QR Login — always visible -->
-  <div id="qr-login-section" style="position:absolute;bottom:35px;z-index:50;display:flex;flex-direction:column;align-items:center;gap:10px">
+  <div id="qr-login-section" style="position:absolute;bottom:35px;left:50%;transform:translateX(-50%);z-index:50;display:flex;flex-direction:column;align-items:center;gap:10px">
     <div style="background:rgba(10,10,20,0.92);border:1px solid rgba(0,255,255,0.15);border-radius:16px;padding:16px 20px;backdrop-filter:blur(12px);text-align:center">
       <div style="font-size:10px;color:rgba(0,255,255,0.5);letter-spacing:3px;margin-bottom:8px">WECHAT SCAN</div>
       <canvas id="qr-canvas" width="140" height="140" style="border-radius:8px;background:#fff;image-rendering:pixelated"></canvas>
@@ -4171,8 +4171,15 @@ checkMCTS();
 })();
 
 // ========== QR Login ==========
-// Auto-generate QR on page load
-setTimeout(()=>generateLoginQR(),1000);
+// Auto-generate QR on page load (delay to ensure DOM & library ready)
+setTimeout(()=>{
+  try{generateLoginQR()}catch(e){console.error('QR generation failed:',e)}
+},2000);
+// Also regenerate when mode-select screen becomes visible
+function ensureQR(){
+  const c=document.getElementById('qr-canvas');
+  if(c&&!c._drawn){try{generateLoginQR();c._drawn=true}catch(e){}}
+}
 
 let _wxSessionId=null;
 
