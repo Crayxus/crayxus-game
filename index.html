@@ -223,6 +223,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 @media(hover:none) and (pointer:coarse){.grp-col .stack-card{-webkit-tap-highlight-color:transparent}.grp-col .stack-card:active .card{transform:translateY(-10px);transition:transform 0.08s}.btn{min-height:44px;min-width:44px}.res-btn{min-height:44px}}
 /* Casual HUD responsive */
 @media(max-width:1194px){#casual-hud{bottom:20px;left:10px}.casual-hud-inner{padding:8px 14px 8px 8px;gap:10px}.casual-avatar-ring{width:56px;height:56px}.casual-avatar-img{width:46px;height:46px;margin:5px;font-size:18px}.casual-name{font-size:12px}.casual-rank-badge{font-size:8px;padding:2px 8px}.casual-rank-stars{font-size:13px}.kda-val{font-size:14px}.kda-label{font-size:7px}#ai-help-btn{bottom:20px;right:10px}.ai-help-ring{width:48px;height:48px}.ai-help-face{width:38px;height:38px;margin:5px;font-size:18px}.ai-help-title{font-size:12px}.ai-help-count{font-size:8px}}
+@media(max-height:800px){#casual-hud{bottom:auto;top:10px;left:10px}.casual-hud-inner{padding:6px 12px 6px 6px;gap:8px;border-radius:12px}.casual-avatar-ring{width:44px;height:44px}.casual-avatar-img{width:36px;height:36px;margin:4px;font-size:16px}.casual-avatar-glow{inset:-6px}.casual-name{font-size:11px;letter-spacing:1px}.casual-rank-row{gap:4px}.casual-rank-badge{font-size:8px;padding:1px 6px}.casual-rank-stars{font-size:11px}.kda-val{font-size:12px}.kda-label{font-size:7px}#ai-help-btn{bottom:auto;top:10px;right:10px}.ai-help-inner{padding:6px 12px 6px 6px;gap:8px;border-radius:12px}.ai-help-ring{width:44px;height:44px}.ai-help-face{width:36px;height:36px;margin:4px;font-size:16px}.ai-help-title{font-size:11px}.ai-help-count{font-size:8px}}
 @media(max-height:500px){#casual-hud{bottom:auto;top:8px;left:8px}.casual-hud-inner{padding:4px 10px 4px 4px;gap:8px;border-radius:10px}.casual-avatar-ring{width:36px;height:36px}.casual-avatar-img{width:28px;height:28px;margin:4px;font-size:12px}.casual-avatar-glow{inset:-6px}.casual-name{font-size:10px;letter-spacing:1px}.casual-rank-row{gap:4px}.casual-rank-badge{font-size:7px;padding:1px 6px}.casual-rank-stars{font-size:10px}.kda-val{font-size:11px}.kda-label{font-size:6px}#ai-help-btn{bottom:auto;top:8px;right:8px}.ai-help-inner{padding:4px 10px 4px 4px;gap:6px;border-radius:10px}.ai-help-ring{width:36px;height:36px}.ai-help-face{width:28px;height:28px;margin:4px;font-size:14px}.ai-help-title{font-size:10px;letter-spacing:1px}.ai-help-badge{display:none}.ai-help-count{font-size:7px}}
 
 /* === Holographic Mode Select === */
@@ -1176,7 +1177,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
     </div>
     <div class="training-badge" id="training-badge">🎓 TRAINING</div>
     <button id="afk-btn" onclick="toggleAFK()">🤖 AFK 自动</button>
-    <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;bottom:75px;right:100px;z-index:501;background:rgba(20,20,30,0.7);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:12px;padding:6px 14px;border-radius:10px;cursor:pointer;font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙 DARK</button>
+    <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;top:10px;right:10px;z-index:501;background:rgba(20,20,30,0.6);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙</button>
     <div id="afk-badge">AFK</div>
     <div class="mobile-score" id="mobile-score">
       <span style="color:var(--gold)">YOU <span class="ms-val" id="ms-p0">0</span></span>
@@ -2047,10 +2048,10 @@ function _syncThemeButtons(isLight){
   if(label)label.textContent=isLight?'LIGHT':'DARK';
   let gb=document.getElementById('game-theme-btn');
   if(gb){
-    gb.textContent=isLight?'☀️ LIGHT':'🌙 DARK';
-    gb.style.background=isLight?'rgba(255,255,255,0.7)':'rgba(20,20,30,0.7)';
-    gb.style.color=isLight?'#555':'rgba(255,255,255,0.6)';
-    gb.style.borderColor=isLight?'rgba(0,0,0,0.12)':'rgba(255,255,255,0.15)';
+    gb.textContent=isLight?'☀️':'🌙';
+    gb.style.background=isLight?'rgba(255,255,255,0.6)':'rgba(20,20,30,0.6)';
+    gb.style.color=isLight?'#555':'rgba(255,255,255,0.5)';
+    gb.style.borderColor=isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.12)';
   }
 }
 // Restore saved theme on load
@@ -2634,7 +2635,7 @@ function resetWatchdog(keepRetries){
     if(watchdogRetries>=3){
       console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing bot retry');
       watchdogRetries=0;
-    }else if(botSeats.includes(turn)){
+    }else if(botSeats.includes(turn)&&isHost){
       botRunningForTurn=-1; // Allow watchdog retry
       await runBot(turn);
     } else if(turn!==mySeat){
@@ -2661,10 +2662,11 @@ function checkTurn(){
     stopTimer();startOpponentTimer();
     document.getElementById('ctrls').style.display='none';
     if(botSeats.includes(turn)){
+      if(!isHost) return; // Only host controls bots
       const botTurn=turn;
       if(botRunningForTurn===botTurn)return; // Already scheduled for this turn
       botRunningForTurn=botTurn;
-      const jitter = isHost ? 600 : (800 + Math.floor(Math.random()*400));
+      const jitter = 600;
       setTimeout(async ()=>{
         if(!gameOver&&turn===botTurn&&botSeats.includes(botTurn)){await runBot(botTurn);}
         if(botRunningForTurn===botTurn)botRunningForTurn=-1;

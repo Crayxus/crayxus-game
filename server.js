@@ -435,7 +435,16 @@ io.on('connection', (socket) => {
     });
 
     socket.on('action', d => handleAction(d, socket));
-    socket.on('botAction', d => handleAction(d, socket));
+    socket.on('botAction', d => {
+        // Only host can control bots
+        let rid = playerMap[socket.id];
+        if (!rid || !rooms[rid]) return;
+        if (getHostSid(rooms[rid]) !== socket.id) {
+            gameLog(`[BotAction] Room ${rid}: non-host ${socket.id} tried to send botAction, ignoring`);
+            return;
+        }
+        handleAction(d, socket);
+    });
 
     // 主动离开: 浏览器关闭/刷新时客户端发送
     socket.on('leaveGame', () => {

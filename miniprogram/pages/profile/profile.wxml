@@ -15,8 +15,8 @@
   <!-- Status Bar Spacer -->
   <view style="height:{{statusBarHeight}}px"></view>
 
-  <!-- Top Row: version + user + scan -->
-  <view class="top-row">
+  <!-- Top Row: version + buttons (positioned below capsule) -->
+  <view class="top-row" style="padding-top:{{menuBottom - statusBarHeight}}px;padding-right:{{menuRight}}px">
     <view class="top-left">
       <text class="top-ver">V41.1</text>
     </view>

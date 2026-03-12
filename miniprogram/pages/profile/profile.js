@@ -9,6 +9,8 @@ Page({
     showNicknameInput: false,
     showSetupModal: false,
     pendingScanResult: null,
+    menuRight: 16,
+    menuBottom: 88,
 
     // Player info
     title: 'Guandan Warrior',
@@ -40,10 +42,18 @@ Page({
   },
 
   onLoad() {
-    // Get status bar height for safe area
+    // Get status bar height and menu button position for safe area
     try {
       const sys = wx.getSystemInfoSync()
       this.setData({ statusBarHeight: sys.statusBarHeight || 44 })
+      // Get capsule button rect to avoid overlap
+      const menuRect = wx.getMenuButtonBoundingClientRect()
+      if (menuRect) {
+        this.setData({
+          menuRight: sys.windowWidth - menuRect.left, // distance from right edge
+          menuBottom: menuRect.bottom + 6 // bottom of capsule + padding
+        })
+      }
     } catch(e) {}
     // Restore saved theme
     const savedTheme = wx.getStorageSync('crayxus_theme') || 'cyber'
