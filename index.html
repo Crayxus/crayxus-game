@@ -2120,15 +2120,29 @@ function _doEnterGame(d){
   document.getElementById('result-modal').style.display='none';
   ['av-0','av-1','av-2','av-3'].forEach(id=>{let el=document.getElementById(id);if(el)el.classList.remove('active','finished')});
   ['f-0','f-1','f-2','f-3'].forEach(id=>{let el=document.getElementById(id);if(el)el.style.display='none'});
-  // Arena mode: hide sidebar, show arena HUD, apply dark card styling
+  // Show correct HUD based on game mode
   let dash=document.querySelector('.dashboard');if(dash)dash.style.display='none';
   let viewEl=document.getElementById('view');
   if(viewEl)viewEl.classList.add('casual-mode');
-  let arenaHud=document.getElementById('arena-hud');if(arenaHud)arenaHud.style.display='block';
-  let casualHud=document.getElementById('casual-hud');if(casualHud)casualHud.style.display='none';
-  let pme=document.getElementById('pzone-me');if(pme)pme.style.display='none';
-  // Hide AI help in arena
-  let aiBtn=document.getElementById('ai-help-btn');if(aiBtn)aiBtn.style.display='none';
+  let arenaHud=document.getElementById('arena-hud');
+  let casualHud=document.getElementById('casual-hud');
+  let evoBar=document.getElementById('evo-bar');
+  let pme=document.getElementById('pzone-me');
+  let aiBtn=document.getElementById('ai-help-btn');
+  if(gameMode==='arena'){
+    if(arenaHud)arenaHud.style.display='block';
+    if(casualHud)casualHud.style.display='none';
+    if(pme)pme.style.display='none';
+    if(aiBtn)aiBtn.style.display='none';
+    if(evoBar)evoBar.style.display='';
+  }else{
+    // Casual mode: show casual HUD, hide arena HUD and EVO
+    if(arenaHud)arenaHud.style.display='none';
+    if(casualHud)casualHud.style.display='block';
+    if(pme)pme.style.display='none';
+    if(aiBtn)aiBtn.style.display='block';
+    if(evoBar)evoBar.style.display='none';
+  }
   // Sync arena HUD name
   let arenaName=document.getElementById('arena-name');
   let hpn=document.getElementById('holo-player-name');
