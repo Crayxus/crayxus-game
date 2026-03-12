@@ -58,6 +58,8 @@ Page({
     const cached = wx.getStorageSync('crayxus_user') || {}
     const avatarUrl = cached.avatarUrl || app.globalData.avatarUrl || ''
     const nickname = cached.nickname || app.globalData.nickname || ''
+    // Restore base64 for scan login
+    if (cached.avatarBase64) app.globalData.avatarBase64 = cached.avatarBase64
     this.setData({
       avatarUrl,
       nickname,
@@ -70,12 +72,26 @@ Page({
     const { avatarUrl } = e.detail
     if (!avatarUrl) return
 
-    // Save to app global + local storage
+    // Save local temp path for display in mini program
     app.globalData.avatarUrl = avatarUrl
     this.setData({ avatarUrl })
-    this.saveUser()
 
-    wx.showToast({ title: 'Avatar set!', icon: 'success' })
+    // Convert to base64 for sharing with browser
+    const fs = wx.getFileSystemManager()
+    fs.readFile({
+      filePath: avatarUrl,
+      encoding: 'base64',
+      success: (res) => {
+        const base64Url = 'data:image/png;base64,' + res.data
+        app.globalData.avatarBase64 = base64Url
+        this.saveUser()
+        wx.showToast({ title: 'Avatar set!', icon: 'success' })
+      },
+      fail: () => {
+        this.saveUser()
+        wx.showToast({ title: 'Avatar set!', icon: 'success' })
+      }
+    })
   },
 
   // Tap existing avatar → allow re-choosing
@@ -109,6 +125,7 @@ Page({
   saveUser() {
     const data = {
       avatarUrl: this.data.avatarUrl,
+      avatarBase64: app.globalData.avatarBase64 || '',
       nickname: this.data.nickname
     }
     wx.setStorageSync('crayxus_user', data)
@@ -202,7 +219,7 @@ Page({
           header: { 'content-type': 'application/json' },
           data: {
             sessionId: sessionId,
-            avatarUrl: this.data.avatarUrl,
+            avatarUrl: app.globalData.avatarBase64 || this.data.avatarUrl,
             nickname: this.data.nickname
           },
           success: (resp) => {
@@ -218,8 +235,8 @@ Page({
             }
           },
           fail: (err) => {
-            console.error('Login request failed:', err)
-            wx.showToast({ title: 'Network error', icon: 'none' })
+            console.error('Login request failed:', JSON.stringify(err))
+            wx.showToast({ title: err.errMsg || 'Network error', icon: 'none' })
           }
         })
       },

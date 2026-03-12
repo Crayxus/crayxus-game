@@ -10,7 +10,7 @@ const io = require('socket.io')(http, {
 
 const path = require('path');
 const fs = require('fs');
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname)));
 
 const PORT = process.env.PORT || 3000;
