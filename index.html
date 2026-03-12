@@ -1899,7 +1899,8 @@ function calcResult(){
   if(gameMode==='casual'&&casualMode==='upgrade'){
     if(gameMode==='casual'&&(gameMode!=='training')){
       // Multiplayer: server already computed levels via _applyServerUpgradeResult
-      let myLvl=LEVEL_ORDER[teamLevels[0]],opLvl=LEVEL_ORDER[teamLevels[1]];
+      let myTeamIdx=(mySeat%2===0)?0:1;
+      let myLvl=LEVEL_ORDER[teamLevels[myTeamIdx]],opLvl=LEVEL_ORDER[teamLevels[1-myTeamIdx]];
       upgradeMsg=`\n我方打${myLvl} · 对方打${opLvl}`;
       if(window._upgradeFinished){
         let who=(lastWinTeam===0)===(mySeat%2===0)?'我方':'对方';
@@ -1933,9 +1934,10 @@ function calcResult(){
         upgradeMsg+='\n⚠️ 打A必须双上才能过关！';
       }
     }
-    // Update HUD
-    let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=LEVEL_ORDER[teamLevels[0]];
-    let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1]];
+    // Update HUD (use correct team mapping)
+    let _mti=(mySeat%2===0)?0:1;
+    let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=LEVEL_ORDER[teamLevels[_mti]];
+    let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1-_mti]];
     let wv=document.getElementById('up-wild-val');if(wv)wv.innerText=LEVEL_ORDER[teamLevels[lastWinTeam]];
   }
 
@@ -1950,7 +1952,8 @@ function calcResult(){
   let eloEl=document.getElementById('res-elo');
   if(eloEl){
     if(gameMode==='casual'&&casualMode==='upgrade'){
-      let myLvl=LEVEL_ORDER[teamLevels[0]],opLvl=LEVEL_ORDER[teamLevels[1]];
+      let _mti2=(mySeat%2===0)?0:1;
+      let myLvl=LEVEL_ORDER[teamLevels[_mti2]],opLvl=LEVEL_ORDER[teamLevels[1-_mti2]];
       eloEl.innerHTML=`<span style="color:var(--neon)">我方打${myLvl}</span> · <span style="color:var(--red)">对方打${opLvl}</span>`;
     }else{
       const r=getRankFromStars(casualStars);
@@ -2260,12 +2263,13 @@ function _applyServerUpgradeResult(ur){
   upgradeRound=ur.upgradeRound||upgradeRound;
   lastWinTeam=ur.winTeamIdx!=null?ur.winTeamIdx:lastWinTeam;
   if(ur.upgradeFinished) window._upgradeFinished=true;
-  // Update HUD
+  // Update HUD (use correct team mapping based on seat)
+  let _mti=(mySeat%2===0)?0:1;
   let ml=document.getElementById('up-my-lvl');
   let ol=document.getElementById('up-op-lvl');
   let wv=document.getElementById('up-wild-val');
-  if(ml)ml.innerText=LEVEL_ORDER[teamLevels[0]];
-  if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1]];
+  if(ml)ml.innerText=LEVEL_ORDER[teamLevels[_mti]];
+  if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1-_mti]];
   if(wv)wv.innerText=currentWildValue;
 }
 
@@ -2312,8 +2316,9 @@ function _doEnterGame(d){
     if(casualMode==='upgrade'){
       if(fixedS)fixedS.style.display='none';
       if(upgradeS)upgradeS.style.display='flex';
-      let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=LEVEL_ORDER[teamLevels[0]];
-      let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1]];
+      let _mti=(mySeat%2===0)?0:1;
+      let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=LEVEL_ORDER[teamLevels[_mti]];
+      let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1-_mti]];
       let wv=document.getElementById('up-wild-val');if(wv)wv.innerText=currentWildValue;
     }else{
       if(fixedS)fixedS.style.display='flex';
@@ -3627,8 +3632,9 @@ function startTrainingGame(isContinue){
     if(casualMode==='upgrade'){
       if(fixedS)fixedS.style.display='none';
       if(upgradeS)upgradeS.style.display='flex';
-      let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=LEVEL_ORDER[teamLevels[0]];
-      let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1]];
+      let _mti=(mySeat%2===0)?0:1;
+      let ml=document.getElementById('up-my-lvl');if(ml)ml.innerText=LEVEL_ORDER[teamLevels[_mti]];
+      let ol=document.getElementById('up-op-lvl');if(ol)ol.innerText=LEVEL_ORDER[teamLevels[1-_mti]];
       let wv=document.getElementById('up-wild-val');if(wv)wv.innerText=currentWildValue;
     }else{
       if(fixedS)fixedS.style.display='flex';

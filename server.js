@@ -1,4 +1,4 @@
-// server.js - Crayxus V42 (Local Mode)
+// server.js - Crayxus V43 (Upgrade Fix)
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -14,6 +14,8 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname)));
 
 const PORT = process.env.PORT || 3000;
+const SERVER_VERSION = 'V43';
+app.get('/api/version', (req, res) => res.json({ version: SERVER_VERSION }));
 
 // Game event logging
 const LOG_FILE = path.join(__dirname, 'game_log.txt');
@@ -75,10 +77,15 @@ function getHandType(c, wildValue) {
     if (wild.length > 0 && jokers.length > 0) return null;
     norm.sort((a, b) => a.p - b.p);
     let len = c.length;
+    // Power-based grouping (for singles, pairs, trips, bombs - strength comparison)
     let m = {};
     norm.forEach(x => m[x.p] = (m[x.p] || 0) + 1);
     let vals = Object.keys(m).map(Number).sort((a, b) => a - b);
     let maxNormFreq = vals.length ? Math.max(...Object.values(m)) : 0;
+    // Face-based grouping (for sequences: straights, plates, tubes)
+    let mFace = {};
+    norm.forEach(x => { let f = BASE_POWER[x.v] || x.p; mFace[f] = (mFace[f] || 0) + 1; });
+    let faceVals = Object.keys(mFace).map(Number).sort((a, b) => a - b);
 
     // 炸弹 (4张以上, 或4王)
     if (len >= 4) {
@@ -105,18 +112,18 @@ function getHandType(c, wildValue) {
     // 顺子 / 同花顺 (5张)
     if (len === 5) {
         const isWildCard = x => x.v === wv && x.s === '♥';
-        // 顺子面值: use card power for ranking
-        const faceRankG = x => x.p;
+        // 顺子面值: ALWAYS use BASE face rank (not dynamic power) for sequence detection
+        const faceRankG = x => BASE_POWER[x.v] || x.p;
 
         const strCards = c.filter(x => x.s!=='JOKER' && !isWildCard(x));
         const fWilds   = wild.length;
         const fValsSet = new Set(strCards.map(faceRankG));
         const fVals    = [...fValsSet].sort((a,b)=>a-b);
 
-        // 可能的顺子窗口 (based on actual power values)
+        // 可能的顺子窗口 (based on BASE face values: 3-14=A, 15=2)
         const windows = [];
         for(let lo=3; lo<=10; lo++) windows.push([lo,lo+1,lo+2,lo+3,lo+4]);
-        windows.push([11,12,13,14,15]); // J-K-A-2/level
+        windows.push([11,12,13,14,15]); // J-Q-K-A-2
 
         let isStraight=false, straightHighVal=0;
 
@@ -134,7 +141,7 @@ function getHandType(c, wildValue) {
             }
             // A-2-3-4-5 特殊处理
             if(!isStraight){
-                const aLowVals = fVals.map(r=> r===14?1 : r===15?2 : r===2?2 : r).sort((a,b)=>a-b);
+                const aLowVals = fVals.map(r=> r===14?1 : r===15?2 : r).sort((a,b)=>a-b);
                 const missing = [1,2,3,4,5].filter(r=>!new Set(aLowVals).has(r)).length;
                 const outOfWin = aLowVals.filter(r=>r>5).length;
                 if(outOfWin===0 && missing<=fWilds){ isStraight=true; straightHighVal=5; }
@@ -156,15 +163,15 @@ function getHandType(c, wildValue) {
             return { type:'3+2', val: tripleVal };
         }
     }
-    // 钢板 (两个连续三张)
-    if (len === 6 && vals.length === 2 && vals[1] === vals[0] + 1) {
-        if (m[vals[0]] + wild.length >= 3) return { type:'plate', val:vals[0] };
+    // 钢板 (两个连续三张) - use face values for sequence check
+    if (len === 6 && faceVals.length === 2 && faceVals[1] === faceVals[0] + 1) {
+        if (mFace[faceVals[0]] + wild.length >= 3) return { type:'plate', val:faceVals[0] };
     }
-    // 木板 (三个连续对子)
-    if (len === 6 && vals.length === 3) {
-        if (vals[1] === vals[0] + 1 && vals[2] === vals[1] + 1) {
-            let hasEnough = (m[vals[0]] >= 1 || wild.length > 0) && (m[vals[1]] >= 1 || wild.length > 0) && (m[vals[2]] >= 1 || wild.length > 0);
-            if (hasEnough) return { type:'tube', val:vals[0] };
+    // 木板 (三个连续对子) - use face values for sequence check
+    if (len === 6 && faceVals.length === 3) {
+        if (faceVals[1] === faceVals[0] + 1 && faceVals[2] === faceVals[1] + 1) {
+            let hasEnough = (mFace[faceVals[0]] >= 1 || wild.length > 0) && (mFace[faceVals[1]] >= 1 || wild.length > 0) && (mFace[faceVals[2]] >= 1 || wild.length > 0);
+            if (hasEnough) return { type:'tube', val:faceVals[0] };
         }
     }
     return null;
