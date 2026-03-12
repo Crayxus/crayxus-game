@@ -532,6 +532,8 @@ function scheduleBotTimeout(rid) {
         }
         let active = 4 - g.finished.length;
         if (active <= 1) {
+            // Add remaining players to finish order before computing upgrade result
+            for (let s = 0; s < 4; s++) { if (!g.finished.includes(s)) g.finished.push(s); }
             room.lastFinished = g.finished.slice();
             let upgradeResult = computeUpgradeResult(room);
             gameLog(`[GameEnd] Room ${rid}: BotTimeout game over (active<=1), finishOrder=[${g.finished}]`);
@@ -617,6 +619,8 @@ function handleAction(d, socket) {
     // 结算与流转
     let active = 4 - r.finished.length;
     if (active <= 1) { // 游戏结束 (3+ players finished)
+        // Add remaining players to finish order before computing upgrade result
+        for (let s = 0; s < 4; s++) { if (!r.finished.includes(s)) r.finished.push(s); }
         rooms[rid].lastFinished = r.finished.slice();
         let upgradeResult = computeUpgradeResult(rooms[rid]);
         gameLog(`[GameEnd] Room ${rid}: Game over (active<=1), finishOrder=[${r.finished}]`);
