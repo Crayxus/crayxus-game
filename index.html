@@ -883,6 +883,80 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
   text-shadow:0 0 10px var(--gold);
 }
 .casual-mode .b-play:hover{background:rgba(255,200,0,0.1);box-shadow:0 0 25px rgba(255,200,0,0.2)}
+
+/* ============= LIGHT THEME ============= */
+body.light-theme #mode-select{background:#f0ece4 !important}
+body.light-theme #mode-select::before{background:radial-gradient(circle,rgba(200,180,140,0.3),transparent 70%) !important}
+body.light-theme .mode-select-title{color:#2a2520 !important;text-shadow:none !important}
+body.light-theme .mode-select-sub{color:rgba(100,80,50,0.6) !important}
+body.light-theme .holo-grid-floor{opacity:0.05 !important}
+body.light-theme .holo-corner{opacity:0.15 !important;border-color:#8b7355 !important}
+body.light-theme .holo-particles{opacity:0.15 !important}
+body.light-theme .holo-elo-display{background:rgba(255,255,255,0.7) !important;border-color:rgba(0,0,0,0.1) !important}
+body.light-theme .holo-elo-label{color:#888 !important}
+body.light-theme .holo-elo-value{color:#2a2520 !important;text-shadow:none !important}
+body.light-theme .holo-member-badge{background:rgba(255,255,255,0.7) !important;border-color:rgba(0,0,0,0.1) !important}
+body.light-theme .holo-member-text{color:#8b7355 !important}
+body.light-theme .holo-btn{background:rgba(255,255,255,0.85) !important;border-color:rgba(0,0,0,0.12) !important;box-shadow:0 2px 12px rgba(0,0,0,0.08) !important}
+body.light-theme .holo-btn .h-name{color:#2a2520 !important;text-shadow:none !important}
+body.light-theme .holo-btn .h-desc{color:#777 !important}
+body.light-theme .holo-btn::before{display:none !important}
+body.light-theme .holo-btn.spotlight{border-color:rgba(0,100,100,0.3) !important;box-shadow:0 4px 20px rgba(0,100,100,0.1) !important}
+body.light-theme .holo-player-name{color:#2a2520 !important;text-shadow:none !important}
+body.light-theme .holo-rank-badge{background:rgba(180,160,120,0.2) !important;color:#8b7355 !important}
+body.light-theme .holo-stat-val{color:#2a2520 !important;text-shadow:none !important}
+body.light-theme .holo-stat-label{color:#999 !important}
+body.light-theme #theme-toggle{background:rgba(0,0,0,0.05) !important;border-color:rgba(0,0,0,0.12) !important}
+body.light-theme #theme-label{color:rgba(0,0,0,0.5) !important}
+body.light-theme #qr-login-section>div{background:rgba(255,255,255,0.9) !important;border-color:rgba(0,0,0,0.1) !important}
+body.light-theme #qr-login-section>div>div:first-child{color:rgba(0,0,0,0.4) !important}
+/* Light theme: lobby */
+body.light-theme #lobby{background:radial-gradient(circle,#f5f0e8 0%,#ede6d6 100%) !important}
+body.light-theme .lobby-title{color:#2a2520 !important;text-shadow:none !important}
+body.light-theme .lobby-status{color:#888 !important}
+body.light-theme .lobby-seats .seat{background:rgba(255,255,255,0.8) !important;border-color:rgba(0,0,0,0.1) !important;color:#2a2520 !important}
+body.light-theme .lobby-seats .seat.filled{border-color:#8b7355 !important}
+body.light-theme #btn-start-match{background:linear-gradient(90deg,#8b7355,#a0885c) !important;color:#fff !important}
+/* Light theme: game view */
+body.light-theme #view{background:radial-gradient(circle,#2d7a3e 0%,#1a5a28 100%) !important}
+body.light-theme .casual-mode .grp-col .stack-card .card{background:#f5f5f5 !important;border-color:#ccc !important;box-shadow:2px 2px 10px rgba(0,0,0,0.3) !important}
+body.light-theme .casual-mode .grp-col .stack-card .card.c-red,
+body.light-theme .casual-mode .grp-col .stack-card .card .c-red{color:#cc0000 !important}
+body.light-theme .casual-mode .grp-col .stack-card .card.c-blk,
+body.light-theme .casual-mode .c-blk{color:#222 !important}
+body.light-theme .casual-mode .grp-col .stack-card:hover .card{border-color:#888 !important;box-shadow:2px 2px 12px rgba(0,0,0,0.4) !important;filter:brightness(1.05) !important}
+body.light-theme .casual-mode .grp-col .stack-card.sel .card{background:#e4fff8 !important;border-color:var(--neon) !important;box-shadow:0 0 0 3px var(--neon),0 0 16px rgba(0,255,200,0.4) !important}
+body.light-theme .casual-mode .grp-col .stack-card .card.c-wild{background:#fffdf0 !important;border-color:var(--gold) !important}
+body.light-theme .casual-mode .out .card{background:#f0f0f0 !important;border-color:#bbb !important;box-shadow:1px 1px 6px rgba(0,0,0,0.3) !important}
+body.light-theme .casual-mode .out .card.c-red{color:#cc0000 !important}
+body.light-theme .casual-mode .out .card.c-blk{color:#222 !important}
+body.light-theme .casual-mode .b-pass{background:rgba(255,255,255,0.8) !important;border-color:#aaa !important;color:#555 !important}
+body.light-theme .casual-mode .b-hint{background:rgba(255,255,255,0.8) !important;border-color:#0a8 !important;color:#0a8 !important;text-shadow:none !important}
+body.light-theme .casual-mode .b-play{background:rgba(255,255,255,0.8) !important;border-color:#c90 !important;color:#c90 !important;text-shadow:none !important}
+/* Light theme: avatar circles */
+body.light-theme .av{background:rgba(255,255,255,0.7) !important;border-color:rgba(0,0,0,0.15) !important;color:#2a2520 !important}
+body.light-theme .av.active{border-color:#0a8 !important;box-shadow:0 0 12px rgba(0,170,130,0.3) !important}
+/* Light theme: casual HUD */
+body.light-theme #casual-hud{background:rgba(255,255,255,0.85) !important;border-color:rgba(0,0,0,0.1) !important;color:#2a2520 !important}
+body.light-theme .casual-stat-label{color:#888 !important}
+body.light-theme .casual-stat-val{color:#2a2520 !important;text-shadow:none !important}
+/* Light theme: result modal */
+body.light-theme #result-modal{background:rgba(255,255,255,0.95) !important}
+body.light-theme .res-title{color:#2a2520 !important;text-shadow:none !important}
+body.light-theme .res-line{color:#555 !important}
+/* Light theme: casual popup */
+body.light-theme #casual-popup{background:rgba(0,0,0,0.4) !important}
+body.light-theme .casual-popup-inner{background:rgba(255,255,255,0.95) !important;border-color:rgba(0,0,0,0.1) !important}
+body.light-theme .casual-popup-title{color:#2a2520 !important}
+body.light-theme .casual-popup-btn{background:rgba(0,0,0,0.03) !important;border-color:rgba(0,0,0,0.1) !important}
+body.light-theme .cpb-name{color:#2a2520 !important}
+body.light-theme .cpb-desc{color:#777 !important}
+body.light-theme .casual-popup-back{color:#888 !important}
+/* Light theme: c-heart/diamond/club/spade overrides */
+body.light-theme .casual-mode .c-heart{color:#cc0000 !important}
+body.light-theme .casual-mode .c-diamond{color:#0055cc !important}
+body.light-theme .casual-mode .c-club{color:#007722 !important}
+body.light-theme .casual-mode .c-spade{color:#222 !important}
 </style>
 </head>
 <body>
@@ -982,6 +1056,12 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
         <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">COMING SOON</div>
       </div>
     </div>
+  </div>
+
+  <!-- Theme toggle button -->
+  <div id="theme-toggle" onclick="toggleSiteTheme()" style="position:absolute;top:16px;right:16px;z-index:60;cursor:pointer;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:8px;transition:all 0.3s">
+    <span id="theme-icon" style="font-size:18px">🌙</span>
+    <span id="theme-label" style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:1px;font-family:'Orbitron','Segoe UI',sans-serif">DARK</span>
   </div>
 
   <!-- QR Login — always visible -->
@@ -1937,6 +2017,27 @@ function bootSystem(){
   // Initialize rank display
   updateAllRankDisplays();
 }
+
+/* Theme toggle: dark (cyberpunk) ↔ light (classic white) */
+function toggleSiteTheme(){
+  let isLight=document.body.classList.toggle('light-theme');
+  localStorage.setItem('crayxus_site_theme',isLight?'light':'dark');
+  let icon=document.getElementById('theme-icon');
+  let label=document.getElementById('theme-label');
+  if(icon)icon.textContent=isLight?'☀️':'🌙';
+  if(label)label.textContent=isLight?'LIGHT':'DARK';
+}
+// Restore saved theme on load
+(function(){
+  let saved=localStorage.getItem('crayxus_site_theme');
+  if(saved==='light'){
+    document.body.classList.add('light-theme');
+    let icon=document.getElementById('theme-icon');
+    let label=document.getElementById('theme-label');
+    if(icon)icon.textContent='☀️';
+    if(label)label.textContent='LIGHT';
+  }
+})();
 
 function selectMode(mode){
   gameMode=mode;
