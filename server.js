@@ -10,6 +10,7 @@ const io = require('socket.io')(http, {
 
 const path = require('path');
 const fs = require('fs');
+app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 const PORT = process.env.PORT || 3000;
@@ -219,7 +220,92 @@ function destroyRoom(rid) {
     gameLog(`[Room] Destroyed room ${rid}`);
 }
 
+// ========== WeChat QR Login HTTP API (for mini program) ==========
+app.post('/api/wx-login', (req, res) => {
+    const { sessionId, avatarUrl, nickname } = req.body || {};
+    if (!sessionId) {
+        return res.json({ success: false, msg: 'Missing sessionId' });
+    }
+
+    const session = wxLoginSessions[sessionId];
+    if (!session) {
+        return res.json({ success: false, msg: 'Session expired or not found' });
+    }
+
+    // Relay to the browser via Socket.IO
+    io.to(session.browserSocketId).emit('wx-login-success', {
+        avatarUrl: avatarUrl || '',
+        nickname: nickname || ''
+    });
+
+    gameLog(`[WxLogin] HTTP scan success: session=${sessionId}, nickname=${nickname}`);
+
+    // Return player stats if browser sent them
+    const stats = session.stats || null;
+    delete wxLoginSessions[sessionId];
+    res.json({ success: true, stats });
+});
+
+// Redirect for /wxlogin QR scan (in case someone opens QR URL in browser)
+app.get('/wxlogin', (req, res) => {
+    res.send(`
+        <html><body style="background:#000;color:#fff;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center">
+        <div>
+            <h1 style="color:#00ffcc">Crayxus</h1>
+            <p style="color:#888">Please scan this QR code using<br>the Crayxus WeChat Mini Program</p>
+            <p style="color:#555;font-size:12px">Session: ${req.query.session || 'N/A'}</p>
+        </div>
+        </body></html>
+    `);
+});
+
+// ========== WeChat QR Login Relay ==========
+// Pending login sessions: { sessionId: { browserSocketId, timestamp } }
+let wxLoginSessions = {};
+
+// Cleanup stale sessions every 5 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const sid in wxLoginSessions) {
+        if (now - wxLoginSessions[sid].timestamp > 5 * 60 * 1000) {
+            delete wxLoginSessions[sid];
+        }
+    }
+}, 60000);
+
 io.on('connection', (socket) => {
+
+    // Browser registers a QR login session (with optional stats)
+    socket.on('wx-login-register', (data) => {
+        if (!data || !data.sessionId) return;
+        wxLoginSessions[data.sessionId] = {
+            browserSocketId: socket.id,
+            timestamp: Date.now(),
+            stats: data.stats || null
+        };
+        gameLog(`[WxLogin] Session registered: ${data.sessionId} by ${socket.id}`);
+    });
+
+    // Mini program sends scanned result with avatar & nickname
+    socket.on('wx-login-scan', (data) => {
+        if (!data || !data.sessionId) return;
+        const session = wxLoginSessions[data.sessionId];
+        if (!session) {
+            socket.emit('wx-login-error', { msg: 'Session expired' });
+            return;
+        }
+        // Relay avatar & nickname to the browser
+        io.to(session.browserSocketId).emit('wx-login-success', {
+            avatarUrl: data.avatarUrl || '',
+            nickname: data.nickname || ''
+        });
+        gameLog(`[WxLogin] Scan success: session=${data.sessionId}, nickname=${data.nickname}`);
+        // Confirm to mini program
+        socket.emit('wx-login-confirmed', { success: true });
+        // Clean up session
+        delete wxLoginSessions[data.sessionId];
+    });
+
     socket.on('joinGame', (data) => {
         if (playerMap[socket.id]) return; // 已在房间忽略
 

@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
 :root{--bg:#000;--neon:#00ffcc;--gold:#ffc800;--red:#ff3b30;--panel:rgba(20,22,28,0.98);
   --cyan:#00ffff;--magenta:#ff00ff;
@@ -983,10 +984,17 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
     </div>
   </div>
 
-  <!-- Scan hint -->
-  <div class="holo-scan-hint">
+  <!-- Scan Login Section -->
+  <div class="holo-scan-hint" id="scan-login-trigger" onclick="toggleQRLogin()" style="cursor:pointer">
     <span>&#x1F4F1;</span>
     <span class="holo-scan-text">WECHAT SCAN TO LOGIN</span>
+  </div>
+  <!-- QR Code Popup -->
+  <div id="qr-login-popup" style="display:none;position:absolute;bottom:80px;z-index:50;background:rgba(10,10,20,0.96);border:1px solid rgba(0,255,255,0.2);border-radius:20px;padding:24px;backdrop-filter:blur(12px);text-align:center;animation:cardPop 0.25s ease-out">
+    <div style="font-size:11px;color:rgba(0,255,255,0.6);letter-spacing:3px;margin-bottom:12px">SCAN WITH WECHAT</div>
+    <canvas id="qr-canvas" width="180" height="180" style="border-radius:12px;background:#fff;image-rendering:pixelated"></canvas>
+    <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:10px;letter-spacing:1px" id="qr-session-id"></div>
+    <div style="font-size:10px;color:rgba(255,215,0,0.4);margin-top:6px">Scan to sync avatar & nickname</div>
   </div>
 
   <div id="mode-loading" style="position:absolute;bottom:80px;width:300px;text-align:center"><div id="mode-load-text" style="color:#555;font-size:11px;margin-bottom:6px">Loading AI...</div><div style="width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden"><div id="mode-load-bar" style="height:100%;width:0%;background:var(--neon);border-radius:2px;transition:width 0.3s"></div></div></div>
@@ -1927,6 +1935,7 @@ function bootSystem(){
 function selectMode(mode){
   gameMode=mode;
   stopSpotlight();
+  if(window._applyWeChatProfile)window._applyWeChatProfile();
   if(mode==='arena'){
     if(!socket.connected) socket.connect();
     switchScreen('lobby');
@@ -2117,6 +2126,7 @@ function _doEnterGame(d){
   if(arenaName&&hpn)arenaName.innerText=hpn.innerText;
 
   updateAvatarLabels();initLadder(!_autoContinue);renderUI();checkTurn();
+  if(window._applyWeChatProfile)window._applyWeChatProfile();
   const afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='block';
   afkEnabled=false;clearTimeout(afkTimer);
   const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='';afkbtn.innerHTML='🤖 AFK 自动';}
@@ -4162,6 +4172,232 @@ checkMCTS();
       pc.appendChild(p);
     }
   });
+})();
+
+// ========== QR Login Toggle ==========
+function toggleQRLogin(){
+  const popup=document.getElementById('qr-login-popup');
+  if(!popup)return;
+  if(popup.style.display==='none'||!popup.style.display){
+    popup.style.display='block';
+    generateLoginQR();
+  }else{
+    popup.style.display='none';
+  }
+}
+
+let _wxSessionId=null;
+
+function generateLoginQR(){
+  // Build session ID
+  _wxSessionId='CX-'+Date.now().toString(36).toUpperCase();
+
+  // Build the login URL for mini program to scan
+  // Contains: server address + session ID
+  const serverUrl='https://crayxus-game.onrender.com';
+  const loginUrl=serverUrl+'/wxlogin?session='+_wxSessionId;
+
+  // Show session ID
+  const sid=document.getElementById('qr-session-id');
+  if(sid)sid.innerText=_wxSessionId;
+
+  // Gather current stats from localStorage to send to mini program
+  const currentStats={
+    casual:{
+      winRate:totalGames>0?Math.round(totalWins/totalGames*100)+'%':'0%',
+      totalGames:totalGames,
+      wins:totalWins,
+      streak:casualWinStreak,
+      bestStreak:parseInt(localStorage.getItem('crayxus_casual_best_streak'))||0,
+      rankName:document.querySelector('.holo-rank-badge')?.innerText||'BRONZE V',
+      rankColor:getRankFromStars(casualStars).color||'#CD7F32',
+      stars:getRankFromStars(casualStars).currentStars||0,
+      starsMax:getRankFromStars(casualStars).starsNeeded||2
+    },
+    arena:{
+      elo:myElo,
+      peakElo:parseInt(localStorage.getItem('crayxus_peak_elo'))||myElo,
+      rank:myRank,
+      totalPlayers:200,
+      wins:totalWins,
+      losses:totalGames-totalWins,
+      winRate:totalGames>0?Math.round(totalWins/totalGames*100)+'%':'0%'
+    },
+    training:{
+      totalSessions:parseInt(localStorage.getItem('crayxus_train_sessions'))||0,
+      totalHands:parseInt(localStorage.getItem('crayxus_train_hands'))||0,
+      coachUsed:parseInt(localStorage.getItem('crayxus_coach_used'))||0,
+      accuracy:'--',
+      bestAccuracy:'--',
+      avgHandPower:0
+    }
+  };
+
+  // Register this session on the server
+  if(!socket.connected)socket.connect();
+  socket.emit('wx-login-register',{sessionId:_wxSessionId,stats:currentStats});
+
+  // Draw QR code on canvas
+  const canvas=document.getElementById('qr-canvas');
+  if(!canvas)return;
+  drawQR(canvas,loginUrl);
+}
+
+// Listen for scan result from server
+socket.on('wx-login-success',function(data){
+  console.log('WeChat login received:',data);
+  if(data.avatarUrl)localStorage.setItem('crayxus_wx_avatar',data.avatarUrl);
+  if(data.nickname)localStorage.setItem('crayxus_wx_nickname',data.nickname);
+
+  // Close QR popup
+  const popup=document.getElementById('qr-login-popup');
+  if(popup)popup.style.display='none';
+
+  // Apply immediately
+  if(window._applyWeChatProfile)window._applyWeChatProfile();
+
+  // Show success toast
+  const toast=document.createElement('div');
+  toast.className='toast';
+  toast.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:rgba(0,255,200,0.15);border:1px solid var(--neon);color:var(--neon);padding:16px 32px;border-radius:16px;font-size:16px;font-weight:bold;backdrop-filter:blur(8px)';
+  toast.innerText='✓ '+(data.nickname||'WeChat')+' Login Success';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),3000);
+});
+
+function drawQR(canvas,text){
+  const ctx=canvas.getContext('2d');
+  const size=canvas.width;
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,size,size);
+
+  // Use qrcode-generator library
+  if(typeof qrcode!=='undefined'){
+    try{
+      const qr=qrcode(0,'M');
+      qr.addData(text);
+      qr.make();
+      const count=qr.getModuleCount();
+      const cellSize=size/count;
+      ctx.fillStyle='#000';
+      for(let y=0;y<count;y++){
+        for(let x=0;x<count;x++){
+          if(qr.isDark(y,x)){
+            ctx.fillRect(x*cellSize,y*cellSize,cellSize+0.5,cellSize+0.5);
+          }
+        }
+      }
+      return;
+    }catch(e){console.warn('QR generation failed:',e)}
+  }
+  drawQRFallback(ctx,text,size);
+}
+
+function drawQRFallback(ctx,text,size){
+  // Simple visual pattern + URL text as fallback
+  // Generate a deterministic pattern from the URL for visual identification
+  const cellCount=21; // QR v1 size
+  const cellSize=Math.floor(size/cellCount);
+  const offset=Math.floor((size-cellSize*cellCount)/2);
+
+  ctx.fillStyle='#000';
+
+  // Draw finder patterns (3 corners)
+  function drawFinder(ox,oy){
+    for(let y=0;y<7;y++)for(let x=0;x<7;x++){
+      if(y===0||y===6||x===0||x===6||(y>=2&&y<=4&&x>=2&&x<=4))
+        ctx.fillRect(offset+(ox+x)*cellSize,offset+(oy+y)*cellSize,cellSize,cellSize);
+    }
+  }
+  drawFinder(0,0);drawFinder(14,0);drawFinder(0,14);
+
+  // Draw timing patterns
+  for(let i=8;i<13;i++){
+    if(i%2===0){
+      ctx.fillRect(offset+i*cellSize,offset+6*cellSize,cellSize,cellSize);
+      ctx.fillRect(offset+6*cellSize,offset+i*cellSize,cellSize,cellSize);
+    }
+  }
+
+  // Data area — hash the text to fill cells
+  let hash=0;
+  for(let i=0;i<text.length;i++){hash=((hash<<5)-hash+text.charCodeAt(i))|0}
+
+  for(let y=9;y<cellCount;y++){
+    for(let x=9;x<cellCount;x++){
+      hash=((hash<<5)-hash+x*y)|0;
+      if((hash&3)===0){
+        ctx.fillRect(offset+x*cellSize,offset+y*cellSize,cellSize,cellSize);
+      }
+    }
+  }
+
+  // Draw URL text at bottom
+  ctx.fillStyle='rgba(0,0,0,0.6)';
+  ctx.font='8px monospace';
+  ctx.textAlign='center';
+  ctx.fillText(text.substring(0,40),size/2,size-4);
+}
+
+// ========== WeChat Avatar & Nickname Sync ==========
+(function initWeChatProfile(){
+  // Read from URL params (from mini program QR scan login)
+  const params=new URLSearchParams(window.location.search);
+  const urlAvatar=params.get('avatarUrl');
+  const urlNickname=params.get('nickname');
+
+  // If URL has avatar/nickname, save to localStorage
+  if(urlAvatar||urlNickname){
+    if(urlAvatar)localStorage.setItem('crayxus_wx_avatar',urlAvatar);
+    if(urlNickname)localStorage.setItem('crayxus_wx_nickname',urlNickname);
+    // Clean URL params without reload
+    const clean=window.location.pathname+window.location.hash;
+    window.history.replaceState(null,'',clean);
+    // Close QR popup if open
+    const qrPopup=document.getElementById('qr-login-popup');
+    if(qrPopup)qrPopup.style.display='none';
+  }
+
+  const avatarUrl=localStorage.getItem('crayxus_wx_avatar')||'';
+  const nickname=localStorage.getItem('crayxus_wx_nickname')||'';
+
+  // Apply avatar to all avatar elements
+  function applyAvatar(){
+    const avatarEls=[
+      document.querySelector('.holo-avatar-img'),
+      document.getElementById('casual-avatar'),
+      document.getElementById('arena-avatar'),
+      document.getElementById('av-0')
+    ];
+    avatarEls.forEach(el=>{
+      if(!el)return;
+      if(avatarUrl){
+        // Replace emoji with actual image
+        if(el.tagName==='DIV'){
+          el.innerHTML='<img src="'+avatarUrl+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.innerHTML=\'🧑‍💻\'">';
+        }
+      }
+    });
+  }
+
+  // Apply nickname to all name elements
+  function applyNickname(){
+    if(!nickname)return;
+    const nameEls=[
+      document.getElementById('holo-player-name'),
+      document.getElementById('casual-name'),
+      document.getElementById('arena-name')
+    ];
+    nameEls.forEach(el=>{
+      if(el)el.innerText=nickname;
+    });
+  }
+
+  applyAvatar();
+  applyNickname();
+
+  // Re-apply after mode transitions (elements may be re-rendered)
+  window._applyWeChatProfile=function(){applyAvatar();applyNickname()};
 })();
 
 // Unregister any old service workers to clear stale cache errors

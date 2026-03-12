@@ -1,0 +1,192 @@
+<!-- Crayxus Player ID Card -->
+<view class="page-bg">
+  <!-- Spacer for status bar -->
+  <view class="page-spacer"></view>
+
+  <!-- Animated particles background -->
+  <view class="particles">
+    <view class="particle p1"></view>
+    <view class="particle p2"></view>
+    <view class="particle p3"></view>
+    <view class="particle p4"></view>
+    <view class="particle p5"></view>
+    <view class="particle p6"></view>
+  </view>
+
+  <!-- Top bar -->
+  <view class="top-bar" style="padding-top:{{statusBarHeight}}px">
+    <view class="top-version">V41.1</view>
+    <view class="top-scan" bindtap="onScanLogin">
+      <text class="scan-icon">⊞</text>
+    </view>
+  </view>
+
+  <!-- Main Card -->
+  <view class="holo-card {{cardAnimClass}}">
+    <view class="card-glow"></view>
+
+    <!-- Avatar Section -->
+    <view class="avatar-section">
+      <view class="avatar-ring">
+        <view class="avatar-glow" style="background:radial-gradient(circle,{{casual.rankColor}}33 0%,transparent 70%)"></view>
+        <!-- Tap to choose WeChat avatar if not set -->
+        <button wx:if="{{!avatarUrl}}" class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <view class="avatar-img avatar-placeholder">
+            <text class="avatar-plus">+</text>
+          </view>
+        </button>
+        <image wx:else class="avatar-img" src="{{avatarUrl}}" mode="aspectFill" bindtap="onTapAvatar"></image>
+        <view class="avatar-ring-border" style="border-color:{{casual.rankColor}}"></view>
+      </view>
+      <view class="player-info">
+        <!-- Nickname: editable via WeChat nickname input -->
+        <input wx:if="{{!hasNickname}}" class="nickname-input" type="nickname" placeholder="点击设置昵称" bindchange="onNicknameChange" />
+        <text wx:else class="player-name" bindtap="onTapNickname">{{nickname}}</text>
+        <view class="player-rank-row">
+          <text class="rank-badge" style="color:{{casual.rankColor}};border-color:{{casual.rankColor}}40;background:{{casual.rankColor}}15">{{casual.rankName}}</text>
+          <view class="rank-stars">
+            <text wx:for="{{casual.starsArr}}" wx:key="index" class="star {{item.filled ? 'star-on' : 'star-off'}}" style="{{item.filled ? 'color:' + casual.rankColor + ';text-shadow:0 0 8px ' + casual.rankColor : ''}}">★</text>
+          </view>
+        </view>
+        <text class="player-title">{{title}}</text>
+      </view>
+    </view>
+
+    <!-- ELO Display -->
+    <view class="elo-display">
+      <text class="elo-label">ELO RATING</text>
+      <text class="elo-value">{{arena.elo}}</text>
+      <text class="elo-peak">PEAK {{arena.peakElo}}</text>
+    </view>
+
+    <!-- Tab Switcher -->
+    <view class="tab-bar">
+      <view class="tab {{activeTab === 'casual' ? 'tab-active tab-casual' : ''}}" bindtap="switchTab" data-tab="casual">
+        <text class="tab-icon">🎮</text>
+        <text class="tab-text">CASUAL</text>
+      </view>
+      <view class="tab {{activeTab === 'training' ? 'tab-active tab-training' : ''}}" bindtap="switchTab" data-tab="training">
+        <text class="tab-icon">🎓</text>
+        <text class="tab-text">TRAINING</text>
+      </view>
+      <view class="tab {{activeTab === 'arena' ? 'tab-active tab-arena' : ''}}" bindtap="switchTab" data-tab="arena">
+        <text class="tab-icon">⚔️</text>
+        <text class="tab-text">ARENA</text>
+      </view>
+    </view>
+
+    <!-- Stats Content -->
+    <view class="stats-panel">
+      <!-- CASUAL -->
+      <view class="stats-content" wx:if="{{activeTab === 'casual'}}">
+        <view class="stat-row">
+          <view class="stat-item">
+            <text class="stat-val cyan">{{casual.winRate}}</text>
+            <text class="stat-label">Win Rate</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val gold">{{casual.totalGames}}</text>
+            <text class="stat-label">Games</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val neon">{{casual.wins}}</text>
+            <text class="stat-label">Wins</text>
+          </view>
+        </view>
+        <view class="stat-row">
+          <view class="stat-item">
+            <text class="stat-val {{casual.streak >= 3 ? 'fire' : 'white'}}">{{casual.streak}}{{casual.streak >= 3 ? '🔥' : ''}}</text>
+            <text class="stat-label">Streak</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val gold">{{casual.bestStreak}}</text>
+            <text class="stat-label">Best Streak</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val white">{{casual.rankName}}</text>
+            <text class="stat-label">Rank</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- TRAINING -->
+      <view class="stats-content" wx:if="{{activeTab === 'training'}}">
+        <view class="stat-row">
+          <view class="stat-item">
+            <text class="stat-val gold">{{training.totalSessions}}</text>
+            <text class="stat-label">Sessions</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val cyan">{{training.totalHands}}</text>
+            <text class="stat-label">Hands</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val neon">{{training.coachUsed}}</text>
+            <text class="stat-label">Coach Used</text>
+          </view>
+        </view>
+        <view class="stat-row">
+          <view class="stat-item">
+            <text class="stat-val cyan">{{training.accuracy}}</text>
+            <text class="stat-label">Accuracy</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val gold">{{training.bestAccuracy}}</text>
+            <text class="stat-label">Best</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val magenta">{{training.avgHandPower}}</text>
+            <text class="stat-label">Avg Power</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ARENA -->
+      <view class="stats-content" wx:if="{{activeTab === 'arena'}}">
+        <view class="stat-row">
+          <view class="stat-item">
+            <text class="stat-val cyan-big">#{{arena.rank}}</text>
+            <text class="stat-label">/{{arena.totalPlayers}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val gold">{{arena.winRate}}</text>
+            <text class="stat-label">Win Rate</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val neon">{{arena.elo}}</text>
+            <text class="stat-label">ELO</text>
+          </view>
+        </view>
+        <view class="stat-row">
+          <view class="stat-item">
+            <text class="stat-val neon">{{arena.wins}}</text>
+            <text class="stat-label">Wins</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val red">{{arena.losses}}</text>
+            <text class="stat-label">Losses</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-val magenta">{{arena.doubleRate}}</text>
+            <text class="stat-label">Double Rate</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Bottom Actions -->
+  <view class="bottom-actions">
+    <view class="scan-btn" bindtap="onScanLogin">
+      <text class="scan-btn-icon">📱</text>
+      <text class="scan-btn-text">SCAN TO LOGIN</text>
+    </view>
+    <view class="share-btn" bindtap="onShareCard">
+      <text class="share-btn-text">SHARE</text>
+    </view>
+  </view>
+
+  <view class="watermark">
+    <text class="wm-text">CRAYXUS</text>
+  </view>
+</view>

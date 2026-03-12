@@ -1,0 +1,12 @@
+/* Global styles — Crayxus dark neon theme */
+page {
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, 'Helvetica Neue', 'Segoe UI', sans-serif;
+  --cyan: #00ffff;
+  --gold: #ffd700;
+  --magenta: #ff00ff;
+  --neon: #00ffcc;
+  --red: #ff3b30;
+  --panel: rgba(20, 22, 28, 0.98);
+}

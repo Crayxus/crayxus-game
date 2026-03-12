@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "Crayxus",
+    "navigationBarBackgroundColor": "#000000",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#000000",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
