@@ -389,8 +389,10 @@ io.on('connection', (socket) => {
         // Upgrade mode: set wild value based on winning team's level
         if (r.casualMode === 'upgrade') {
             r.currentWildValue = LEVEL_ORDER[r.teamLevels[r.lastWinTeam]];
+            gameLog(`[StartMatch] Room ${r.id}: UPGRADE casualMode=${r.casualMode}, teamLevels=[${r.teamLevels}], lastWinTeam=${r.lastWinTeam}, wild=${r.currentWildValue}, gameCount=${r.gameCount}`);
         } else {
             r.currentWildValue = '2';
+            gameLog(`[StartMatch] Room ${r.id}: NON-UPGRADE casualMode=${r.casualMode}, wild=2`);
         }
 
         let deck = createDeck(r.currentWildValue);
@@ -632,7 +634,7 @@ function handleAction(d, socket) {
         for (let s = 0; s < 4; s++) { if (!r.finished.includes(s)) r.finished.push(s); }
         rooms[rid].lastFinished = r.finished.slice();
         let upgradeResult = computeUpgradeResult(rooms[rid]);
-        gameLog(`[GameEnd] Room ${rid}: Game over (active<=1), finishOrder=[${r.finished}]`);
+        gameLog(`[GameEnd] Room ${rid}: Game over (active<=1), finishOrder=[${r.finished}], casualMode=${rooms[rid].casualMode}, teamLevels=[${rooms[rid].teamLevels}], lastWinTeam=${rooms[rid].lastWinTeam}, upgradeResult=${JSON.stringify(upgradeResult)}`);
         io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished, upgradeResult });
         rooms[rid].game.active = false;
         cleanupEmptyRoom(rid);
@@ -651,7 +653,7 @@ function handleAction(d, socket) {
             remaining.forEach(s => r.finished.push(s));
             rooms[rid].lastFinished = r.finished.slice();
             let upgradeResult = computeUpgradeResult(rooms[rid]);
-            gameLog(`[GameEnd] Room ${rid}: Team completion, finishOrder=[${r.finished}]`);
+            gameLog(`[GameEnd] Room ${rid}: Team completion, finishOrder=[${r.finished}], casualMode=${rooms[rid].casualMode}, teamLevels=[${rooms[rid].teamLevels}], lastWinTeam=${rooms[rid].lastWinTeam}, upgradeResult=${JSON.stringify(upgradeResult)}`);
             io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished, upgradeResult });
             rooms[rid].game.active = false;
             cleanupEmptyRoom(rid);
