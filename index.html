@@ -2783,7 +2783,7 @@ function doHint(){
     if(!pick&&lastHand.owner!==(mySeat+2)%4)pick=findBomb(g,lastHand);
     if(!pick&&lastHand.owner!==(mySeat+2)%4&&g.straight_flushes.length){
       let sf=g.straight_flushes[0];
-      let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};
+      let sft={type:'straight_flush',val:straightVal(sf),score:550};
       if(canBeat(sf,sft,lastHand))pick=sf;
     }
     if(pick){pick.forEach(c=>c.sel=true);hintOptions=[{cards:pick}];hintIndex=1;}else toast("没牌可出");
@@ -2829,12 +2829,12 @@ async function modelPickMove(seat,hand){
       if(lastHand.type==='2')g.pairs.filter(p=>p[0].p>lastHand.val).forEach(p=>moves.push(p));
       if(lastHand.type==='3')g.triples.filter(t=>t[0].p>lastHand.val).forEach(t=>moves.push(t));
       if(lastHand.type==='3+2')g.fullhouses.forEach(f=>{let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm)if(tm[v]>=3)tv=Number(v);if(tv>lastHand.val)moves.push(f)});
-      if(lastHand.type==='straight')g.straights.filter(s=>Math.max(...s.map(c=>c.p))>lastHand.val).forEach(s=>moves.push(s));
-      if(lastHand.type==='straight_flush')g.straight_flushes.filter(s=>Math.max(...s.map(c=>c.p))>lastHand.val).forEach(s=>moves.push(s));
+      if(lastHand.type==='straight')g.straights.filter(s=>straightVal(s)>lastHand.val).forEach(s=>moves.push(s));
+      if(lastHand.type==='straight_flush')g.straight_flushes.filter(s=>straightVal(s)>lastHand.val).forEach(s=>moves.push(s));
       if(lastHand.type==='plate')g.plates.filter(p=>p[0].p>lastHand.val).forEach(p=>moves.push(p));
       if(lastHand.type==='tube')g.tubes.filter(t=>t[0].p>lastHand.val).forEach(t=>moves.push(t));
       g.bombs.forEach(b=>{let bt={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,bt,lastHand))moves.push(b)});
-      g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};if(canBeat(sf,sft,lastHand))moves.push(sf)});
+      g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:straightVal(sf),score:550};if(canBeat(sf,sft,lastHand))moves.push(sf)});
       moves.push([]);
     }
     if(moves.length===0)return null;
@@ -2868,7 +2868,7 @@ function simHeuristicMove(hand,simLastHand,seat){
   if(simLastHand.type==='1'){for(let s of g.singles)if(s[0].p>simLastHand.val)return s}
   else if(simLastHand.type==='2'){for(let p of g.pairs)if(p[0].p>simLastHand.val)return p}
   else if(simLastHand.type==='3'){for(let t of g.triples)if(t[0].p>simLastHand.val)return t}
-  else if(simLastHand.type==='straight'){for(let s of g.straights)if(Math.max(...s.map(c=>c.p))>simLastHand.val)return s}
+  else if(simLastHand.type==='straight'){for(let s of g.straights)if(straightVal(s)>simLastHand.val)return s}
   else if(simLastHand.type==='3+2'){for(let f of g.fullhouses){let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm)if(tm[v]>=3)tv=Number(v);if(tv>simLastHand.val)return f}}
   else if(simLastHand.type==='plate'){for(let p of g.plates)if(p[0].p>simLastHand.val)return p}
   else if(simLastHand.type==='tube'){for(let t of g.tubes)if(t[0].p>simLastHand.val)return t}
@@ -2908,12 +2908,12 @@ function genMoves(hand,lh,seat,simFinishOrder){
     if(lh.type==='2')g.pairs.filter(p=>p[0].p>lh.val).forEach(p=>moves.push(p));
     if(lh.type==='3')g.triples.filter(t=>t[0].p>lh.val).forEach(t=>moves.push(t));
     if(lh.type==='3+2')g.fullhouses.forEach(f=>{let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm)if(tm[v]>=3)tv=Number(v);if(tv>lh.val)moves.push(f)});
-    if(lh.type==='straight')g.straights.filter(s=>Math.max(...s.map(c=>c.p))>lh.val).forEach(s=>moves.push(s));
-    if(lh.type==='straight_flush')g.straight_flushes.filter(s=>Math.max(...s.map(c=>c.p))>lh.val).forEach(s=>moves.push(s));
+    if(lh.type==='straight')g.straights.filter(s=>straightVal(s)>lh.val).forEach(s=>moves.push(s));
+    if(lh.type==='straight_flush')g.straight_flushes.filter(s=>straightVal(s)>lh.val).forEach(s=>moves.push(s));
     if(lh.type==='plate')g.plates.filter(p=>p[0].p>lh.val).forEach(p=>moves.push(p));
     if(lh.type==='tube')g.tubes.filter(t=>t[0].p>lh.val).forEach(t=>moves.push(t));
     g.bombs.forEach(b=>{let bt={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,bt,lh))moves.push(b)});
-    g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};if(canBeat(sf,sft,lh))moves.push(sf)});
+    g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:straightVal(sf),score:550};if(canBeat(sf,sft,lh))moves.push(sf)});
     moves.push([]);
   }
   return moves;
@@ -3041,7 +3041,7 @@ function heuristicPickMove(seat,hand){
     else{
       best=findMatch(g,lastHand);
       if(!best&&(hand.length<=8||lastHand.type==='bomb'))best=findBomb(g,lastHand);
-      if(!best&&g.straight_flushes.length){for(let sf of g.straight_flushes){let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};if(canBeat(sf,sft,lastHand)){best=sf;break}}}
+      if(!best&&g.straight_flushes.length){for(let sf of g.straight_flushes){let sft={type:'straight_flush',val:straightVal(sf),score:550};if(canBeat(sf,sft,lastHand)){best=sf;break}}}
     }
   }
   return best;
@@ -3286,11 +3286,12 @@ function doAFKPlay(){
   }
 }
 
-function getHandType(c){if(!c.length)return null;let wild=c.filter(x=>isWildCard(x)),jokers=c.filter(x=>x.s==='JOKER'),norm=c.filter(x=>!isWildCard(x));if(wild.length>0&&jokers.length>0)return null;norm.sort((a,b)=>a.p-b.p);let len=c.length,m={};norm.forEach(x=>m[x.p]=(m[x.p]||0)+1);let vals=Object.keys(m).map(Number).sort((a,b)=>a-b),mf=vals.length?Math.max(...Object.values(m)):0;if(len>=4){let k=c.filter(x=>x.s==='JOKER');if(k.length===4)return{type:'bomb',val:999,count:6,score:1000};if(vals.length===1&&mf>=1&&mf+wild.length>=4&&mf+wild.length===len){let v=vals[0];return{type:'bomb',val:v,count:len,score:len*100}}if(wild.length===0&&mf===len&&vals.length===1){let v=vals[0];return{type:'bomb',val:v,count:len,score:len*100}}}if(len===1)return{type:'1',val:c[0].p};if(len===2&&(mf+wild.length>=2))return{type:'2',val:vals.length?vals[vals.length-1]:15};if(len===3&&(mf+wild.length>=3))return{type:'3',val:vals.length?vals[vals.length-1]:15};if(len===5){let sVals=vals.filter(v=>v<=14);if(sVals.length>=3&&sVals.length+wild.length>=5){let gap=sVals[sVals.length-1]-sVals[0];if(gap<=4){let isF=true;if(norm.length>0){let fs=norm[0].s;for(let cd of norm){if(cd.s!==fs||cd.p>14){isF=false;break}}}let allStraightable=norm.every(x=>x.p<=14);if(isF&&norm.length+wild.length>=5&&allStraightable)return{type:'straight_flush',val:sVals[sVals.length-1],score:550};else if(allStraightable)return{type:'straight',val:sVals[sVals.length-1]}}}if(vals.length<=2&&mf>=2){let tv=vals[vals.length-1];for(let vv of vals){if(m[vv]>=3){tv=vv;break}}return{type:'3+2',val:tv}}}if(len===6&&vals.length===2&&vals[1]===vals[0]+1){if(m[vals[0]]+wild.length>=3)return{type:'plate',val:vals[0]}}if(len===6&&vals.length===3){if(vals[1]===vals[0]+1&&vals[2]===vals[1]+1){let ok=(m[vals[0]]>=1||wild.length>0)&&(m[vals[1]]>=1||wild.length>0)&&(m[vals[2]]>=1||wild.length>0);if(ok)return{type:'tube',val:vals[0]}}}return null}
+function straightVal(cards){let ps=cards.map(c=>c.p).filter(v=>v<=14);let mn=Math.min(...ps),mx=Math.max(...ps);if(mx===14&&mn<=5&&(mx-Math.max(...ps.filter(v=>v<14)))>4)return 5;return mx}
+function getHandType(c){if(!c.length)return null;let wild=c.filter(x=>isWildCard(x)),jokers=c.filter(x=>x.s==='JOKER'),norm=c.filter(x=>!isWildCard(x));if(wild.length>0&&jokers.length>0)return null;norm.sort((a,b)=>a.p-b.p);let len=c.length,m={};norm.forEach(x=>m[x.p]=(m[x.p]||0)+1);let vals=Object.keys(m).map(Number).sort((a,b)=>a-b),mf=vals.length?Math.max(...Object.values(m)):0;if(len>=4){let k=c.filter(x=>x.s==='JOKER');if(k.length===4)return{type:'bomb',val:999,count:6,score:1000};if(vals.length===1&&mf>=1&&mf+wild.length>=4&&mf+wild.length===len){let v=vals[0];return{type:'bomb',val:v,count:len,score:len*100}}if(wild.length===0&&mf===len&&vals.length===1){let v=vals[0];return{type:'bomb',val:v,count:len,score:len*100}}}if(len===1)return{type:'1',val:c[0].p};if(len===2&&(mf+wild.length>=2))return{type:'2',val:vals.length?vals[vals.length-1]:15};if(len===3&&(mf+wild.length>=3))return{type:'3',val:vals.length?vals[vals.length-1]:15};if(len===5){let sVals=vals.filter(v=>v<=14);if(sVals.length>=3&&sVals.length+wild.length>=5){let gap=sVals[sVals.length-1]-sVals[0];let isStr=false,strVal=0;if(gap<=4){isStr=true;strVal=sVals[sVals.length-1]}if(!isStr){let aLow=sVals.map(v=>v===14?1:v).sort((a,b)=>a-b);let outOf=aLow.filter(v=>v>5).length;let miss=[1,2,3,4,5].filter(v=>!new Set(aLow).has(v)).length;if(outOf===0&&miss<=wild.length){isStr=true;strVal=5}}if(isStr){let isF=true;if(norm.length>0){let fs=norm[0].s;for(let cd of norm){if(cd.s!==fs||cd.p>14){isF=false;break}}}let allStraightable=norm.every(x=>x.p<=14);if(isF&&norm.length+wild.length>=5&&allStraightable)return{type:'straight_flush',val:strVal,score:550};else if(allStraightable)return{type:'straight',val:strVal}}}if(vals.length<=2&&mf>=2){let tv=vals[vals.length-1];for(let vv of vals){if(m[vv]>=3){tv=vv;break}}return{type:'3+2',val:tv}}}if(len===6&&vals.length===2&&vals[1]===vals[0]+1){if(m[vals[0]]+wild.length>=3)return{type:'plate',val:vals[0]}}if(len===6&&vals.length===3){if(vals[1]===vals[0]+1&&vals[2]===vals[1]+1){let ok=(m[vals[0]]>=1||wild.length>0)&&(m[vals[1]]>=1||wild.length>0)&&(m[vals[2]]>=1||wild.length>0);if(ok)return{type:'tube',val:vals[0]}}}return null}
 
 function canBeat(c,t,l){let nb=(t.type==='bomb'||t.type==='straight_flush'),lb=(l.type==='bomb'||l.type==='straight_flush');if(nb&&!lb)return true;if(!nb&&lb)return false;if(nb&&lb){let ns=t.score||(t.type==='bomb'?t.count*100:550),ls=l.score||(l.type==='bomb'?l.count*100:550);if(ns>ls)return true;if(ns<ls)return false;return t.val>l.val}if(t.type!==l.type)return false;if(c.length!==l.count)return false;return t.val>l.val}
 
-function analyzeHand(h){let wild=h.filter(x=>isWildCard(x)),norm=h.filter(x=>!isWildCard(x));let m={};norm.forEach(c=>m[c.p]=(m[c.p]||[]).concat(c));let vals=Object.keys(m).map(Number).sort((a,b)=>a-b);let r={singles:[],pairs:[],triples:[],bombs:[],plates:[],tubes:[],straights:[],straight_flushes:[],fullhouses:[]};vals.forEach(v=>{let g=m[v];if(g.length>=4){r.bombs.push([...g])}if(g.length+wild.length>=4&&g.length<4&&!g.some(x=>x.s==='JOKER')){let need=4-g.length;if(need<=wild.length)r.bombs.push(g.concat(wild.slice(0,need)))}if(g.length>=3)r.triples.push(g.slice(0,3));if(g.length>=2)r.pairs.push(g.slice(0,2));if(g.length>=1)r.singles.push(g.slice(0,1));});r.bombs.sort((a,b)=>b.length-a.length||b[0].p-a[0].p);for(let i=0;i<r.triples.length-1;i++){if(r.triples[i][0].p<=14&&r.triples[i+1][0].p<=14&&r.triples[i+1][0].p===r.triples[i][0].p+1)r.plates.push(r.triples[i].concat(r.triples[i+1]))}for(let i=0;i<r.pairs.length-2;i++){if(r.pairs[i][0].p<=14&&r.pairs[i+2][0].p<=14&&r.pairs[i+1][0].p===r.pairs[i][0].p+1&&r.pairs[i+2][0].p===r.pairs[i+1][0].p+1)r.tubes.push(r.pairs[i].concat(r.pairs[i+1],r.pairs[i+2]))}let straightVals=vals.filter(v=>v<=14);for(let i=0;i<straightVals.length-4;i++){let ok=true;for(let j=0;j<4;j++){if(straightVals[i+j+1]!==straightVals[i+j]+1){ok=false;break}}if(ok){let seq=[];for(let j=0;j<5;j++)seq.push(m[straightVals[i+j]][0]);r.straights.push(seq)}}let nj=norm.filter(c=>c.s!=='JOKER'&&c.p<=14);for(let suit of ['♠','♥','♣','♦']){let sc=nj.filter(c=>c.s===suit);if(sc.length>=5){sc.sort((a,b)=>a.p-b.p);for(let i=0;i<=sc.length-5;i++){let seq=sc.slice(i,i+5),ok=true;for(let j=0;j<4;j++){if(seq[j+1].p!==seq[j].p+1){ok=false;break}}if(ok)r.straight_flushes.push(seq)}}}for(let ti=0;ti<r.triples.length;ti++){for(let pi=0;pi<r.pairs.length;pi++){if(r.triples[ti][0].p!==r.pairs[pi][0].p)r.fullhouses.push(r.triples[ti].concat(r.pairs[pi]))}}return r}
+function analyzeHand(h){let wild=h.filter(x=>isWildCard(x)),norm=h.filter(x=>!isWildCard(x));let m={};norm.forEach(c=>m[c.p]=(m[c.p]||[]).concat(c));let vals=Object.keys(m).map(Number).sort((a,b)=>a-b);let r={singles:[],pairs:[],triples:[],bombs:[],plates:[],tubes:[],straights:[],straight_flushes:[],fullhouses:[]};vals.forEach(v=>{let g=m[v];if(g.length>=4){r.bombs.push([...g])}if(g.length+wild.length>=4&&g.length<4&&!g.some(x=>x.s==='JOKER')){let need=4-g.length;if(need<=wild.length)r.bombs.push(g.concat(wild.slice(0,need)))}if(g.length>=3)r.triples.push(g.slice(0,3));if(g.length>=2)r.pairs.push(g.slice(0,2));if(g.length>=1)r.singles.push(g.slice(0,1));});r.bombs.sort((a,b)=>b.length-a.length||b[0].p-a[0].p);for(let i=0;i<r.triples.length-1;i++){if(r.triples[i][0].p<=14&&r.triples[i+1][0].p<=14&&r.triples[i+1][0].p===r.triples[i][0].p+1)r.plates.push(r.triples[i].concat(r.triples[i+1]))}for(let i=0;i<r.pairs.length-2;i++){if(r.pairs[i][0].p<=14&&r.pairs[i+2][0].p<=14&&r.pairs[i+1][0].p===r.pairs[i][0].p+1&&r.pairs[i+2][0].p===r.pairs[i+1][0].p+1)r.tubes.push(r.pairs[i].concat(r.pairs[i+1],r.pairs[i+2]))}let straightVals=vals.filter(v=>v<=14);for(let i=0;i<straightVals.length-4;i++){let ok=true;for(let j=0;j<4;j++){if(straightVals[i+j+1]!==straightVals[i+j]+1){ok=false;break}}if(ok){let seq=[];for(let j=0;j<5;j++)seq.push(m[straightVals[i+j]][0]);r.straights.push(seq)}}if(m[14]&&straightVals.includes(14)){let aLowNeeded=[2,3,4,5];let have=aLowNeeded.filter(v=>m[v]);if(have.length>=4){let seq=[m[14][0]];for(let v of aLowNeeded)seq.push(m[v][0]);r.straights.push(seq)}}let nj=norm.filter(c=>c.s!=='JOKER'&&c.p<=14);for(let suit of ['♠','♥','♣','♦']){let sc=nj.filter(c=>c.s===suit);if(sc.length>=5){sc.sort((a,b)=>a.p-b.p);for(let i=0;i<=sc.length-5;i++){let seq=sc.slice(i,i+5),ok=true;for(let j=0;j<4;j++){if(seq[j+1].p!==seq[j].p+1){ok=false;break}}if(ok)r.straight_flushes.push(seq)}}}for(let suit of ['♠','♥','♣','♦']){let sA=nj.filter(c=>c.s===suit&&c.p===14);if(sA.length){let s2345=nj.filter(c=>c.s===suit&&c.p>=2&&c.p<=5);if(s2345.length>=4){let have=[2,3,4,5].every(v=>s2345.some(c=>c.p===v));if(have){let seq=[sA[0]];for(let v of [2,3,4,5])seq.push(s2345.find(c=>c.p===v));r.straight_flushes.push(seq)}}}}for(let ti=0;ti<r.triples.length;ti++){for(let pi=0;pi<r.pairs.length;pi++){if(r.triples[ti][0].p!==r.pairs[pi][0].p)r.fullhouses.push(r.triples[ti].concat(r.pairs[pi]))}}return r}
 
 function findMatch(g,l){
   let cntMap={};myCards.forEach(c=>cntMap[c.p]=(cntMap[c.p]||0)+1);
@@ -3314,8 +3315,8 @@ function findMatch(g,l){
   }
   if(l.type==='plate'){for(let p of g.plates)if(p[0].p>l.val)return p}
   if(l.type==='tube'){for(let t of g.tubes)if(t[0].p>l.val)return t}
-  if(l.type==='straight'){for(let s of g.straights){let mv=Math.max(...s.map(c=>c.p));if(mv>l.val)return s}}
-  if(l.type==='straight_flush'){for(let sf of g.straight_flushes){let mv=Math.max(...sf.map(c=>c.p));if(mv>l.val)return sf}}
+  if(l.type==='straight'){for(let s of g.straights){let mv=straightVal(s);if(mv>l.val)return s}}
+  if(l.type==='straight_flush'){for(let sf of g.straight_flushes){let mv=straightVal(sf);if(mv>l.val)return sf}}
   if(l.type==='3+2'){
     // Prefer fullhouses with natural triple (count==3) + natural pair (count==2)
     let valid=g.fullhouses.filter(fh=>{let tm={};fh.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm){if(tm[v]>=3)tv=Number(v)}return tv>l.val});
@@ -4391,12 +4392,12 @@ async function getCoachSuggestions(hand,prevLastHand,prePlayedSnap,preBombSnap){
     if(lh.type==='2')g.pairs.filter(p=>p[0].p>lh.val).forEach(p=>moves.push({cards:p,label:'对子'}));
     if(lh.type==='3')g.triples.filter(t=>t[0].p>lh.val).forEach(t=>moves.push({cards:t,label:'三条'}));
     if(lh.type==='3+2')g.fullhouses.filter(f=>{let tm={};f.forEach(c=>tm[c.p]=(tm[c.p]||0)+1);let tv=0;for(let v in tm)if(tm[v]>=3)tv=Number(v);return tv>lh.val}).forEach(f=>moves.push({cards:f,label:'三带二'}));
-    if(lh.type==='straight')g.straights.filter(s=>Math.max(...s.map(c=>c.p))>lh.val).forEach(s=>moves.push({cards:s,label:'顺子'}));
-    if(lh.type==='straight_flush')g.straight_flushes.filter(s=>Math.max(...s.map(c=>c.p))>lh.val).forEach(s=>moves.push({cards:s,label:'同花顺'}));
+    if(lh.type==='straight')g.straights.filter(s=>straightVal(s)>lh.val).forEach(s=>moves.push({cards:s,label:'顺子'}));
+    if(lh.type==='straight_flush')g.straight_flushes.filter(s=>straightVal(s)>lh.val).forEach(s=>moves.push({cards:s,label:'同花顺'}));
     if(lh.type==='plate')g.plates.filter(p=>p[0].p>lh.val).forEach(p=>moves.push({cards:p,label:'钢板'}));
     if(lh.type==='tube')g.tubes.filter(t=>t[0].p>lh.val).forEach(t=>moves.push({cards:t,label:'木板'}));
     g.bombs.forEach(b=>{let bt={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,bt,lh))moves.push({cards:b,label:'炸弹'})});
-    g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:Math.max(...sf.map(c=>c.p)),score:550};if(canBeat(sf,sft,lh))moves.push({cards:sf,label:'同花顺'})});
+    g.straight_flushes.forEach(sf=>{let sft={type:'straight_flush',val:straightVal(sf),score:550};if(canBeat(sf,sft,lh))moves.push({cards:sf,label:'同花顺'})});
     moves.push({cards:[],label:'PASS'});
   }
   let seen=new Set();
