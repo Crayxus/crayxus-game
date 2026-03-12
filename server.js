@@ -687,6 +687,7 @@ function handleAction(d, socket) {
    Upgrade Mode: Level Advancement
    ========================================= */
 function computeUpgradeResult(room) {
+    gameLog(`[computeUpgrade] casualMode=${room.casualMode}, lastFinished=${JSON.stringify(room.lastFinished)}, teamLevels=[${room.teamLevels}]`);
     if (room.casualMode !== 'upgrade') return null;
     let fo = room.lastFinished;
     if (!fo || fo.length < 4) return null;
