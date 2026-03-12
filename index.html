@@ -984,17 +984,13 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
     </div>
   </div>
 
-  <!-- Scan Login Section -->
-  <div class="holo-scan-hint" id="scan-login-trigger" onclick="toggleQRLogin()" style="cursor:pointer">
-    <span>&#x1F4F1;</span>
-    <span class="holo-scan-text">WECHAT SCAN TO LOGIN</span>
-  </div>
-  <!-- QR Code Popup -->
-  <div id="qr-login-popup" style="display:none;position:absolute;bottom:80px;z-index:50;background:rgba(10,10,20,0.96);border:1px solid rgba(0,255,255,0.2);border-radius:20px;padding:24px;backdrop-filter:blur(12px);text-align:center;animation:cardPop 0.25s ease-out">
-    <div style="font-size:11px;color:rgba(0,255,255,0.6);letter-spacing:3px;margin-bottom:12px">SCAN WITH WECHAT</div>
-    <canvas id="qr-canvas" width="180" height="180" style="border-radius:12px;background:#fff;image-rendering:pixelated"></canvas>
-    <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:10px;letter-spacing:1px" id="qr-session-id"></div>
-    <div style="font-size:10px;color:rgba(255,215,0,0.4);margin-top:6px">Scan to sync avatar & nickname</div>
+  <!-- QR Login — always visible -->
+  <div id="qr-login-section" style="position:absolute;bottom:35px;z-index:50;display:flex;flex-direction:column;align-items:center;gap:10px">
+    <div style="background:rgba(10,10,20,0.92);border:1px solid rgba(0,255,255,0.15);border-radius:16px;padding:16px 20px;backdrop-filter:blur(12px);text-align:center">
+      <div style="font-size:10px;color:rgba(0,255,255,0.5);letter-spacing:3px;margin-bottom:8px">WECHAT SCAN</div>
+      <canvas id="qr-canvas" width="140" height="140" style="border-radius:8px;background:#fff;image-rendering:pixelated"></canvas>
+      <div style="font-size:9px;color:rgba(255,255,255,0.15);margin-top:6px;letter-spacing:1px" id="qr-session-id"></div>
+    </div>
   </div>
 
   <div id="mode-loading" style="position:absolute;bottom:80px;width:300px;text-align:center"><div id="mode-load-text" style="color:#555;font-size:11px;margin-bottom:6px">Loading AI...</div><div style="width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden"><div id="mode-load-bar" style="height:100%;width:0%;background:var(--neon);border-radius:2px;transition:width 0.3s"></div></div></div>
@@ -4174,17 +4170,9 @@ checkMCTS();
   });
 })();
 
-// ========== QR Login Toggle ==========
-function toggleQRLogin(){
-  const popup=document.getElementById('qr-login-popup');
-  if(!popup)return;
-  if(popup.style.display==='none'||!popup.style.display){
-    popup.style.display='block';
-    generateLoginQR();
-  }else{
-    popup.style.display='none';
-  }
-}
+// ========== QR Login ==========
+// Auto-generate QR on page load
+setTimeout(()=>generateLoginQR(),1000);
 
 let _wxSessionId=null;
 
