@@ -193,12 +193,12 @@ function canBeat(newCards, newType, lastHand) {
 let rooms = {};
 let playerMap = {};
 
-function createRoom(id) {
-    return { id: id, seats: [null, null, null, null], players: {}, count: 0, game: null, botTimeout: null, gameCount: 0, lastFinished: [] };
+function createRoom(id, mode) {
+    return { id: id, mode: mode||'arena', seats: [null, null, null, null], players: {}, count: 0, game: null, botTimeout: null, gameCount: 0, lastFinished: [] };
 }
 
-function getRoom(roomId) {
-    if (!rooms[roomId]) { rooms[roomId] = createRoom(roomId); gameLog(`[Room] New room created: ${roomId}`); }
+function getRoom(roomId, mode) {
+    if (!rooms[roomId]) { rooms[roomId] = createRoom(roomId, mode); gameLog(`[Room] New room created: ${roomId} (${mode||'arena'})`); }
     return rooms[roomId];
 }
 
@@ -309,16 +309,18 @@ io.on('connection', (socket) => {
     socket.on('joinGame', (data) => {
         if (playerMap[socket.id]) return; // 已在房间忽略
 
-        // 1. 确定房间号
-        let roomId = "PUBLIC";
+        // 1. 确定房间号 — 休闲和竞技用不同前缀
+        const mode = (data && data.mode) || 'arena';
+        const prefix = mode === 'casual' ? 'CAS' : 'PUB';
+        let roomId = prefix + "LIC";
         if (data && data.roomCode) roomId = data.roomCode.trim().toUpperCase();
         else {
             // 随机分配逻辑
-            for(let rid in rooms){ if(rid.startsWith("PUB") && rooms[rid].count<4 && (!rooms[rid].game||!rooms[rid].game.active)) { roomId=rid; break; } }
-            if(rooms[roomId] && rooms[roomId].count>=4) roomId = "PUB"+Math.floor(Math.random()*1000);
+            for(let rid in rooms){ if(rid.startsWith(prefix) && rooms[rid].count<4 && (!rooms[rid].game||!rooms[rid].game.active)) { roomId=rid; break; } }
+            if(rooms[roomId] && rooms[roomId].count>=4) roomId = prefix+Math.floor(Math.random()*1000);
         }
 
-        let room = getRoom(roomId);
+        let room = getRoom(roomId, mode);
         if (room.game && room.game.active) { socket.emit('err', '游戏进行中'); return; }
 
         // 2. 分配座位

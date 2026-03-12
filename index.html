@@ -1934,6 +1934,11 @@ function selectMode(mode){
   if(window._applyWeChatProfile)window._applyWeChatProfile();
   if(mode==='arena'){
     if(!socket.connected) socket.connect();
+    // Restore lobby UI for arena mode
+    document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='SEASON 1';
+    document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='2V2 RANKED · 1-4 PLAYERS';
+    var eloRow=document.getElementById('lobby-elo');
+    if(eloRow)eloRow.parentElement.parentElement.style.display='';
     switchScreen('lobby');
   }else if(mode==='casual'){
     gameMode='casual';
@@ -1948,14 +1953,22 @@ function startCasualMode(sub){
   casualMode=sub;
   document.getElementById('casual-popup').style.display='none';
   if(sub==='upgrade'){
-    teamLevels=[0,0]; // index into LEVEL_ORDER (0='2')
+    teamLevels=[0,0];
     upgradeRound=0;
     lastWinTeam=0;
     currentWildValue='2';
   }else{
     currentWildValue='2';
   }
-  startTrainingGame();
+  // Connect socket and enter lobby for multiplayer casual
+  gameMode='casual';
+  if(!socket.connected) socket.connect();
+  // Update lobby UI for casual mode
+  document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText=sub==='upgrade'?'升级模式':'定蛋模式';
+  document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='休闲对战 · 1-4人';
+  var eloRow=document.getElementById('lobby-elo');
+  if(eloRow)eloRow.parentElement.parentElement.style.display='none';
+  switchScreen('lobby');
 }
 function closeCasualPopup(){
   document.getElementById('casual-popup').style.display='none';
@@ -2728,7 +2741,7 @@ function joinGame(){
   const codeInput = document.getElementById('room-code-input');
   const code = codeInput ? codeInput.value.toUpperCase() : '';
   switchScreen('match');
-  socket.emit('joinGame', { roomCode: code });
+  socket.emit('joinGame', { roomCode: code, mode: gameMode||'arena', casualMode: casualMode||'fixed' });
 }
 
 function renderHand(isDealing=false){
