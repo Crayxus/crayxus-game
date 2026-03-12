@@ -61,16 +61,6 @@
         </button>
         <image wx:else class="hero-avatar" src="{{avatarUrl}}" mode="aspectFill" bindtap="onTapAvatar"></image>
       </view>
-      <!-- ELO floating beside card -->
-      <view class="hero-elo-side">
-        <text class="hero-elo-val" style="color:{{casual.rankColor}}">{{arena.peakElo}}</text>
-        <text class="hero-elo-label">PEAK</text>
-      </view>
-    </view>
-    <!-- ELO big number below card -->
-    <view class="hero-elo-main">
-      <text class="hero-elo-number">{{arena.elo}}</text>
-      <text class="hero-elo-dot" style="color:{{casual.rankColor}}">●</text>
     </view>
   </view>
 

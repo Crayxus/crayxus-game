@@ -119,7 +119,7 @@ page { background: #000; }
   pointer-events: none;
 }
 .hero-frame {
-  width: 280rpx; height: 360rpx;
+  width: 180rpx; height: 230rpx;
   border: 3rpx solid;
   border-radius: 20rpx;
   overflow: hidden;
