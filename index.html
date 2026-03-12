@@ -3855,7 +3855,7 @@ function tProcessAction(d){
 // Override sendPlay/sendPass for training mode
 let _origSendPlay=sendPlay,_origSendPass=sendPass;
 sendPlay=function(){
-  if(gameMode!=='training'&&gameMode!=='casual')return _origSendPlay();
+  if(gameMode!=='training')return _origSendPlay();
   if(!isMyTurn)return toast("还没轮到你");
   hintOptions=[];hintIndex=0;
   let sel=myCards.filter(c=>c.sel);
@@ -3866,7 +3866,7 @@ sendPlay=function(){
   tProcessAction({seat:mySeat,type:'play',cards:sel,handType:type});
 };
 sendPass=function(){
-  if(gameMode!=='training'&&gameMode!=='casual')return _origSendPass();
+  if(gameMode!=='training')return _origSendPass();
   if(!isMyTurn)return toast("还没轮到你");
   hintOptions=[];hintIndex=0;
   tProcessAction({seat:mySeat,type:'pass',cards:[]});
