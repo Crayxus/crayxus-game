@@ -957,6 +957,21 @@ body.light-theme .casual-mode .c-heart{color:#cc0000 !important}
 body.light-theme .casual-mode .c-diamond{color:#0055cc !important}
 body.light-theme .casual-mode .c-club{color:#007722 !important}
 body.light-theme .casual-mode .c-spade{color:#222 !important}
+/* Light theme: game UI misc */
+body.light-theme #game-theme-btn{background:rgba(255,255,255,0.7) !important;color:#555 !important;border-color:rgba(0,0,0,0.12) !important}
+body.light-theme #afk-btn{background:rgba(255,255,255,0.7) !important;color:#555 !important;border-color:rgba(0,0,0,0.12) !important}
+body.light-theme .training-badge{background:rgba(255,255,255,0.8) !important;color:#8b7355 !important;border-color:rgba(0,0,0,0.1) !important}
+body.light-theme .badge-n{background:rgba(255,255,255,0.7) !important;color:#2a2520 !important}
+body.light-theme .badge-type{color:#fff !important}
+body.light-theme .mobile-score{background:rgba(255,255,255,0.7) !important;color:#2a2520 !important;border-color:rgba(0,0,0,0.1) !important}
+body.light-theme .out{color:#2a2520 !important}
+body.light-theme #tribute-pick-bar{background:rgba(255,255,255,0.92) !important;border-color:rgba(0,0,0,0.15) !important}
+body.light-theme .tpb-title{color:#8b7355 !important}
+body.light-theme .tpb-btn{background:rgba(0,0,0,0.05) !important;border-color:#8b7355 !important;color:#8b7355 !important}
+body.light-theme .deck-center{opacity:0.3 !important}
+body.light-theme .timer-ring{border-color:rgba(0,0,0,0.1) !important}
+body.light-theme .joker-rainbow-wrap{color:#cc0000 !important}
+body.light-theme .joker-grey-wrap{color:#444 !important}
 </style>
 </head>
 <body>
@@ -1161,6 +1176,7 @@ body.light-theme .casual-mode .c-spade{color:#222 !important}
     </div>
     <div class="training-badge" id="training-badge">🎓 TRAINING</div>
     <button id="afk-btn" onclick="toggleAFK()">🤖 AFK 自动</button>
+    <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;bottom:75px;right:100px;z-index:501;background:rgba(20,20,30,0.7);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-size:12px;padding:6px 14px;border-radius:10px;cursor:pointer;font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙 DARK</button>
     <div id="afk-badge">AFK</div>
     <div class="mobile-score" id="mobile-score">
       <span style="color:var(--gold)">YOU <span class="ms-val" id="ms-p0">0</span></span>
@@ -2022,20 +2038,27 @@ function bootSystem(){
 function toggleSiteTheme(){
   let isLight=document.body.classList.toggle('light-theme');
   localStorage.setItem('crayxus_site_theme',isLight?'light':'dark');
+  _syncThemeButtons(isLight);
+}
+function _syncThemeButtons(isLight){
   let icon=document.getElementById('theme-icon');
   let label=document.getElementById('theme-label');
   if(icon)icon.textContent=isLight?'☀️':'🌙';
   if(label)label.textContent=isLight?'LIGHT':'DARK';
+  let gb=document.getElementById('game-theme-btn');
+  if(gb){
+    gb.textContent=isLight?'☀️ LIGHT':'🌙 DARK';
+    gb.style.background=isLight?'rgba(255,255,255,0.7)':'rgba(20,20,30,0.7)';
+    gb.style.color=isLight?'#555':'rgba(255,255,255,0.6)';
+    gb.style.borderColor=isLight?'rgba(0,0,0,0.12)':'rgba(255,255,255,0.15)';
+  }
 }
 // Restore saved theme on load
 (function(){
   let saved=localStorage.getItem('crayxus_site_theme');
   if(saved==='light'){
     document.body.classList.add('light-theme');
-    let icon=document.getElementById('theme-icon');
-    let label=document.getElementById('theme-label');
-    if(icon)icon.textContent='☀️';
-    if(label)label.textContent='LIGHT';
+    _syncThemeButtons(true);
   }
 })();
 
