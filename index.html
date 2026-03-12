@@ -1896,7 +1896,7 @@ function stopAutoContinue(){
 function continueGame(){
   stopAutoContinue();
   document.getElementById('result-modal').style.display='none';
-  if(gameMode==='training'||gameMode==='casual'){
+  if(gameMode==='training'){
     if(window._upgradeFinished){
       window._upgradeFinished=false;
       teamLevels=[0,0];upgradeRound=0;lastWinTeam=0;currentWildValue='2';
@@ -1906,6 +1906,7 @@ function continueGame(){
     }
     return;
   }
+  // Casual and Arena: continue via server
   let btn=document.getElementById('btn-continue');
   btn.disabled=true;btn.style.opacity=0.5;btn.innerText='发牌中...';
   _autoContinue=true;
@@ -1919,7 +1920,7 @@ function backToLobby(){
   gameOver=true;
   stopTimer();
   _autoContinue=false;
-  if(gameMode==='training'||gameMode==='casual'){
+  if(gameMode==='training'){
     switchScreen('mode-select');
     return;
   }
