@@ -4011,9 +4011,9 @@ async function loadOnnxModel(){
     onnxSession=await ort.InferenceSession.create(buf,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ DMC AI model loaded (77MB, 78% win rate)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC AI模型已加载';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC 78% (77MB) ✓';if(badge)badge.style.color='var(--neon)';
+    console.log('%c✅ DMC AI model loaded (78MB, V3 75% WR, wild card fixed)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V3 AI模型已加载';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V3 75% ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e){
     console.warn('DMC model not available, trying legacy:',e.message);
     try{
