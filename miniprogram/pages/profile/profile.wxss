@@ -119,9 +119,9 @@ page { background: #000; }
   pointer-events: none;
 }
 .hero-frame {
-  width: 180rpx; height: 230rpx;
+  width: 180rpx; height: 180rpx;
   border: 3rpx solid;
-  border-radius: 20rpx;
+  border-radius: 50%;
   overflow: hidden;
   position: relative;
   box-shadow: 0 0 40rpx rgba(255,215,0,.15), 0 0 80rpx rgba(255,215,0,.06), inset 0 0 40rpx rgba(255,215,0,.05);
