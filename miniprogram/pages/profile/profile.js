@@ -7,6 +7,8 @@ Page({
     nickname: '',
     hasNickname: false,
     showNicknameInput: false,
+    showSetupModal: false,
+    pendingScanResult: null,
 
     // Player info
     title: 'Guandan Warrior',
@@ -33,7 +35,8 @@ Page({
     },
 
     cardAnimClass: 'card-enter',
-    statusBarHeight: 44
+    statusBarHeight: 44,
+    theme: 'cyber'  // 'cyber' or 'classic'
   },
 
   onLoad() {
@@ -42,6 +45,9 @@ Page({
       const sys = wx.getSystemInfoSync()
       this.setData({ statusBarHeight: sys.statusBarHeight || 44 })
     } catch(e) {}
+    // Restore saved theme
+    const savedTheme = wx.getStorageSync('crayxus_theme') || 'cyber'
+    this.setData({ theme: savedTheme })
     this.loadCachedUser()
     this.loadPlayerData()
     this.buildStars()
@@ -186,6 +192,12 @@ Page({
     this.setData({ activeTab: e.currentTarget.dataset.tab })
   },
 
+  toggleTheme() {
+    const next = this.data.theme === 'cyber' ? 'classic' : 'cyber'
+    this.setData({ theme: next })
+    wx.setStorageSync('crayxus_theme', next)
+  },
+
   // ========== Scan & Share ==========
 
   onScanLogin() {
@@ -195,13 +207,11 @@ Page({
         console.log('Scan result:', res.result)
 
         // Parse session ID from QR URL
-        // Format: https://crayxus-game.onrender.com/wxlogin?session=CX-XXXXX
         let sessionId = ''
         try {
           const url = new URL(res.result)
           sessionId = url.searchParams.get('session') || ''
         } catch(e) {
-          // Try extracting session from plain text
           const match = res.result.match(/session=([A-Z0-9-]+)/i)
           if (match) sessionId = match[1]
         }
@@ -211,39 +221,91 @@ Page({
           return
         }
 
-        // Send avatar + nickname to server via Socket relay
-        const SERVER = 'https://crayxus-game.onrender.com'
-        wx.request({
-          url: SERVER + '/api/wx-login',
-          method: 'POST',
-          header: { 'content-type': 'application/json' },
-          data: {
-            sessionId: sessionId,
-            avatarUrl: app.globalData.avatarBase64 || this.data.avatarUrl,
-            nickname: this.data.nickname
-          },
-          success: (resp) => {
-            console.log('Login response:', resp.data)
-            if (resp.data && resp.data.success) {
-              // Also receive stats from server if available
-              if (resp.data.stats) {
-                this.applyServerStats(resp.data.stats)
-              }
-              wx.showToast({ title: 'Login Success!', icon: 'success' })
-            } else {
-              wx.showToast({ title: resp.data.msg || 'Login failed', icon: 'none' })
-            }
-          },
-          fail: (err) => {
-            console.error('Login request failed:', JSON.stringify(err))
-            wx.showToast({ title: err.errMsg || 'Network error', icon: 'none' })
-          }
-        })
+        // If avatar base64 or nickname not set, show setup modal first
+        if (!app.globalData.avatarBase64 || !this.data.nickname) {
+          this.setData({ showSetupModal: true, pendingScanResult: sessionId })
+          return
+        }
+
+        // All set, proceed to login
+        this.doLogin(sessionId)
       },
       fail: () => {
         wx.showToast({ title: 'Cancelled', icon: 'none' })
       }
     })
+  },
+
+  // Setup modal: avatar chosen
+  onSetupAvatar(e) {
+    const { avatarUrl } = e.detail
+    if (!avatarUrl) return
+    app.globalData.avatarUrl = avatarUrl
+    this.setData({ avatarUrl })
+
+    const fs = wx.getFileSystemManager()
+    fs.readFile({
+      filePath: avatarUrl,
+      encoding: 'base64',
+      success: (res) => {
+        app.globalData.avatarBase64 = 'data:image/png;base64,' + res.data
+        this.saveUser()
+        this.tryAutoLogin()
+      },
+      fail: () => { this.saveUser(); this.tryAutoLogin() }
+    })
+  },
+
+  // Setup modal: nickname set
+  onSetupNickname(e) {
+    const nickname = (e.detail.value || '').trim()
+    if (!nickname) return
+    app.globalData.nickname = nickname
+    this.setData({ nickname, hasNickname: true })
+    this.saveUser()
+    this.tryAutoLogin()
+  },
+
+  // Auto-login after setup complete (must have base64 avatar ready)
+  tryAutoLogin() {
+    if (app.globalData.avatarBase64 && this.data.nickname && this.data.pendingScanResult) {
+      this.setData({ showSetupModal: false })
+      this.doLogin(this.data.pendingScanResult)
+    }
+  },
+
+  // Close setup modal
+  onCloseSetup() {
+    this.setData({ showSetupModal: false, pendingScanResult: null })
+  },
+
+  // Execute login request
+  doLogin(sessionId) {
+    const SERVER = 'https://crayxus-game.onrender.com'
+    wx.request({
+      url: SERVER + '/api/wx-login',
+      method: 'POST',
+      header: { 'content-type': 'application/json' },
+      data: {
+        sessionId: sessionId,
+        avatarUrl: app.globalData.avatarBase64 || this.data.avatarUrl,
+        nickname: this.data.nickname
+      },
+      success: (resp) => {
+        console.log('Login response:', resp.data)
+        if (resp.data && resp.data.success) {
+          if (resp.data.stats) this.applyServerStats(resp.data.stats)
+          wx.showToast({ title: 'Login Success!', icon: 'success' })
+        } else {
+          wx.showToast({ title: resp.data.msg || 'Login failed', icon: 'none' })
+        }
+      },
+      fail: (err) => {
+        console.error('Login request failed:', JSON.stringify(err))
+        wx.showToast({ title: err.errMsg || 'Network error', icon: 'none' })
+      }
+    })
+    this.setData({ pendingScanResult: null })
   },
 
   // Apply stats received from game server

@@ -2061,9 +2061,11 @@ socket.on('err', (msg) => {
   if(msg.includes("房间已满")) setTimeout(() => location.reload(), 2000);
 });
 
+let roomPlayersInfo={};
 socket.on('initIdentity',d=>{
   mySeat=Number(d.seat);
   myRoomCode=d.roomCode;
+  if(d.playersInfo) roomPlayersInfo=d.playersInfo;
   if(d.isHost||d.seat===0){
     isHost=true;
     document.getElementById('btn-start-match').style.display='block';
@@ -2079,6 +2081,7 @@ socket.on('initIdentity',d=>{
 
 socket.on('roomUpdate',d=>{
   roomPlayerCount=d.count;
+  if(d.playersInfo) roomPlayersInfo=d.playersInfo;
   let m=document.getElementById('match-status');
   m.innerText='Players: '+d.count+'/4';
   m.style.color=d.count>=4?"#0f0":"var(--neon)";
@@ -2218,14 +2221,29 @@ function showHighCard(cards,winner){
 
 function updateAvatarLabels(){
   let pn=['YOU','RIGHT','PARTNER','LEFT'];
-  for(let v=1;v<=3;v++){
+  for(let v=0;v<=3;v++){
     let seat=(mySeat+v)%4,av=document.getElementById('av-'+v),tb=document.getElementById('type-'+v);
+    if(!av) continue;
+    let info=roomPlayersInfo[seat];
+    if(v===0){
+      // My avatar - show "YOU" or avatar
+      if(info&&info.avatarUrl){
+        av.innerHTML='<img src="'+info.avatarUrl+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+      }
+      continue;
+    }
     if(botSeats.includes(seat)){
-      av.innerText='BOT';av.classList.remove('human-player');
+      av.innerHTML='BOT';av.classList.remove('human-player');
       if(tb){tb.style.display='block';tb.className='badge-type bot-badge';tb.innerText='🤖 AI'}
     }else{
-      av.innerText=pn[v];av.classList.add('human-player');
-      if(tb){tb.style.display='block';tb.className='badge-type human-badge';tb.innerText='👤 P'+(seat+1)}
+      // Human player - show avatar if available
+      if(info&&info.avatarUrl){
+        av.innerHTML='<img src="'+info.avatarUrl+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.innerText=\''+pn[v]+'\'">';
+      }else{
+        av.innerHTML=info&&info.nickname?info.nickname:pn[v];
+      }
+      av.classList.add('human-player');
+      if(tb){tb.style.display='block';tb.className='badge-type human-badge';tb.innerText='👤 '+(info&&info.nickname?info.nickname:'P'+(seat+1))}
     }
   }
 }
@@ -2769,7 +2787,11 @@ function joinGame(){
   const codeInput = document.getElementById('room-code-input');
   const code = codeInput ? codeInput.value.toUpperCase() : '';
   switchScreen('match');
-  socket.emit('joinGame', { roomCode: code, mode: gameMode||'arena', casualMode: casualMode||'fixed' });
+  socket.emit('joinGame', {
+    roomCode: code, mode: gameMode||'arena', casualMode: casualMode||'fixed',
+    avatarUrl: localStorage.getItem('crayxus_wx_avatar')||'',
+    nickname: localStorage.getItem('crayxus_wx_nickname')||''
+  });
 }
 
 function renderHand(isDealing=false){

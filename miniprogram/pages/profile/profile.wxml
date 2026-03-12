@@ -1,5 +1,5 @@
 <!-- Crayxus Player ID Card — Full Screen -->
-<view class="page">
+<view class="page {{theme === 'classic' ? 'classic' : ''}}">
   <!-- Particles -->
   <view class="particles">
     <view class="particle p1"></view>
@@ -20,7 +20,10 @@
     <view class="top-left">
       <text class="top-ver">V41.1</text>
     </view>
-    <view class="top-right">
+    <view class="top-right" style="display:flex;align-items:center;gap:12rpx">
+      <view class="top-scan-btn" bindtap="toggleTheme">
+        <text class="top-scan-icon">{{theme === 'cyber' ? '🎨' : '🌙'}}</text>
+      </view>
       <view class="top-scan-btn" bindtap="onScanLogin">
         <text class="top-scan-icon">⊞</text>
       </view>
@@ -168,6 +171,33 @@
         <text class="sl-val magenta">{{arena.doubleRate}}</text>
       </view>
     </block>
+  </view>
+
+  <!-- Setup Modal (appears after scan if avatar/nickname not set) -->
+  <view class="setup-mask" wx:if="{{showSetupModal}}" bindtap="onCloseSetup">
+    <view class="setup-modal" catchtap="">
+      <text class="setup-title">SET YOUR PROFILE</text>
+      <text class="setup-hint">Set avatar & nickname to sync with game</text>
+
+      <!-- Avatar -->
+      <view class="setup-row">
+        <text class="setup-label">Avatar</text>
+        <button class="setup-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onSetupAvatar">
+          <image wx:if="{{avatarUrl}}" class="setup-avatar-img" src="{{avatarUrl}}" mode="aspectFill"></image>
+          <text wx:else class="setup-avatar-plus">+</text>
+        </button>
+        <text class="setup-check" wx:if="{{avatarUrl}}">✓</text>
+      </view>
+
+      <!-- Nickname -->
+      <view class="setup-row">
+        <text class="setup-label">Nickname</text>
+        <input class="setup-nick-input" type="nickname" placeholder="Tap to set" bindchange="onSetupNickname" value="{{nickname}}" />
+        <text class="setup-check" wx:if="{{nickname}}">✓</text>
+      </view>
+
+      <text class="setup-note">Both are required to complete login</text>
+    </view>
   </view>
 
   <!-- Bottom Nav Bar -->

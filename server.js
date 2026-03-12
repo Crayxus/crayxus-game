@@ -194,7 +194,7 @@ let rooms = {};
 let playerMap = {};
 
 function createRoom(id, mode) {
-    return { id: id, mode: mode||'arena', seats: [null, null, null, null], players: {}, count: 0, game: null, botTimeout: null, gameCount: 0, lastFinished: [] };
+    return { id: id, mode: mode||'arena', seats: [null, null, null, null], players: {}, playerInfo: {}, count: 0, game: null, botTimeout: null, gameCount: 0, lastFinished: [] };
 }
 
 function getRoom(roomId, mode) {
@@ -336,13 +336,21 @@ io.on('connection', (socket) => {
         socket.join(roomId);
         room.seats[seat] = socket.id;
         room.players[socket.id] = seat;
+        room.playerInfo[socket.id] = { seat, avatarUrl: (data && data.avatarUrl) || '', nickname: (data && data.nickname) || '' };
         room.count++;
         playerMap[socket.id] = roomId;
 
         let hostSid = getHostSid(room);
-        
-        socket.emit('initIdentity', { seat, score: 1291, isHost: (socket.id===hostSid), roomCode: roomId });
-        io.to(roomId).emit('roomUpdate', { count: room.count, seats: room.seats.map(s=>s===null?'EMPTY':(s==='BOT'?'BOT':'HUMAN')), roomId });
+
+        // Build player info map (seat -> {avatarUrl, nickname})
+        let playersInfo = {};
+        for (let sid in room.playerInfo) {
+            let info = room.playerInfo[sid];
+            playersInfo[info.seat] = { avatarUrl: info.avatarUrl, nickname: info.nickname };
+        }
+
+        socket.emit('initIdentity', { seat, score: 1291, isHost: (socket.id===hostSid), roomCode: roomId, playersInfo });
+        io.to(roomId).emit('roomUpdate', { count: room.count, seats: room.seats.map(s=>s===null?'EMPTY':(s==='BOT'?'BOT':'HUMAN')), roomId, playersInfo });
         
         if (hostSid) {
             Object.keys(room.players).forEach(sid => io.to(sid).emit('hostStatus', { isHost: (sid===hostSid) }));
