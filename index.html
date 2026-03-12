@@ -702,6 +702,10 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 @keyframes badgeGlow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,0.2)}50%{box-shadow:0 0 20px rgba(255,215,0,0.4)}}
 /* star styles are now defined globally and set dynamically by updateAllRankDisplays() */
 .star-empty{color:#333;font-size:16px}
+.casual-team-score{display:flex;align-items:center;gap:6px;margin:4px 0 2px}
+.cts-label{font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:1px}
+.cts-val{font-size:20px;font-weight:900;text-shadow:0 0 8px currentColor}
+.cts-vs{color:rgba(255,255,255,0.15);font-size:12px}
 .casual-kda{display:flex;align-items:center;gap:6px;margin-top:2px}
 .kda-item{display:flex;flex-direction:column;align-items:center}
 .kda-val{font-size:18px;font-weight:900;color:var(--neon);text-shadow:0 0 8px var(--neon)}
@@ -1118,6 +1122,12 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
           <div class="casual-rank-row">
             <span class="casual-rank-badge">BRONZE V</span>
             <div class="casual-rank-stars" id="casual-stars"></div>
+          </div>
+          <!-- Team score -->
+          <div class="casual-team-score">
+            <span class="cts-label">US</span><span class="cts-val" id="casual-team-my" style="color:var(--neon)">0</span>
+            <span class="cts-vs">·</span>
+            <span class="cts-label">THEM</span><span class="cts-val" id="casual-team-op" style="color:var(--red)">0</span>
           </div>
           <!-- 定蛋 stats -->
           <div class="casual-kda" id="fixed-stats">
@@ -1780,6 +1790,9 @@ function calcResult(){
   if(gameMode==='casual'){
     let wr=document.getElementById('casual-winrate');if(wr)wr.innerText=totalGames>0?Math.round(totalWins/totalGames*100)+'%':'0%';
     let cg=document.getElementById('casual-games');if(cg)cg.innerText=totalGames;
+    // Update team score on HUD
+    let ctm=document.getElementById('casual-team-my');if(ctm)ctm.innerText=playerScores[mySeat];
+    let cto=document.getElementById('casual-team-op');if(cto)cto.innerText=playerScores[(mySeat+1)%4];
   }
 
   // Apply casual rank star change (定蛋 mode only)
@@ -3078,9 +3091,11 @@ function renderScoreboard(){
     let el=document.getElementById('ps-'+i);
     if(el)el.classList.toggle('leading',playerScores[seat]===maxS&&maxS>0);
   }
-  // Team totals
+  // Team totals (arena + casual HUD)
   let tmEl=document.getElementById('disp-team-my');if(tmEl)tmEl.innerText=myTeamPts;
   let toEl=document.getElementById('disp-team-op');if(toEl)toEl.innerText=opTeamPts;
+  let ctm=document.getElementById('casual-team-my');if(ctm)ctm.innerText=myTeamPts;
+  let cto=document.getElementById('casual-team-op');if(cto)cto.innerText=opTeamPts;
   // Mobile scores
   for(let i=0;i<4;i++){
     let seat=(mySeat+i)%4;
