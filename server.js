@@ -325,6 +325,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('joinGame', (data) => {
+        gameLog(`[joinGame] sid=${socket.id} data=${JSON.stringify(data)} alreadyIn=${!!playerMap[socket.id]}`);
         if (playerMap[socket.id]) return; // 已在房间忽略
 
         // 1. 确定房间号 — 休闲和竞技用不同前缀，升级和定蛋分开

@@ -2204,7 +2204,7 @@ socket.on('err', (msg) => {
 });
 
 let roomPlayersInfo={};
-socket.on('initIdentity',d=>{
+socket.on('initIdentity',d=>{console.log('[initIdentity] received:', JSON.stringify(d));
   mySeat=Number(d.seat);
   myRoomCode=d.roomCode;
   if(d.playersInfo) roomPlayersInfo=d.playersInfo;
@@ -3076,8 +3076,10 @@ function joinGame(){
     nickname: localStorage.getItem('crayxus_wx_nickname')||''
   };
   switchScreen('match');
+  console.log('[joinGame] connected:', socket.connected, 'payload:', JSON.stringify(payload));
   if(socket.connected){
     socket.emit('joinGame', payload);
+    console.log('[joinGame] emitted');
   } else {
     document.getElementById('match-status').innerText='Connecting to server...';
     socket.connect();
