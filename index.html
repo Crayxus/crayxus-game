@@ -2137,7 +2137,7 @@ function showModeInfo(mode){
     const streak=parseInt(localStorage.getItem('crayxus_casual_streak'))||0;
     statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:${r?r.color:'var(--gold)'};text-shadow:0 0 8px ${r?r.color:'var(--gold)'}">${label}</span><span class="holo-stat-label">RANK</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">${wr}</span><span class="holo-stat-label">WIN RATE</span></div><div class="holo-stat"><span class="holo-stat-val">${streak}</span><span class="holo-stat-label">STREAK</span></div>`;
   }else if(mode==='training'){
-    statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">AI</span><span class="holo-stat-label">COACH</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">DMC</span><span class="holo-stat-label">ENGINE</span></div><div class="holo-stat"><span class="holo-stat-val">83%</span><span class="holo-stat-label">AI WR</span></div>`;
+    statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">AI</span><span class="holo-stat-label">COACH</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">DMC</span><span class="holo-stat-label">ENGINE</span></div><div class="holo-stat"><span class="holo-stat-val">V4</span><span class="holo-stat-label">78.5% WR</span></div>`;
   }else if(mode==='arena'){
     statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--magenta);text-shadow:0 0 8px var(--magenta)">#--</span><span class="holo-stat-label">RANKING</span></div><div class="holo-stat"><span class="holo-stat-val" style="color:var(--cyan);text-shadow:0 0 8px var(--cyan)">${myElo}</span><span class="holo-stat-label">ELO</span></div><div class="holo-stat"><span class="holo-stat-val">/200</span><span class="holo-stat-label">PLAYERS</span></div>`;
   }
@@ -3304,7 +3304,275 @@ function getHandType(c){if(!c.length)return null;let wild=c.filter(x=>isWildCard
 
 function canBeat(c,t,l){let nb=(t.type==='bomb'||t.type==='straight_flush'),lb=(l.type==='bomb'||l.type==='straight_flush');if(nb&&!lb)return true;if(!nb&&lb)return false;if(nb&&lb){let ns=t.score||(t.type==='bomb'?t.count*100:550),ls=l.score||(l.type==='bomb'?l.count*100:550);if(ns>ls)return true;if(ns<ls)return false;return t.val>l.val}if(t.type!==l.type)return false;if(c.length!==l.count)return false;return t.val>l.val}
 
-function analyzeHand(h){let wild=h.filter(x=>isWildCard(x)),norm=h.filter(x=>!isWildCard(x));let m={};norm.forEach(c=>m[c.p]=(m[c.p]||[]).concat(c));let vals=Object.keys(m).map(Number).sort((a,b)=>a-b);let r={singles:[],pairs:[],triples:[],bombs:[],plates:[],tubes:[],straights:[],straight_flushes:[],fullhouses:[]};vals.forEach(v=>{let g=m[v];if(g.length>=4){r.bombs.push([...g])}if(g.length+wild.length>=4&&g.length<4&&!g.some(x=>x.s==='JOKER')){let need=4-g.length;if(need<=wild.length)r.bombs.push(g.concat(wild.slice(0,need)))}if(g.length>=3)r.triples.push(g.slice(0,3));if(g.length>=2)r.pairs.push(g.slice(0,2));if(g.length>=1)r.singles.push(g.slice(0,1));});r.bombs.sort((a,b)=>b.length-a.length||b[0].p-a[0].p);const _SRpt2={'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};for(let i=0;i<r.triples.length-1;i++){let ra=_SRpt2[r.triples[i][0].v]||0,rb=_SRpt2[r.triples[i+1][0].v]||0;if(ra&&rb&&ra<=14&&rb<=14&&rb===ra+1)r.plates.push(r.triples[i].concat(r.triples[i+1]))}for(let i=0;i<r.pairs.length-2;i++){let ra=_SRpt2[r.pairs[i][0].v]||0,rb=_SRpt2[r.pairs[i+1][0].v]||0,rc=_SRpt2[r.pairs[i+2][0].v]||0;if(ra&&rb&&rc&&ra<=14&&rc<=14&&rb===ra+1&&rc===rb+1)r.tubes.push(r.pairs[i].concat(r.pairs[i+1],r.pairs[i+2]))}const _SRa={'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};let mSeqA={};norm.filter(c=>c.s!=='JOKER'&&_SRa[c.v]).forEach(c=>{let sr=_SRa[c.v];if(!mSeqA[sr])mSeqA[sr]=[];mSeqA[sr].push(c)});let seqValsA=Object.keys(mSeqA).map(Number).sort((a,b)=>a-b);for(let i=0;i<seqValsA.length-4;i++){let ok=true;for(let j=0;j<4;j++){if(seqValsA[i+j+1]!==seqValsA[i+j]+1){ok=false;break}}if(ok){let seq=[];for(let j=0;j<5;j++)seq.push(mSeqA[seqValsA[i+j]][0]);r.straights.push(seq)}}if(mSeqA[14]){let aLowNeeded=[2,3,4,5];let have=aLowNeeded.filter(v=>mSeqA[v]);if(have.length>=4){let seq=[mSeqA[14][0]];for(let v of aLowNeeded)seq.push(mSeqA[v][0]);r.straights.push(seq)}}let nj=norm.filter(c=>c.s!=='JOKER'&&_SRa[c.v]);for(let suit of ['♠','♥','♣','♦']){let sc=nj.filter(c=>c.s===suit);if(sc.length>=5){let bySR={};sc.forEach(c=>{let sr=_SRa[c.v];if(!bySR[sr])bySR[sr]=c});let srs=Object.keys(bySR).map(Number).sort((a,b)=>a-b);for(let i=0;i<=srs.length-5;i++){let ok=true;for(let j=0;j<4;j++){if(srs[i+j+1]!==srs[i+j]+1){ok=false;break}}if(ok){let seq=[];for(let j=0;j<5;j++)seq.push(bySR[srs[i+j]]);r.straight_flushes.push(seq)}}}}for(let suit of ['♠','♥','♣','♦']){let sc=nj.filter(c=>c.s===suit);let bySR={};sc.forEach(c=>{let sr=_SRa[c.v];if(!bySR[sr])bySR[sr]=c});if(bySR[14]){let aLowOk=[2,3,4,5].every(v=>bySR[v]);if(aLowOk){let seq=[bySR[14]];for(let v of [2,3,4,5])seq.push(bySR[v]);r.straight_flushes.push(seq)}}}for(let ti=0;ti<r.triples.length;ti++){for(let pi=0;pi<r.pairs.length;pi++){if(r.triples[ti][0].p!==r.pairs[pi][0].p)r.fullhouses.push(r.triples[ti].concat(r.pairs[pi]))}}return r}
+function analyzeHand(h) {
+  let wild = h.filter(x => isWildCard(x));
+  let norm = h.filter(x => !isWildCard(x));
+  let nw = wild.length;
+
+  // Group normal cards by power value
+  let m = {};
+  norm.forEach(c => m[c.p] = (m[c.p] || []).concat(c));
+  let vals = Object.keys(m).map(Number).sort((a, b) => a - b);
+
+  let r = {
+    singles: [], pairs: [], triples: [], bombs: [],
+    plates: [], tubes: [], straights: [], straight_flushes: [], fullhouses: []
+  };
+
+  const _SR = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+
+  // ── Singles ──
+  vals.forEach(v => {
+    let g = m[v];
+    if (g.length >= 1) r.singles.push(g.slice(0, 1));
+  });
+  if (nw > 0) r.singles.push(wild.slice(0, 1));
+
+  // ── Pairs (wild-augmented) ──
+  vals.forEach(v => {
+    let g = m[v];
+    let n = g.length;
+    if (n >= 2) r.pairs.push(g.slice(0, 2));
+    else if (n === 1 && nw >= 1) r.pairs.push(g.slice(0, 1).concat(wild.slice(0, 1)));
+  });
+  // Two wilds = pair of 2s (power 15)
+  if (nw >= 2) r.pairs.push(wild.slice(0, 2));
+
+  // ── Triples (wild-augmented) ──
+  vals.forEach(v => {
+    let g = m[v];
+    let n = g.length;
+    if (n >= 3) r.triples.push(g.slice(0, 3));
+    else if (n === 2 && nw >= 1) r.triples.push(g.slice(0, 2).concat(wild.slice(0, 1)));
+    else if (n === 1 && nw >= 2) r.triples.push(g.slice(0, 1).concat(wild.slice(0, 2)));
+  });
+
+  // ── Bombs ──
+  // Joker bomb
+  let jokers = h.filter(x => x.s === 'JOKER');
+  if (jokers.length === 4) r.bombs.push([...jokers]);
+
+  vals.forEach(v => {
+    let g = m[v];
+    let n = g.length;
+    if (g.some(x => x.s === 'JOKER')) return; // jokers handled separately
+    // Pure bombs (4+ same value)
+    if (n >= 4) r.bombs.push(g.slice());
+    // Enhanced: 4+ natural + wilds
+    if (n >= 4 && nw >= 1) r.bombs.push(g.slice().concat(wild.slice(0, 1)));
+    if (n >= 4 && nw >= 2) r.bombs.push(g.slice().concat(wild.slice(0, 2)));
+    // 3 natural + wilds
+    if (n === 3 && nw >= 1) r.bombs.push(g.slice(0, 3).concat(wild.slice(0, 1)));
+    if (n === 3 && nw >= 2) r.bombs.push(g.slice(0, 3).concat(wild.slice(0, 2)));
+    // 2 natural + 2 wilds = 4-bomb
+    if (n === 2 && nw >= 2) r.bombs.push(g.slice(0, 2).concat(wild.slice(0, 2)));
+  });
+  r.bombs.sort((a, b) => {
+    let aj = a.some(x => x.s === 'JOKER' && a.length === 4) ? 1 : 0;
+    let bj = b.some(x => x.s === 'JOKER' && b.length === 4) ? 1 : 0;
+    if (aj !== bj) return bj - aj; // joker bomb first
+    return b.length - a.length || b[0].p - a[0].p;
+  });
+
+  // ── Straights: 5 consecutive (natural) ──
+  let mSeqA = {};
+  norm.filter(c => c.s !== 'JOKER' && _SR[c.v]).forEach(c => {
+    let sr = _SR[c.v];
+    if (!mSeqA[sr]) mSeqA[sr] = [];
+    mSeqA[sr].push(c);
+  });
+  let seqValsA = Object.keys(mSeqA).map(Number).sort((a, b) => a - b);
+
+  // Natural straights
+  for (let i = 0; i < seqValsA.length - 4; i++) {
+    let ok = true;
+    for (let j = 0; j < 4; j++) {
+      if (seqValsA[i + j + 1] !== seqValsA[i + j] + 1) { ok = false; break; }
+    }
+    if (ok) {
+      let seq = [];
+      for (let j = 0; j < 5; j++) seq.push(mSeqA[seqValsA[i + j]][0]);
+      r.straights.push(seq);
+    }
+  }
+  // Natural A-low: A2345
+  if (mSeqA[14]) {
+    let aLowNeeded = [2, 3, 4, 5];
+    let have = aLowNeeded.filter(v => mSeqA[v]);
+    if (have.length >= 4) {
+      let seq = [mSeqA[14][0]];
+      for (let v of aLowNeeded) seq.push(mSeqA[v][0]);
+      r.straights.push(seq);
+    }
+  }
+
+  // Wild-augmented straights
+  if (nw > 0) {
+    let straightVals = seqValsA.filter(v => v <= 14);
+    for (let start = 3; start <= 10; start++) {
+      let needed = [];
+      for (let k = 0; k < 5; k++) needed.push(start + k);
+      let haveSet = new Set(straightVals);
+      let inWin = needed.filter(v => haveSet.has(v)).length;
+      let outOfWin = straightVals.filter(v => v >= start && v <= start + 4).length;
+      let gaps = 5 - inWin;
+      if (gaps > 0 && gaps <= nw && outOfWin === inWin) {
+        let seq = [];
+        for (let v of needed) {
+          if (mSeqA[v]) seq.push(mSeqA[v][0]);
+          else seq.push(wild[0]);
+        }
+        r.straights.push(seq);
+      }
+    }
+    // Wild A-low: A2345
+    if (mSeqA[14] || nw > 0) {
+      let wantedVals = [14, 2, 3, 4, 5];
+      let straightValsForWrap = seqValsA.filter(v => v <= 14 || v === 2 || v === 3 || v === 4 || v === 5);
+      let haveSet = new Set(Object.keys(mSeqA).map(Number));
+      let inWin = wantedVals.filter(v => haveSet.has(v)).length;
+      let gaps = 5 - inWin;
+      // Make sure no extra normal cards outside the window
+      if (gaps > 0 && gaps <= nw) {
+        let seq = [];
+        for (let v of wantedVals) {
+          if (mSeqA[v]) seq.push(mSeqA[v][0]);
+          else seq.push(wild[0]);
+        }
+        r.straights.push(seq);
+      }
+    }
+  }
+
+  // ── Straight flushes (natural only, same as before) ──
+  let nj = norm.filter(c => c.s !== 'JOKER' && _SR[c.v]);
+  for (let suit of ['♠','♥','♣','♦']) {
+    let sc = nj.filter(c => c.s === suit);
+    if (sc.length >= 5) {
+      let bySR = {};
+      sc.forEach(c => { let sr = _SR[c.v]; if (!bySR[sr]) bySR[sr] = c; });
+      let srs = Object.keys(bySR).map(Number).sort((a, b) => a - b);
+      for (let i = 0; i <= srs.length - 5; i++) {
+        let ok = true;
+        for (let j = 0; j < 4; j++) {
+          if (srs[i + j + 1] !== srs[i + j] + 1) { ok = false; break; }
+        }
+        if (ok) {
+          let seq = [];
+          for (let j = 0; j < 5; j++) seq.push(bySR[srs[i + j]]);
+          r.straight_flushes.push(seq);
+        }
+      }
+    }
+  }
+  // Natural A-low straight flush
+  for (let suit of ['♠','♥','♣','♦']) {
+    let sc = nj.filter(c => c.s === suit);
+    let bySR = {};
+    sc.forEach(c => { let sr = _SR[c.v]; if (!bySR[sr]) bySR[sr] = c; });
+    if (bySR[14]) {
+      let aLowOk = [2, 3, 4, 5].every(v => bySR[v]);
+      if (aLowOk) {
+        let seq = [bySR[14]];
+        for (let v of [2, 3, 4, 5]) seq.push(bySR[v]);
+        r.straight_flushes.push(seq);
+      }
+    }
+  }
+  // Wild-augmented straight flushes
+  if (nw > 0) {
+    for (let suit of ['♠','♥','♣','♦']) {
+      let sc = nj.filter(c => c.s === suit);
+      let bySR = {};
+      sc.forEach(c => { let sr = _SR[c.v]; if (!bySR[sr]) bySR[sr] = c; });
+      let srs = Object.keys(bySR).map(Number).sort((a, b) => a - b);
+      let srsSet = new Set(srs);
+      for (let start = 3; start <= 10; start++) {
+        let needed = [];
+        for (let k = 0; k < 5; k++) needed.push(start + k);
+        let inWin = needed.filter(v => srsSet.has(v)).length;
+        let gaps = 5 - inWin;
+        if (gaps > 0 && gaps <= nw) {
+          let seq = [];
+          for (let v of needed) {
+            if (bySR[v]) seq.push(bySR[v]);
+            else seq.push(wild[0]);
+          }
+          r.straight_flushes.push(seq);
+        }
+      }
+    }
+  }
+
+  // ── Plates: 2 consecutive triples (6 cards, wild-augmented) ──
+  let plateVals = vals.filter(v => {
+    let g = m[v];
+    return g.length > 0 && !g.some(x => x.s === 'JOKER') && (_SR[g[0].v] || g[0].p <= 15);
+  });
+  for (let i = 0; i < plateVals.length - 1; i++) {
+    let v0 = plateVals[i], v1 = plateVals[i + 1];
+    let sr0 = _SR[m[v0][0].v] || v0, sr1 = _SR[m[v1][0].v] || v1;
+    if (sr1 !== sr0 + 1) continue;
+    let c0 = m[v0].length, c1 = m[v1].length;
+    let need0 = Math.max(0, 3 - c0), need1 = Math.max(0, 3 - c1);
+    let totalNeed = need0 + need1;
+    if (totalNeed === 0) {
+      r.plates.push(m[v0].slice(0, 3).concat(m[v1].slice(0, 3)));
+    } else if (totalNeed <= nw) {
+      let p = m[v0].slice(0, Math.min(3, c0)).concat(wild.slice(0, need0));
+      p = p.concat(m[v1].slice(0, Math.min(3, c1))).concat(wild.slice(0, need1));
+      r.plates.push(p);
+    }
+  }
+
+  // ── Tubes: 3 consecutive pairs (6 cards, wild-augmented) ──
+  let tubeVals = vals.filter(v => {
+    let g = m[v];
+    return g.length > 0 && !g.some(x => x.s === 'JOKER') && (_SR[g[0].v] || false);
+  });
+  for (let i = 0; i < tubeVals.length - 2; i++) {
+    let v0 = tubeVals[i], v1 = tubeVals[i + 1], v2 = tubeVals[i + 2];
+    let sr0 = _SR[m[v0][0].v] || v0, sr1 = _SR[m[v1][0].v] || v1, sr2 = _SR[m[v2][0].v] || v2;
+    if (sr1 !== sr0 + 1 || sr2 !== sr1 + 1 || sr2 > 14) continue;
+    let c0 = m[v0].length, c1 = m[v1].length, c2 = m[v2].length;
+    let need0 = Math.max(0, 2 - c0), need1 = Math.max(0, 2 - c1), need2 = Math.max(0, 2 - c2);
+    let totalNeed = need0 + need1 + need2;
+    if (totalNeed === 0) {
+      r.tubes.push(m[v0].slice(0, 2).concat(m[v1].slice(0, 2), m[v2].slice(0, 2)));
+    } else if (totalNeed <= nw) {
+      let t = m[v0].slice(0, Math.min(2, c0)).concat(wild.slice(0, need0));
+      t = t.concat(m[v1].slice(0, Math.min(2, c1))).concat(wild.slice(0, need1));
+      t = t.concat(m[v2].slice(0, Math.min(2, c2))).concat(wild.slice(0, need2));
+      r.tubes.push(t);
+    }
+  }
+
+  // ── Fullhouses: triple + pair (wild-budget-aware) ──
+  // Build all possible triples and pairs with wild cost
+  let allTriples = []; // {v, cards, wildsUsed}
+  let allPairs = [];   // {v, cards, wildsUsed}
+  vals.forEach(v => {
+    let g = m[v];
+    let n = g.length;
+    if (g.some(x => x.s === 'JOKER')) return;
+    if (n >= 3) allTriples.push({v: v, cards: g.slice(0, 3), w: 0});
+    if (n === 2 && nw >= 1) allTriples.push({v: v, cards: g.slice(0, 2).concat(wild.slice(0, 1)), w: 1});
+    if (n === 1 && nw >= 2) allTriples.push({v: v, cards: g.slice(0, 1).concat(wild.slice(0, 2)), w: 2});
+    if (n >= 2) allPairs.push({v: v, cards: g.slice(0, 2), w: 0});
+    if (n === 1 && nw >= 1) allPairs.push({v: v, cards: g.slice(0, 1).concat(wild.slice(0, 1)), w: 1});
+  });
+  if (nw >= 2) allPairs.push({v: 15, cards: wild.slice(0, 2), w: 2});
+
+  for (let ti = 0; ti < allTriples.length; ti++) {
+    for (let pi = 0; pi < allPairs.length; pi++) {
+      if (allTriples[ti].v !== allPairs[pi].v && allTriples[ti].w + allPairs[pi].w <= nw) {
+        r.fullhouses.push(allTriples[ti].cards.concat(allPairs[pi].cards));
+      }
+    }
+  }
+
+  return r;
+}
 
 function findMatch(g,l){
   let cntMap={};myCards.forEach(c=>cntMap[c.p]=(cntMap[c.p]||0)+1);
@@ -4322,9 +4590,9 @@ async function loadOnnxModel(){
     onnxSession=await ort.InferenceSession.create(buf,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ DMC AI model loaded (78MB, V3 75% WR, wild card fixed)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V3 AI模型已加载';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V3 75% ✓';if(badge)badge.style.color='var(--neon)';
+    console.log('%c✅ DMC AI model loaded (78MB, V4 78.5% WR, wild card fixed)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V4 AI模型已加载';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V4 78.5% ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e){
     console.warn('DMC model not available, trying legacy:',e.message);
     try{
