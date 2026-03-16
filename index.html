@@ -980,7 +980,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
 /* Hide all table/display elements */
 body.view-touch .dashboard,body.view-touch .dash{display:none!important}
 body.view-touch .p-zone{display:none!important}
-body.view-touch .out.o-t,body.view-touch .out.o-l,body.view-touch .out.o-r{display:none!important}
+body.view-touch .out{display:none!important}
 body.view-touch .deck-center{display:none!important}
 body.view-touch .training-badge{display:none!important}
 body.view-touch #coach-panel{display:none!important}
@@ -996,31 +996,8 @@ body.view-touch #view{
   overflow:hidden;position:relative
 }
 
-/* ---- Top status bar: scores + timer ---- */
-body.view-touch .mobile-score{
-  display:flex!important;height:32px;font-size:12px;
-  background:rgba(0,0,0,0.8);border-bottom:1px solid #1a1a2a;
-  padding:0 12px;align-items:center;flex-shrink:0;order:0;
-  z-index:450
-}
-body.view-touch .mobile-score .ms-val{font-size:13px}
-
-/* ---- Your last played cards ---- */
-body.view-touch .out.o-m{
-  position:relative;bottom:auto;left:auto;transform:none;
-  width:100%;height:auto;min-height:50px;max-height:70px;
-  display:flex;justify-content:center;align-items:center;
-  padding:4px 0;flex-shrink:0;
-  background:rgba(0,255,200,0.03);
-  border-bottom:1px solid #1a1a2a;
-  order:1
-}
-body.view-touch .out.o-m .c-mini{
-  width:38px!important;height:52px!important;margin-right:-18px
-}
-body.view-touch .out.o-m .c-mini .val-txt{font-size:10px}
-body.view-touch .out.o-m .c-mini .center-icon{font-size:14px}
-body.view-touch .out.o-m .tag{font-size:9px;top:-16px;padding:2px 6px}
+/* ---- Top status bar: hide opponent scores, show only own info ---- */
+body.view-touch .mobile-score{display:none!important}
 
 /* ---- Hand cards: main area ---- */
 body.view-touch #hand{
@@ -1102,8 +1079,16 @@ body.view-touch .ai-help-face{width:24px;height:24px;margin:4px;font-size:12px}
 body.view-touch .ai-help-title{font-size:9px}
 body.view-touch .ai-help-count{font-size:7px}
 
-/* ---- Other touch adjustments ---- */
-body.view-touch .p-me{display:none!important}
+/* ---- Player avatar: show in top-left ---- */
+body.view-touch .p-me{
+  display:block!important;
+  position:absolute!important;top:6px;left:10px;bottom:auto!important;
+  z-index:460
+}
+body.view-touch .p-me .av{
+  width:40px;height:40px;font-size:9px;border-width:2px
+}
+body.view-touch .p-me .badge-finish{font-size:8px}
 body.view-touch #afk-btn{
   position:absolute!important;top:34px;right:50%;transform:translateX(50%);
   z-index:460;font-size:11px;padding:4px 12px
