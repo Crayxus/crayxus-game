@@ -475,9 +475,14 @@ io.on('connection', (socket) => {
         }
         socket.emit('spectateInit', { seat: spectateSeat, roomCode: roomId });
         if (room.game && room.game.active) {
-            socket.emit('dealCards', { cards: room.game.hands[spectateSeat] });
+            let g = room.game;
             let botSeats = []; for(let i=0;i<4;i++) if(room.seats[i]==='BOT') botSeats.push(i);
-            socket.emit('gameStart', { startTurn: room.game.turn, botSeats, highCards: [] });
+            // Send gameStart FIRST so client sets up game UI
+            socket.emit('gameStart', { startTurn: g.turn, botSeats, highCards: [] });
+            // Then send cards after a small delay so UI is ready
+            setTimeout(() => {
+                socket.emit('dealCards', { cards: g.hands[spectateSeat] });
+            }, 100);
         }
         gameLog(`[Spectator] ${socket.id} spectating room ${roomId} from seat ${spectateSeat}`);
     });

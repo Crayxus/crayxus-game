@@ -1484,7 +1484,8 @@ if(_viewMode === 'touch' || _viewMode === 'table'){
   document.body.classList.add('view-' + _viewMode);
 }
 // Auto-detect small screen (Pi 7" touchscreen) → apply touch mode
-if(!_viewMode && window.innerHeight <= 900 && 'ontouchstart' in window){
+// Check screen height OR use DEMO CONTROL entry. No touch requirement (VNC doesn't have it)
+if(!_viewMode && (window.screen.height <= 650 || window.innerHeight <= 550)){
   document.body.classList.add('view-touch');
 }
 
@@ -2479,9 +2480,10 @@ function _doEnterGame(d){
   }else{
     // Casual mode: show casual HUD, hide arena HUD and EVO
     if(arenaHud)arenaHud.style.display='none';
-    if(casualHud)casualHud.style.display='block';
+    var _isTouch=document.body.classList.contains('view-touch');
+    if(casualHud)casualHud.style.display=_isTouch?'none':'block';
     if(pme)pme.style.display='none';
-    if(aiBtn)aiBtn.style.display='block';
+    if(aiBtn)aiBtn.style.display=_isTouch?'none':'block';
     if(evoBar)evoBar.style.display='none';
     // Toggle fixed/upgrade HUD
     let fixedS=document.getElementById('fixed-stats');
@@ -5309,7 +5311,10 @@ function startDemo(view){
     // TABLE VIEW: spectator only — show room list, click to spectate
     socket.on('spectateInit',function(d){
       mySeat=d.seat;
-      console.log('[Spectator] Watching from seat',d.seat);
+      myRoomCode=d.roomCode;
+      gameMode='casual';
+      casualMode='fixed';
+      console.log('[Spectator] Watching from seat',d.seat,'room',d.roomCode);
     });
     // Replace lobby content with room list
     var lc=document.querySelector('#lobby .lobby-card');
