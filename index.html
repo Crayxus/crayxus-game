@@ -1104,23 +1104,41 @@ body.view-table #game-theme-btn{display:none!important}
 body.view-table .res-box button{display:none!important}
 body.view-table #auto-continue-countdown{display:none!important}
 
-/* Full-screen game view */
+/* Full-screen game view with premium dark table */
 body.view-table #game-ui{flex-direction:column}
-body.view-table #view{width:100%;height:100%;background:radial-gradient(ellipse at 50% 45%,#0a2818 0%,#040e08 60%,#020804 100%)}
+body.view-table #view{
+  width:100%;height:100%;
+  background:radial-gradient(ellipse at 50% 50%,#0c2a1a 0%,#050f0a 50%,#020804 100%)
+}
+
+/* Cyber grid zone dividers — 4 quadrants */
+body.view-table #view::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(90deg,transparent 49.7%,rgba(0,255,255,0.06) 49.7%,rgba(0,255,255,0.06) 50.3%,transparent 50.3%),
+    linear-gradient(0deg,transparent 49.5%,rgba(0,255,255,0.06) 49.5%,rgba(0,255,255,0.06) 50.5%,transparent 50.5%)
+}
+/* Corner accent lines */
+body.view-table #view::after{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
+  border:2px solid rgba(0,255,255,0.04);
+  box-shadow:inset 0 0 80px rgba(0,255,255,0.03)
+}
 
 /* Score bar at top */
 body.view-table .mobile-score{
   display:flex!important;height:44px;font-size:17px;
-  background:linear-gradient(180deg,rgba(0,0,0,0.8) 0%,transparent 100%);
-  padding:0 20px;z-index:10
+  background:linear-gradient(180deg,rgba(0,0,0,0.85) 0%,transparent 100%);
+  padding:0 24px;z-index:10;
+  border-bottom:1px solid rgba(0,255,255,0.08)
 }
 body.view-table .mobile-score .ms-val{font-size:20px;font-weight:900}
 
-/* ---- Player avatars: 4 corners layout ---- */
-/* Self (YOU) — bottom center, prominent */
+/* ---- Player avatars: 4-zone layout ---- */
+/* Self (YOU) — bottom center */
 body.view-table .p-me{
   display:flex!important;flex-direction:column;align-items:center;
-  position:absolute!important;bottom:16px!important;left:50%!important;transform:translateX(-50%)!important;
+  position:absolute!important;bottom:12px!important;left:50%!important;transform:translateX(-50%)!important;
   z-index:300
 }
 body.view-table .p-me .av{width:72px!important;height:72px!important;font-size:13px!important;font-weight:900;border-width:3px!important}
@@ -1129,45 +1147,63 @@ body.view-table .p-me .holo-av-glow{inset:-10px}
 
 /* Partner — top center */
 body.view-table .p-top{top:52px;left:50%;transform:translateX(-50%)}
-/* Left opponent — left side, vertically centered */
-body.view-table .p-left{top:42%;left:24px;transform:translateY(-50%)}
-/* Right opponent — right side, vertically centered */
-body.view-table .p-right{top:42%;right:24px;transform:translateY(-50%)}
+/* Left opponent — left side, TRUE vertical center */
+body.view-table .p-left{top:50%;left:24px;transform:translateY(-50%)}
+/* Right opponent — right side, TRUE vertical center */
+body.view-table .p-right{top:50%;right:24px;transform:translateY(-50%)}
 
-/* Avatar sizes for all players */
+/* Avatar sizes */
 body.view-table .timer-ring{width:90px;height:90px}
 body.view-table .av{width:82px;height:82px;font-size:14px;font-weight:900}
 body.view-table .badge-n{width:32px;height:32px;font-size:16px;font-weight:900}
 body.view-table .badge-finish{font-size:14px;padding:3px 14px}
 body.view-table .badge-type{font-size:12px;padding:2px 8px}
 
-/* ---- Played card areas: near each player ---- */
-body.view-table .out{width:auto;height:auto;min-height:100px;overflow:visible}
-/* Partner's cards — below partner avatar */
-body.view-table .o-t{top:160px;left:50%;transform:translateX(-50%)}
-/* Left opponent's cards — right of left avatar */
-body.view-table .o-l{top:42%;left:130px;transform:translateY(-50%)}
-/* Right opponent's cards — left of right avatar */
-body.view-table .o-r{top:42%;right:130px;transform:translateY(-50%)}
-/* Self's cards — above self avatar */
-body.view-table .o-m{bottom:110px;left:50%;transform:translateX(-50%)}
+/* Active player zone glow */
+body.view-table .p-zone:has(.av.active){filter:drop-shadow(0 0 20px rgba(0,255,200,0.4))}
 
-/* ---- Big, beautiful mini cards ---- */
+/* ---- Played card areas: near each player ---- */
+body.view-table .out{width:auto;height:auto;min-height:110px;overflow:visible}
+/* Partner's cards — below partner avatar */
+body.view-table .o-t{top:165px;left:50%;transform:translateX(-50%)}
+/* Left opponent's cards — right of left avatar */
+body.view-table .o-l{top:50%;left:140px;transform:translateY(-50%)}
+/* Right opponent's cards — left of right avatar */
+body.view-table .o-r{top:50%;right:140px;transform:translateY(-50%)}
+/* Self's cards — above self avatar */
+body.view-table .o-m{bottom:105px;left:50%;transform:translateX(-50%)}
+
+/* ---- Large spectator cards ---- */
 body.view-table .c-mini{
-  width:80px!important;height:112px!important;margin-right:-34px;flex-shrink:0;
-  border-radius:8px!important
+  width:90px!important;height:126px!important;margin-right:-36px;flex-shrink:0;
+  border-radius:10px!important
 }
-body.view-table .c-mini .card{border-radius:8px!important}
-body.view-table .c-mini .val-txt{font-size:19px;font-weight:900;padding:3px 4px}
-body.view-table .c-mini .center-icon{font-size:34px}
+body.view-table .c-mini .card{
+  border-radius:10px!important;
+  box-shadow:0 4px 20px rgba(0,0,0,0.7)!important;
+  border:1px solid rgba(255,255,255,0.1)!important
+}
+body.view-table .c-mini .val-txt{font-size:22px;font-weight:900;padding:4px 5px}
+body.view-table .c-mini .center-icon{font-size:40px}
 body.view-table .c-mini:last-child{margin-right:0}
 
 /* Neon glow on played cards */
-body.view-table .out .c-mini{box-shadow:0 4px 16px rgba(0,0,0,0.6),0 0 12px rgba(0,255,255,0.12)}
+body.view-table .out .c-mini .card{
+  box-shadow:0 4px 20px rgba(0,0,0,0.7),0 0 16px rgba(0,255,255,0.15)!important
+}
 
-/* Tags, toasts, results */
-body.view-table .tag{font-size:14px;padding:5px 16px;border-radius:8px}
+/* Tags — above cards, no overlap */
+body.view-table .tag{
+  font-size:18px;font-weight:700;padding:6px 20px;border-radius:10px;
+  top:-50px;
+  text-shadow:0 0 8px rgba(255,215,0,0.4);
+  letter-spacing:1px
+}
 body.view-table .toast{font-size:22px;padding:16px 40px;border-radius:16px}
+
+/* Hide default table decorations — replaced by zone grid */
+body.view-table .holo-table-circle{opacity:0.3}
+body.view-table .holo-hex-grid{opacity:0.05}
 </style>
 </head>
 <body>
