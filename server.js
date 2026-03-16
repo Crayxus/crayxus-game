@@ -442,6 +442,26 @@ io.on('connection', (socket) => {
         }
     });
 
+    /* Spectator mode: join room without taking a seat */
+    socket.on('spectateGame', (data) => {
+        let roomId = (data && data.roomCode) ? data.roomCode.trim().toUpperCase() : null;
+        if (!roomId) { socket.emit('err', '需要房间码'); return; }
+        if (!rooms[roomId]) { socket.emit('err', '房间不存在'); return; }
+        let room = rooms[roomId];
+        socket.join(roomId);
+        let spectateSeat = 0;
+        for (let i = 0; i < 4; i++) {
+            if (room.seats[i] && room.seats[i] !== 'BOT') { spectateSeat = i; break; }
+        }
+        socket.emit('spectateInit', { seat: spectateSeat, roomCode: roomId });
+        if (room.game && room.game.active) {
+            socket.emit('dealCards', { cards: room.game.hands[spectateSeat] });
+            let botSeats = []; for(let i=0;i<4;i++) if(room.seats[i]==='BOT') botSeats.push(i);
+            socket.emit('gameStart', { startTurn: room.game.turn, botSeats, highCards: [] });
+        }
+        gameLog(`[Spectator] ${socket.id} spectating room ${roomId} from seat ${spectateSeat}`);
+    });
+
     socket.on('startMatch', () => {
         let r = rooms[playerMap[socket.id]];
         if (!r) return;
