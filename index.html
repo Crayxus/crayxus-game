@@ -1018,35 +1018,36 @@ body.view-touch #view{
   overflow:hidden;position:relative
 }
 
-/* Hand cards: fill available space, clean layout */
+/* Hand cards: fill available space, immersive large cards */
 body.view-touch #hand{
   position:relative!important;bottom:auto!important;top:auto!important;
   height:auto!important;flex:1;
-  display:flex!important;align-items:flex-end;justify-content:flex-start!important;
+  display:flex!important;align-items:flex-end;justify-content:center!important;
   flex-wrap:nowrap!important;
-  padding:8px 12px 8px;gap:6px;
+  padding:6px 8px 10px;gap:4px;
   overflow-x:auto;overflow-y:visible;
   scrollbar-width:none;
   -webkit-overflow-scrolling:touch;
   order:2;
-  background:linear-gradient(180deg,transparent 0%,rgba(0,10,20,0.6) 100%)
+  background:linear-gradient(180deg,transparent 0%,rgba(0,10,30,0.7) 100%)
 }
 body.view-touch #hand::-webkit-scrollbar{display:none}
-/* Clean card styling */
-body.view-touch .grp-wrap{gap:3px}
+/* Large immersive card styling */
+body.view-touch .grp-wrap{gap:2px}
 body.view-touch .grp-sel-btn{display:none}
-body.view-touch .grp-col .stack-card{width:52px!important;flex-shrink:0}
+body.view-touch .grp-col .stack-card{width:68px!important;flex-shrink:0}
 body.view-touch .grp-col .stack-card .card{
-  width:52px!important;height:72px!important;border-radius:7px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.5);
-  border:1px solid rgba(255,255,255,0.12)
+  width:68px!important;height:96px!important;border-radius:8px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.7),0 0 1px rgba(255,255,255,0.2);
+  border:1.5px solid rgba(255,255,255,0.15);
+  background:linear-gradient(160deg,#fafafa 0%,#e8e8e8 100%)
 }
-body.view-touch .grp-col .stack-card .card .peek-val{font-size:16px;font-weight:900}
-body.view-touch .grp-col .stack-card .card .peek-suit{font-size:13px}
-body.view-touch .grp-col .stack-card .card .card-center{font-size:24px}
-body.view-touch .grp-col .stack-card.sel{transform:translateY(-16px)}
+body.view-touch .grp-col .stack-card .card .peek-val{font-size:20px;font-weight:900}
+body.view-touch .grp-col .stack-card .card .peek-suit{font-size:16px}
+body.view-touch .grp-col .stack-card .card .card-center{font-size:32px}
+body.view-touch .grp-col .stack-card.sel{transform:translateY(-20px)}
 body.view-touch .grp-col .stack-card.sel .card{
-  box-shadow:0 0 0 2px var(--neon),0 0 16px rgba(0,255,200,0.5);
+  box-shadow:0 0 0 3px var(--neon),0 0 24px rgba(0,255,200,0.6),0 8px 20px rgba(0,0,0,0.5);
   border-color:var(--neon)
 }
 
@@ -1080,47 +1081,84 @@ body.view-touch .res-type{font-size:28px}
 body.view-touch .res-score{font-size:40px;margin-bottom:12px}
 body.view-touch .res-btn{min-height:52px;font-size:18px;padding:12px 30px}
 
-/* ===== TABLE VIEW (13.3" display - full table, no hand controls) ===== */
+/* ===== TABLE VIEW (13.3" / iPad display - immersive spectator) ===== */
+/* Hide interactive elements */
 body.view-table .dashboard,body.view-table .dash{display:none!important}
 body.view-table #hand{display:none!important}
 body.view-table .ctrls{display:none!important}
 body.view-table #afk-btn{display:none!important}
 body.view-table #afk-badge{display:none!important}
-body.view-table #game-ui{flex-direction:column}
-body.view-table #view{width:100%;height:100%}
-body.view-table .mobile-score{display:flex!important;height:40px;font-size:16px}
-body.view-table .mobile-score .ms-val{font-size:18px;font-weight:900}
-/* All 4 players visible including self */
-body.view-table .p-me{display:block!important;bottom:30px;left:50%;transform:translateX(-50%)}
-body.view-table .p-me .av{width:80px;height:80px;font-size:13px;font-weight:900}
-body.view-table .p-top{top:50px}
-body.view-table .p-left{top:38%;left:30px}
-body.view-table .p-right{top:38%;right:30px}
-body.view-table .timer-ring{width:100px;height:100px}
-body.view-table .av{width:92px;height:92px;font-size:15px;font-weight:900}
-body.view-table .badge-n{width:30px;height:30px;font-size:15px}
-body.view-table .badge-finish{font-size:13px;padding:3px 12px}
-body.view-table .badge-type{font-size:11px}
-/* Larger played card areas */
-body.view-table .out{width:520px;height:150px}
-body.view-table .o-t{top:180px}
-body.view-table .o-l{left:170px}
-body.view-table .o-r{right:170px}
-body.view-table .o-m{bottom:140px}
-/* Bigger mini cards */
-body.view-table .c-mini{width:70px!important;height:98px!important;margin-right:-32px}
-body.view-table .c-mini .val-txt{font-size:16px;font-weight:900}
-body.view-table .c-mini .center-icon{font-size:28px}
-body.view-table .tag{font-size:13px;padding:4px 14px}
-body.view-table .toast{font-size:20px;padding:14px 36px}
-body.view-table .res-box button{display:none!important}
-body.view-table #auto-continue-countdown{display:none!important}
-
-/* Table view: hide coach panel and interactive elements */
 body.view-table #coach-panel{display:none!important}
 body.view-table #ai-help-btn{display:none!important}
 body.view-table #casual-hud{display:none!important}
 body.view-table #game-theme-btn{display:none!important}
+body.view-table .res-box button{display:none!important}
+body.view-table #auto-continue-countdown{display:none!important}
+
+/* Full-screen game view */
+body.view-table #game-ui{flex-direction:column}
+body.view-table #view{width:100%;height:100%;background:radial-gradient(ellipse at 50% 45%,#0a2818 0%,#040e08 60%,#020804 100%)}
+
+/* Score bar at top */
+body.view-table .mobile-score{
+  display:flex!important;height:44px;font-size:17px;
+  background:linear-gradient(180deg,rgba(0,0,0,0.8) 0%,transparent 100%);
+  padding:0 20px;z-index:10
+}
+body.view-table .mobile-score .ms-val{font-size:20px;font-weight:900}
+
+/* ---- Player avatars: 4 corners layout ---- */
+/* Self (YOU) — bottom center, prominent */
+body.view-table .p-me{
+  display:flex!important;flex-direction:column;align-items:center;
+  position:absolute!important;bottom:16px!important;left:50%!important;transform:translateX(-50%)!important;
+  z-index:300
+}
+body.view-table .p-me .av{width:72px!important;height:72px!important;font-size:13px!important;font-weight:900;border-width:3px!important}
+body.view-table .p-me .holo-av-ring{inset:-5px}
+body.view-table .p-me .holo-av-glow{inset:-10px}
+
+/* Partner — top center */
+body.view-table .p-top{top:52px;left:50%;transform:translateX(-50%)}
+/* Left opponent — left side, vertically centered */
+body.view-table .p-left{top:42%;left:24px;transform:translateY(-50%)}
+/* Right opponent — right side, vertically centered */
+body.view-table .p-right{top:42%;right:24px;transform:translateY(-50%)}
+
+/* Avatar sizes for all players */
+body.view-table .timer-ring{width:90px;height:90px}
+body.view-table .av{width:82px;height:82px;font-size:14px;font-weight:900}
+body.view-table .badge-n{width:32px;height:32px;font-size:16px;font-weight:900}
+body.view-table .badge-finish{font-size:14px;padding:3px 14px}
+body.view-table .badge-type{font-size:12px;padding:2px 8px}
+
+/* ---- Played card areas: near each player ---- */
+body.view-table .out{width:auto;height:auto;min-height:100px;overflow:visible}
+/* Partner's cards — below partner avatar */
+body.view-table .o-t{top:160px;left:50%;transform:translateX(-50%)}
+/* Left opponent's cards — right of left avatar */
+body.view-table .o-l{top:42%;left:130px;transform:translateY(-50%)}
+/* Right opponent's cards — left of right avatar */
+body.view-table .o-r{top:42%;right:130px;transform:translateY(-50%)}
+/* Self's cards — above self avatar */
+body.view-table .o-m{bottom:110px;left:50%;transform:translateX(-50%)}
+
+/* ---- Big, beautiful mini cards ---- */
+body.view-table .c-mini{
+  width:80px!important;height:112px!important;margin-right:-34px;flex-shrink:0;
+  border-radius:8px!important
+}
+body.view-table .c-mini .card{border-radius:8px!important}
+body.view-table .c-mini .val-txt{font-size:19px;font-weight:900;padding:3px 4px}
+body.view-table .c-mini .center-icon{font-size:34px}
+body.view-table .c-mini:last-child{margin-right:0}
+
+/* Neon glow on played cards */
+body.view-table .out .c-mini{box-shadow:0 4px 16px rgba(0,0,0,0.6),0 0 12px rgba(0,255,255,0.12)}
+
+/* Tags, toasts, results */
+body.view-table .tag{font-size:14px;padding:5px 16px;border-radius:8px}
+body.view-table .toast{font-size:22px;padding:16px 40px;border-radius:16px}
 </style>
 </head>
 <body>
