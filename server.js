@@ -82,6 +82,26 @@ app.get('/api/replays', (req, res) => {
     } catch(e) { res.json([]); }
 });
 
+app.get('/api/rooms', (req, res) => {
+    let list = [];
+    for (let rid in rooms) {
+        let r = rooms[rid];
+        let humanCount = 0;
+        for (let i = 0; i < 4; i++) if (r.seats[i] && r.seats[i] !== 'BOT') humanCount++;
+        if (humanCount > 0) {
+            list.push({
+                code: rid,
+                players: r.count,
+                humans: humanCount,
+                mode: r.mode || 'arena',
+                casualMode: r.casualMode || 'fixed',
+                active: !!(r.game && r.game.active)
+            });
+        }
+    }
+    res.json(list);
+});
+
 app.get('/api/replays/:file', (req, res) => {
     try {
         const fpath = path.join(REPLAY_DIR, req.params.file);

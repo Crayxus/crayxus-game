@@ -1374,7 +1374,7 @@ body.view-table #game-theme-btn{display:none!important}
 
 <div id="lobby" class="screen">
   <div class="lobby-card">
-    <div style="font-size:50px;margin-bottom:10px">&#127942;</div>
+    <div style="font-size:50px;margin-bottom:10px">&#9733;</div>
     <div style="font-size:24px;font-weight:bold;margin-bottom:5px">SEASON 1</div>
     <div style="color:#888;margin-bottom:20px">2V2 RANKED &middot; 1-4 PLAYERS</div>
     <div style="width:100%;padding:15px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:20px">
@@ -1391,7 +1391,7 @@ body.view-table #game-theme-btn{display:none!important}
           onkeydown="if(event.key==='Enter')document.getElementById('find-btn').click()"/>
         <button onclick="generateRoomCode()" title="生成房间码"
           style="padding:12px 14px;border-radius:12px;border:1px solid #444;background:rgba(255,255,255,0.08);
-          color:#aaa;font-size:18px;cursor:pointer">🎲</button>
+          color:#aaa;font-size:18px;cursor:pointer">&#9851;</button>
       </div>
       <div id="room-code-display" style="margin-top:8px;font-size:11px;color:#555;text-align:center"></div>
     </div>
@@ -5403,30 +5403,20 @@ function startDemo(view){
   if(!socket.connected) socket.connect();
 
   if(view==='table'){
-    // TABLE VIEW: spectator only — show room code input, then spectate
-    document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='DEMO VIEW';
-    document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='SPECTATOR · Enter room code to watch';
-    var eloRow=document.getElementById('lobby-elo');
-    if(eloRow)eloRow.parentElement.parentElement.style.display='none';
-    // Override the FIND MATCH button to spectate instead of join
-    var findBtn=document.getElementById('find-btn');
-    findBtn.innerText='SPECTATE';
-    findBtn._demoMode='table';
-    findBtn.disabled=false;
-    findBtn.onclick=function(){
-      var code=document.getElementById('room-code-input').value.toUpperCase();
-      if(!code){alert('Please enter a room code');return;}
-      // Show game UI immediately
-      switchScreen(null);
-      document.getElementById('game-ui').style.display='flex';
-      // Spectate the room
-      socket.emit('spectateGame',{roomCode:code});
-    };
+    // TABLE VIEW: spectator only — show room list, click to spectate
     socket.on('spectateInit',function(d){
       mySeat=d.seat;
       console.log('[Spectator] Watching from seat',d.seat);
     });
+    // Replace lobby content with room list
+    var lc=document.querySelector('#lobby .lobby-card');
+    lc.innerHTML='<div style="font-size:24px;font-weight:bold;margin-bottom:8px;color:#fff">DEMO VIEW</div>'+
+      '<div style="color:#888;margin-bottom:16px;font-size:13px">SPECTATOR · Select a room to watch</div>'+
+      '<div id="room-list" style="width:100%;max-height:300px;overflow-y:auto;margin-bottom:16px"></div>'+
+      '<button class="btn-large" onclick="loadRoomList()" style="margin-bottom:8px">REFRESH</button>'+
+      '<div id="conn-status" style="font-size:12px;color:#666">Loading rooms...</div>';
     switchScreen('lobby');
+    loadRoomList();
   } else {
     // TOUCH VIEW: normal player — create/join room
     document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='DEMO CONTROL';
@@ -5435,6 +5425,42 @@ function startDemo(view){
     if(eloRow)eloRow.parentElement.parentElement.style.display='none';
     switchScreen('lobby');
   }
+}
+
+function loadRoomList(){
+  var rl=document.getElementById('room-list');
+  if(!rl)return;
+  rl.innerHTML='<div style="color:#666;padding:20px;text-align:center">Loading...</div>';
+  fetch('/api/rooms').then(r=>r.json()).then(function(list){
+    if(!list.length){
+      rl.innerHTML='<div style="color:#666;padding:30px;text-align:center;font-size:14px">No active rooms<br><span style="font-size:11px;color:#555">Start a game from DEMO CONTROL first</span></div>';
+      document.getElementById('conn-status').innerText='No rooms found';
+      return;
+    }
+    var html='';
+    list.forEach(function(rm){
+      var status=rm.active?'<span style="color:#0f0">PLAYING</span>':'<span style="color:#fa0">WAITING</span>';
+      html+='<div onclick="spectateRoom(\''+rm.code+'\')" style="display:flex;justify-content:space-between;align-items:center;'+
+        'padding:14px 16px;margin-bottom:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);'+
+        'border-radius:12px;cursor:pointer;transition:background 0.2s" '+
+        'onmouseenter="this.style.background=\'rgba(0,255,200,0.1)\';this.style.borderColor=\'rgba(0,255,200,0.3)\'" '+
+        'onmouseleave="this.style.background=\'rgba(255,255,255,0.06)\';this.style.borderColor=\'rgba(255,255,255,0.1)\'">' +
+        '<div><div style="font-size:18px;font-weight:bold;letter-spacing:2px;color:#fff">'+rm.code+'</div>'+
+        '<div style="font-size:11px;color:#888;margin-top:2px">'+rm.humans+' player'+(rm.humans>1?'s':'')+'</div></div>'+
+        '<div style="text-align:right"><div style="font-size:12px">'+status+'</div>'+
+        '<div style="font-size:10px;color:#666;margin-top:2px">'+rm.mode+'</div></div></div>';
+    });
+    rl.innerHTML=html;
+    document.getElementById('conn-status').innerText=list.length+' room(s) available';
+  }).catch(function(){
+    rl.innerHTML='<div style="color:#f66;padding:20px;text-align:center">Failed to load rooms</div>';
+  });
+}
+
+function spectateRoom(code){
+  switchScreen(null);
+  document.getElementById('game-ui').style.display='flex';
+  socket.emit('spectateGame',{roomCode:code});
 }
 </script>
 </body>
