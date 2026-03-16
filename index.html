@@ -14,7 +14,7 @@
   --glow-cyan:0 0 20px #00ffff,0 0 40px #00ffff,0 0 80px rgba(0,255,255,0.3);
   --glow-gold:0 0 20px #ffd700,0 0 40px #ffd700,0 0 80px rgba(255,215,0,0.3);
   --glow-magenta:0 0 20px #ff00ff,0 0 40px #ff00ff,0 0 80px rgba(255,0,255,0.3)}
-*{margin:0;padding:0;box-sizing:border-box;user-select:none;font-family:'Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;font-family:'Segoe UI','Noto Sans SC','Microsoft YaHei','PingFang SC','WenQuanYi Micro Hei',sans-serif}
 body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:flex;color:#fff;padding-bottom:env(safe-area-inset-bottom,0px)}
 .screen{position:absolute;width:100%;height:100%;display:none;flex-direction:column;justify-content:center;align-items:center;z-index:100}
 .screen.active{display:flex}
@@ -973,6 +973,105 @@ body.light-theme .deck-center{opacity:0.3 !important}
 body.light-theme .timer-ring{border-color:rgba(0,0,0,0.1) !important}
 body.light-theme .joker-rainbow-wrap{color:#cc0000 !important}
 body.light-theme .joker-grey-wrap{color:#444 !important}
+
+/* ===== TOUCH VIEW (7" touchscreen - cards & controls only) ===== */
+body.view-touch .dashboard,body.view-touch .dash{display:none!important}
+body.view-touch .mobile-score{display:none!important}
+body.view-touch .p-zone{display:none!important}
+body.view-touch .out.o-t,body.view-touch .out.o-l,body.view-touch .out.o-r{display:none!important}
+body.view-touch .deck-center{display:none!important}
+body.view-touch .training-badge{display:none!important}
+body.view-touch #coach-panel{display:none!important}
+body.view-touch #game-ui{flex-direction:column}
+body.view-touch #view{
+  width:100%;background:#0a0a0a;
+  display:flex!important;flex-direction:column;
+  overflow:hidden
+}
+body.view-touch .out.o-m{
+  position:relative;bottom:auto;left:auto;transform:none;
+  width:100%;height:auto;min-height:70px;
+  display:flex;justify-content:center;align-items:center;
+  padding:6px 0;flex-shrink:0;
+  border-bottom:1px solid #222;
+  order:1
+}
+body.view-touch #hand{
+  position:relative;bottom:auto;
+  height:auto;min-height:160px;
+  flex:1;
+  display:flex;align-items:center;justify-content:center;
+  flex-wrap:wrap;
+  padding:8px 4px;gap:4px;
+  overflow-y:auto;overflow-x:hidden;
+  order:2
+}
+body.view-touch .grp-col .stack-card{width:56px;height:80px}
+body.view-touch .grp-col .stack-card .card{width:56px;height:80px;border-radius:6px}
+body.view-touch .grp-col .stack-card .card .peek-val{font-size:16px}
+body.view-touch .grp-col .stack-card .card .peek-suit{font-size:13px}
+body.view-touch .grp-col .stack-card .card .card-center{font-size:24px}
+body.view-touch .grp-col .stack-card.sel{transform:translateY(-16px)}
+body.view-touch .ctrls{
+  position:relative;bottom:auto!important;left:auto;transform:none;
+  display:flex!important;justify-content:center;
+  gap:12px;padding:12px 0;flex-shrink:0;
+  background:rgba(0,0,0,0.6);border-top:1px solid #333;
+  order:3
+}
+body.view-touch .btn{
+  padding:14px 32px;font-size:18px;font-weight:900;
+  min-height:56px;min-width:90px;border-radius:30px;
+  touch-action:manipulation
+}
+body.view-touch .timer-txt{
+  position:relative;top:auto;width:auto;
+  display:flex!important;align-items:center;
+  font-size:20px;margin-right:8px
+}
+body.view-touch .p-me{display:none!important}
+body.view-touch #afk-btn{
+  position:relative;bottom:auto;right:auto;
+  margin:0;font-size:14px;padding:10px 20px
+}
+body.view-touch .toast{top:20%;font-size:16px}
+body.view-touch .elo-float{display:none!important}
+
+/* ===== TABLE VIEW (13.3" display - full table, no hand controls) ===== */
+body.view-table .dashboard,body.view-table .dash{display:none!important}
+body.view-table #hand{display:none!important}
+body.view-table .ctrls{display:none!important}
+body.view-table .p-me{display:none!important}
+body.view-table #afk-btn{display:none!important}
+body.view-table #afk-badge{display:none!important}
+body.view-table #game-ui{flex-direction:column}
+body.view-table #view{width:100%;height:100%}
+body.view-table .mobile-score{display:flex!important;height:36px;font-size:14px}
+body.view-table .mobile-score .ms-val{font-size:16px}
+body.view-table .p-top{top:50px}
+body.view-table .p-left{top:40%;left:40px}
+body.view-table .p-right{top:40%;right:40px}
+body.view-table .timer-ring{width:96px;height:96px}
+body.view-table .av{width:88px;height:88px;font-size:14px;font-weight:900}
+body.view-table .badge-n{width:28px;height:28px;font-size:14px}
+body.view-table .badge-finish{font-size:12px;padding:2px 10px}
+body.view-table .badge-type{font-size:10px}
+body.view-table .out{width:460px;height:130px}
+body.view-table .o-t{top:170px}
+body.view-table .o-l{left:180px}
+body.view-table .o-r{right:180px}
+body.view-table .o-m{bottom:60px}
+body.view-table .c-mini{width:60px!important;height:84px!important;margin-right:-30px}
+body.view-table .c-mini .val-txt{font-size:14px}
+body.view-table .c-mini .center-icon{font-size:24px}
+body.view-table .tag{font-size:12px;padding:4px 12px}
+body.view-table .toast{font-size:18px;padding:12px 30px}
+body.view-table .res-box button{display:none!important}
+body.view-table #auto-continue-countdown{display:none!important}
+
+/* Both views: skip boot/lobby screens, auto show game */
+body.view-touch .screen,body.view-table .screen{display:none!important}
+body.view-touch #game-ui,body.view-table #game-ui{display:flex!important}
 </style>
 </head>
 <body>
@@ -1319,6 +1418,14 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
 </div>
 
 <script>
+/* ===== Dual-screen view detection ===== */
+const _urlParams = new URLSearchParams(window.location.search);
+const _viewMode = _urlParams.get('view'); // 'touch' | 'table' | null
+let _autoJoined = false;
+if(_viewMode === 'touch' || _viewMode === 'table'){
+  document.body.classList.add('view-' + _viewMode);
+}
+
 const socket=io('https://crayxus-game.onrender.com',{autoConnect:false,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
 let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
@@ -2177,6 +2284,24 @@ socket.on('connect',()=>{
   document.getElementById('conn-status').innerText="Online";
   document.getElementById('conn-status').style.color="#0f0";
   let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
+  /* Auto-join for touch/table view modes */
+  if(_viewMode && !_autoJoined){
+    _autoJoined=true;
+    if(typeof AudioSys!=='undefined')AudioSys.init();
+    const autoRoom = _urlParams.get('room') || '';
+    const autoMode = _urlParams.get('mode') || 'training';
+    if(autoMode==='training'){
+      gameMode='training';
+      startTrainingGame();
+    } else {
+      gameMode='arena';
+      if(autoRoom){
+        const ci=document.getElementById('room-code-input');
+        if(ci)ci.value=autoRoom.toUpperCase();
+      }
+      joinGame();
+    }
+  }
 });
 // Notify server immediately when browser tab is closed/refreshed
 window.addEventListener('beforeunload',()=>{socket.emit('leaveGame');socket.disconnect();});
@@ -5052,6 +5177,79 @@ if('serviceWorker' in navigator){
 }
 
 setTimeout(startSpotlight, 1500);
+
+/* ===== BroadcastChannel dual-screen sync ===== */
+const _bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('crayxus_dual') : null;
+
+function broadcastViewState(){
+  if(!_bc || _viewMode === 'table') return;
+  const state = {type:'viewSync', outs:{}, avatars:{}, badges:{}, finishBadges:{}, typeBadges:{},
+    counts:counts.slice(), turn:turn, mySeat:mySeat, gameOver:gameOver,
+    finishOrder:finishOrder.slice(), timeLeft:timeLeft, timerActive:!!timerInterval};
+  for(let i=0;i<4;i++){
+    const el=document.getElementById('out-'+i);
+    if(el) state.outs[i]={html:el.innerHTML, classes:el.className};
+    const av=document.getElementById('av-'+i);
+    if(av) state.avatars[i]={classes:av.className, text:av.innerText};
+    const nb=document.getElementById('n-'+i);
+    if(nb) state.badges[i]={display:nb.style.display, text:nb.innerText};
+    const fb=document.getElementById('f-'+i);
+    if(fb) state.finishBadges[i]={display:fb.style.display, text:fb.innerText};
+    const tb=document.getElementById('type-'+i);
+    if(tb) state.typeBadges[i]={display:tb.style.display, text:tb.innerText, classes:tb.className};
+  }
+  state.mobileScore={};
+  for(let i=0;i<4;i++){const ms=document.getElementById('ms-p'+i);if(ms)state.mobileScore[i]=ms.innerText;}
+  const msElo=document.getElementById('ms-elo');if(msElo)state.mobileScore.elo=msElo.innerText;
+  const tst=document.getElementById('tst');
+  if(tst&&parseFloat(tst.style.opacity)>0)state.toast=tst.innerText;
+  const rm=document.getElementById('result-modal');
+  if(rm&&(rm.style.display==='flex'||rm.style.display==='block')){
+    state.result={title:document.getElementById('res-title')?.innerText,
+      desc:document.getElementById('res-desc')?.innerText,
+      points:document.getElementById('res-points')?.innerText,
+      elo:document.getElementById('res-elo')?.innerText};
+  }
+  try{_bc.postMessage(state);}catch(e){}
+}
+
+if(_viewMode==='table'&&_bc){
+  _bc.onmessage=function(ev){
+    const s=ev.data;if(s.type!=='viewSync')return;
+    for(let i=0;i<4;i++){
+      const el=document.getElementById('out-'+i);
+      if(el&&s.outs[i]){el.innerHTML=s.outs[i].html;el.className=s.outs[i].classes;}
+      const av=document.getElementById('av-'+i);
+      if(av&&s.avatars[i]){av.className=s.avatars[i].classes;av.innerText=s.avatars[i].text;}
+      const nb=document.getElementById('n-'+i);
+      if(nb&&s.badges[i]){nb.style.display=s.badges[i].display;nb.innerText=s.badges[i].text;}
+      const fb=document.getElementById('f-'+i);
+      if(fb&&s.finishBadges[i]){fb.style.display=s.finishBadges[i].display;fb.innerText=s.finishBadges[i].text;}
+      const tb=document.getElementById('type-'+i);
+      if(tb&&s.typeBadges[i]){tb.style.display=s.typeBadges[i].display;tb.innerText=s.typeBadges[i].text;tb.className=s.typeBadges[i].classes;}
+    }
+    if(s.mobileScore){
+      for(let i=0;i<4;i++){const ms=document.getElementById('ms-p'+i);if(ms&&s.mobileScore[i]!==undefined)ms.innerText=s.mobileScore[i];}
+      const msElo=document.getElementById('ms-elo');if(msElo&&s.mobileScore.elo)msElo.innerText=s.mobileScore.elo;
+    }
+    if(s.toast){const tst=document.getElementById('tst');if(tst){tst.innerText=s.toast;tst.style.opacity=1;clearTimeout(tst._tid);tst._tid=setTimeout(()=>{tst.style.opacity=0},2000);}}
+    const rm=document.getElementById('result-modal');
+    if(s.result){if(rm)rm.style.display='flex';
+      const rt=document.getElementById('res-title');if(rt)rt.innerText=s.result.title;
+      const rd=document.getElementById('res-desc');if(rd)rd.innerText=s.result.desc;
+      const rp=document.getElementById('res-points');if(rp)rp.innerText=s.result.points;
+      const re=document.getElementById('res-elo');if(re)re.innerText=s.result.elo;
+    }else{if(rm)rm.style.display='none';}
+  };
+}
+
+// Hook into renderUI to broadcast
+const _origRenderUI=renderUI;
+renderUI=function(){_origRenderUI();broadcastViewState();};
+const _origHandleSync=handleSync;
+handleSync=function(d){_origHandleSync(d);broadcastViewState();};
+if(_viewMode!=='table'){setInterval(()=>{if(timerInterval)broadcastViewState();},1000);}
+if(_viewMode==='table'){document.getElementById('game-ui').style.display='flex';}
 </script>
 </body>
 </html>
