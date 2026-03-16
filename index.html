@@ -1045,15 +1045,15 @@ body.view-touch .grp-sel-btn{
 body.view-touch .grp-sel-btn.all-sel{
   background:rgba(0,255,200,0.2);border-color:var(--neon);color:var(--neon)
 }
-body.view-touch .grp-col .stack-card{width:68px!important;flex-shrink:0}
+body.view-touch .grp-col .stack-card{width:78px!important;flex-shrink:0}
 body.view-touch .grp-col .stack-card .card{
-  width:68px!important;height:96px!important;border-radius:8px;
+  width:78px!important;height:110px!important;border-radius:9px;
   box-shadow:0 4px 16px rgba(0,0,0,0.7),0 0 1px rgba(255,255,255,0.2);
   border:1.5px solid rgba(255,255,255,0.15)
 }
-body.view-touch .grp-col .stack-card .card .peek-val{font-size:20px;font-weight:900}
-body.view-touch .grp-col .stack-card .card .peek-suit{font-size:16px}
-body.view-touch .grp-col .stack-card .card .card-center{font-size:32px}
+body.view-touch .grp-col .stack-card .card .peek-val{font-size:22px;font-weight:900}
+body.view-touch .grp-col .stack-card .card .peek-suit{font-size:18px}
+body.view-touch .grp-col .stack-card .card .card-center{font-size:36px}
 body.view-touch .grp-col .stack-card.sel{transform:translateY(-20px)}
 body.view-touch .grp-col .stack-card.sel .card{
   box-shadow:0 0 0 3px var(--neon),0 0 24px rgba(0,255,200,0.6),0 8px 20px rgba(0,0,0,0.5);
@@ -1163,13 +1163,13 @@ body.view-table .badge-type{font-size:12px;padding:2px 8px}
 body.view-table .p-zone:has(.av.active){filter:drop-shadow(0 0 20px rgba(0,255,200,0.4))}
 
 /* ---- Played card areas: clearly separated from avatars ---- */
-body.view-table .out{width:auto;height:auto;min-height:110px;overflow:visible}
-/* Partner's cards — below partner avatar, centered */
+body.view-table .out{width:560px;height:150px;overflow:visible}
+/* Partner's cards — below partner avatar */
 body.view-table .o-t{top:170px;left:50%;transform:translateX(-50%)}
-/* Left opponent's cards — to the right of avatar, with gap */
-body.view-table .o-l{top:50%;left:150px;transform:translateY(-50%)}
-/* Right opponent's cards — to the left of avatar, with gap */
-body.view-table .o-r{top:50%;right:150px;transform:translateY(-50%);direction:rtl}
+/* Left opponent's cards — right of left avatar */
+body.view-table .o-l{top:50%;left:140px;transform:translateY(-50%)}
+/* Right opponent's cards — left of right avatar */
+body.view-table .o-r{top:50%;right:140px;transform:translateY(-50%)}
 /* Self's cards — above self avatar */
 body.view-table .o-m{bottom:110px;left:50%;transform:translateX(-50%)}
 
@@ -3376,7 +3376,7 @@ function renderHand(isDealing=false){
   const availW = viewW - 20;
   let CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
   CW = Math.max(44, Math.min(100, CW));
-  if(_isTouchView) CW = Math.min(CW, 68);
+  if(_isTouchView) CW = Math.min(CW, 78);
   const CH = Math.round(CW * 1.42);
   const PEEK = Math.round(CW * 36/66);
   const fVal  = Math.max(10, Math.round(CW * 18/66));
