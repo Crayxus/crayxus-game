@@ -974,68 +974,147 @@ body.light-theme .timer-ring{border-color:rgba(0,0,0,0.1) !important}
 body.light-theme .joker-rainbow-wrap{color:#cc0000 !important}
 body.light-theme .joker-grey-wrap{color:#444 !important}
 
-/* ===== TOUCH VIEW (7" touchscreen - cards & controls only) ===== */
+/* ===== TOUCH VIEW — 7" Raspberry Pi touchscreen (1024×600) ===== */
+/* Layout: [status bar] → [your last play] → [hand cards] → [action buttons] */
+
+/* Hide all table/display elements */
 body.view-touch .dashboard,body.view-touch .dash{display:none!important}
-body.view-touch .mobile-score{display:none!important}
 body.view-touch .p-zone{display:none!important}
 body.view-touch .out.o-t,body.view-touch .out.o-l,body.view-touch .out.o-r{display:none!important}
 body.view-touch .deck-center{display:none!important}
 body.view-touch .training-badge{display:none!important}
 body.view-touch #coach-panel{display:none!important}
-body.view-touch #game-ui{flex-direction:column}
+body.view-touch .elo-float{display:none!important}
+body.view-touch #game-theme-btn{display:none!important}
+
+/* Root layout */
+body.view-touch{background:#080810}
+body.view-touch #game-ui{flex-direction:column;width:100%;height:100%}
 body.view-touch #view{
-  width:100%;background:#0a0a0a;
+  width:100%;height:100%;background:#080810;
   display:flex!important;flex-direction:column;
-  overflow:hidden
+  overflow:hidden;position:relative
 }
+
+/* ---- Top status bar: scores + timer ---- */
+body.view-touch .mobile-score{
+  display:flex!important;height:32px;font-size:12px;
+  background:rgba(0,0,0,0.8);border-bottom:1px solid #1a1a2a;
+  padding:0 12px;align-items:center;flex-shrink:0;order:0;
+  z-index:450
+}
+body.view-touch .mobile-score .ms-val{font-size:13px}
+
+/* ---- Your last played cards ---- */
 body.view-touch .out.o-m{
   position:relative;bottom:auto;left:auto;transform:none;
-  width:100%;height:auto;min-height:70px;
+  width:100%;height:auto;min-height:50px;max-height:70px;
   display:flex;justify-content:center;align-items:center;
-  padding:6px 0;flex-shrink:0;
-  border-bottom:1px solid #222;
+  padding:4px 0;flex-shrink:0;
+  background:rgba(0,255,200,0.03);
+  border-bottom:1px solid #1a1a2a;
   order:1
 }
+body.view-touch .out.o-m .c-mini{
+  width:38px!important;height:52px!important;margin-right:-18px
+}
+body.view-touch .out.o-m .c-mini .val-txt{font-size:10px}
+body.view-touch .out.o-m .c-mini .center-icon{font-size:14px}
+body.view-touch .out.o-m .tag{font-size:9px;top:-16px;padding:2px 6px}
+
+/* ---- Hand cards: main area ---- */
 body.view-touch #hand{
   position:relative;bottom:auto;
-  height:auto;min-height:160px;
-  flex:1;
-  display:flex;align-items:center;justify-content:center;
-  flex-wrap:wrap;
-  padding:8px 4px;gap:4px;
-  overflow-y:auto;overflow-x:hidden;
+  height:auto;flex:1;
+  display:flex;align-items:flex-end;justify-content:center;
+  flex-wrap:nowrap;
+  padding:6px 10px 4px;gap:3px;
+  overflow-x:auto;overflow-y:visible;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
   order:2
 }
-body.view-touch .grp-col .stack-card{width:56px;height:80px}
-body.view-touch .grp-col .stack-card .card{width:56px;height:80px;border-radius:6px}
-body.view-touch .grp-col .stack-card .card .peek-val{font-size:16px}
-body.view-touch .grp-col .stack-card .card .peek-suit{font-size:13px}
-body.view-touch .grp-col .stack-card .card .card-center{font-size:24px}
-body.view-touch .grp-col .stack-card.sel{transform:translateY(-16px)}
+body.view-touch #hand::-webkit-scrollbar{display:none}
+/* Card sizing for 7" — big enough to tap, small enough to fit 27 cards */
+body.view-touch .grp-wrap{gap:2px}
+body.view-touch .grp-sel-btn{width:30px;height:18px;font-size:9px;border-radius:4px}
+body.view-touch .grp-col .stack-card{width:52px;height:72px}
+body.view-touch .grp-col .stack-card .card{
+  width:52px;height:72px;border-radius:5px;
+  box-shadow:1px 2px 8px rgba(0,0,0,0.6)
+}
+body.view-touch .grp-col .stack-card .card .peek-val{font-size:15px;font-weight:900}
+body.view-touch .grp-col .stack-card .card .peek-suit{font-size:12px}
+body.view-touch .grp-col .stack-card .card .card-center{font-size:22px}
+body.view-touch .grp-col .stack-card.sel{transform:translateY(-14px)}
+body.view-touch .grp-col .stack-card.sel .card{
+  box-shadow:0 0 0 2px var(--neon),0 0 12px rgba(0,255,200,0.4)
+}
+
+/* ---- Action buttons bar ---- */
 body.view-touch .ctrls{
   position:relative;bottom:auto!important;left:auto;transform:none;
-  display:flex!important;justify-content:center;
-  gap:12px;padding:12px 0;flex-shrink:0;
-  background:rgba(0,0,0,0.6);border-top:1px solid #333;
+  display:flex!important;justify-content:center;align-items:center;
+  gap:10px;padding:8px 16px;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(10,10,20,0.95),rgba(5,5,15,1));
+  border-top:1px solid #1a1a2a;
   order:3
 }
 body.view-touch .btn{
-  padding:14px 32px;font-size:18px;font-weight:900;
-  min-height:56px;min-width:90px;border-radius:30px;
-  touch-action:manipulation
+  padding:10px 28px;font-size:16px;font-weight:900;
+  min-height:48px;min-width:80px;border-radius:24px;
+  touch-action:manipulation;
+  letter-spacing:1px
 }
+body.view-touch .btn.b-pass{font-size:14px;padding:10px 20px;min-width:60px}
+body.view-touch .btn.b-play{font-size:18px;padding:10px 36px}
 body.view-touch .timer-txt{
   position:relative;top:auto;width:auto;
   display:flex!important;align-items:center;
-  font-size:20px;margin-right:8px
+  font-size:18px;font-weight:900;margin-right:4px;
+  order:-1
 }
+
+/* ---- Casual HUD: compact on touch screen ---- */
+body.view-touch #casual-hud{
+  position:absolute!important;top:32px;left:8px;bottom:auto!important;
+  z-index:460
+}
+body.view-touch .casual-hud-inner{
+  padding:4px 10px 4px 4px;gap:6px;border-radius:8px
+}
+body.view-touch .casual-avatar-ring{width:32px;height:32px}
+body.view-touch .casual-avatar-img{width:24px;height:24px;margin:4px;font-size:10px}
+body.view-touch .casual-name{font-size:9px}
+body.view-touch .casual-rank-badge{font-size:7px;padding:1px 5px}
+body.view-touch .casual-rank-stars{font-size:9px}
+body.view-touch .kda-val{font-size:10px}
+body.view-touch .kda-label{font-size:6px}
+
+/* ---- AI Coach button: compact on touch screen ---- */
+body.view-touch #ai-help-btn{
+  position:absolute!important;top:32px;right:8px;bottom:auto!important;
+  z-index:460
+}
+body.view-touch .ai-help-inner{padding:4px 8px 4px 4px;gap:6px;border-radius:8px}
+body.view-touch .ai-help-ring{width:32px;height:32px}
+body.view-touch .ai-help-face{width:24px;height:24px;margin:4px;font-size:12px}
+body.view-touch .ai-help-title{font-size:9px}
+body.view-touch .ai-help-count{font-size:7px}
+
+/* ---- Other touch adjustments ---- */
 body.view-touch .p-me{display:none!important}
 body.view-touch #afk-btn{
-  position:relative;bottom:auto;right:auto;
-  margin:0;font-size:14px;padding:10px 20px
+  position:absolute!important;top:34px;right:50%;transform:translateX(50%);
+  z-index:460;font-size:11px;padding:4px 12px
 }
-body.view-touch .toast{top:20%;font-size:16px}
-body.view-touch .elo-float{display:none!important}
+body.view-touch .toast{
+  top:35%;font-size:14px;padding:8px 20px;border-radius:20px
+}
+body.view-touch .res-box{width:90vw;max-width:500px;padding:20px}
+body.view-touch .res-type{font-size:28px}
+body.view-touch .res-score{font-size:40px;margin-bottom:12px}
+body.view-touch .res-btn{min-height:48px;font-size:16px;padding:10px 30px}
 
 /* ===== TABLE VIEW (13.3" display - full table, no hand controls) ===== */
 body.view-table .dashboard,body.view-table .dash{display:none!important}
