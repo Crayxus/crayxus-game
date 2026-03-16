@@ -1050,7 +1050,7 @@ body.view-touch .grp-col .stack-card.sel .card{
 /* Action buttons bar: pinned to bottom */
 body.view-touch .ctrls{
   position:relative!important;bottom:auto!important;left:auto!important;transform:none!important;
-  display:flex!important;justify-content:center;align-items:center;
+  justify-content:center;align-items:center;
   gap:12px;padding:10px 20px;flex-shrink:0;
   background:linear-gradient(180deg,rgba(10,10,20,0.95),rgba(5,5,15,1));
   border-top:1px solid #1a1a2a;
@@ -3266,10 +3266,12 @@ function renderHand(isDealing=false){
   });
   const totalCols = groups.length;
   const GAP = 5;
+  const _isTouchView = document.body.classList.contains('view-touch');
   const viewW = Math.min(window.innerWidth, document.getElementById('view').offsetWidth||window.innerWidth);
   const availW = viewW - 20;
   let CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
   CW = Math.max(44, Math.min(100, CW));
+  if(_isTouchView) CW = Math.min(CW, 52);
   const CH = Math.round(CW * 1.42);
   const PEEK = Math.round(CW * 36/66);
   const fVal  = Math.max(10, Math.round(CW * 18/66));
