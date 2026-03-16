@@ -4,8 +4,8 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, {
     cors: { origin: "*", methods: ["GET", "POST"] },
-    pingTimeout: 30000,
-    pingInterval: 10000
+    pingTimeout: 60000,
+    pingInterval: 25000
 });
 
 const path = require('path');
@@ -25,6 +25,70 @@ function gameLog(msg) {
     console.log(msg);
     fs.appendFile(LOG_FILE, line, () => {});
 }
+
+// Game replay saving — captures full move history for AI analysis
+const REPLAY_DIR = path.join(__dirname, 'replays');
+if (!fs.existsSync(REPLAY_DIR)) fs.mkdirSync(REPLAY_DIR);
+
+function saveReplay(room) {
+    try {
+        const g = room.game;
+        if (!g || !g.moveHistory || g.moveHistory.length === 0) return;
+        // Identify human vs bot
+        const humanSeats = [], botSeats = [];
+        for (let i = 0; i < 4; i++) {
+            if (room.seats[i] === 'BOT') botSeats.push(i);
+            else humanSeats.push(i);
+        }
+        const replay = {
+            timestamp: new Date().toISOString(),
+            roomId: room.id,
+            gameCount: room.gameCount,
+            mode: room.mode,
+            casualMode: room.casualMode,
+            wildValue: g.wildValue || room.currentWildValue || '2',
+            humanSeats: humanSeats,
+            botSeats: botSeats,
+            playerInfo: Object.values(room.playerInfo || {}).map(p => ({seat: p.seat, nickname: p.nickname})),
+            initialHands: g.initialHands || [],
+            finishOrder: g.finished || [],
+            moves: g.moveHistory,
+            totalMoves: g.moveHistory.length
+        };
+        const fname = `replay_${Date.now()}.json`;
+        fs.writeFile(path.join(REPLAY_DIR, fname), JSON.stringify(replay, null, 2), () => {});
+        gameLog(`[Replay] Saved ${fname} (${g.moveHistory.length} moves, human=${humanSeats}, bots=${botSeats})`);
+    } catch(e) {
+        gameLog(`[Replay] Error saving: ${e.message}`);
+    }
+}
+
+// API to list replays
+app.get('/api/replays', (req, res) => {
+    try {
+        const files = fs.readdirSync(REPLAY_DIR).filter(f => f.endsWith('.json')).sort().reverse();
+        const replays = files.slice(0, 50).map(f => {
+            const data = JSON.parse(fs.readFileSync(path.join(REPLAY_DIR, f)));
+            return {
+                file: f,
+                timestamp: data.timestamp,
+                finishOrder: data.finishOrder,
+                humanSeats: data.humanSeats,
+                totalMoves: data.totalMoves,
+                wildValue: data.wildValue
+            };
+        });
+        res.json(replays);
+    } catch(e) { res.json([]); }
+});
+
+app.get('/api/replays/:file', (req, res) => {
+    try {
+        const fpath = path.join(REPLAY_DIR, req.params.file);
+        if (!fs.existsSync(fpath)) return res.status(404).json({error: 'not found'});
+        res.json(JSON.parse(fs.readFileSync(fpath)));
+    } catch(e) { res.status(500).json({error: e.message}); }
+});
 
 /* =========================================
    核心游戏逻辑 (必须与前端完全一致)
@@ -423,7 +487,8 @@ io.on('connection', (socket) => {
             r._highCards = highCards;
         }
 
-        r.game = { active: true, turn: startTurn, hands: hands, lastHand: null, passCnt: 0, finished: [], wildValue: r.currentWildValue };
+        r.game = { active: true, turn: startTurn, hands: hands, lastHand: null, passCnt: 0, finished: [], wildValue: r.currentWildValue,
+            moveHistory: [], initialHands: hands.map(h => h.map(c => ({id:c.id, suit:c.suit, val:c.val, p:c.p}))) };
 
         // 分发牌数据
         Object.keys(r.players).forEach(sid => {
@@ -491,7 +556,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // 掉线处理: 人类断开 → 直接销毁房间
+    // 掉线处理: 销毁房间
     socket.on('disconnect', () => {
         let rid = playerMap[socket.id];
         if (rid && rooms[rid]) {
@@ -542,6 +607,12 @@ function scheduleBotTimeout(rid) {
             d = { seat: currentTurn, type: 'pass', cards: [] };
             g.passCnt++;
         }
+        // Record bot timeout move for replay
+        if (g.moveHistory) {
+            g.moveHistory.push({ step: g.moveHistory.length, seat: d.seat, type: d.type,
+                cards: d.cards ? d.cards.map(c => ({id:c.id, suit:c.suit, val:c.val})) : [],
+                handType: d.handType || null, handSize: g.hands[currentTurn] ? g.hands[currentTurn].length : 0 });
+        }
         let active = 4 - g.finished.length;
         if (active <= 1) {
             // Add remaining players to finish order before computing upgrade result
@@ -549,6 +620,7 @@ function scheduleBotTimeout(rid) {
             room.lastFinished = g.finished.slice();
             let upgradeResult = computeUpgradeResult(room);
             gameLog(`[GameEnd] Room ${rid}: BotTimeout game over (active<=1), finishOrder=[${g.finished}]`);
+            saveReplay(room);
             io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished, upgradeResult });
             g.active = false;
             cleanupEmptyRoom(rid);
@@ -567,6 +639,7 @@ function scheduleBotTimeout(rid) {
                 room.lastFinished = g.finished.slice();
                 let upgradeResult = computeUpgradeResult(room);
                 gameLog(`[GameEnd] Room ${rid}: BotTimeout team completion, finishOrder=[${g.finished}]`);
+                saveReplay(room);
                 io.to(room.id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: g.finished, upgradeResult });
                 g.active = false;
                 cleanupEmptyRoom(rid);
@@ -606,6 +679,18 @@ function handleAction(d, socket) {
         return;
     }
 
+    // Record move for replay
+    if (r.moveHistory) {
+        r.moveHistory.push({
+            step: r.moveHistory.length,
+            seat: d.seat,
+            type: d.type,
+            cards: d.cards ? d.cards.map(c => ({id:c.id, suit:c.suit, val:c.val})) : [],
+            handType: d.handType || null,
+            handSize: r.hands[d.seat] ? r.hands[d.seat].length : 0
+        });
+    }
+
     // 核心出牌逻辑
     let wv = r.wildValue || rooms[rid].currentWildValue || '2';
     let nextTurn = r.turn;
@@ -636,6 +721,7 @@ function handleAction(d, socket) {
         rooms[rid].lastFinished = r.finished.slice();
         let upgradeResult = computeUpgradeResult(rooms[rid]);
         gameLog(`[GameEnd] Room ${rid}: Game over (active<=1), finishOrder=[${r.finished}], casualMode=${rooms[rid].casualMode}, teamLevels=[${rooms[rid].teamLevels}], lastWinTeam=${rooms[rid].lastWinTeam}, upgradeResult=${JSON.stringify(upgradeResult)}`);
+        saveReplay(rooms[rid]);
         io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished, upgradeResult });
         rooms[rid].game.active = false;
         cleanupEmptyRoom(rid);
@@ -655,6 +741,7 @@ function handleAction(d, socket) {
             rooms[rid].lastFinished = r.finished.slice();
             let upgradeResult = computeUpgradeResult(rooms[rid]);
             gameLog(`[GameEnd] Room ${rid}: Team completion, finishOrder=[${r.finished}], casualMode=${rooms[rid].casualMode}, teamLevels=[${rooms[rid].teamLevels}], lastWinTeam=${rooms[rid].lastWinTeam}, upgradeResult=${JSON.stringify(upgradeResult)}`);
+            saveReplay(rooms[rid]);
             io.to(rooms[rid].id).emit('syncAction', { ...d, nextTurn: -1, isRoundEnd: false, finishOrder: r.finished, upgradeResult });
             rooms[rid].game.active = false;
             cleanupEmptyRoom(rid);
