@@ -1162,16 +1162,16 @@ body.view-table .badge-type{font-size:12px;padding:2px 8px}
 /* Active player zone glow */
 body.view-table .p-zone:has(.av.active){filter:drop-shadow(0 0 20px rgba(0,255,200,0.4))}
 
-/* ---- Played card areas: near each player ---- */
+/* ---- Played card areas: clearly separated from avatars ---- */
 body.view-table .out{width:auto;height:auto;min-height:110px;overflow:visible}
-/* Partner's cards — below partner avatar */
-body.view-table .o-t{top:165px;left:50%;transform:translateX(-50%)}
-/* Left opponent's cards — right of left avatar */
-body.view-table .o-l{top:50%;left:140px;transform:translateY(-50%)}
-/* Right opponent's cards — left of right avatar */
-body.view-table .o-r{top:50%;right:140px;transform:translateY(-50%)}
+/* Partner's cards — below partner avatar, centered */
+body.view-table .o-t{top:170px;left:50%;transform:translateX(-50%)}
+/* Left opponent's cards — to the right of avatar, with gap */
+body.view-table .o-l{top:50%;left:150px;transform:translateY(-50%)}
+/* Right opponent's cards — to the left of avatar, with gap */
+body.view-table .o-r{top:50%;right:150px;transform:translateY(-50%);direction:rtl}
 /* Self's cards — above self avatar */
-body.view-table .o-m{bottom:105px;left:50%;transform:translateX(-50%)}
+body.view-table .o-m{bottom:110px;left:50%;transform:translateX(-50%)}
 
 /* ---- Large spectator cards ---- */
 body.view-table .c-mini{
@@ -1192,14 +1192,28 @@ body.view-table .out .c-mini .card{
   box-shadow:0 4px 20px rgba(0,0,0,0.7),0 0 16px rgba(0,255,255,0.15)!important
 }
 
-/* Tags — above cards, no overlap */
+/* Tags — well above cards, never touching cards or avatars */
 body.view-table .tag{
   font-size:18px;font-weight:700;padding:6px 20px;border-radius:10px;
-  top:-50px;
+  top:-55px;
   text-shadow:0 0 8px rgba(255,215,0,0.4);
   letter-spacing:1px
 }
+/* Left/right tags: position above cards, not beside */
+body.view-table .o-l .tag,body.view-table .o-r .tag{
+  top:-50px;left:50%;transform:translateX(-50%);right:auto
+}
 body.view-table .toast{font-size:22px;padding:16px 40px;border-radius:16px}
+
+/* Highcard overlay: bigger cards, no overlap with avatars */
+body.view-table .hc-card{width:90px!important;height:126px!important;border-radius:12px!important}
+body.view-table .hc-card .hc-val{font-size:28px!important}
+body.view-table .hc-card .hc-suit{font-size:36px!important}
+body.view-table .hc-slot .hc-label{font-size:14px!important}
+body.view-table .hc-pos-top{top:18%;left:50%;margin-left:-45px}
+body.view-table .hc-pos-bottom{top:62%;left:50%;margin-left:-45px}
+body.view-table .hc-pos-left{top:38%;left:calc(50% - 200px)}
+body.view-table .hc-pos-right{top:38%;left:calc(50% + 110px)}
 
 /* Hide default table decorations — replaced by zone grid */
 body.view-table .holo-table-circle{opacity:0.3}
@@ -4628,6 +4642,9 @@ function tProcessAction(d){
   // Check finish
   if(d.type==='play'&&tLocalCards[d.seat].length===0&&!finishOrder.includes(d.seat)){
     finishOrder.push(d.seat);
+    // Clear finished player's out zone after a brief display
+    let fViewId=(d.seat-mySeat+4)%4;
+    setTimeout(()=>{let el=document.getElementById('out-'+fViewId);if(el){el.classList.add('dimmed');setTimeout(()=>{el.innerHTML='';el.classList.remove('dimmed')},400)}},1500);
   }
 
   // Check game over: both teammates finished or 3 players done
