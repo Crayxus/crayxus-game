@@ -1111,19 +1111,6 @@ body.view-table #view{
   background:radial-gradient(ellipse at 50% 50%,#0c2a1a 0%,#050f0a 50%,#020804 100%)
 }
 
-/* Player card zones — glowing area for each player's played cards */
-body.view-table .out{
-  border:1px solid rgba(0,255,255,0.12);
-  border-radius:14px;
-  background:rgba(0,255,255,0.02);
-  box-shadow:0 0 20px rgba(0,255,255,0.04),inset 0 0 30px rgba(0,255,255,0.02)
-}
-body.view-table .out:has(.c-mini){
-  border-color:rgba(0,255,255,0.2);
-  background:rgba(0,255,255,0.04);
-  box-shadow:0 0 30px rgba(0,255,255,0.08),inset 0 0 40px rgba(0,255,255,0.03)
-}
-
 /* Score bar at top */
 body.view-table .mobile-score{
   display:flex!important;height:44px;font-size:17px;
@@ -1161,16 +1148,25 @@ body.view-table .badge-type{font-size:12px;padding:2px 8px}
 /* Active player zone glow */
 body.view-table .p-zone:has(.av.active){filter:drop-shadow(0 0 20px rgba(0,255,200,0.4))}
 
-/* ---- Played card areas: clearly separated from avatars ---- */
-body.view-table .out{width:560px;height:150px;overflow:visible}
-/* Partner's cards — below partner avatar */
-body.view-table .o-t{top:170px;left:50%;transform:translateX(-50%)}
-/* Left opponent's cards — right of left avatar */
-body.view-table .o-l{top:50%;left:140px;transform:translateY(-50%)}
-/* Right opponent's cards — left of right avatar */
-body.view-table .o-r{top:50%;right:140px;transform:translateY(-50%)}
-/* Self's cards — above self avatar */
-body.view-table .o-m{bottom:110px;left:50%;transform:translateX(-50%)}
+/* ---- Played card areas: each player's zone in front of their avatar ---- */
+body.view-table .out{
+  overflow:visible;
+  border:1px dashed rgba(0,255,255,0.1);border-radius:12px;
+  background:rgba(0,255,255,0.015)
+}
+body.view-table .out:has(.c-mini){
+  border-color:rgba(0,255,255,0.2);border-style:solid;
+  background:rgba(0,255,255,0.03);
+  box-shadow:0 0 20px rgba(0,255,255,0.06)
+}
+/* Partner (top) — horizontal zone below avatar */
+body.view-table .o-t{width:420px;height:145px;top:145px;left:50%;transform:translateX(-50%)}
+/* Left — vertical zone to the right of avatar */
+body.view-table .o-l{width:420px;height:145px;top:50%;left:120px;transform:translateY(-50%)}
+/* Right — vertical zone to the left of avatar */
+body.view-table .o-r{width:420px;height:145px;top:50%;right:120px;transform:translateY(-50%)}
+/* Self (bottom) — horizontal zone above avatar */
+body.view-table .o-m{width:420px;height:145px;bottom:95px;left:50%;transform:translateX(-50%)}
 
 /* ---- Large spectator cards ---- */
 body.view-table .c-mini{
