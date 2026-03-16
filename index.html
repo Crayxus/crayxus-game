@@ -1022,7 +1022,7 @@ body.view-touch #view{
 body.view-touch #hand{
   position:relative!important;bottom:auto!important;top:auto!important;
   height:auto!important;flex:1;
-  display:flex!important;align-items:flex-end;justify-content:center!important;
+  display:flex!important;align-items:flex-end;justify-content:flex-start!important;
   flex-wrap:nowrap!important;
   padding:4px 6px 12px;gap:8px;
   overflow-x:auto;overflow-y:visible;
@@ -1045,16 +1045,16 @@ body.view-touch .grp-sel-btn{
 body.view-touch .grp-sel-btn.all-sel{
   background:rgba(0,255,200,0.2);border-color:var(--neon);color:var(--neon)
 }
-body.view-touch .grp-col .stack-card{width:78px!important;flex-shrink:0}
+body.view-touch .grp-col .stack-card{width:90px!important;flex-shrink:0}
 body.view-touch .grp-col .stack-card .card{
-  width:78px!important;height:110px!important;border-radius:9px;
+  width:90px!important;height:128px!important;border-radius:10px;
   box-shadow:0 4px 16px rgba(0,0,0,0.7),0 0 1px rgba(255,255,255,0.2);
   border:1.5px solid rgba(255,255,255,0.15)
 }
-body.view-touch .grp-col .stack-card .card .peek-val{font-size:22px;font-weight:900}
-body.view-touch .grp-col .stack-card .card .peek-suit{font-size:18px}
-body.view-touch .grp-col .stack-card .card .card-center{font-size:36px}
-body.view-touch .grp-col .stack-card.sel{transform:translateY(-20px)}
+body.view-touch .grp-col .stack-card .card .peek-val{font-size:24px;font-weight:900}
+body.view-touch .grp-col .stack-card .card .peek-suit{font-size:20px}
+body.view-touch .grp-col .stack-card .card .card-center{font-size:40px}
+body.view-touch .grp-col .stack-card.sel{transform:translateY(-22px)}
 body.view-touch .grp-col .stack-card.sel .card{
   box-shadow:0 0 0 3px var(--neon),0 0 24px rgba(0,255,200,0.6),0 8px 20px rgba(0,0,0,0.5);
   border-color:var(--neon)
@@ -3365,13 +3365,21 @@ function renderHand(isDealing=false){
     else curGrp.cards.push(c);
   });
   const totalCols = groups.length;
-  const GAP = 5;
   const _isTouchView = document.body.classList.contains('view-touch');
   const viewW = Math.min(window.innerWidth, document.getElementById('view').offsetWidth||window.innerWidth);
-  const availW = viewW - 20;
-  let CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
-  CW = Math.max(44, Math.min(100, CW));
-  if(_isTouchView) CW = Math.min(CW, 78);
+  let GAP, CW;
+  if(_isTouchView){
+    // Touch mode: large fixed cards, groups can overlap via negative gap
+    CW = 90;
+    const totalNeeded = totalCols * CW;
+    const availW = viewW - 16;
+    GAP = totalCols > 1 ? Math.min(4, Math.floor((availW - totalNeeded) / (totalCols - 1))) : 0;
+  } else {
+    GAP = 5;
+    const availW = viewW - 20;
+    CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
+    CW = Math.max(44, Math.min(100, CW));
+  }
   const CH = Math.round(CW * 1.42);
   const PEEK = Math.round(CW * 36/66);
   const fVal  = Math.max(10, Math.round(CW * 18/66));
