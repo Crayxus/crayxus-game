@@ -1018,29 +1018,38 @@ body.view-touch #view{
   overflow:hidden;position:relative
 }
 
-/* Hand cards: fill available space, immersive large cards */
+/* Hand cards: fill remaining space below buttons */
 body.view-touch #hand{
   position:relative!important;bottom:auto!important;top:auto!important;
   height:auto!important;flex:1;
   display:flex!important;align-items:flex-end;justify-content:center!important;
   flex-wrap:nowrap!important;
-  padding:6px 8px 10px;gap:4px;
+  padding:4px 6px 12px;gap:8px;
   overflow-x:auto;overflow-y:visible;
   scrollbar-width:none;
   -webkit-overflow-scrolling:touch;
   order:2;
-  background:linear-gradient(180deg,transparent 0%,rgba(0,10,30,0.7) 100%)
+  background:linear-gradient(180deg,transparent 0%,rgba(0,10,30,0.5) 100%)
 }
 body.view-touch #hand::-webkit-scrollbar{display:none}
 /* Large immersive card styling */
-body.view-touch .grp-wrap{gap:2px}
-body.view-touch .grp-sel-btn{display:none}
+body.view-touch .grp-wrap{gap:4px}
+/* Group select button: visible and big */
+body.view-touch .grp-sel-btn{
+  display:flex!important;width:auto!important;min-width:48px;height:28px;
+  font-size:13px;font-weight:900;border-radius:6px;
+  padding:0 10px;
+  border:1.5px solid #555;background:rgba(0,0,0,0.6);color:#aaa;
+  touch-action:manipulation
+}
+body.view-touch .grp-sel-btn.all-sel{
+  background:rgba(0,255,200,0.2);border-color:var(--neon);color:var(--neon)
+}
 body.view-touch .grp-col .stack-card{width:68px!important;flex-shrink:0}
 body.view-touch .grp-col .stack-card .card{
   width:68px!important;height:96px!important;border-radius:8px;
   box-shadow:0 4px 16px rgba(0,0,0,0.7),0 0 1px rgba(255,255,255,0.2);
-  border:1.5px solid rgba(255,255,255,0.15);
-  background:linear-gradient(160deg,#fafafa 0%,#e8e8e8 100%)
+  border:1.5px solid rgba(255,255,255,0.15)
 }
 body.view-touch .grp-col .stack-card .card .peek-val{font-size:20px;font-weight:900}
 body.view-touch .grp-col .stack-card .card .peek-suit{font-size:16px}
@@ -1051,26 +1060,26 @@ body.view-touch .grp-col .stack-card.sel .card{
   border-color:var(--neon)
 }
 
-/* Action buttons bar: pinned to bottom */
+/* Action buttons bar: pinned to TOP */
 body.view-touch .ctrls{
   position:relative!important;bottom:auto!important;left:auto!important;transform:none!important;
   justify-content:center;align-items:center;
-  gap:12px;padding:10px 20px;flex-shrink:0;
-  background:linear-gradient(180deg,rgba(10,10,20,0.95),rgba(5,5,15,1));
-  border-top:1px solid #1a1a2a;
-  order:3;width:100%
+  gap:20px;padding:12px 24px;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(5,5,15,1),rgba(10,10,20,0.9));
+  border-bottom:1px solid #1a1a2a;
+  order:1;width:100%
 }
 body.view-touch .btn{
-  padding:12px 32px;font-size:18px;font-weight:900;
-  min-height:52px;min-width:90px;border-radius:26px;
+  padding:14px 36px;font-size:20px;font-weight:900;
+  min-height:56px;min-width:100px;border-radius:28px;
   touch-action:manipulation;letter-spacing:1px
 }
-body.view-touch .btn.b-pass{font-size:16px;padding:12px 24px;min-width:70px}
-body.view-touch .btn.b-play{font-size:20px;padding:12px 40px}
+body.view-touch .btn.b-pass{font-size:18px;padding:14px 28px;min-width:80px}
+body.view-touch .btn.b-play{font-size:22px;padding:14px 48px}
 body.view-touch .timer-txt{
   position:relative!important;top:auto!important;width:auto;
   display:flex!important;align-items:center;
-  font-size:22px;font-weight:900;margin-right:8px;color:var(--neon);
+  font-size:24px;font-weight:900;margin-right:4px;color:var(--neon);
   order:-1
 }
 
@@ -3317,7 +3326,7 @@ function renderHand(isDealing=false){
   const availW = viewW - 20;
   let CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
   CW = Math.max(44, Math.min(100, CW));
-  if(_isTouchView) CW = Math.min(CW, 52);
+  if(_isTouchView) CW = Math.min(CW, 68);
   const CH = Math.round(CW * 1.42);
   const PEEK = Math.round(CW * 36/66);
   const fVal  = Math.max(10, Math.round(CW * 18/66));
