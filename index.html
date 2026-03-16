@@ -301,6 +301,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 @media(max-width:700px){.holo-btns{flex-direction:column;gap:14px}.holo-btn{width:260px;padding:20px 16px}.holo-btn .h-icon{font-size:40px}.holo-avatar-section{flex-direction:column;gap:16px;text-align:center}.holo-player-info{align-items:center}.mode-select-title{font-size:36px;letter-spacing:4px}.user-info-bar{min-width:auto;width:260px}}
 /* 7" Pi screen: compact mode select */
 @media(max-height:650px){
+  /* Mode select page */
   #qr-login-section{display:none!important}
   .holo-avatar-section{transform:scale(0.7);transform-origin:top center;margin-bottom:-30px}
   .holo-btns{gap:10px}
@@ -313,7 +314,69 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
   .mode-select-title{font-size:32px;letter-spacing:3px;margin-bottom:8px}
   #mode-loading{display:none!important}
   #theme-toggle{top:6px;right:6px;padding:4px 8px}
-  #hand{justify-content:flex-start}
+  /* Game UI: hide other players, show only own cards + controls */
+  .p-zone{display:none!important}
+  .out{display:none!important}
+  .deck-center{display:none!important}
+  .training-badge{display:none!important}
+  #coach-panel{display:none!important}
+  .elo-float{display:none!important}
+  #game-theme-btn{display:none!important}
+  .mobile-score{display:none!important}
+  /* Hand cards */
+  #hand{justify-content:flex-start;position:relative;bottom:auto;height:auto;flex:1;
+    display:flex;align-items:flex-end;flex-wrap:nowrap;
+    padding:6px 10px 4px;gap:3px;overflow-x:auto;overflow-y:visible;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;order:2}
+  #hand::-webkit-scrollbar{display:none}
+  .grp-wrap{gap:2px}
+  .grp-sel-btn{width:30px;height:18px;font-size:9px;border-radius:4px}
+  .grp-col .stack-card{width:52px;height:72px}
+  .grp-col .stack-card .card{width:52px;height:72px;border-radius:5px;box-shadow:1px 2px 8px rgba(0,0,0,0.6)}
+  .grp-col .stack-card .card .peek-val{font-size:15px;font-weight:900}
+  .grp-col .stack-card .card .peek-suit{font-size:12px}
+  .grp-col .stack-card .card .card-center{font-size:22px}
+  .grp-col .stack-card.sel{transform:translateY(-14px)}
+  .grp-col .stack-card.sel .card{box-shadow:0 0 0 2px var(--neon),0 0 12px rgba(0,255,200,0.4)}
+  /* Action buttons */
+  .ctrls{position:relative;bottom:auto!important;left:auto;transform:none;
+    display:flex!important;justify-content:center;align-items:center;
+    gap:10px;padding:8px 16px;flex-shrink:0;
+    background:linear-gradient(180deg,rgba(10,10,20,0.95),rgba(5,5,15,1));
+    border-top:1px solid #1a1a2a;order:3}
+  .btn{padding:10px 28px;font-size:16px;font-weight:900;min-height:48px;min-width:80px;
+    border-radius:24px;touch-action:manipulation;letter-spacing:1px}
+  .btn.b-pass{font-size:14px;padding:10px 20px;min-width:60px}
+  .btn.b-play{font-size:18px;padding:10px 36px}
+  .timer-txt{position:relative;top:auto;width:auto;display:flex!important;
+    align-items:center;font-size:18px;font-weight:900;margin-right:4px;order:-1}
+  /* Player avatar compact */
+  .p-me{display:block!important;position:absolute!important;top:6px;left:10px;bottom:auto!important;z-index:460}
+  .p-me .av{width:40px;height:40px;font-size:9px;border-width:2px}
+  .p-me .badge-finish{font-size:8px}
+  /* AFK button */
+  #afk-btn{position:absolute!important;top:34px;right:50%;transform:translateX(50%);z-index:460;font-size:11px;padding:4px 12px}
+  /* Casual HUD compact */
+  #casual-hud{position:absolute!important;top:32px;left:8px;bottom:auto!important;z-index:460}
+  .casual-hud-inner{padding:4px 10px 4px 4px;gap:6px;border-radius:8px}
+  .casual-avatar-ring{width:32px;height:32px}
+  .casual-avatar-img{width:24px;height:24px;margin:4px;font-size:10px}
+  .casual-name{font-size:9px}
+  .casual-rank-badge{font-size:7px;padding:1px 5px}
+  .casual-rank-stars{font-size:9px}
+  .kda-val{font-size:10px}
+  .kda-label{font-size:6px}
+  /* AI help compact */
+  #ai-help-btn{position:absolute!important;top:32px;right:8px;bottom:auto!important;z-index:460}
+  .ai-help-inner{padding:4px 8px 4px 4px;gap:6px;border-radius:8px}
+  .ai-help-ring{width:32px;height:32px}
+  .ai-help-face{width:24px;height:24px;margin:4px;font-size:12px}
+  .ai-help-title{font-size:9px}
+  .ai-help-count{font-size:7px}
+  /* Layout */
+  #game-ui{flex-direction:column;width:100%;height:100%}
+  #view{width:100%;height:100%;background:#080810;display:flex!important;flex-direction:column;overflow:hidden;position:relative}
+  .toast{top:35%;font-size:14px;padding:8px 20px;border-radius:20px}
 }
 
 #highcard-overlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:700;display:none;pointer-events:none}
@@ -2381,7 +2444,7 @@ function switchScreen(id){
 socket.on('connect',()=>{
   document.getElementById('conn-status').innerText="Online";
   document.getElementById('conn-status').style.color="#0f0";
-  let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
+  let b=document.getElementById('find-btn');if(!b._demoMode){b.innerText="FIND MATCH";}b.disabled=false;
 });
 // Notify server immediately when browser tab is closed/refreshed
 window.addEventListener('beforeunload',()=>{socket.emit('leaveGame');socket.disconnect();});
@@ -5348,6 +5411,8 @@ function startDemo(view){
     // Override the FIND MATCH button to spectate instead of join
     var findBtn=document.getElementById('find-btn');
     findBtn.innerText='SPECTATE';
+    findBtn._demoMode='table';
+    findBtn.disabled=false;
     findBtn.onclick=function(){
       var code=document.getElementById('room-code-input').value.toUpperCase();
       if(!code){alert('Please enter a room code');return;}
