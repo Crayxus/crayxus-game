@@ -1111,18 +1111,17 @@ body.view-table #view{
   background:radial-gradient(ellipse at 50% 50%,#0c2a1a 0%,#050f0a 50%,#020804 100%)
 }
 
-/* Cyber grid zone dividers — 4 quadrants */
-body.view-table #view::before{
-  content:'';position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
-  background:
-    linear-gradient(90deg,transparent 49.7%,rgba(0,255,255,0.06) 49.7%,rgba(0,255,255,0.06) 50.3%,transparent 50.3%),
-    linear-gradient(0deg,transparent 49.5%,rgba(0,255,255,0.06) 49.5%,rgba(0,255,255,0.06) 50.5%,transparent 50.5%)
+/* Player card zones — glowing area for each player's played cards */
+body.view-table .out{
+  border:1px solid rgba(0,255,255,0.12);
+  border-radius:14px;
+  background:rgba(0,255,255,0.02);
+  box-shadow:0 0 20px rgba(0,255,255,0.04),inset 0 0 30px rgba(0,255,255,0.02)
 }
-/* Corner accent lines */
-body.view-table #view::after{
-  content:'';position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
-  border:2px solid rgba(0,255,255,0.04);
-  box-shadow:inset 0 0 80px rgba(0,255,255,0.03)
+body.view-table .out:has(.c-mini){
+  border-color:rgba(0,255,255,0.2);
+  background:rgba(0,255,255,0.04);
+  box-shadow:0 0 30px rgba(0,255,255,0.08),inset 0 0 40px rgba(0,255,255,0.03)
 }
 
 /* Score bar at top */
