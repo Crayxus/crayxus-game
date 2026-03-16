@@ -1133,9 +1133,11 @@ body.view-table .toast{font-size:18px;padding:12px 30px}
 body.view-table .res-box button{display:none!important}
 body.view-table #auto-continue-countdown{display:none!important}
 
-/* Both views: skip boot/lobby screens, auto show game */
-body.view-touch .screen,body.view-table .screen{display:none!important}
-body.view-touch #game-ui,body.view-table #game-ui{display:flex!important}
+/* Table view: hide coach panel and interactive elements */
+body.view-table #coach-panel{display:none!important}
+body.view-table #ai-help-btn{display:none!important}
+body.view-table #casual-hud{display:none!important}
+body.view-table #game-theme-btn{display:none!important}
 </style>
 </head>
 <body>
@@ -1235,6 +1237,22 @@ body.view-touch #game-ui,body.view-table #game-ui{display:flex!important}
         <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">COMING SOON</div>
       </div>
     </div>
+    <!-- Demo dual-screen buttons -->
+    <div style="display:flex;gap:16px;margin-top:20px;position:relative;z-index:50">
+      <div class="holo-btn" onclick="startDemo('touch')" style="width:180px;padding:14px 10px">
+        <div class="h-icon" style="font-size:28px">🎮</div>
+        <div class="h-name" style="font-size:13px">DEMO CONTROL</div>
+        <div class="h-desc" style="font-size:9px">触摸屏控制台<br>手牌 + 操作</div>
+        <div class="h-tag" style="background:rgba(0,255,200,0.1);color:#00ffcc;border:1px solid rgba(0,255,200,0.3);font-size:8px">7" TOUCH</div>
+      </div>
+      <div class="holo-btn" onclick="startDemo('table')" style="width:180px;padding:14px 10px">
+        <div class="h-icon" style="font-size:28px">🖥️</div>
+        <div class="h-name" style="font-size:13px">DEMO VIEW</div>
+        <div class="h-desc" style="font-size:9px">显示屏桌面<br>全桌俯视图</div>
+        <div class="h-tag" style="background:rgba(100,100,255,0.1);color:#6666ff;border:1px solid rgba(100,100,255,0.3);font-size:8px">DISPLAY</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:rgba(255,255,255,0.25);position:relative;z-index:50">树莓派双屏模式：先点 CONTROL 再点 VIEW 加入同房间</div>
   </div>
 
   <!-- Theme toggle button -->
@@ -2348,24 +2366,6 @@ socket.on('connect',()=>{
   document.getElementById('conn-status').innerText="Online";
   document.getElementById('conn-status').style.color="#0f0";
   let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
-  /* Auto-join for touch/table view modes */
-  if(_viewMode && !_autoJoined){
-    _autoJoined=true;
-    if(typeof AudioSys!=='undefined')AudioSys.init();
-    const autoRoom = _urlParams.get('room') || '';
-    const autoMode = _urlParams.get('mode') || 'training';
-    if(autoMode==='training'){
-      gameMode='training';
-      startTrainingGame();
-    } else {
-      gameMode='arena';
-      if(autoRoom){
-        const ci=document.getElementById('room-code-input');
-        if(ci)ci.value=autoRoom.toUpperCase();
-      }
-      joinGame();
-    }
-  }
 });
 // Notify server immediately when browser tab is closed/refreshed
 window.addEventListener('beforeunload',()=>{socket.emit('leaveGame');socket.disconnect();});
@@ -5313,7 +5313,25 @@ renderUI=function(){_origRenderUI();broadcastViewState();};
 const _origHandleSync=handleSync;
 handleSync=function(d){_origHandleSync(d);broadcastViewState();};
 if(_viewMode!=='table'){setInterval(()=>{if(timerInterval)broadcastViewState();},1000);}
-if(_viewMode==='table'){document.getElementById('game-ui').style.display='flex';}
+
+/* ===== DEMO dual-screen mode ===== */
+function startDemo(view){
+  // Apply view class
+  document.body.classList.add('view-'+view);
+  // Init audio
+  if(typeof AudioSys!=='undefined')AudioSys.init();
+  // Start casual mode (no AI coach popups)
+  gameMode='casual';
+  casualMode='fixed';
+  currentWildValue='2';
+  if(!socket.connected) socket.connect();
+  // Go to lobby where user can create/join a room
+  document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='DEMO '+(view==='touch'?'CONTROL':'VIEW');
+  document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText=view==='touch'?'触摸屏模式 · 创建房间后分享码':'显示屏模式 · 输入相同房间码';
+  var eloRow=document.getElementById('lobby-elo');
+  if(eloRow)eloRow.parentElement.parentElement.style.display='none';
+  switchScreen('lobby');
+}
 </script>
 </body>
 </html>
