@@ -1018,33 +1018,36 @@ body.view-touch #view{
   overflow:hidden;position:relative
 }
 
-/* Hand cards: fill available space, fixed card sizes, no re-centering */
+/* Hand cards: fill available space, clean layout */
 body.view-touch #hand{
   position:relative!important;bottom:auto!important;top:auto!important;
   height:auto!important;flex:1;
   display:flex!important;align-items:flex-end;justify-content:flex-start!important;
   flex-wrap:nowrap!important;
-  padding:10px 10px 6px;gap:4px;
+  padding:8px 12px 8px;gap:6px;
   overflow-x:auto;overflow-y:visible;
   scrollbar-width:none;
   -webkit-overflow-scrolling:touch;
-  order:2
+  order:2;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,10,20,0.6) 100%)
 }
 body.view-touch #hand::-webkit-scrollbar{display:none}
-/* Fixed card sizes — no shrinking */
-body.view-touch .grp-wrap{gap:2px}
-body.view-touch .grp-sel-btn{width:34px;height:20px;font-size:10px;border-radius:4px}
-body.view-touch .grp-col .stack-card{width:52px!important;height:72px!important;flex-shrink:0}
+/* Clean card styling */
+body.view-touch .grp-wrap{gap:3px}
+body.view-touch .grp-sel-btn{display:none}
+body.view-touch .grp-col .stack-card{width:52px!important;flex-shrink:0}
 body.view-touch .grp-col .stack-card .card{
-  width:52px!important;height:72px!important;border-radius:5px;
-  box-shadow:1px 2px 8px rgba(0,0,0,0.6)
+  width:52px!important;height:72px!important;border-radius:7px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.5);
+  border:1px solid rgba(255,255,255,0.12)
 }
-body.view-touch .grp-col .stack-card .card .peek-val{font-size:15px;font-weight:900}
-body.view-touch .grp-col .stack-card .card .peek-suit{font-size:12px}
-body.view-touch .grp-col .stack-card .card .card-center{font-size:22px}
-body.view-touch .grp-col .stack-card.sel{transform:translateY(-14px)}
+body.view-touch .grp-col .stack-card .card .peek-val{font-size:16px;font-weight:900}
+body.view-touch .grp-col .stack-card .card .peek-suit{font-size:13px}
+body.view-touch .grp-col .stack-card .card .card-center{font-size:24px}
+body.view-touch .grp-col .stack-card.sel{transform:translateY(-16px)}
 body.view-touch .grp-col .stack-card.sel .card{
-  box-shadow:0 0 0 2px var(--neon),0 0 12px rgba(0,255,200,0.4)
+  box-shadow:0 0 0 2px var(--neon),0 0 16px rgba(0,255,200,0.5);
+  border-color:var(--neon)
 }
 
 /* Action buttons bar: pinned to bottom */
@@ -1081,31 +1084,35 @@ body.view-touch .res-btn{min-height:52px;font-size:18px;padding:12px 30px}
 body.view-table .dashboard,body.view-table .dash{display:none!important}
 body.view-table #hand{display:none!important}
 body.view-table .ctrls{display:none!important}
-body.view-table .p-me{display:none!important}
 body.view-table #afk-btn{display:none!important}
 body.view-table #afk-badge{display:none!important}
 body.view-table #game-ui{flex-direction:column}
 body.view-table #view{width:100%;height:100%}
-body.view-table .mobile-score{display:flex!important;height:36px;font-size:14px}
-body.view-table .mobile-score .ms-val{font-size:16px}
+body.view-table .mobile-score{display:flex!important;height:40px;font-size:16px}
+body.view-table .mobile-score .ms-val{font-size:18px;font-weight:900}
+/* All 4 players visible including self */
+body.view-table .p-me{display:block!important;bottom:30px;left:50%;transform:translateX(-50%)}
+body.view-table .p-me .av{width:80px;height:80px;font-size:13px;font-weight:900}
 body.view-table .p-top{top:50px}
-body.view-table .p-left{top:40%;left:40px}
-body.view-table .p-right{top:40%;right:40px}
-body.view-table .timer-ring{width:96px;height:96px}
-body.view-table .av{width:88px;height:88px;font-size:14px;font-weight:900}
-body.view-table .badge-n{width:28px;height:28px;font-size:14px}
-body.view-table .badge-finish{font-size:12px;padding:2px 10px}
-body.view-table .badge-type{font-size:10px}
-body.view-table .out{width:460px;height:130px}
-body.view-table .o-t{top:170px}
-body.view-table .o-l{left:180px}
-body.view-table .o-r{right:180px}
-body.view-table .o-m{bottom:60px}
-body.view-table .c-mini{width:60px!important;height:84px!important;margin-right:-30px}
-body.view-table .c-mini .val-txt{font-size:14px}
-body.view-table .c-mini .center-icon{font-size:24px}
-body.view-table .tag{font-size:12px;padding:4px 12px}
-body.view-table .toast{font-size:18px;padding:12px 30px}
+body.view-table .p-left{top:38%;left:30px}
+body.view-table .p-right{top:38%;right:30px}
+body.view-table .timer-ring{width:100px;height:100px}
+body.view-table .av{width:92px;height:92px;font-size:15px;font-weight:900}
+body.view-table .badge-n{width:30px;height:30px;font-size:15px}
+body.view-table .badge-finish{font-size:13px;padding:3px 12px}
+body.view-table .badge-type{font-size:11px}
+/* Larger played card areas */
+body.view-table .out{width:520px;height:150px}
+body.view-table .o-t{top:180px}
+body.view-table .o-l{left:170px}
+body.view-table .o-r{right:170px}
+body.view-table .o-m{bottom:140px}
+/* Bigger mini cards */
+body.view-table .c-mini{width:70px!important;height:98px!important;margin-right:-32px}
+body.view-table .c-mini .val-txt{font-size:16px;font-weight:900}
+body.view-table .c-mini .center-icon{font-size:28px}
+body.view-table .tag{font-size:13px;padding:4px 14px}
+body.view-table .toast{font-size:20px;padding:14px 36px}
 body.view-table .res-box button{display:none!important}
 body.view-table #auto-continue-countdown{display:none!important}
 
@@ -2481,9 +2488,10 @@ function _doEnterGame(d){
     // Casual mode: show casual HUD, hide arena HUD and EVO
     if(arenaHud)arenaHud.style.display='none';
     var _isTouch=document.body.classList.contains('view-touch');
-    if(casualHud)casualHud.style.display=_isTouch?'none':'block';
-    if(pme)pme.style.display='none';
-    if(aiBtn)aiBtn.style.display=_isTouch?'none':'block';
+    var _isTable=document.body.classList.contains('view-table');
+    if(casualHud)casualHud.style.display=(_isTouch||_isTable)?'none':'block';
+    if(pme)pme.style.display=_isTable?'':'none';
+    if(aiBtn)aiBtn.style.display=(_isTouch||_isTable)?'none':'block';
     if(evoBar)evoBar.style.display='none';
     // Toggle fixed/upgrade HUD
     let fixedS=document.getElementById('fixed-stats');
