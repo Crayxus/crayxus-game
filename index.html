@@ -3182,11 +3182,9 @@ function autoPlay(){
     if(btn){btn.className='afk-on';btn.innerHTML='🤖 AFK <span style="color:#0f0">ON</span>';}
     if(badge)badge.style.display='block';
   }
-  toast("超时 - AFK自动打牌已开启");doHint();
-  let s=myCards.filter(c=>c.sel);
-  if(s.length>0)setTimeout(sendPlay,500);
-  else if(!lastHand&&myCards.length>0){myCards[myCards.length-1].sel=true;renderHand();setTimeout(sendPlay,500)}
-  else sendPass();
+  toast("超时 - AFK自动打牌已开启");
+  // Use doAFKPlay which has robust fallback logic
+  doAFKPlay();
 }
 
 async function modelPickMove(seat,hand){
@@ -3725,14 +3723,21 @@ function scheduleAFK(){
 
 function doAFKPlay(){
   if(!isMyTurn || gameOver) return;
+  if(!myCards.length) return;
   myCards.forEach(c=>c.sel=false);
   const g = analyzeHand(myCards);
   let pick = null;
   if(!lastHand){
+    // Free lead: pick weakest single
     if(g.singles.length){
       const normals = g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');
       normals.sort((a,b)=>a[0].p-b[0].p);
       pick = normals.length ? normals[0] : g.singles[0];
+    }
+    // Fallback: just play any one card
+    if(!pick || !pick.length){
+      const sorted = [...myCards].filter(c=>c.s!=='JOKER').sort((a,b)=>a.p-b.p);
+      pick = [sorted.length ? sorted[0] : myCards[0]];
     }
   } else {
     pick = findMatch(g, lastHand);
@@ -3743,18 +3748,27 @@ function doAFKPlay(){
   if(pick && pick.length > 0){
     pick.forEach(c=>c.sel=true);
     renderHand();
-    setTimeout(()=>{if(isMyTurn && afkEnabled) sendPlay();}, 300);
+    setTimeout(()=>{
+      if(!isMyTurn || gameOver) return;
+      sendPlay();
+      // Safety: if sendPlay failed (invalid hand type), force pass or retry
+      setTimeout(()=>{
+        if(isMyTurn && !gameOver){
+          if(lastHand) sendPass();
+          else { myCards.forEach(c=>c.sel=false); if(myCards.length){myCards[myCards.length-1].sel=true;renderHand();setTimeout(sendPlay,200)} }
+        }
+      }, 500);
+    }, 300);
   } else {
+    // Can't beat — pass
     if(lastHand) {
-      setTimeout(()=>{if(isMyTurn && afkEnabled) sendPass();}, 300);
+      setTimeout(()=>{if(isMyTurn && !gameOver) sendPass();}, 300);
     } else {
-      if(myCards.length > 0){
-        const sorted = [...myCards].filter(c=>c.s!=='JOKER').sort((a,b)=>a.p-b.p);
-        const weakest = sorted.length ? sorted[0] : myCards[0];
-        weakest.sel = true;
-        renderHand();
-        setTimeout(()=>{if(isMyTurn && afkEnabled) sendPlay();}, 300);
-      }
+      // Must lead but no valid hand found — play weakest card
+      const weakest = myCards[myCards.length-1];
+      weakest.sel = true;
+      renderHand();
+      setTimeout(()=>{if(isMyTurn && !gameOver) sendPlay();}, 300);
     }
   }
 }
