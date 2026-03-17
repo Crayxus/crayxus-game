@@ -1024,10 +1024,10 @@ body.view-touch #game-theme-btn{display:none!important}
 body.view-touch .mobile-score{display:none!important}
 
 /* Root layout: full screen vertical flex */
-body.view-touch{background:#080810;overflow:hidden}
+body.view-touch{background:radial-gradient(ellipse at center,#1a5c2a 0%,#0e3d1a 60%,#071f0d 100%);overflow:hidden}
 body.view-touch #game-ui{flex-direction:column!important;width:100%!important;height:100vh!important}
 body.view-touch #view{
-  width:100%!important;height:100%!important;background:#080810;
+  width:100%!important;height:100%!important;background:transparent;
   display:flex!important;flex-direction:column!important;
   overflow:hidden;position:relative
 }
@@ -1227,7 +1227,8 @@ body.view-touch .kb-key{
   touch-action:manipulation;
 }
 body.view-touch .kb-key .kb-sub{
-  position:absolute;bottom:1px;right:3px;font-size:14px;opacity:0.7;font-weight:700;
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  font-size:16px;opacity:0.8;font-weight:900;line-height:1;
 }
 /* Empty placeholder (no key) */
 body.view-touch .kb-empty{
@@ -3653,6 +3654,9 @@ function renderHandKeyboard(isDealing){
 
   if(isDealing){
     _kbDealAnimation(grid, sortedCards, placed);
+  } else {
+    // Immediately sort cards to bottom (no animation)
+    _kbApplySort(grid);
   }
 }
 
@@ -3760,6 +3764,46 @@ function _findKbKey(grid, card, placed){
   if(targetRow > baseRow + 1) return null;
 
   return grid.querySelector(`.kb-key[data-row="${targetRow}"][data-col="${col}"]`);
+}
+
+function _kbApplySort(grid){
+  const allKeys = grid.querySelectorAll('.kb-key');
+  const columns = {};
+  allKeys.forEach(k => {
+    const col = parseInt(k.dataset.col);
+    const row = parseInt(k.dataset.row);
+    if(!columns[col]) columns[col] = [];
+    const isLit = k.classList.contains('kb-lit') || k.classList.contains('kb-sel');
+    columns[col].push({el: k, row, isLit});
+  });
+
+  const gridH = grid.offsetHeight;
+  const GAP = 3;
+  const ROW_H = (gridH + GAP) / 8;
+
+  for(const col of Object.keys(columns)){
+    const keys = columns[col].sort((a,b) => a.row - b.row);
+    const litInCol = keys.filter(k => k.isLit);
+    const dimInCol = keys.filter(k => !k.isLit);
+    if(litInCol.length === 0 || litInCol.length === keys.length) continue;
+
+    const slots = keys.map(k => k.row).sort((a,b) => a - b);
+
+    // Dim keys to top slots (instant)
+    dimInCol.forEach((k, i) => {
+      const shift = (slots[i] - k.row) * ROW_H;
+      k.el.style.transition = 'none';
+      k.el.style.transform = `translateY(${shift}px)`;
+    });
+
+    // Lit keys to bottom slots (instant)
+    litInCol.forEach((k, i) => {
+      const targetRow = slots[dimInCol.length + i];
+      const shift = (targetRow - k.row) * ROW_H;
+      k.el.style.transition = 'none';
+      k.el.style.transform = `translateY(${shift}px)`;
+    });
+  }
 }
 
 function _kbDealAnimation(grid, sortedCards, placed){
