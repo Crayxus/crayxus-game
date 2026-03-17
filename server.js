@@ -479,34 +479,16 @@ io.on('connection', (socket) => {
             let botSeats = []; for(let i=0;i<4;i++) if(room.seats[i]==='BOT') botSeats.push(i);
             // Send gameStart FIRST so client sets up game UI
             socket.emit('gameStart', { startTurn: g.turn, botSeats, highCards: [] });
-            // Then send full game state so spectator sees current board
+            // Then send cards after a small delay so UI is ready
             setTimeout(() => {
-                // Send spectator's seat cards
                 socket.emit('dealCards', { cards: g.hands[spectateSeat] });
-                // Send all bot cards for VIEW display
+                // Send all other players' cards for VIEW display
                 let bc = {};
                 for (let i = 0; i < 4; i++) {
-                    if (i !== spectateSeat) bc[i] = g.hands[i];
+                    if (i !== spectateSeat && g.hands[i]) bc[i] = g.hands[i];
                 }
                 socket.emit('botCards', bc);
-                // Send current counts
-                let counts = [0,0,0,0];
-                for (let i = 0; i < 4; i++) counts[i] = g.hands[i] ? g.hands[i].length : 0;
-                socket.emit('handUpdate', counts);
-                // If there's a last played hand, sync it
-                if (g.lastHand) {
-                    socket.emit('syncAction', {
-                        seat: g.lastHand.owner,
-                        type: 'play',
-                        cards: [],
-                        handType: { type: g.lastHand.type, val: g.lastHand.val },
-                        nextTurn: g.turn,
-                        isRoundEnd: false,
-                        finishOrder: g.finished || [],
-                        _spectateSync: true
-                    });
-                }
-            }, 200);
+            }, 100);
         }
         gameLog(`[Spectator] ${socket.id} spectating room ${roomId} from seat ${spectateSeat}`);
     });
