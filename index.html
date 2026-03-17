@@ -1005,7 +1005,20 @@ body.view-touch #coach-panel{display:none!important}
 body.view-touch #ai-help-btn{display:none!important}
 /* casual-hud: hide in touch mode (replaced by touch-hud) */
 body.view-touch #casual-hud{display:none!important}
-body.view-touch #afk-btn{display:none!important}
+body.view-touch #afk-btn{
+  display:block!important;
+  position:absolute!important;top:8px!important;right:8px!important;bottom:auto!important;left:auto!important;
+  z-index:520;
+  padding:6px 14px;border-radius:10px;
+  font-size:11px;letter-spacing:1px;
+  background:rgba(5,5,15,0.85);
+  border:1px solid rgba(0,255,255,0.15);
+  backdrop-filter:blur(8px)
+}
+body.view-touch #afk-badge{
+  position:absolute!important;top:44px!important;right:8px!important;bottom:auto!important;left:auto!important;
+  z-index:521
+}
 body.view-touch .elo-float{display:none!important}
 body.view-touch #game-theme-btn{display:none!important}
 body.view-touch .mobile-score{display:none!important}
@@ -1531,9 +1544,9 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <div class="hc-title" id="hc-title">翻牌定先手</div>
     </div>
     <div class="training-badge" id="training-badge">🎓 TRAINING</div>
-    <button id="afk-btn" onclick="toggleAFK()">🤖 AFK 自动</button>
+    <button id="afk-btn" onclick="toggleAFK()">🤖 代打</button>
     <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;top:10px;right:10px;z-index:501;background:rgba(20,20,30,0.6);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙</button>
-    <div id="afk-badge">AFK</div>
+    <div id="afk-badge">代打</div>
     <div class="mobile-score" id="mobile-score">
       <span style="color:var(--gold)">YOU <span class="ms-val" id="ms-p0">0</span></span>
       <span>R <span class="ms-val" id="ms-p1">0</span></span>
@@ -2743,7 +2756,7 @@ function _doEnterGame(d){
   if(window._applyWeChatProfile)window._applyWeChatProfile();
   const afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='block';
   afkEnabled=false;clearTimeout(afkTimer);
-  const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='';afkbtn.innerHTML='🤖 AFK 自动';}
+  const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='';afkbtn.innerHTML='🤖 代打';}
   const afkbadge=document.getElementById('afk-badge');if(afkbadge)afkbadge.style.display='none';
   sessionEloChange=0;lastMoveWasTimeout=false;
   let de=document.getElementById('disp-elo');if(de)de.innerText=myElo;
@@ -3207,10 +3220,10 @@ function autoPlay(){
     afkEnabled=true;
     const btn=document.getElementById('afk-btn');
     const badge=document.getElementById('afk-badge');
-    if(btn){btn.className='afk-on';btn.innerHTML='🤖 AFK <span style="color:#0f0">ON</span>';}
+    if(btn){btn.className='afk-on';btn.innerHTML='🤖 代打 <span style="color:#0f0">ON</span>';}
     if(badge)badge.style.display='block';
   }
-  toast("超时 - AFK自动打牌已开启");
+  toast("超时 - 代打已开启");
   // Use doAFKPlay which has robust fallback logic
   doAFKPlay();
 }
@@ -3739,10 +3752,12 @@ function repositionButtons(){
   const pme   = document.getElementById('pzone-me');
   if(ctrls) ctrls.style.bottom = btnBottom + 'px';
   if(pme)   pme.style.bottom   = (btnBottom + 4) + 'px';
-  const afkBtn=document.getElementById('afk-btn');
-  const afkBadge=document.getElementById('afk-badge');
-  if(afkBtn){afkBtn.style.bottom=(handBottom+Math.round(newHandH/2)-15)+'px';afkBtn.style.right='10px'}
-  if(afkBadge){afkBadge.style.bottom=(handBottom+newHandH-5)+'px';afkBadge.style.right='8px'}
+  if(!_isTouchView){
+    const afkBtn=document.getElementById('afk-btn');
+    const afkBadge=document.getElementById('afk-badge');
+    if(afkBtn){afkBtn.style.bottom=(handBottom+Math.round(newHandH/2)-15)+'px';afkBtn.style.right='10px'}
+    if(afkBadge){afkBadge.style.bottom=(handBottom+newHandH-5)+'px';afkBadge.style.right='8px'}
+  }
 }
 window.addEventListener('resize', ()=>{
   if(myCards.length > 0) requestAnimationFrame(()=>requestAnimationFrame(()=>{ renderHand(); }));
@@ -3758,16 +3773,16 @@ function toggleAFK(){
   const badge = document.getElementById('afk-badge');
   if(afkEnabled){
     btn.className = 'afk-on';
-    btn.innerHTML = '🤖 AFK <span style="color:#0f0">ON</span>';
+    btn.innerHTML = '🤖 代打 <span style="color:#0f0">ON</span>';
     badge.style.display = 'block';
-    toast('AFK 自动打牌已开启');
+    toast('代打已开启');
     if(isMyTurn) scheduleAFK();
   } else {
     btn.className = '';
-    btn.innerHTML = '🤖 AFK 自动';
+    btn.innerHTML = '🤖 代打';
     badge.style.display = 'none';
     clearTimeout(afkTimer);
-    toast('AFK 自动打牌已关闭');
+    toast('代打已关闭');
   }
 }
 
