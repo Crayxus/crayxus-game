@@ -1048,10 +1048,10 @@ body.view-touch .timer-txt{
   order:-1
 }
 
-/* Zone 2 (middle 60%): Hand cards — overlapping horizontally */
+/* Zone 2 (middle 70%): Hand cards — overlapping horizontally */
 body.view-touch #hand{
   position:relative!important;bottom:auto!important;top:auto!important;
-  flex:0 0 60%!important;
+  flex:0 0 70%!important;
   display:flex!important;align-items:flex-end;justify-content:center!important;
   flex-wrap:nowrap!important;
   padding:0 8px 4px;gap:0;
@@ -1079,14 +1079,14 @@ body.view-touch .grp-col .stack-card.sel .card{
   border-color:var(--neon)
 }
 
-/* Zone 3 (bottom 20%): Select-all bar */
+/* Zone 3 (bottom 10%): Select-all bar — compact */
 body.view-touch #touch-selbar{
   display:flex!important;
-  flex:0 0 20%;
+  flex:0 0 10%;
   align-items:center;justify-content:center;
   gap:0;padding:0 8px;
   order:3;width:100%;
-  background:linear-gradient(0deg,rgba(5,5,15,0.9) 0%,rgba(8,8,16,0.6) 50%,transparent 100%);
+  background:linear-gradient(0deg,rgba(5,5,15,0.8) 0%,transparent 100%);
   overflow:visible;
   scrollbar-width:none
 }
@@ -3404,7 +3404,7 @@ function renderHand(isDealing=false){
     // === TOUCH MODE: cards fill 60% zone, overlap 10-15% horizontally ===
     const viewEl = document.getElementById('view');
     const actualH = viewEl ? viewEl.offsetHeight : window.innerHeight;
-    const zoneH = Math.floor(actualH * 0.6);
+    const zoneH = Math.floor(actualH * 0.7);
     const maxStackN = Math.max(1, ...groups.map(g => g.cards.length));
     // Calculate card width from available height
     CW = Math.floor((zoneH - 16) / (1.42 + (maxStackN - 1) * 0.36));
@@ -3465,9 +3465,9 @@ function renderHand(isDealing=false){
       wrap.style.marginRight = GAP + 'px';
     }
     if(_isTouchView){
-      // Force stacking context so z-index works in all browsers
+      // Right cards on top of left → left card's top-left label stays visible
       wrap.style.position = 'relative';
-      wrap.style.zIndex = String(totalCols - gi);
+      wrap.style.zIndex = String(gi + 1);
     }
     const col = document.createElement('div');
     col.className = 'grp-col';
