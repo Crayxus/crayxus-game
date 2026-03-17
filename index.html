@@ -1098,13 +1098,13 @@ body.view-touch .btn.b-play:active{
   box-shadow:0 0 30px rgba(255,215,0,0.5),0 0 60px rgba(255,215,0,0.2)
 }
 
-/* Zone 2 (middle 70%): Hand cards — overlapping horizontally, clipped */
+/* Zone 2 (middle 70%): Keyboard grid layout */
 body.view-touch #hand{
   position:relative!important;bottom:auto!important;top:auto!important;
   flex:0 0 70%!important;
-  display:flex!important;align-items:flex-end;justify-content:center!important;
+  display:flex!important;align-items:center;justify-content:center!important;
   flex-wrap:nowrap!important;
-  padding:0 8px 4px;gap:0;
+  padding:4px 8px;gap:0;
   overflow:hidden;
   order:2;
   background:transparent
@@ -1201,6 +1201,87 @@ body.view-touch .res-box{width:90vw;max-width:500px;padding:20px}
 body.view-touch .res-type{font-size:28px}
 body.view-touch .res-score{font-size:40px;margin-bottom:12px}
 body.view-touch .res-btn{min-height:52px;font-size:18px;padding:12px 30px}
+
+/* ===== KEYBOARD GRID for touch mode ===== */
+body.view-touch .kb-grid{
+  display:grid;
+  grid-template-columns:repeat(15,1fr);
+  grid-template-rows:repeat(8,1fr);
+  gap:3px;
+  width:100%;height:100%;
+  padding:2px;
+  box-sizing:border-box;
+}
+body.view-touch .kb-key{
+  box-sizing:border-box;
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;
+  cursor:pointer;user-select:none;
+  position:relative;
+  border:1.5px solid rgba(255,255,255,0.08);
+  opacity:0.15;
+  filter:grayscale(0.8) brightness(0.4);
+  transition:all 0.15s;
+  font-family:'Orbitron','Segoe UI',sans-serif;
+  touch-action:manipulation;
+}
+body.view-touch .kb-key .kb-sub{
+  position:absolute;bottom:1px;right:3px;font-size:8px;opacity:0.5;
+}
+/* Empty placeholder (no key) */
+body.view-touch .kb-empty{
+  box-sizing:border-box;border-radius:6px;
+  border:1.5px solid transparent;
+}
+/* Suit row colors */
+body.view-touch .kb-spade{background:#12121e;border-color:rgba(180,180,200,0.2);color:#bdc3c7}
+body.view-touch .kb-heart{background:#2a0e18;border-color:rgba(231,76,60,0.25);color:#f1948a}
+body.view-touch .kb-club{background:#0a1e10;border-color:rgba(39,174,96,0.25);color:#82e0aa}
+body.view-touch .kb-diamond{background:#0a1520;border-color:rgba(52,152,219,0.25);color:#85c1e9}
+/* Joker keys */
+body.view-touch .kb-key.kb-big-joker{background:linear-gradient(135deg,#e94560,#c0392b);border-color:#e94560;color:#fff}
+body.view-touch .kb-key.kb-small-joker{background:linear-gradient(135deg,#0f3460,#16213e);border-color:#4a90d9;color:#4a90d9}
+/* Card present in hand — lit up */
+body.view-touch .kb-key.kb-lit{
+  opacity:1;
+  filter:brightness(1.4) saturate(1.3);
+  border-color:currentColor;
+  box-shadow:0 0 10px 2px currentColor,inset 0 0 8px rgba(255,255,255,0.08);
+  z-index:2;
+}
+/* Selected card */
+body.view-touch .kb-key.kb-sel{
+  opacity:1;
+  filter:brightness(1.8) saturate(1.5);
+  box-shadow:0 0 0 2px var(--neon),0 0 20px 4px var(--neon),inset 0 0 12px rgba(0,255,200,0.2);
+  border-color:var(--neon);
+  z-index:3;
+}
+/* Dark state before dealing */
+body.view-touch .kb-key.kb-dark{
+  opacity:0.05;filter:grayscale(1) brightness(0.2);
+}
+/* Deal landing animation */
+@keyframes kbLand{
+  0%{opacity:0.2;box-shadow:0 0 40px 15px currentColor;filter:brightness(2.5)}
+  60%{opacity:1;box-shadow:0 0 18px 6px currentColor;filter:brightness(1.6)}
+  100%{opacity:1;box-shadow:0 0 10px 2px currentColor;filter:brightness(1.4) saturate(1.3)}
+}
+body.view-touch .kb-key.kb-dealing{
+  animation:kbLand 0.4s ease-out forwards;z-index:2;
+}
+/* After sort compress */
+body.view-touch .kb-key.kb-sorted{
+  box-shadow:0 0 14px 4px currentColor,inset 0 0 10px rgba(255,255,255,0.12);
+  filter:brightness(1.5) saturate(1.4);
+}
+
+/* In keyboard mode, give more space to grid (80% instead of 70%) */
+body.view-touch #hand{flex:0 0 80%!important}
+body.view-touch .ctrls{flex:0 0 20%!important}
+/* Hide old touch UI elements in keyboard mode */
+body.view-touch #touch-selbar{display:none!important}
 
 /* ===== TABLE VIEW (13.3" / iPad display - immersive spectator) ===== */
 /* Hide interactive elements */
@@ -3499,9 +3580,306 @@ function joinGame(){
   }
 }
 
+// ===== KEYBOARD GRID RENDERER (touch mode) =====
+const KB_RANKS = ['2','A','K','Q','J','10','9','8','7','6','5','4','3'];
+const KB_SUITS = ['♠','♥','♣','♦'];
+const KB_SUIT_CLS = {'♠':'kb-spade','♥':'kb-heart','♣':'kb-club','♦':'kb-diamond'};
+const KB_VAL_MAP = {'2':0,'A':1,'K':2,'Q':3,'J':4,'10':5,'9':6,'8':7,'7':8,'6':9,'5':10,'4':11,'3':12};
+const KB_DISP = {'10':'T'};
+let _kbGridBuilt = false;
+let _kbDealTimer = null;
+
+function renderHandKeyboard(isDealing){
+  const h = document.getElementById('hand');
+
+  // --- Build touch HUD (once) ---
+  let tHud = document.getElementById('touch-hud');
+  if(!tHud){
+    tHud = document.createElement('div');
+    tHud.id = 'touch-hud';
+    const pName = localStorage.getItem('crayxus_name') || 'PLAYER';
+    const wins = parseInt(localStorage.getItem('crayxus_wins'))||0;
+    const games = parseInt(localStorage.getItem('crayxus_games'))||0;
+    const wr = games > 0 ? Math.round(wins/games*100) : 0;
+    tHud.innerHTML = `<div class="th-avatar">P1</div>
+      <div class="th-info">
+        <div class="th-name">${pName}</div>
+        <div class="th-stats">WIN <span class="th-val">${wr}%</span> · <span class="th-val">${games}</span> G</div>
+      </div>`;
+    document.getElementById('view').appendChild(tHud);
+  }
+
+  // Build grid structure (once, then reuse)
+  let grid = h.querySelector('.kb-grid');
+  if(!grid){
+    grid = document.createElement('div');
+    grid.className = 'kb-grid';
+    _buildKbGrid(grid);
+    h.innerHTML = '';
+    h.appendChild(grid);
+    _kbGridBuilt = true;
+  }
+
+  // Cancel ongoing deal animation
+  if(_kbDealTimer){ clearTimeout(_kbDealTimer); _kbDealTimer = null; }
+
+  // Map myCards to grid keys
+  const allKeys = grid.querySelectorAll('.kb-key');
+  // Reset all keys to unlit
+  allKeys.forEach(k => {
+    k.classList.remove('kb-lit','kb-sel','kb-dark','kb-dealing','kb-sorted');
+    k.style.transform = '';
+    k.style.transition = '';
+    k.style.animation = '';
+    k._card = null;
+  });
+
+  // Track how many cards of each suit+value we've placed
+  const placed = {};
+
+  // Sort cards: higher priority first (matches keyboard left-to-right)
+  const sortedCards = [...myCards].sort((a,b) => b.p - a.p);
+
+  sortedCards.forEach(c => {
+    const key = _findKbKey(grid, c, placed);
+    if(!key) return;
+    key._card = c;
+    if(!isDealing){
+      key.classList.add(c.sel ? 'kb-sel' : 'kb-lit');
+    }
+  });
+
+  if(isDealing){
+    _kbDealAnimation(grid, sortedCards, placed);
+  }
+}
+
+function _buildKbGrid(grid){
+  for(let row = 0; row < 8; row++){
+    const suitIdx = Math.floor(row / 2);
+    const suit = KB_SUITS[suitIdx];
+    const suitCls = KB_SUIT_CLS[suit];
+
+    // Col 0: 大王 (only rows 6-7)
+    if(row >= 6){
+      const k = _makeKbKey('大王', `${suitCls} kb-big-joker`, suit, row, 0);
+      k.dataset.val = 'Bg';
+      grid.appendChild(k);
+    } else {
+      grid.appendChild(_makeKbEmpty());
+    }
+
+    // Col 1: 小王 (only rows 6-7)
+    if(row >= 6){
+      const k = _makeKbKey('小王', `${suitCls} kb-small-joker`, suit, row, 1);
+      k.dataset.val = 'Sm';
+      grid.appendChild(k);
+    } else {
+      grid.appendChild(_makeKbEmpty());
+    }
+
+    // Cols 2-14: ranks
+    for(let ci = 0; ci < KB_RANKS.length; ci++){
+      const rank = KB_RANKS[ci];
+      const disp = KB_DISP[rank] || rank;
+      const k = _makeKbKey(disp, suitCls, suit, row, ci + 2);
+      k.dataset.val = rank;
+      grid.appendChild(k);
+    }
+  }
+}
+
+function _makeKbKey(label, cls, suit, row, col){
+  const k = document.createElement('div');
+  k.className = `kb-key ${cls}`;
+  k.dataset.row = row;
+  k.dataset.col = col;
+  k.dataset.suit = suit;
+  k.textContent = label;
+  const sub = document.createElement('span');
+  sub.className = 'kb-sub';
+  sub.textContent = suit;
+  k.appendChild(sub);
+  // Click handler
+  k.onclick = e => {
+    e.stopPropagation();
+    if(!k._card) return;
+    if(window._tributePickMode){
+      myCards.forEach(x => x.sel = false);
+      k._card.sel = true;
+      renderHand();
+      let btn = document.getElementById('tpb-confirm');
+      if(btn) btn.disabled = false;
+      AudioSys.play('click');
+      return;
+    }
+    k._card.sel = !k._card.sel;
+    renderHand();
+    AudioSys.play('click');
+  };
+  return k;
+}
+
+function _makeKbEmpty(){
+  const e = document.createElement('div');
+  e.className = 'kb-empty';
+  return e;
+}
+
+function _findKbKey(grid, card, placed){
+  let val = card.v;
+  let suit = card.s;
+
+  if(suit === 'JOKER'){
+    // Joker: col 0 (Bg) or col 1 (Sm), rows 6-7
+    const col = val === 'Bg' ? 0 : 1;
+    const pkey = `joker-${val}`;
+    const count = placed[pkey] || 0;
+    placed[pkey] = count + 1;
+    const targetRow = 6 + count; // row 6 first, then 7
+    if(targetRow > 7) return null;
+    return grid.querySelector(`.kb-key[data-row="${targetRow}"][data-col="${col}"]`);
+  }
+
+  // Regular card: find column by value
+  const colIdx = KB_VAL_MAP[val];
+  if(colIdx === undefined) return null;
+  const col = colIdx + 2;
+
+  // Find suit rows
+  const suitIdx = KB_SUITS.indexOf(suit);
+  if(suitIdx < 0) return null;
+  const baseRow = suitIdx * 2;
+
+  const pkey = `${suit}-${val}`;
+  const count = placed[pkey] || 0;
+  placed[pkey] = count + 1;
+  const targetRow = baseRow + count;
+  if(targetRow > baseRow + 1) return null;
+
+  return grid.querySelector(`.kb-key[data-row="${targetRow}"][data-col="${col}"]`);
+}
+
+function _kbDealAnimation(grid, sortedCards, placed){
+  if(_kbDealTimer) clearTimeout(_kbDealTimer);
+
+  const allKeys = grid.querySelectorAll('.kb-key');
+  // All keys go dark
+  allKeys.forEach(k => k.classList.add('kb-dark'));
+
+  // Re-map cards to keys for animation
+  const placedAnim = {};
+  const cardKeys = [];
+  // Deal in shuffled order for natural feel
+  const shuffled = [...sortedCards];
+  for(let i = shuffled.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  shuffled.forEach(c => {
+    const key = _findKbKey(grid, c, placedAnim);
+    if(key) {
+      key._card = c;
+      cardKeys.push({card: c, el: key});
+    }
+  });
+
+  const DEAL_INTERVAL = 800;
+
+  cardKeys.forEach((ck, i) => {
+    _kbDealTimer = setTimeout(() => {
+      ck.el.classList.remove('kb-dark');
+      ck.el.style.animation = 'none';
+      void ck.el.offsetHeight;
+      ck.el.classList.add('kb-dealing');
+      setTimeout(() => {
+        ck.el.classList.remove('kb-dealing');
+        ck.el.style.animation = '';
+        ck.el.classList.add('kb-lit');
+      }, 420);
+      if(i % 3 === 0) AudioSys.play('deal');
+    }, i * DEAL_INTERVAL);
+  });
+
+  // After all dealt: dim unlit, pause, then sort
+  const allDealtTime = cardKeys.length * DEAL_INTERVAL + 500;
+  _kbDealTimer = setTimeout(() => {
+    // Dim undealt keys
+    allKeys.forEach(k => {
+      if(k.classList.contains('kb-dark')){
+        k.classList.remove('kb-dark');
+        k.style.transition = 'all 0.5s';
+      }
+    });
+
+    // Sort after 1.5s
+    _kbDealTimer = setTimeout(() => {
+      _kbSortAnimation(grid, cardKeys);
+    }, 1500);
+  }, allDealtTime);
+}
+
+function _kbSortAnimation(grid, cardKeys){
+  const allKeys = grid.querySelectorAll('.kb-key');
+  const litSet = new Set(cardKeys.map(ck => ck.el));
+
+  // Group all keys by column
+  const columns = {};
+  allKeys.forEach(k => {
+    const col = parseInt(k.dataset.col);
+    const row = parseInt(k.dataset.row);
+    if(!columns[col]) columns[col] = [];
+    columns[col].push({el: k, row, isLit: litSet.has(k)});
+  });
+
+  // Get row height from grid
+  const gridEl = grid;
+  const gridH = gridEl.offsetHeight;
+  const ROW_H = gridH / 8; // 8 rows
+
+  let colDelay = 0;
+  const colOrder = Object.keys(columns).map(Number).sort((a,b) => a - b);
+
+  for(const col of colOrder){
+    const keys = columns[col].sort((a,b) => a.row - b.row);
+    const litInCol = keys.filter(k => k.isLit);
+    const dimInCol = keys.filter(k => !k.isLit);
+
+    if(litInCol.length === 0 || litInCol.length === keys.length) continue;
+
+    const totalKeys = keys.length;
+    const delay = colDelay * 60;
+
+    // Dim keys float to top
+    dimInCol.forEach((k, i) => {
+      const shift = (i - k.row) * ROW_H;
+      setTimeout(() => {
+        k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
+        k.el.style.transform = `translateY(${shift}px)`;
+      }, delay);
+    });
+
+    // Lit keys fall to bottom
+    litInCol.forEach((k, i) => {
+      const targetRow = dimInCol.length + i;
+      const shift = (targetRow - k.row) * ROW_H;
+      setTimeout(() => {
+        k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
+        k.el.style.transform = `translateY(${shift}px)`;
+        k.el.classList.add('kb-sorted');
+        k.el.classList.remove('kb-lit');
+      }, delay);
+    });
+
+    colDelay++;
+  }
+}
+
 function renderHand(isDealing=false){
   const h=document.getElementById('hand');
-  h.innerHTML='';
+  const _isTouchView = document.body.classList.contains('view-touch');
+  if(!_isTouchView) h.innerHTML='';
   myCards.sort((a,b)=>b.p-a.p||(a.s>b.s?1:-1));
   const groups=[];
   let curP=null,curGrp=null;
@@ -3510,71 +3888,13 @@ function renderHand(isDealing=false){
     else curGrp.cards.push(c);
   });
   const totalCols = groups.length;
-  const _isTouchView = document.body.classList.contains('view-touch');
   const viewW = Math.min(window.innerWidth, document.getElementById('view').offsetWidth||window.innerWidth);
   let GAP, CW;
 
   if(_isTouchView){
-    // === TOUCH MODE: cards fill 70% zone, overlap 10-15% horizontally ===
-    const viewEl = document.getElementById('view');
-    const actualH = viewEl ? viewEl.offsetHeight : window.innerHeight;
-    const zoneH = Math.floor(actualH * 0.7);
-    const maxStackN = Math.max(1, ...groups.map(g => g.cards.length));
-    // First: try ideal card width (CW=100-120) with standard peek ratio
-    // If stack too tall, shrink peek ratio instead of card width
-    const idealCW = Math.min(120, Math.floor(zoneH / 2.8));
-    const idealCH = Math.round(idealCW * 1.42);
-    const stdPeekRatio = 0.36;
-    const idealStackH = idealCH + (maxStackN - 1) * Math.round(idealCW * stdPeekRatio);
-    if(idealStackH <= zoneH - 12){
-      // Fits with standard peek
-      CW = idealCW;
-    } else {
-      // Stack too tall: keep CW reasonable, shrink peek to fit
-      CW = Math.min(idealCW, Math.floor(zoneH / 2.5));
-    }
-    CW = Math.min(CW, 150);
-    CW = Math.max(CW, 60);
-    // Overlap: each card overlaps the next by ~15% of card width
-    // visiblePart = CW * 0.85, so GAP = -(CW * 0.15)
-    const overlapPx = Math.round(CW * 0.15);
-    const availW = viewW - 56; // leave space for avatar
-    // Check if fits: (totalCols-1)*(CW - overlapPx) + CW <= availW
-    const neededW = totalCols > 1 ? (totalCols - 1) * (CW - overlapPx) + CW : CW;
-    if(neededW > availW && totalCols > 1){
-      // Need more overlap to fit
-      const maxVisiblePart = Math.floor((availW - CW) / (totalCols - 1));
-      GAP = -(CW - maxVisiblePart);
-    } else {
-      GAP = -overlapPx; // standard 15% overlap
-    }
-
-    // --- Build touch select-all bar (bottom 20% zone) ---
-    let selbar = document.getElementById('touch-selbar');
-    if(!selbar){
-      selbar = document.createElement('div');
-      selbar.id = 'touch-selbar';
-      document.getElementById('view').appendChild(selbar);
-    }
-    selbar.innerHTML = '';
-
-    // --- Build touch HUD (top-left mini dashboard) ---
-    let tHud = document.getElementById('touch-hud');
-    if(!tHud){
-      tHud = document.createElement('div');
-      tHud.id = 'touch-hud';
-      const pName = localStorage.getItem('crayxus_name') || 'PLAYER';
-      const wins = parseInt(localStorage.getItem('crayxus_wins'))||0;
-      const games = parseInt(localStorage.getItem('crayxus_games'))||0;
-      const wr = games > 0 ? Math.round(wins/games*100) : 0;
-      tHud.innerHTML = `<div class="th-avatar">P1</div>
-        <div class="th-info">
-          <div class="th-name">${pName}</div>
-          <div class="th-stats">WIN <span class="th-val">${wr}%</span> · <span class="th-val">${games}</span> G</div>
-        </div>`;
-      document.getElementById('view').appendChild(tHud);
-    }
-
+    // === TOUCH MODE: Keyboard grid layout ===
+    renderHandKeyboard(isDealing);
+    return;
   } else {
     GAP = 5;
     const availW = viewW - 20;
