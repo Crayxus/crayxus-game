@@ -3825,7 +3825,7 @@ function _kbDealAnimation(grid, sortedCards, placed){
     }
   });
 
-  const DEAL_INTERVAL = 50; // fast deal for real game
+  const DEAL_INTERVAL = 150; // ~4s for 27 cards
 
   cardKeys.forEach((ck, i) => {
     _kbDealTimer = setTimeout(() => {
