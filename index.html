@@ -1003,12 +1003,12 @@ body.view-touch .deck-center{display:none!important}
 body.view-touch .training-badge{display:none!important}
 body.view-touch #coach-panel{display:none!important}
 body.view-touch #ai-help-btn{display:none!important}
-/* casual-hud: show as compact mini-dashboard in touch mode, top-left */
+/* casual-hud: show as mini-dashboard in touch mode, top-left overlapping buttons */
 body.view-touch #casual-hud{
   display:block!important;position:absolute!important;
-  left:4px!important;top:calc(20% + 2px)!important;bottom:auto!important;
+  left:4px!important;top:4px!important;bottom:auto!important;
   z-index:450!important;pointer-events:none;
-  transform:scale(0.55);transform-origin:top left
+  transform:scale(0.5);transform-origin:top left
 }
 body.view-touch #afk-btn{display:none!important}
 body.view-touch .elo-float{display:none!important}
@@ -1024,28 +1024,69 @@ body.view-touch #view{
   overflow:hidden;position:relative
 }
 
-/* Zone 1 (top 20%): Action buttons */
+/* Zone 1 (top 20%): Action buttons + timer bar */
 body.view-touch .ctrls{
   position:relative!important;bottom:auto!important;left:auto!important;transform:none!important;
-  display:flex!important;justify-content:center;align-items:center;
-  gap:20px;padding:0 24px;
+  display:flex!important;flex-direction:column!important;
+  justify-content:center;align-items:center;
+  gap:8px;padding:8px 24px 4px;
   flex:0 0 20%;
-  background:linear-gradient(180deg,rgba(5,5,15,1),rgba(10,10,20,0.9));
-  border-bottom:1px solid #1a1a2a;
+  background:linear-gradient(180deg,rgba(5,5,15,1) 0%,rgba(8,12,25,0.95) 100%);
+  border-bottom:1px solid rgba(0,255,255,0.1);
   order:1;width:100%
 }
-body.view-touch .btn{
-  padding:12px 32px;font-size:18px;font-weight:900;
-  min-height:48px;min-width:90px;border-radius:24px;
-  touch-action:manipulation;letter-spacing:1px
+/* Timer bar — replaces text countdown */
+body.view-touch #touch-timer-bar{
+  width:60%;max-width:400px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.08);overflow:hidden;
+  order:1
 }
-body.view-touch .btn.b-pass{font-size:16px;padding:12px 24px;min-width:70px}
-body.view-touch .btn.b-play{font-size:20px;padding:12px 44px}
-body.view-touch .timer-txt{
-  position:relative!important;top:auto!important;width:auto;
-  display:flex!important;align-items:center;
-  font-size:22px;font-weight:900;margin-right:4px;color:var(--neon);
-  order:-1
+body.view-touch #touch-timer-bar .ttb-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--neon),var(--cyan));
+  transition:width 1s linear;
+  box-shadow:0 0 8px rgba(0,255,200,0.4)
+}
+body.view-touch #touch-timer-bar .ttb-fill.ttb-warn{
+  background:linear-gradient(90deg,#ff4444,#ff8800);
+  box-shadow:0 0 8px rgba(255,68,68,0.5)
+}
+/* Hide original timer text in touch mode */
+body.view-touch .timer-txt{display:none!important}
+/* Button row */
+body.view-touch .ctrls-row{
+  display:flex;gap:16px;align-items:center;justify-content:center;
+  order:2
+}
+body.view-touch .btn{
+  padding:10px 28px;font-size:16px;font-weight:900;
+  min-height:44px;border-radius:22px;
+  touch-action:manipulation;letter-spacing:1px;
+  transition:all 0.15s ease;
+  font-family:'Orbitron','Segoe UI',sans-serif
+}
+body.view-touch .btn:active{transform:scale(0.95)}
+body.view-touch .btn.b-pass{
+  font-size:14px;padding:10px 22px;
+  background:rgba(255,255,255,0.06);color:#888;
+  border:1px solid rgba(255,255,255,0.15);
+  backdrop-filter:blur(4px)
+}
+body.view-touch .btn.b-pass:active{color:#fff;border-color:#fff}
+body.view-touch .btn.b-hint{
+  background:linear-gradient(135deg,rgba(0,255,200,0.15),rgba(0,255,255,0.1));
+  color:var(--neon);border:1px solid rgba(0,255,200,0.3);
+  text-shadow:0 0 8px rgba(0,255,200,0.4)
+}
+body.view-touch .btn.b-play{
+  font-size:18px;padding:10px 40px;
+  background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;
+  border:none;
+  box-shadow:0 0 20px rgba(255,215,0,0.3),0 2px 8px rgba(0,0,0,0.3);
+  text-shadow:none
+}
+body.view-touch .btn.b-play:active{
+  box-shadow:0 0 30px rgba(255,215,0,0.5),0 0 60px rgba(255,215,0,0.2)
 }
 
 /* Zone 2 (middle 70%): Hand cards — overlapping horizontally */
@@ -1079,36 +1120,35 @@ body.view-touch .grp-col .stack-card.sel .card{
   border-color:var(--neon)
 }
 
-/* Zone 3 (bottom 10%): Select-all bar — compact */
+/* Zone 3 (bottom 10%): Select-all arrows */
 body.view-touch #touch-selbar{
   display:flex!important;
   flex:0 0 10%;
-  align-items:center;justify-content:center;
-  gap:0;padding:0 8px;
+  align-items:flex-start;justify-content:center;
+  gap:0;padding:2px 8px 0;
   order:3;width:100%;
-  background:linear-gradient(0deg,rgba(5,5,15,0.8) 0%,transparent 100%);
+  background:transparent;
   overflow:visible;
   scrollbar-width:none
 }
 body.view-touch #touch-selbar::-webkit-scrollbar{display:none}
 body.view-touch #touch-selbar .tsel-btn{
-  min-width:36px;height:30px;border-radius:15px;
-  border:1px solid rgba(255,255,255,0.12);
-  background:rgba(0,0,0,0.5);color:#888;
-  font-size:10px;font-weight:700;cursor:pointer;
+  min-width:20px;height:22px;border-radius:0;
+  border:none;background:transparent;
+  color:rgba(255,255,255,0.25);
+  font-size:14px;font-weight:400;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  padding:0 6px;touch-action:manipulation;flex-shrink:0;
-  font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:0.5px;
-  transition:all 0.15s ease;
-  box-shadow:0 1px 4px rgba(0,0,0,0.4)
+  padding:0;touch-action:manipulation;flex-shrink:0;
+  transition:all 0.12s ease;
+  line-height:1
 }
 body.view-touch #touch-selbar .tsel-btn:active{
-  transform:scale(0.95);filter:brightness(1.2)
+  transform:scale(1.3);color:var(--neon)
 }
 body.view-touch #touch-selbar .tsel-btn.all-sel{
-  background:rgba(0,255,200,0.12);border-color:var(--neon);color:var(--neon);
-  box-shadow:0 0 8px rgba(0,255,200,0.3),0 1px 4px rgba(0,0,0,0.4);
-  text-shadow:0 0 6px rgba(0,255,200,0.5)
+  color:var(--neon);
+  filter:drop-shadow(0 0 4px rgba(0,255,200,0.5));
+  transform:scale(1.1)
 }
 
 /* Touch avatar — hidden, replaced by casual-hud */
@@ -1618,6 +1658,25 @@ if(_viewMode === 'touch' || _viewMode === 'table'){
 if(!_viewMode && (window.screen.height <= 650 || window.innerHeight <= 550)){
   document.body.classList.add('view-touch');
 }
+// Touch mode: inject timer bar into ctrls and wrap buttons in ctrls-row
+if(document.body.classList.contains('view-touch')){
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const ctrls = document.getElementById('ctrls');
+    if(!ctrls) return;
+    // Create timer bar
+    const tbar = document.createElement('div');
+    tbar.id = 'touch-timer-bar';
+    tbar.innerHTML = '<div class="ttb-fill" style="width:100%"></div>';
+    ctrls.insertBefore(tbar, ctrls.firstChild);
+    // Wrap existing buttons in ctrls-row
+    const row = document.createElement('div');
+    row.className = 'ctrls-row';
+    Array.from(ctrls.children).forEach(ch=>{
+      if(ch.id !== 'touch-timer-bar') row.appendChild(ch);
+    });
+    ctrls.appendChild(row);
+  });
+}
 
 const socket=io('https://crayxus-game.onrender.com',{autoConnect:false,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
@@ -2105,21 +2164,37 @@ function renderUI(){
 
 function startTimer(){
   stopTimer();
-  timeLeft=60;
+  const TIMER_TOTAL = 25;
+  timeLeft=TIMER_TOTAL;
   let tt=document.getElementById('my-timer-txt');
   if(tt){tt.style.display='block';tt.innerText=timeLeft+'s';tt.style.color='var(--gold)';}
+  // Touch mode: update timer bar
+  _updateTimerBar(timeLeft, TIMER_TOTAL);
   timerInterval=setInterval(()=>{
     timeLeft--;
     if(tt)tt.innerText=timeLeft+'s';
     if(timeLeft<=10&&tt)tt.style.color='var(--red)';
+    _updateTimerBar(timeLeft, TIMER_TOTAL);
     if(timeLeft<=0){stopTimer();autoPlay();}
   },1000);
+}
+
+function _updateTimerBar(left, total){
+  let bar = document.getElementById('touch-timer-bar');
+  if(!bar) return;
+  let fill = bar.querySelector('.ttb-fill');
+  if(!fill) return;
+  const pct = Math.max(0, (left / total) * 100);
+  fill.style.width = pct + '%';
+  if(left <= 8) fill.classList.add('ttb-warn');
+  else fill.classList.remove('ttb-warn');
 }
 
 function stopTimer(){
   clearInterval(timerInterval);timerInterval=null;
   let tt=document.getElementById('my-timer-txt');
   if(tt){tt.style.display='none';tt.style.color='var(--gold)';}
+  _updateTimerBar(0, 1);
 }
 
 function startOpponentTimer(){
@@ -3538,7 +3613,7 @@ function renderHand(isDealing=false){
       if(selbar){
         const selBtn = document.createElement('button');
         selBtn.className = 'tsel-btn' + (allSel?' all-sel':'');
-        selBtn.textContent = allSel ? '✓' : '全选';
+        selBtn.textContent = '▲';
         // All buttons same width as visible card portion
         let btnW = (gi < totalCols - 1 && GAP < 0) ? (CW + GAP) : CW;
         btnW = Math.max(btnW, 28);
