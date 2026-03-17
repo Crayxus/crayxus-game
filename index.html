@@ -3786,14 +3786,16 @@ function _kbApplySort(grid){
     // Use actual pixel positions as target slots
     const tops = keys.map(k => k.top).sort((a,b) => a - b);
 
-    dimInCol.forEach((k, i) => {
+    // Lit keys rise to top slots
+    litInCol.forEach((k, i) => {
       const shift = tops[i] - k.top;
       k.el.style.transition = 'none';
       k.el.style.transform = shift ? `translateY(${shift}px)` : '';
     });
 
-    litInCol.forEach((k, i) => {
-      const shift = tops[dimInCol.length + i] - k.top;
+    // Dim keys sink to bottom slots
+    dimInCol.forEach((k, i) => {
+      const shift = tops[litInCol.length + i] - k.top;
       k.el.style.transition = 'none';
       k.el.style.transform = shift ? `translateY(${shift}px)` : '';
     });
@@ -3888,23 +3890,23 @@ function _kbSortAnimation(grid, cardKeys){
     const tops = keys.map(k => k.top).sort((a,b) => a - b);
     const delay = colDelay * 60;
 
-    // Dim keys float to top slots
-    dimInCol.forEach((k, i) => {
-      const shift = tops[i] - k.top;
-      setTimeout(() => {
-        k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
-        k.el.style.transform = shift ? `translateY(${shift}px)` : '';
-      }, delay);
-    });
-
-    // Lit keys fall to bottom slots
+    // Lit keys rise to top slots
     litInCol.forEach((k, i) => {
-      const shift = tops[dimInCol.length + i] - k.top;
+      const shift = tops[i] - k.top;
       setTimeout(() => {
         k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
         k.el.style.transform = shift ? `translateY(${shift}px)` : '';
         k.el.classList.add('kb-sorted');
         k.el.classList.remove('kb-lit');
+      }, delay);
+    });
+
+    // Dim keys sink to bottom slots
+    dimInCol.forEach((k, i) => {
+      const shift = tops[litInCol.length + i] - k.top;
+      setTimeout(() => {
+        k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
+        k.el.style.transform = shift ? `translateY(${shift}px)` : '';
       }, delay);
     });
 
