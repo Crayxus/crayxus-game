@@ -991,7 +991,7 @@ body.light-theme .joker-rainbow-wrap{color:#cc0000 !important}
 body.light-theme .joker-grey-wrap{color:#444 !important}
 
 /* ===== TOUCH VIEW — 7" Raspberry Pi touchscreen (1024×600) ===== */
-/* Layout: [status bar] → [your last play] → [hand cards] → [action buttons] */
+/* Layout: top 20% buttons | middle 60% overlapping cards | bottom 20% select-all + avatar */
 
 /* ===== TOUCH VIEW: immersive card controller ===== */
 /* Hide EVERYTHING except hand cards + action buttons */
@@ -1018,69 +1018,96 @@ body.view-touch #view{
   overflow:hidden;position:relative
 }
 
-/* Hand cards: fill remaining space below buttons */
-body.view-touch #hand{
-  position:relative!important;bottom:auto!important;top:auto!important;
-  height:auto!important;flex:1;
-  display:flex!important;align-items:flex-end;justify-content:flex-start!important;
-  flex-wrap:nowrap!important;
-  padding:4px 6px 12px;gap:8px;
-  overflow-x:auto;overflow-y:visible;
-  scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-  order:2;
-  background:linear-gradient(180deg,transparent 0%,rgba(0,10,30,0.5) 100%)
-}
-body.view-touch #hand::-webkit-scrollbar{display:none}
-/* Large immersive card styling */
-body.view-touch .grp-wrap{gap:4px}
-/* Group select button: visible and big */
-body.view-touch .grp-sel-btn{
-  display:flex!important;width:auto!important;min-width:48px;height:28px;
-  font-size:13px;font-weight:900;border-radius:6px;
-  padding:0 10px;
-  border:1.5px solid #555;background:rgba(0,0,0,0.6);color:#aaa;
-  touch-action:manipulation
-}
-body.view-touch .grp-sel-btn.all-sel{
-  background:rgba(0,255,200,0.2);border-color:var(--neon);color:var(--neon)
-}
-body.view-touch .grp-col .stack-card{width:90px!important;flex-shrink:0}
-body.view-touch .grp-col .stack-card .card{
-  width:90px!important;height:128px!important;border-radius:10px;
-  box-shadow:0 4px 16px rgba(0,0,0,0.7),0 0 1px rgba(255,255,255,0.2);
-  border:1.5px solid rgba(255,255,255,0.15)
-}
-body.view-touch .grp-col .stack-card .card .peek-val{font-size:24px;font-weight:900}
-body.view-touch .grp-col .stack-card .card .peek-suit{font-size:20px}
-body.view-touch .grp-col .stack-card .card .card-center{font-size:40px}
-body.view-touch .grp-col .stack-card.sel{transform:translateY(-22px)}
-body.view-touch .grp-col .stack-card.sel .card{
-  box-shadow:0 0 0 3px var(--neon),0 0 24px rgba(0,255,200,0.6),0 8px 20px rgba(0,0,0,0.5);
-  border-color:var(--neon)
-}
-
-/* Action buttons bar: pinned to TOP */
+/* Zone 1 (top 20%): Action buttons */
 body.view-touch .ctrls{
   position:relative!important;bottom:auto!important;left:auto!important;transform:none!important;
-  justify-content:center;align-items:center;
-  gap:20px;padding:12px 24px;flex-shrink:0;
+  display:flex!important;justify-content:center;align-items:center;
+  gap:20px;padding:0 24px;
+  flex:0 0 20%;
   background:linear-gradient(180deg,rgba(5,5,15,1),rgba(10,10,20,0.9));
   border-bottom:1px solid #1a1a2a;
   order:1;width:100%
 }
 body.view-touch .btn{
-  padding:14px 36px;font-size:20px;font-weight:900;
-  min-height:56px;min-width:100px;border-radius:28px;
+  padding:12px 32px;font-size:18px;font-weight:900;
+  min-height:48px;min-width:90px;border-radius:24px;
   touch-action:manipulation;letter-spacing:1px
 }
-body.view-touch .btn.b-pass{font-size:18px;padding:14px 28px;min-width:80px}
-body.view-touch .btn.b-play{font-size:22px;padding:14px 48px}
+body.view-touch .btn.b-pass{font-size:16px;padding:12px 24px;min-width:70px}
+body.view-touch .btn.b-play{font-size:20px;padding:12px 44px}
 body.view-touch .timer-txt{
   position:relative!important;top:auto!important;width:auto;
   display:flex!important;align-items:center;
-  font-size:24px;font-weight:900;margin-right:4px;color:var(--neon);
+  font-size:22px;font-weight:900;margin-right:4px;color:var(--neon);
   order:-1
+}
+
+/* Zone 2 (middle 60%): Hand cards — overlapping horizontally */
+body.view-touch #hand{
+  position:relative!important;bottom:auto!important;top:auto!important;
+  flex:0 0 60%!important;
+  display:flex!important;align-items:flex-end;justify-content:center!important;
+  flex-wrap:nowrap!important;
+  padding:0 8px 4px;gap:0;
+  overflow:visible;
+  order:2;
+  background:transparent
+}
+body.view-touch #hand::-webkit-scrollbar{display:none}
+/* In touch mode, grp-wrap only contains the card column (no sel btn) */
+body.view-touch .grp-wrap{gap:0;flex-shrink:0;position:relative}
+/* Hide per-group select buttons in hand (they move to bottom bar) */
+body.view-touch .grp-sel-btn{display:none!important}
+
+/* Card styling — sizes set dynamically by JS */
+body.view-touch .grp-col .stack-card{flex-shrink:0}
+body.view-touch .grp-col .stack-card .card{
+  border-radius:8px;
+  box-shadow:2px 2px 8px rgba(0,0,0,0.6),0 0 1px rgba(255,255,255,0.15);
+  border:1.5px solid rgba(255,255,255,0.12)
+}
+body.view-touch .grp-col .stack-card .card .peek-val{font-weight:900}
+body.view-touch .grp-col .stack-card.sel{transform:translateY(-18px)}
+body.view-touch .grp-col .stack-card.sel .card{
+  box-shadow:0 0 0 3px var(--neon),0 0 20px rgba(0,255,200,0.5),0 6px 16px rgba(0,0,0,0.5);
+  border-color:var(--neon)
+}
+
+/* Zone 3 (bottom 20%): Select-all bar + avatar */
+body.view-touch #touch-selbar{
+  display:flex!important;
+  flex:0 0 20%;
+  align-items:flex-start;justify-content:center;
+  gap:0;padding:10px 8px 0;
+  order:3;width:100%;
+  background:linear-gradient(0deg,rgba(5,5,15,0.95),transparent);
+  overflow:visible;
+  scrollbar-width:none
+}
+body.view-touch #touch-selbar::-webkit-scrollbar{display:none}
+body.view-touch #touch-selbar .tsel-btn{
+  min-width:32px;height:26px;border-radius:4px;
+  border:1px solid #444;background:rgba(0,0,0,0.5);color:#777;
+  font-size:10px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 4px;touch-action:manipulation;flex-shrink:0
+}
+body.view-touch #touch-selbar .tsel-btn.all-sel{
+  background:rgba(0,255,200,0.15);border-color:var(--neon);color:var(--neon)
+}
+
+/* Touch avatar — left-bottom of card zone */
+body.view-touch #touch-avatar{
+  position:absolute;left:8px;bottom:calc(20% + 4px);z-index:400;
+  display:flex;flex-direction:column;align-items:center;gap:2px
+}
+body.view-touch #touch-avatar .ta-circle{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(0,255,200,0.08);border:2px solid var(--neon);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;color:var(--neon);
+  font-family:'Orbitron','Segoe UI',sans-serif;
+  box-shadow:0 0 10px rgba(0,255,200,0.25)
 }
 
 /* Toast / Results */
@@ -3368,12 +3395,50 @@ function renderHand(isDealing=false){
   const _isTouchView = document.body.classList.contains('view-touch');
   const viewW = Math.min(window.innerWidth, document.getElementById('view').offsetWidth||window.innerWidth);
   let GAP, CW;
+
   if(_isTouchView){
-    // Touch mode: large fixed cards, groups can overlap via negative gap
-    CW = 90;
-    const totalNeeded = totalCols * CW;
-    const availW = viewW - 16;
-    GAP = totalCols > 1 ? Math.min(4, Math.floor((availW - totalNeeded) / (totalCols - 1))) : 0;
+    // === TOUCH MODE: cards fill 60% zone, ALWAYS overlap horizontally ===
+    // Use actual #view height (accounts for browser chrome) instead of vh
+    const viewEl = document.getElementById('view');
+    const actualH = viewEl ? viewEl.offsetHeight : window.innerHeight;
+    const zoneH = Math.floor(actualH * 0.6);
+    const maxStackN = Math.max(1, ...groups.map(g => g.cards.length));
+    // Calculate card width from available height: CH + (n-1)*PEEK <= zoneH
+    // CH = CW*1.42, PEEK = CW*0.36
+    CW = Math.floor((zoneH - 16) / (1.42 + (maxStackN - 1) * 0.36));
+    CW = Math.min(CW, 150);
+    CW = Math.max(CW, 50);
+    // ALWAYS overlap: each column only shows ~35% of card width (peek strip)
+    // Total width = (n-1)*peekStrip + 1*fullCard
+    const peekStrip = Math.round(CW * 0.35);
+    const availW = viewW - 60; // leave space for avatar on left
+    // If still too wide, shrink peekStrip
+    const neededW = (totalCols - 1) * peekStrip + CW;
+    let actualPeek = peekStrip;
+    if(neededW > availW && totalCols > 1){
+      actualPeek = Math.floor((availW - CW) / (totalCols - 1));
+      actualPeek = Math.max(actualPeek, Math.round(CW * 0.2)); // minimum 20% visible
+    }
+    GAP = -(CW - actualPeek); // negative margin = card width minus visible strip
+
+    // --- Build touch select-all bar (bottom 20% zone) ---
+    let selbar = document.getElementById('touch-selbar');
+    if(!selbar){
+      selbar = document.createElement('div');
+      selbar.id = 'touch-selbar';
+      document.getElementById('view').appendChild(selbar);
+    }
+    selbar.innerHTML = '';
+
+    // --- Build touch avatar (left-top of card zone) ---
+    let tAvatar = document.getElementById('touch-avatar');
+    if(!tAvatar){
+      tAvatar = document.createElement('div');
+      tAvatar.id = 'touch-avatar';
+      tAvatar.innerHTML = '<div class="ta-circle">YOU</div>';
+      document.getElementById('view').appendChild(tAvatar);
+    }
+
   } else {
     GAP = 5;
     const availW = viewW - 20;
@@ -3386,12 +3451,19 @@ function renderHand(isDealing=false){
   const fSuit = Math.max(9, Math.round(CW * 15/66));
   const fCenter = Math.max(14, Math.round(CW * 32/66));
 
-  groups.forEach(gr=>{
+  groups.forEach((gr, gi)=>{
     const n = gr.cards.length;
     const stackH = CH + (n-1)*PEEK;
     const allSel = gr.cards.every(c=>c.sel);
     const wrap = document.createElement('div');
     wrap.className = 'grp-wrap';
+    // Touch mode: apply overlap via negative margin, z-index so left cards on top
+    if(_isTouchView && GAP < 0 && gi < totalCols - 1){
+      wrap.style.marginRight = GAP + 'px';
+    }
+    if(_isTouchView){
+      wrap.style.zIndex = totalCols - gi;
+    }
     const col = document.createElement('div');
     col.className = 'grp-col';
     col.style.cssText = `width:${CW}px;height:${stackH}px;`;
@@ -3454,17 +3526,39 @@ function renderHand(isDealing=false){
       col.appendChild(stackCard);
     });
     wrap.appendChild(col);
-    const selBtn = document.createElement('button');
-    selBtn.className = 'grp-sel-btn' + (allSel?' all-sel':'');
-    selBtn.textContent = allSel ? '✓全' : '全选';
-    selBtn.style.width = CW+'px';
-    selBtn.onclick = e=>{
-      e.stopPropagation();
-      const nowAll = gr.cards.every(c=>c.sel);
-      gr.cards.forEach(c=>c.sel=!nowAll);
-      renderHand(); AudioSys.play('click');
-    };
-    wrap.appendChild(selBtn);
+
+    if(_isTouchView){
+      // Touch mode: select buttons go to bottom bar, not in grp-wrap
+      const selbar = document.getElementById('touch-selbar');
+      if(selbar){
+        const selBtn = document.createElement('button');
+        selBtn.className = 'tsel-btn' + (allSel?' all-sel':'');
+        selBtn.textContent = allSel ? '✓' : '全选';
+        // Last column: full width, others: peek strip width
+        const btnW = (gi < totalCols - 1 && GAP < 0) ? (CW + GAP) : CW;
+        selBtn.style.width = btnW + 'px';
+        selBtn.onclick = e=>{
+          e.stopPropagation();
+          const nowAll = gr.cards.every(c=>c.sel);
+          gr.cards.forEach(c=>c.sel=!nowAll);
+          renderHand(); AudioSys.play('click');
+        };
+        selbar.appendChild(selBtn);
+      }
+    } else {
+      const selBtn = document.createElement('button');
+      selBtn.className = 'grp-sel-btn' + (allSel?' all-sel':'');
+      selBtn.textContent = allSel ? '✓全' : '全选';
+      selBtn.style.width = CW+'px';
+      selBtn.onclick = e=>{
+        e.stopPropagation();
+        const nowAll = gr.cards.every(c=>c.sel);
+        gr.cards.forEach(c=>c.sel=!nowAll);
+        renderHand(); AudioSys.play('click');
+      };
+      wrap.appendChild(selBtn);
+    }
+
     h.appendChild(wrap);
   });
   requestAnimationFrame(()=>requestAnimationFrame(()=>repositionButtons()));
@@ -3473,6 +3567,8 @@ function renderHand(isDealing=false){
 function repositionButtons(){
   const handEl = document.getElementById('hand');
   if(!handEl) return;
+  // Touch mode: layout is pure CSS flex, skip JS repositioning
+  if(document.body.classList.contains('view-touch')) return;
   const vh = window.innerHeight;
   const isMobile = vh < 500 || window.innerWidth < 500;
   let maxWrapH = 0;
