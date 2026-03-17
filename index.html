@@ -2687,7 +2687,7 @@ function _doEnterGame(d){
     if(arenaHud)arenaHud.style.display='none';
     var _isTouch=document.body.classList.contains('view-touch');
     var _isTable=document.body.classList.contains('view-table');
-    if(casualHud)casualHud.style.display=(_isTouch||_isTable)?'none':'block';
+    if(casualHud)casualHud.style.display=_isTable?'none':'block';
     if(pme)pme.style.display=_isTable?'':'none';
     if(aiBtn)aiBtn.style.display=(_isTouch||_isTable)?'none':'block';
     if(evoBar)evoBar.style.display='none';
@@ -4365,7 +4365,8 @@ function startTrainingGame(isContinue){
   // Show casual HUD or arena HUD
   let casualHud = document.getElementById('casual-hud');
   let arenaHud = document.getElementById('arena-hud');
-  if(casualHud) casualHud.style.display = (gameMode==='casual') ? 'block' : 'none';
+  const _touchMode = document.body.classList.contains('view-touch');
+  if(casualHud) casualHud.style.display = (gameMode==='casual' || _touchMode) ? 'block' : 'none';
   if(arenaHud) arenaHud.style.display = (gameMode==='arena') ? 'block' : 'none';
   // Update casual stats + toggle fixed/upgrade HUD
   if(gameMode==='casual'){
