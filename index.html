@@ -1216,7 +1216,7 @@ body.view-touch .kb-key{
   box-sizing:border-box;
   border-radius:6px;
   display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:900;
+  font-size:18px;font-weight:900;
   cursor:pointer;user-select:none;
   position:relative;
   border:1.5px solid rgba(255,255,255,0.08);
@@ -1227,7 +1227,7 @@ body.view-touch .kb-key{
   touch-action:manipulation;
 }
 body.view-touch .kb-key .kb-sub{
-  position:absolute;bottom:1px;right:3px;font-size:8px;opacity:0.5;
+  position:absolute;bottom:1px;right:3px;font-size:14px;opacity:0.7;font-weight:700;
 }
 /* Empty placeholder (no key) */
 body.view-touch .kb-empty{
@@ -3787,7 +3787,7 @@ function _kbDealAnimation(grid, sortedCards, placed){
     }
   });
 
-  const DEAL_INTERVAL = 800;
+  const DEAL_INTERVAL = 50; // fast deal for real game
 
   cardKeys.forEach((ck, i) => {
     _kbDealTimer = setTimeout(() => {
@@ -3799,29 +3799,27 @@ function _kbDealAnimation(grid, sortedCards, placed){
         ck.el.classList.remove('kb-dealing');
         ck.el.style.animation = '';
         ck.el.classList.add('kb-lit');
-      }, 420);
-      if(i % 3 === 0) AudioSys.play('deal');
+      }, 200);
+      if(i % 4 === 0) AudioSys.play('deal');
     }, i * DEAL_INTERVAL);
   });
 
-  // After all dealt: dim unlit, pause, then sort
-  const allDealtTime = cardKeys.length * DEAL_INTERVAL + 500;
+  // After all dealt: dim unlit, pause, then sort down
+  const allDealtTime = cardKeys.length * DEAL_INTERVAL + 300;
   _kbDealTimer = setTimeout(() => {
-    // Dim undealt keys
     allKeys.forEach(k => {
       if(k.classList.contains('kb-dark')){
         k.classList.remove('kb-dark');
-        k.style.transition = 'all 0.5s';
+        k.style.transition = 'all 0.4s';
       }
     });
 
-    // Sort after 1.5s
+    // Sort after 0.8s pause
     _kbDealTimer = setTimeout(() => {
       AudioSys.play('sort');
       _kbSortAnimation(grid, cardKeys);
-      // Chime when sort completes
-      setTimeout(() => AudioSys.play('chime'), 800);
-    }, 1500);
+      setTimeout(() => AudioSys.play('chime'), 600);
+    }, 800);
   }, allDealtTime);
 }
 
@@ -3838,10 +3836,10 @@ function _kbSortAnimation(grid, cardKeys){
     columns[col].push({el: k, row, isLit: litSet.has(k)});
   });
 
-  // Get row height from grid
-  const gridEl = grid;
-  const gridH = gridEl.offsetHeight;
-  const ROW_H = gridH / 8; // 8 rows
+  // Get row height: account for CSS Grid gap (3px)
+  const gridH = grid.offsetHeight;
+  const GAP = 3;
+  const ROW_H = (gridH + GAP) / 8; // cell + gap per row
 
   let colDelay = 0;
   const colOrder = Object.keys(columns).map(Number).sort((a,b) => a - b);
