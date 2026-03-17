@@ -1220,8 +1220,8 @@ body.view-touch .kb-key{
   cursor:pointer;user-select:none;
   position:relative;
   border:1.5px solid rgba(255,255,255,0.08);
-  opacity:0.15;
-  filter:grayscale(0.8) brightness(0.4);
+  opacity:0.04;
+  filter:grayscale(1) brightness(0.3);
   transition:all 0.15s;
   font-family:'Orbitron','Segoe UI',sans-serif;
   touch-action:manipulation;
@@ -3774,12 +3774,8 @@ function _kbApplySort(grid){
     const row = parseInt(k.dataset.row);
     if(!columns[col]) columns[col] = [];
     const isLit = k.classList.contains('kb-lit') || k.classList.contains('kb-sel');
-    columns[col].push({el: k, row, isLit});
+    columns[col].push({el: k, row, isLit, top: k.offsetTop});
   });
-
-  const gridH = grid.offsetHeight;
-  const GAP = 3;
-  const ROW_H = (gridH + GAP) / 8;
 
   for(const col of Object.keys(columns)){
     const keys = columns[col].sort((a,b) => a.row - b.row);
@@ -3787,21 +3783,19 @@ function _kbApplySort(grid){
     const dimInCol = keys.filter(k => !k.isLit);
     if(litInCol.length === 0 || litInCol.length === keys.length) continue;
 
-    const slots = keys.map(k => k.row).sort((a,b) => a - b);
+    // Use actual pixel positions as target slots
+    const tops = keys.map(k => k.top).sort((a,b) => a - b);
 
-    // Dim keys to top slots (instant)
     dimInCol.forEach((k, i) => {
-      const shift = (slots[i] - k.row) * ROW_H;
+      const shift = tops[i] - k.top;
       k.el.style.transition = 'none';
-      k.el.style.transform = `translateY(${shift}px)`;
+      k.el.style.transform = shift ? `translateY(${shift}px)` : '';
     });
 
-    // Lit keys to bottom slots (instant)
     litInCol.forEach((k, i) => {
-      const targetRow = slots[dimInCol.length + i];
-      const shift = (targetRow - k.row) * ROW_H;
+      const shift = tops[dimInCol.length + i] - k.top;
       k.el.style.transition = 'none';
-      k.el.style.transform = `translateY(${shift}px)`;
+      k.el.style.transform = shift ? `translateY(${shift}px)` : '';
     });
   }
 }
@@ -3871,19 +3865,14 @@ function _kbSortAnimation(grid, cardKeys){
   const allKeys = grid.querySelectorAll('.kb-key');
   const litSet = new Set(cardKeys.map(ck => ck.el));
 
-  // Group all keys by column
+  // Group all keys by column, read actual pixel positions
   const columns = {};
   allKeys.forEach(k => {
     const col = parseInt(k.dataset.col);
     const row = parseInt(k.dataset.row);
     if(!columns[col]) columns[col] = [];
-    columns[col].push({el: k, row, isLit: litSet.has(k)});
+    columns[col].push({el: k, row, isLit: litSet.has(k), top: k.offsetTop});
   });
-
-  // Get row height: account for CSS Grid gap (3px)
-  const gridH = grid.offsetHeight;
-  const GAP = 3;
-  const ROW_H = (gridH + GAP) / 8; // cell + gap per row
 
   let colDelay = 0;
   const colOrder = Object.keys(columns).map(Number).sort((a,b) => a - b);
@@ -3895,26 +3884,25 @@ function _kbSortAnimation(grid, cardKeys){
 
     if(litInCol.length === 0 || litInCol.length === keys.length) continue;
 
-    // Use actual row positions in this column (jokers only have [6,7])
-    const slots = keys.map(k => k.row).sort((a,b) => a - b);
+    // Use actual pixel positions as target slots
+    const tops = keys.map(k => k.top).sort((a,b) => a - b);
     const delay = colDelay * 60;
 
     // Dim keys float to top slots
     dimInCol.forEach((k, i) => {
-      const shift = (slots[i] - k.row) * ROW_H;
+      const shift = tops[i] - k.top;
       setTimeout(() => {
         k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
-        k.el.style.transform = `translateY(${shift}px)`;
+        k.el.style.transform = shift ? `translateY(${shift}px)` : '';
       }, delay);
     });
 
     // Lit keys fall to bottom slots
     litInCol.forEach((k, i) => {
-      const targetRow = slots[dimInCol.length + i];
-      const shift = (targetRow - k.row) * ROW_H;
+      const shift = tops[dimInCol.length + i] - k.top;
       setTimeout(() => {
         k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
-        k.el.style.transform = `translateY(${shift}px)`;
+        k.el.style.transform = shift ? `translateY(${shift}px)` : '';
         k.el.classList.add('kb-sorted');
         k.el.classList.remove('kb-lit');
       }, delay);
