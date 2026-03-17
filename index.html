@@ -1003,7 +1003,13 @@ body.view-touch .deck-center{display:none!important}
 body.view-touch .training-badge{display:none!important}
 body.view-touch #coach-panel{display:none!important}
 body.view-touch #ai-help-btn{display:none!important}
-body.view-touch #casual-hud{display:none!important}
+/* casual-hud: show as compact mini-dashboard in touch mode */
+body.view-touch #casual-hud{
+  display:block!important;position:absolute!important;
+  left:6px!important;bottom:calc(20% + 4px)!important;top:auto!important;
+  z-index:450!important;pointer-events:none;
+  transform:scale(0.65);transform-origin:bottom left
+}
 body.view-touch #afk-btn{display:none!important}
 body.view-touch .elo-float{display:none!important}
 body.view-touch #game-theme-btn{display:none!important}
@@ -1073,14 +1079,14 @@ body.view-touch .grp-col .stack-card.sel .card{
   border-color:var(--neon)
 }
 
-/* Zone 3 (bottom 20%): Select-all bar + avatar */
+/* Zone 3 (bottom 20%): Select-all bar */
 body.view-touch #touch-selbar{
   display:flex!important;
   flex:0 0 20%;
-  align-items:flex-start;justify-content:center;
-  gap:0;padding:10px 8px 0;
+  align-items:center;justify-content:center;
+  gap:0;padding:0 8px;
   order:3;width:100%;
-  background:linear-gradient(0deg,rgba(5,5,15,0.95),transparent);
+  background:linear-gradient(0deg,rgba(5,5,15,0.9) 0%,rgba(8,8,16,0.6) 50%,transparent 100%);
   overflow:visible;
   scrollbar-width:none
 }
@@ -1096,19 +1102,8 @@ body.view-touch #touch-selbar .tsel-btn.all-sel{
   background:rgba(0,255,200,0.15);border-color:var(--neon);color:var(--neon)
 }
 
-/* Touch avatar — left-bottom of card zone */
-body.view-touch #touch-avatar{
-  position:absolute;left:8px;bottom:calc(20% + 4px);z-index:400;
-  display:flex;flex-direction:column;align-items:center;gap:2px
-}
-body.view-touch #touch-avatar .ta-circle{
-  width:40px;height:40px;border-radius:50%;
-  background:rgba(0,255,200,0.08);border:2px solid var(--neon);
-  display:flex;align-items:center;justify-content:center;
-  font-size:9px;font-weight:900;color:var(--neon);
-  font-family:'Orbitron','Segoe UI',sans-serif;
-  box-shadow:0 0 10px rgba(0,255,200,0.25)
-}
+/* Touch avatar — hidden, replaced by casual-hud */
+body.view-touch #touch-avatar{display:none!important}
 
 /* Toast / Results */
 body.view-touch .toast{top:35%;font-size:16px;padding:10px 24px;border-radius:24px}
@@ -3397,29 +3392,28 @@ function renderHand(isDealing=false){
   let GAP, CW;
 
   if(_isTouchView){
-    // === TOUCH MODE: cards fill 60% zone, ALWAYS overlap horizontally ===
-    // Use actual #view height (accounts for browser chrome) instead of vh
+    // === TOUCH MODE: cards fill 60% zone, overlap 10-15% horizontally ===
     const viewEl = document.getElementById('view');
     const actualH = viewEl ? viewEl.offsetHeight : window.innerHeight;
     const zoneH = Math.floor(actualH * 0.6);
     const maxStackN = Math.max(1, ...groups.map(g => g.cards.length));
-    // Calculate card width from available height: CH + (n-1)*PEEK <= zoneH
-    // CH = CW*1.42, PEEK = CW*0.36
+    // Calculate card width from available height
     CW = Math.floor((zoneH - 16) / (1.42 + (maxStackN - 1) * 0.36));
     CW = Math.min(CW, 150);
     CW = Math.max(CW, 50);
-    // ALWAYS overlap: each column only shows ~35% of card width (peek strip)
-    // Total width = (n-1)*peekStrip + 1*fullCard
-    const peekStrip = Math.round(CW * 0.35);
-    const availW = viewW - 60; // leave space for avatar on left
-    // If still too wide, shrink peekStrip
-    const neededW = (totalCols - 1) * peekStrip + CW;
-    let actualPeek = peekStrip;
+    // Overlap: each card overlaps the next by ~15% of card width
+    // visiblePart = CW * 0.85, so GAP = -(CW * 0.15)
+    const overlapPx = Math.round(CW * 0.15);
+    const availW = viewW - 56; // leave space for avatar
+    // Check if fits: (totalCols-1)*(CW - overlapPx) + CW <= availW
+    const neededW = totalCols > 1 ? (totalCols - 1) * (CW - overlapPx) + CW : CW;
     if(neededW > availW && totalCols > 1){
-      actualPeek = Math.floor((availW - CW) / (totalCols - 1));
-      actualPeek = Math.max(actualPeek, Math.round(CW * 0.2)); // minimum 20% visible
+      // Need more overlap to fit
+      const maxVisiblePart = Math.floor((availW - CW) / (totalCols - 1));
+      GAP = -(CW - maxVisiblePart);
+    } else {
+      GAP = -overlapPx; // standard 15% overlap
     }
-    GAP = -(CW - actualPeek); // negative margin = card width minus visible strip
 
     // --- Build touch select-all bar (bottom 20% zone) ---
     let selbar = document.getElementById('touch-selbar');
@@ -3534,8 +3528,9 @@ function renderHand(isDealing=false){
         const selBtn = document.createElement('button');
         selBtn.className = 'tsel-btn' + (allSel?' all-sel':'');
         selBtn.textContent = allSel ? '✓' : '全选';
-        // Last column: full width, others: peek strip width
-        const btnW = (gi < totalCols - 1 && GAP < 0) ? (CW + GAP) : CW;
+        // All buttons same width as visible card portion
+        let btnW = (gi < totalCols - 1 && GAP < 0) ? (CW + GAP) : CW;
+        btnW = Math.max(btnW, 28);
         selBtn.style.width = btnW + 'px';
         selBtn.onclick = e=>{
           e.stopPropagation();
