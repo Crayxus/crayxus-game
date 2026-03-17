@@ -3853,21 +3853,22 @@ function _kbSortAnimation(grid, cardKeys){
 
     if(litInCol.length === 0 || litInCol.length === keys.length) continue;
 
-    const totalKeys = keys.length;
+    // Use actual row positions in this column (jokers only have [6,7])
+    const slots = keys.map(k => k.row).sort((a,b) => a - b);
     const delay = colDelay * 60;
 
-    // Dim keys float to top
+    // Dim keys float to top slots
     dimInCol.forEach((k, i) => {
-      const shift = (i - k.row) * ROW_H;
+      const shift = (slots[i] - k.row) * ROW_H;
       setTimeout(() => {
         k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
         k.el.style.transform = `translateY(${shift}px)`;
       }, delay);
     });
 
-    // Lit keys fall to bottom
+    // Lit keys fall to bottom slots
     litInCol.forEach((k, i) => {
-      const targetRow = dimInCol.length + i;
+      const targetRow = slots[dimInCol.length + i];
       const shift = (targetRow - k.row) * ROW_H;
       setTimeout(() => {
         k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
