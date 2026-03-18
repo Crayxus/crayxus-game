@@ -14,7 +14,7 @@
   --glow-cyan:0 0 20px #00ffff,0 0 40px #00ffff,0 0 80px rgba(0,255,255,0.3);
   --glow-gold:0 0 20px #ffd700,0 0 40px #ffd700,0 0 80px rgba(255,215,0,0.3);
   --glow-magenta:0 0 20px #ff00ff,0 0 40px #ff00ff,0 0 80px rgba(255,0,255,0.3)}
-*{margin:0;padding:0;box-sizing:border-box;user-select:none;font-family:'Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;font-family:'Segoe UI','Noto Sans SC','Microsoft YaHei','PingFang SC','WenQuanYi Micro Hei',sans-serif}
 body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:flex;color:#fff;padding-bottom:env(safe-area-inset-bottom,0px)}
 .screen{position:absolute;width:100%;height:100%;display:none;flex-direction:column;justify-content:center;align-items:center;z-index:100}
 .screen.active{display:flex}
@@ -216,15 +216,15 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 /* Responsive Styles */
 @media(max-width:1366px){.dashboard{width:200px;padding:10px}.rank-val{font-size:28px}.card{width:72px;height:100px}.val-txt{font-size:16px;padding:3px}.center-icon{font-size:30px}.c-mini{width:50px!important;height:70px!important;margin-right:-25px}.c-mini .val-txt{font-size:11px}.c-mini .center-icon{font-size:18px}.o-m{bottom:260px}.ctrls{bottom:250px}.p-me{bottom:auto}}
 @media(max-width:1194px){.dashboard{width:160px;padding:8px}.rank-val{font-size:24px}.l-item{font-size:9px;padding:4px}.c-mini{width:42px!important;height:58px!important;margin-right:-21px}.c-mini .val-txt{font-size:10px;padding:1px}.c-mini .center-icon{font-size:16px}.out{width:220px;height:72px}.o-t{top:80px}.o-l{left:80px}.o-r{right:80px}.o-m{bottom:250px}.ctrls{gap:8px}.btn{padding:7px 20px;font-size:12px}.p-me{bottom:210px}.p-me .av{width:32px;height:32px;font-size:8px}.timer-ring{width:48px;height:48px}.av{width:42px;height:42px;font-size:9px}.badge-n{width:18px;height:18px;font-size:9px}.badge-type{font-size:7px}.badge-finish{font-size:7px}.tag{font-size:9px;padding:2px 6px;top:-22px}.timer-txt{font-size:12px;top:-24px}.toast{font-size:12px}.res-box{width:360px;padding:24px}.res-type{font-size:30px}.res-score{font-size:44px}.lobby-card{width:320px;padding:22px}.p-top{top:10px}}
-@media(max-height:500px),(max-width:930px){.dashboard{display:none}#game-ui{flex-direction:row}#view{width:100%}.mobile-score{display:flex}}
-@media(max-height:500px){.dashboard{display:none}#view{width:100%}.p-top{top:3px}.p-left{top:30%;left:5px}.p-right{top:30%;right:5px}.timer-ring{width:40px;height:40px}.av{width:34px;height:34px;font-size:8px;border-width:2px}.badge-n{width:16px;height:16px;font-size:8px;top:-2px;right:-2px}.badge-finish{font-size:7px;padding:1px 4px}.badge-type{font-size:7px}.out{width:180px;height:55px}.o-t{top:50px}.o-l{top:30%;left:50px}.o-r{top:30%;right:50px}.o-m{bottom:calc(140px + env(safe-area-inset-bottom,0px))}.c-mini{width:34px!important;height:48px!important;margin-right:-17px}.c-mini .val-txt{font-size:9px;padding:1px}.c-mini .center-icon{font-size:14px}#hand{height:120px;bottom:calc(2px + env(safe-area-inset-bottom,0px));gap:4px;padding:0 6px 4px}.grp-col .stack-card{width:42px;height:60px}.grp-col .stack-card .card{width:42px;height:60px;border-radius:4px}.grp-col .stack-card .card .peek-val{font-size:12px}.grp-col .stack-card .card .peek-suit{font-size:10px}.grp-col .stack-card .card .card-center{font-size:18px}.grp-col .stack-card.sel .card{transform:translateY(-10px)}.ctrls{bottom:calc(130px + env(safe-area-inset-bottom,0px));gap:8px}.btn{padding:6px 16px;font-size:11px}.p-me{bottom:calc(122px + env(safe-area-inset-bottom,0px))}.p-me .av{width:28px;height:28px;font-size:7px}.tag{font-size:8px;padding:2px 5px;top:-18px}.timer-txt{font-size:11px;top:-20px}.toast{font-size:11px;padding:5px 14px}.res-box{width:85vw;max-width:400px;padding:16px}.res-type{font-size:24px}.res-score{font-size:36px;margin-bottom:10px}.res-btn{padding:8px 24px;font-size:14px}.logo{font-size:44px}.lobby-card{width:85vw;max-width:320px;padding:16px}.btn-large{padding:10px;font-size:14px}}
+@media(max-height:650px),(max-width:930px){.dashboard{display:none}#game-ui{flex-direction:row}#view{width:100%}.mobile-score{display:flex}}
+@media(max-height:650px){.dashboard{display:none}#view{width:100%}.p-top{top:3px}.p-left{top:30%;left:5px}.p-right{top:30%;right:5px}.timer-ring{width:40px;height:40px}.av{width:34px;height:34px;font-size:8px;border-width:2px}.badge-n{width:16px;height:16px;font-size:8px;top:-2px;right:-2px}.badge-finish{font-size:7px;padding:1px 4px}.badge-type{font-size:7px}.out{width:180px;height:55px}.o-t{top:50px}.o-l{top:30%;left:50px}.o-r{top:30%;right:50px}.o-m{bottom:calc(140px + env(safe-area-inset-bottom,0px))}.c-mini{width:34px!important;height:48px!important;margin-right:-17px}.c-mini .val-txt{font-size:9px;padding:1px}.c-mini .center-icon{font-size:14px}#hand{height:120px;bottom:calc(2px + env(safe-area-inset-bottom,0px));gap:4px;padding:0 6px 4px}.grp-col .stack-card{width:42px;height:60px}.grp-col .stack-card .card{width:42px;height:60px;border-radius:4px}.grp-col .stack-card .card .peek-val{font-size:12px}.grp-col .stack-card .card .peek-suit{font-size:10px}.grp-col .stack-card .card .card-center{font-size:18px}.grp-col .stack-card.sel .card{transform:translateY(-10px)}.ctrls{bottom:calc(130px + env(safe-area-inset-bottom,0px));gap:8px}.btn{padding:6px 16px;font-size:11px}.p-me{bottom:calc(122px + env(safe-area-inset-bottom,0px))}.p-me .av{width:28px;height:28px;font-size:7px}.tag{font-size:8px;padding:2px 5px;top:-18px}.timer-txt{font-size:11px;top:-20px}.toast{font-size:11px;padding:5px 14px}.res-box{width:85vw;max-width:400px;padding:16px}.res-type{font-size:24px}.res-score{font-size:36px;margin-bottom:10px}.res-btn{padding:8px 24px;font-size:14px}.logo{font-size:44px}.lobby-card{width:85vw;max-width:320px;padding:16px}.btn-large{padding:10px;font-size:14px}}
 @media(max-width:430px){.dashboard{display:none}#view{width:100%}#game-ui{flex-direction:column}.p-top{top:5px}.p-left{top:20%;left:3px}.p-right{top:20%;right:3px}.timer-ring{width:36px;height:36px}.av{width:30px;height:30px;font-size:7px;border-width:2px}.badge-n{width:14px;height:14px;font-size:7px;top:-2px;right:-2px}.badge-finish{font-size:6px;padding:1px 3px}.badge-type{font-size:6px;padding:1px 2px}.out{width:140px;height:48px}.o-t{top:48px}.o-l{top:22%;left:36px}.o-r{top:22%;right:36px}.o-m{bottom:52%}.c-mini{width:30px!important;height:42px!important;margin-right:-15px}.c-mini .val-txt{font-size:8px;padding:0}.c-mini .center-icon{font-size:11px}#hand{height:140px;bottom:0;gap:4px;padding:0 4px 4px}.grp-col .stack-card{width:36px;height:52px}.grp-col .stack-card .card{width:36px;height:52px;border-radius:4px}.grp-col .stack-card .card .peek-val{font-size:10px}.grp-col .stack-card .card .peek-suit{font-size:9px}.grp-col .stack-card .card .card-center{font-size:14px}.grp-col .stack-card.sel .card{transform:translateY(-9px)}.c-wild::after{font-size:8px}.ctrls{bottom:46%;gap:6px}.btn{padding:6px 14px;font-size:10px;letter-spacing:0}.p-me{bottom:50%}.p-me .av{width:24px;height:24px;font-size:6px}.tag{font-size:7px;padding:1px 4px;top:-14px}.timer-txt{font-size:10px;top:-16px}.toast{font-size:10px;padding:4px 12px;border-radius:16px}.deck-center{width:36px;height:50px;border-radius:4px}.res-box{width:90vw;padding:16px;border-radius:12px}.res-type{font-size:20px;margin-bottom:4px}.res-score{font-size:32px;margin-bottom:10px}.res-btn{padding:8px 20px;font-size:12px}.logo{font-size:38px}.lobby-card{width:90vw;max-width:300px;padding:14px}.btn-large{padding:10px;font-size:14px}.seat-grid{grid-template-columns:repeat(4,50px);gap:6px}.seat-slot{width:50px;height:50px;font-size:9px}.match-loader{width:32px;height:32px}}
 @media(max-width:375px){#hand{height:120px}.grp-col .stack-card{width:32px;height:46px}.grp-col .stack-card .card{width:32px;height:46px}.grp-col .stack-card .card .peek-val{font-size:9px}.grp-col .stack-card .card .peek-suit{font-size:8px}.grp-col .stack-card .card .card-center{font-size:12px}.out{width:120px;height:44px}.o-l{left:30px}.o-r{right:30px}.ctrls{bottom:80px;gap:4px}.btn{padding:5px 10px;font-size:9px}.p-me{bottom:72px}.av{width:28px;height:28px;font-size:6px}.timer-ring{width:34px;height:34px}}
 @media(hover:none) and (pointer:coarse){.grp-col .stack-card{-webkit-tap-highlight-color:transparent}.grp-col .stack-card:active .card{transform:translateY(-10px);transition:transform 0.08s}.btn{min-height:44px;min-width:44px}.res-btn{min-height:44px}}
 /* Casual HUD responsive */
 @media(max-width:1194px){#casual-hud{bottom:20px;left:10px}.casual-hud-inner{padding:8px 14px 8px 8px;gap:10px}.casual-avatar-ring{width:56px;height:56px}.casual-avatar-img{width:46px;height:46px;margin:5px;font-size:18px}.casual-name{font-size:12px}.casual-rank-badge{font-size:8px;padding:2px 8px}.casual-rank-stars{font-size:13px}.kda-val{font-size:14px}.kda-label{font-size:7px}#ai-help-btn{bottom:20px;right:10px}.ai-help-ring{width:48px;height:48px}.ai-help-face{width:38px;height:38px;margin:5px;font-size:18px}.ai-help-title{font-size:12px}.ai-help-count{font-size:8px}}
 @media(max-height:800px){#casual-hud{bottom:auto;top:10px;left:10px}.casual-hud-inner{padding:6px 12px 6px 6px;gap:8px;border-radius:12px}.casual-avatar-ring{width:44px;height:44px}.casual-avatar-img{width:36px;height:36px;margin:4px;font-size:16px}.casual-avatar-glow{inset:-6px}.casual-name{font-size:11px;letter-spacing:1px}.casual-rank-row{gap:4px}.casual-rank-badge{font-size:8px;padding:1px 6px}.casual-rank-stars{font-size:11px}.kda-val{font-size:12px}.kda-label{font-size:7px}#ai-help-btn{bottom:auto;top:10px;right:10px}.ai-help-inner{padding:6px 12px 6px 6px;gap:8px;border-radius:12px}.ai-help-ring{width:44px;height:44px}.ai-help-face{width:36px;height:36px;margin:4px;font-size:16px}.ai-help-title{font-size:11px}.ai-help-count{font-size:8px}}
-@media(max-height:500px){#casual-hud{bottom:auto;top:8px;left:8px}.casual-hud-inner{padding:4px 10px 4px 4px;gap:8px;border-radius:10px}.casual-avatar-ring{width:36px;height:36px}.casual-avatar-img{width:28px;height:28px;margin:4px;font-size:12px}.casual-avatar-glow{inset:-6px}.casual-name{font-size:10px;letter-spacing:1px}.casual-rank-row{gap:4px}.casual-rank-badge{font-size:7px;padding:1px 6px}.casual-rank-stars{font-size:10px}.kda-val{font-size:11px}.kda-label{font-size:6px}#ai-help-btn{bottom:auto;top:8px;right:8px}.ai-help-inner{padding:4px 10px 4px 4px;gap:6px;border-radius:10px}.ai-help-ring{width:36px;height:36px}.ai-help-face{width:28px;height:28px;margin:4px;font-size:14px}.ai-help-title{font-size:10px;letter-spacing:1px}.ai-help-badge{display:none}.ai-help-count{font-size:7px}}
+@media(max-height:650px){#casual-hud{bottom:auto;top:8px;left:8px}.casual-hud-inner{padding:4px 10px 4px 4px;gap:8px;border-radius:10px}.casual-avatar-ring{width:36px;height:36px}.casual-avatar-img{width:28px;height:28px;margin:4px;font-size:12px}.casual-avatar-glow{inset:-6px}.casual-name{font-size:10px;letter-spacing:1px}.casual-rank-row{gap:4px}.casual-rank-badge{font-size:7px;padding:1px 6px}.casual-rank-stars{font-size:10px}.kda-val{font-size:11px}.kda-label{font-size:6px}#ai-help-btn{bottom:auto;top:8px;right:8px}.ai-help-inner{padding:4px 10px 4px 4px;gap:6px;border-radius:10px}.ai-help-ring{width:36px;height:36px}.ai-help-face{width:28px;height:28px;margin:4px;font-size:14px}.ai-help-title{font-size:10px;letter-spacing:1px}.ai-help-badge{display:none}.ai-help-count{font-size:7px}}
 
 /* === Holographic Mode Select === */
 #mode-select{background:#000;position:relative;overflow:hidden}
@@ -299,6 +299,22 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .dash-reset-btn{display:block;margin:4px auto 0;background:transparent;color:#444;border:1px solid #333;padding:4px 14px;border-radius:6px;cursor:pointer;font-size:8px;letter-spacing:1px;font-family:'Orbitron',sans-serif;transition:all 0.2s}
 .dash-reset-btn:hover{color:#888;border-color:#555}
 @media(max-width:700px){.holo-btns{flex-direction:column;gap:14px}.holo-btn{width:260px;padding:20px 16px}.holo-btn .h-icon{font-size:40px}.holo-avatar-section{flex-direction:column;gap:16px;text-align:center}.holo-player-info{align-items:center}.mode-select-title{font-size:36px;letter-spacing:4px}.user-info-bar{min-width:auto;width:260px}}
+/* 7" Pi screen: compact mode select */
+@media(max-height:650px){
+  /* Mode select page compact */
+  #qr-login-section{display:none!important}
+  .holo-avatar-section{transform:scale(0.7);transform-origin:top center;margin-bottom:-30px}
+  .holo-btns{gap:10px}
+  .holo-btn{padding:12px 10px;min-height:auto}
+  .holo-btn .h-icon{font-size:28px}
+  .holo-btn .h-name{font-size:14px}
+  .holo-btn .h-desc{font-size:8px}
+  .holo-btn .h-tag{font-size:7px;padding:2px 6px}
+  #mode-select::before{width:500px;height:500px}
+  .mode-select-title{font-size:32px;letter-spacing:3px;margin-bottom:8px}
+  #mode-loading{display:none!important}
+  #theme-toggle{top:6px;right:6px;padding:4px 8px}
+}
 
 #highcard-overlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:700;display:none;pointer-events:none}
 #highcard-overlay .hc-title{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:900;color:var(--gold);text-shadow:0 0 15px rgba(255,200,0,0.5);opacity:0;transition:opacity 0.5s;letter-spacing:2px;font-family:'Orbitron','Segoe UI',sans-serif;white-space:nowrap}
@@ -973,6 +989,424 @@ body.light-theme .deck-center{opacity:0.3 !important}
 body.light-theme .timer-ring{border-color:rgba(0,0,0,0.1) !important}
 body.light-theme .joker-rainbow-wrap{color:#cc0000 !important}
 body.light-theme .joker-grey-wrap{color:#444 !important}
+
+/* ===== TOUCH VIEW — 7" Raspberry Pi touchscreen (1024×600) ===== */
+/* Layout: top 20% buttons | middle 60% overlapping cards | bottom 20% select-all + avatar */
+
+/* ===== TOUCH VIEW: immersive card controller ===== */
+/* Hide EVERYTHING except hand cards + action buttons */
+body.view-touch .dashboard,body.view-touch .dash{display:none!important}
+body.view-touch .p-zone{display:none!important}
+body.view-touch .p-me{display:none!important}
+body.view-touch .out{display:none!important}
+body.view-touch .deck-center{display:none!important}
+body.view-touch .training-badge{display:none!important}
+body.view-touch #coach-panel{display:none!important}
+body.view-touch #ai-help-btn{display:none!important}
+/* casual-hud: hide in touch mode (replaced by touch-hud) */
+body.view-touch #casual-hud{display:none!important}
+body.view-touch #afk-btn{
+  display:block!important;
+  position:absolute!important;top:8px!important;right:8px!important;bottom:auto!important;left:auto!important;
+  z-index:520;
+  padding:6px 14px;border-radius:10px;
+  font-size:11px;letter-spacing:1px;
+  background:rgba(5,5,15,0.85);
+  border:1px solid rgba(0,255,255,0.15);
+  backdrop-filter:blur(8px)
+}
+body.view-touch #afk-badge{
+  position:absolute!important;top:44px!important;right:8px!important;bottom:auto!important;left:auto!important;
+  z-index:521
+}
+body.view-touch .elo-float{display:none!important}
+body.view-touch #game-theme-btn{display:none!important}
+body.view-touch .mobile-score{display:none!important}
+
+/* Root layout: full screen vertical flex */
+body.view-touch{background:radial-gradient(ellipse at center,#1a5c2a 0%,#0e3d1a 60%,#071f0d 100%);overflow:hidden}
+body.view-touch #game-ui{flex-direction:column!important;width:100%!important;height:100vh!important}
+body.view-touch #view{
+  width:100%!important;height:100%!important;background:transparent;
+  display:flex!important;flex-direction:column!important;
+  overflow:hidden;position:relative
+}
+
+/* Zone 1 (top 20%): Action buttons + timer bar — ABOVE cards */
+body.view-touch .ctrls{
+  position:relative!important;bottom:auto!important;left:auto!important;transform:none!important;
+  display:flex!important;flex-direction:column!important;
+  justify-content:center;align-items:center;
+  gap:8px;padding:8px 24px 4px;
+  flex:0 0 20%;
+  background:linear-gradient(180deg,rgba(5,5,15,1) 0%,rgba(8,12,25,0.98) 100%);
+  border-bottom:1px solid rgba(0,255,255,0.1);
+  order:1;width:100%;
+  z-index:500
+}
+/* Timer bar — replaces text countdown */
+body.view-touch #touch-timer-bar{
+  width:60%;max-width:400px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.08);overflow:hidden;
+  order:1
+}
+body.view-touch #touch-timer-bar .ttb-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--neon),var(--cyan));
+  transition:width 1s linear;
+  box-shadow:0 0 8px rgba(0,255,200,0.4)
+}
+body.view-touch #touch-timer-bar .ttb-fill.ttb-warn{
+  background:linear-gradient(90deg,#ff4444,#ff8800);
+  box-shadow:0 0 8px rgba(255,68,68,0.5)
+}
+/* Hide original timer text in touch mode */
+body.view-touch .timer-txt{display:none!important}
+/* Button row */
+body.view-touch .ctrls-row{
+  display:flex;gap:16px;align-items:center;justify-content:center;
+  order:2
+}
+body.view-touch .btn{
+  padding:10px 28px;font-size:16px;font-weight:900;
+  min-height:44px;border-radius:22px;
+  touch-action:manipulation;letter-spacing:1px;
+  transition:all 0.15s ease;
+  font-family:'Orbitron','Segoe UI',sans-serif
+}
+body.view-touch .btn:active{transform:scale(0.95)}
+body.view-touch .btn.b-pass{
+  font-size:14px;padding:10px 22px;
+  background:rgba(255,255,255,0.06);color:#888;
+  border:1px solid rgba(255,255,255,0.15);
+  backdrop-filter:blur(4px)
+}
+body.view-touch .btn.b-pass:active{color:#fff;border-color:#fff}
+body.view-touch .btn.b-hint{
+  background:linear-gradient(135deg,rgba(0,255,200,0.15),rgba(0,255,255,0.1));
+  color:var(--neon);border:1px solid rgba(0,255,200,0.3);
+  text-shadow:0 0 8px rgba(0,255,200,0.4)
+}
+body.view-touch .btn.b-play{
+  font-size:18px;padding:10px 40px;
+  background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;
+  border:none;
+  box-shadow:0 0 20px rgba(255,215,0,0.3),0 2px 8px rgba(0,0,0,0.3);
+  text-shadow:none
+}
+body.view-touch .btn.b-play:active{
+  box-shadow:0 0 30px rgba(255,215,0,0.5),0 0 60px rgba(255,215,0,0.2)
+}
+
+/* Zone 2 (middle 70%): Keyboard grid layout */
+body.view-touch #hand{
+  position:relative!important;bottom:auto!important;top:auto!important;
+  flex:0 0 70%!important;
+  display:flex!important;align-items:center;justify-content:center!important;
+  flex-wrap:nowrap!important;
+  padding:4px 8px;gap:0;
+  overflow:hidden;
+  order:2;
+  background:transparent
+}
+body.view-touch #hand::-webkit-scrollbar{display:none}
+/* In touch mode, grp-wrap only contains the card column (no sel btn) */
+body.view-touch .grp-wrap{gap:0;flex-shrink:0;position:relative}
+/* Hide per-group select buttons in hand (they move to bottom bar) */
+body.view-touch .grp-sel-btn{display:none!important}
+
+/* Card styling — sizes set dynamically by JS */
+body.view-touch .grp-col .stack-card{flex-shrink:0}
+body.view-touch .grp-col .stack-card .card{
+  border-radius:8px;
+  box-shadow:2px 2px 8px rgba(0,0,0,0.6),0 0 1px rgba(255,255,255,0.15);
+  border:1.5px solid rgba(255,255,255,0.12)
+}
+body.view-touch .grp-col .stack-card .card .peek-val{font-weight:900}
+body.view-touch .grp-col .stack-card.sel{transform:translateY(-18px)}
+body.view-touch .grp-col .stack-card.sel .card{
+  box-shadow:0 0 0 3px var(--neon),0 0 20px rgba(0,255,200,0.5),0 6px 16px rgba(0,0,0,0.5);
+  border-color:var(--neon)
+}
+
+/* Zone 3 (bottom 10%): Select-all arrows */
+body.view-touch #touch-selbar{
+  display:flex!important;
+  flex:0 0 10%;
+  align-items:flex-start;justify-content:center;
+  gap:0;padding:2px 8px 0;
+  order:3;width:100%;
+  background:transparent;
+  overflow:visible;
+  scrollbar-width:none
+}
+body.view-touch #touch-selbar::-webkit-scrollbar{display:none}
+body.view-touch #touch-selbar .tsel-btn{
+  min-width:24px;height:28px;border-radius:0;
+  border:none;background:transparent;
+  color:rgba(255,215,0,0.4);
+  font-size:20px;font-weight:900;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  padding:0;touch-action:manipulation;flex-shrink:0;
+  transition:all 0.12s ease;
+  line-height:1;
+  text-shadow:0 0 4px rgba(255,215,0,0.2)
+}
+body.view-touch #touch-selbar .tsel-btn:active{
+  transform:scale(1.4);color:#ffd700;
+  text-shadow:0 0 12px rgba(255,215,0,0.8)
+}
+body.view-touch #touch-selbar .tsel-btn.all-sel{
+  color:#ffd700;
+  text-shadow:0 0 10px rgba(255,215,0,0.6);
+  transform:scale(1.15)
+}
+
+/* Touch HUD — mini avatar + stats, always visible top-left */
+body.view-touch #touch-hud{
+  position:absolute;left:8px;top:8px;z-index:510;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 16px 8px 8px;
+  background:rgba(5,5,15,0.85);border:1px solid rgba(0,255,255,0.15);
+  border-radius:14px;backdrop-filter:blur(8px);
+  pointer-events:none;
+  box-shadow:0 0 20px rgba(0,255,255,0.06)
+}
+body.view-touch #touch-hud .th-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#1a1a3e,#0a0a1e);
+  border:2px solid rgba(0,255,255,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;color:var(--neon);
+  box-shadow:0 0 14px rgba(0,255,255,0.3)
+}
+body.view-touch #touch-hud .th-info{
+  display:flex;flex-direction:column;gap:3px
+}
+body.view-touch #touch-hud .th-name{
+  font-size:14px;font-weight:900;color:#fff;
+  font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:1.5px
+}
+body.view-touch #touch-hud .th-stats{
+  font-size:10px;color:#888;letter-spacing:0.5px
+}
+body.view-touch #touch-hud .th-stats .th-val{color:var(--gold);font-weight:700}
+
+/* Hide old touch-avatar */
+body.view-touch #touch-avatar{display:none!important}
+
+/* Toast / Results */
+body.view-touch .toast{top:35%;font-size:16px;padding:10px 24px;border-radius:24px}
+body.view-touch .res-box{width:90vw;max-width:500px;padding:20px}
+body.view-touch .res-type{font-size:28px}
+body.view-touch .res-score{font-size:40px;margin-bottom:12px}
+body.view-touch .res-btn{min-height:52px;font-size:18px;padding:12px 30px}
+
+/* ===== KEYBOARD GRID for touch mode ===== */
+body.view-touch .kb-grid{
+  display:grid;
+  grid-template-columns:repeat(15,1fr);
+  grid-template-rows:repeat(8,1fr);
+  gap:3px;
+  width:100%;height:100%;
+  padding:2px 2px 8px 2px;
+  box-sizing:border-box;
+}
+body.view-touch .kb-key{
+  box-sizing:border-box;
+  border-radius:6px;
+  display:flex;align-items:flex-start;justify-content:flex-start;
+  font-size:16px;font-weight:900;padding:1px 0 0 3px;
+  cursor:pointer;user-select:none;
+  position:relative;
+  border:1.5px solid rgba(255,255,255,0.08);
+  opacity:0.04;
+  filter:grayscale(1) brightness(0.3);
+  transition:all 0.15s;
+  font-family:'Orbitron','Segoe UI',sans-serif;
+  touch-action:manipulation;
+}
+body.view-touch .kb-key .kb-sub{
+  position:absolute;bottom:1px;right:3px;
+  font-size:14px;opacity:0.9;font-weight:900;line-height:1;
+}
+/* Empty placeholder (no key) */
+body.view-touch .kb-empty{
+  box-sizing:border-box;border-radius:6px;
+  border:1.5px solid transparent;
+}
+/* Suit row colors */
+body.view-touch .kb-spade{background:#12121e;border-color:rgba(180,180,200,0.2);color:#bdc3c7}
+body.view-touch .kb-heart{background:#2a0e18;border-color:rgba(231,76,60,0.25);color:#f1948a}
+body.view-touch .kb-club{background:#0a1e10;border-color:rgba(39,174,96,0.25);color:#82e0aa}
+body.view-touch .kb-diamond{background:#0a1520;border-color:rgba(52,152,219,0.25);color:#85c1e9}
+/* Joker keys */
+body.view-touch .kb-key.kb-big-joker{background:linear-gradient(135deg,#e94560,#c0392b);border-color:#e94560;color:#fff}
+body.view-touch .kb-key.kb-small-joker{background:linear-gradient(135deg,#0f3460,#16213e);border-color:#4a90d9;color:#4a90d9}
+/* Card present in hand — lit up */
+body.view-touch .kb-key.kb-lit{
+  opacity:1;
+  filter:brightness(1.4) saturate(1.3);
+  border-color:currentColor;
+  box-shadow:0 0 10px 2px currentColor,inset 0 0 8px rgba(255,255,255,0.08);
+  z-index:2;
+}
+/* Selected card */
+body.view-touch .kb-key.kb-sel{
+  opacity:1;
+  filter:brightness(1.8) saturate(1.5);
+  box-shadow:0 0 0 2px var(--neon),0 0 20px 4px var(--neon),inset 0 0 12px rgba(0,255,200,0.2);
+  border-color:var(--neon);
+  z-index:3;
+}
+/* Dark state before dealing */
+body.view-touch .kb-key.kb-dark{
+  opacity:0.05;filter:grayscale(1) brightness(0.2);
+}
+/* Deal landing animation */
+@keyframes kbLand{
+  0%{opacity:0.2;box-shadow:0 0 40px 15px currentColor;filter:brightness(2.5)}
+  60%{opacity:1;box-shadow:0 0 18px 6px currentColor;filter:brightness(1.6)}
+  100%{opacity:1;box-shadow:0 0 10px 2px currentColor;filter:brightness(1.4) saturate(1.3)}
+}
+body.view-touch .kb-key.kb-dealing{
+  animation:kbLand 0.4s ease-out forwards;z-index:2;
+}
+/* After sort compress */
+body.view-touch .kb-key.kb-sorted{
+  box-shadow:0 0 14px 4px currentColor,inset 0 0 10px rgba(255,255,255,0.12);
+  filter:brightness(1.5) saturate(1.4);
+}
+
+/* In keyboard mode, give more space to grid (80% instead of 70%) */
+body.view-touch #hand{flex:0 0 80%!important}
+body.view-touch .ctrls{flex:0 0 20%!important}
+/* Hide old touch UI elements in keyboard mode */
+body.view-touch #touch-selbar{display:none!important}
+
+/* ===== TABLE VIEW (13.3" / iPad display - immersive spectator) ===== */
+/* Hide interactive elements */
+body.view-table .dashboard,body.view-table .dash{display:none!important}
+body.view-table #hand{display:none!important}
+body.view-table .ctrls{display:none!important}
+body.view-table #afk-btn{display:none!important}
+body.view-table #afk-badge{display:none!important}
+body.view-table #coach-panel{display:none!important}
+body.view-table #ai-help-btn{display:none!important}
+body.view-table #casual-hud{display:none!important}
+body.view-table #game-theme-btn{display:none!important}
+body.view-table .res-box button{display:none!important}
+body.view-table #auto-continue-countdown{display:none!important}
+
+/* Full-screen game view with premium dark table */
+body.view-table #game-ui{flex-direction:column}
+body.view-table #view{
+  width:100%;height:100%;
+  background:radial-gradient(ellipse at 50% 50%,#0c2a1a 0%,#050f0a 50%,#020804 100%)
+}
+
+/* Score bar at top */
+body.view-table .mobile-score{
+  display:flex!important;height:44px;font-size:17px;
+  background:linear-gradient(180deg,rgba(0,0,0,0.85) 0%,transparent 100%);
+  padding:0 24px;z-index:10;
+  border-bottom:1px solid rgba(0,255,255,0.08)
+}
+body.view-table .mobile-score .ms-val{font-size:20px;font-weight:900}
+
+/* ---- Player avatars: 4-zone layout ---- */
+/* Self (YOU) — bottom center */
+body.view-table .p-me{
+  display:flex!important;flex-direction:column;align-items:center;
+  position:absolute!important;bottom:12px!important;left:50%!important;transform:translateX(-50%)!important;
+  z-index:300
+}
+body.view-table .p-me .av{width:72px!important;height:72px!important;font-size:13px!important;font-weight:900;border-width:3px!important}
+body.view-table .p-me .holo-av-ring{inset:-5px}
+body.view-table .p-me .holo-av-glow{inset:-10px}
+
+/* Partner — top center */
+body.view-table .p-top{top:52px;left:50%;transform:translateX(-50%)}
+/* Left opponent — left side, TRUE vertical center */
+body.view-table .p-left{top:50%;left:24px;transform:translateY(-50%)}
+/* Right opponent — right side, TRUE vertical center */
+body.view-table .p-right{top:50%;right:24px;transform:translateY(-50%)}
+
+/* Avatar sizes */
+body.view-table .timer-ring{width:90px;height:90px}
+body.view-table .av{width:82px;height:82px;font-size:14px;font-weight:900}
+body.view-table .badge-n{width:32px;height:32px;font-size:16px;font-weight:900}
+body.view-table .badge-finish{font-size:14px;padding:3px 14px}
+body.view-table .badge-type{font-size:12px;padding:2px 8px}
+
+/* Active player zone glow */
+body.view-table .p-zone:has(.av.active){filter:drop-shadow(0 0 20px rgba(0,255,200,0.4))}
+
+/* ---- Played card areas: compact non-overlapping zones ---- */
+body.view-table .out{
+  overflow:visible;
+  border:1px dashed rgba(0,255,255,0.1);border-radius:12px;
+  background:rgba(0,255,255,0.015)
+}
+body.view-table .out:has(.c-mini){
+  border-color:rgba(0,255,255,0.2);border-style:solid;
+  background:rgba(0,255,255,0.03);
+  box-shadow:0 0 20px rgba(0,255,255,0.06)
+}
+/* Partner (top) — below avatar, top band */
+body.view-table .o-t{width:300px;height:100px;top:27%;left:50%;transform:translateX(-50%)}
+/* Left — right of avatar, left half */
+body.view-table .o-l{width:300px;height:100px;top:50%;left:120px;transform:translateY(-50%)}
+/* Right — left of avatar, right half */
+body.view-table .o-r{width:300px;height:100px;top:50%;right:120px;transform:translateY(-50%)}
+/* Self (bottom) — above avatar, bottom band */
+body.view-table .o-m{width:300px;height:100px;bottom:18%;left:50%;transform:translateX(-50%)}
+
+/* ---- Large spectator cards ---- */
+body.view-table .c-mini{
+  width:90px!important;height:126px!important;margin-right:-36px;flex-shrink:0;
+  border-radius:10px!important
+}
+body.view-table .c-mini .card{
+  border-radius:10px!important;
+  box-shadow:0 4px 20px rgba(0,0,0,0.7)!important;
+  border:1px solid rgba(255,255,255,0.1)!important
+}
+body.view-table .c-mini .val-txt{font-size:22px;font-weight:900;padding:4px 5px}
+body.view-table .c-mini .center-icon{font-size:40px}
+body.view-table .c-mini:last-child{margin-right:0}
+
+/* Neon glow on played cards */
+body.view-table .out .c-mini .card{
+  box-shadow:0 4px 20px rgba(0,0,0,0.7),0 0 16px rgba(0,255,255,0.15)!important
+}
+
+/* Tags — well above cards, never touching cards or avatars */
+body.view-table .tag{
+  font-size:18px;font-weight:700;padding:6px 20px;border-radius:10px;
+  top:-55px;
+  text-shadow:0 0 8px rgba(255,215,0,0.4);
+  letter-spacing:1px
+}
+/* Left/right tags: position above cards, not beside */
+body.view-table .o-l .tag,body.view-table .o-r .tag{
+  top:-50px;left:50%;transform:translateX(-50%);right:auto
+}
+body.view-table .toast{font-size:22px;padding:16px 40px;border-radius:16px}
+
+/* Highcard overlay: bigger cards, no overlap with avatars */
+body.view-table .hc-card{width:90px!important;height:126px!important;border-radius:12px!important}
+body.view-table .hc-card .hc-val{font-size:28px!important}
+body.view-table .hc-card .hc-suit{font-size:36px!important}
+body.view-table .hc-slot .hc-label{font-size:14px!important}
+body.view-table .hc-pos-top{top:18%;left:50%;margin-left:-45px}
+body.view-table .hc-pos-bottom{top:62%;left:50%;margin-left:-45px}
+body.view-table .hc-pos-left{top:38%;left:calc(50% - 200px)}
+body.view-table .hc-pos-right{top:38%;left:calc(50% + 110px)}
+
+/* Hide default table decorations — replaced by zone grid */
+body.view-table .holo-table-circle{opacity:0.3}
+body.view-table .holo-hex-grid{opacity:0.05}
 </style>
 </head>
 <body>
@@ -1015,7 +1449,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
 
   <!-- VIP badge -->
   <div class="holo-member-badge">
-    <span>&#x1F451;</span>
+    <span style="font-style:normal">&#9733;</span>
     <span class="holo-member-text">LIFETIME VIP</span>
   </div>
 
@@ -1035,7 +1469,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
             <stop offset="100%" stop-color="#ff00ff"/>
           </linearGradient></defs>
         </svg>
-        <div class="holo-avatar-img">&#x1F9D1;&#x200D;&#x1F4BB;</div>
+        <div class="holo-avatar-img" style="font-size:48px;line-height:120px">P1</div>
       </div>
       <div class="holo-player-info">
         <div class="holo-player-name" id="holo-player-name">PLAYER_ONE</div>
@@ -1054,24 +1488,40 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
     <!-- Holographic mode buttons -->
     <div class="holo-btns" id="holo-btns">
       <div class="holo-btn" onclick="selectMode('casual')" data-mode="casual" onmouseenter="showModeInfo('casual')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon">&#x1F3AE;</div>
+        <div class="h-icon" style="font-style:normal">&#9654;</div>
         <div class="h-name">CASUAL</div>
         <div class="h-desc">PLAY FOR FUN<br>AI HINTS FOR VIP</div>
         <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">FREE PLAY</div>
       </div>
       <div class="holo-btn training-btn" onclick="selectMode('training')" data-mode="training" onmouseenter="showModeInfo('training')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon">&#x1F9E0;</div>
+        <div class="h-icon" style="font-style:normal">&#9672;</div>
         <div class="h-name">TRAINING</div>
         <div class="h-desc">AI COACH MODE<br>VOICE INTERACTIVE</div>
         <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">LEVEL UP</div>
       </div>
       <div class="holo-btn arena-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon">&#x1F3C6;</div>
+        <div class="h-icon" style="font-style:normal">&#9733;</div>
         <div class="h-name">ARENA</div>
         <div class="h-desc">WEEKLY PRIZE POOL<br>ELO RANKING</div>
         <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">COMING SOON</div>
       </div>
     </div>
+    <!-- Demo dual-screen buttons -->
+    <div style="display:flex;gap:16px;margin-top:20px;position:relative;z-index:50">
+      <div class="holo-btn" onclick="startDemo('touch')" style="width:180px;padding:14px 10px">
+        <div class="h-icon" style="font-size:24px;font-weight:900;color:var(--neon)">CTL</div>
+        <div class="h-name" style="font-size:13px">DEMO CONTROL</div>
+        <div class="h-desc" style="font-size:9px">TOUCHSCREEN<br>CARDS + ACTIONS</div>
+        <div class="h-tag" style="background:rgba(0,255,200,0.1);color:#00ffcc;border:1px solid rgba(0,255,200,0.3);font-size:8px">7" TOUCH</div>
+      </div>
+      <div class="holo-btn" onclick="startDemo('table')" style="width:180px;padding:14px 10px">
+        <div class="h-icon" style="font-size:24px;font-weight:900;color:#6666ff">VIEW</div>
+        <div class="h-name" style="font-size:13px">DEMO VIEW</div>
+        <div class="h-desc" style="font-size:9px">DISPLAY SCREEN<br>TABLE OVERVIEW</div>
+        <div class="h-tag" style="background:rgba(100,100,255,0.1);color:#6666ff;border:1px solid rgba(100,100,255,0.3);font-size:8px">DISPLAY</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:rgba(255,255,255,0.25);position:relative;z-index:50">树莓派双屏模式：先点 CONTROL 再点 VIEW 加入同房间</div>
   </div>
 
   <!-- Theme toggle button -->
@@ -1114,7 +1564,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
 
 <div id="lobby" class="screen">
   <div class="lobby-card">
-    <div style="font-size:50px;margin-bottom:10px">&#127942;</div>
+    <div style="font-size:50px;margin-bottom:10px">&#9733;</div>
     <div style="font-size:24px;font-weight:bold;margin-bottom:5px">SEASON 1</div>
     <div style="color:#888;margin-bottom:20px">2V2 RANKED &middot; 1-4 PLAYERS</div>
     <div style="width:100%;padding:15px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:20px">
@@ -1131,7 +1581,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
           onkeydown="if(event.key==='Enter')document.getElementById('find-btn').click()"/>
         <button onclick="generateRoomCode()" title="生成房间码"
           style="padding:12px 14px;border-radius:12px;border:1px solid #444;background:rgba(255,255,255,0.08);
-          color:#aaa;font-size:18px;cursor:pointer">🎲</button>
+          color:#aaa;font-size:18px;cursor:pointer">&#9851;</button>
       </div>
       <div id="room-code-display" style="margin-top:8px;font-size:11px;color:#555;text-align:center"></div>
     </div>
@@ -1176,9 +1626,9 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
       <div class="hc-title" id="hc-title">翻牌定先手</div>
     </div>
     <div class="training-badge" id="training-badge">🎓 TRAINING</div>
-    <button id="afk-btn" onclick="toggleAFK()">🤖 AFK 自动</button>
+    <button id="afk-btn" onclick="toggleAFK()">🤖 代打</button>
     <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;top:10px;right:10px;z-index:501;background:rgba(20,20,30,0.6);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙</button>
-    <div id="afk-badge">AFK</div>
+    <div id="afk-badge">代打</div>
     <div class="mobile-score" id="mobile-score">
       <span style="color:var(--gold)">YOU <span class="ms-val" id="ms-p0">0</span></span>
       <span>R <span class="ms-val" id="ms-p1">0</span></span>
@@ -1208,7 +1658,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
         <div class="casual-avatar-ring">
           <div class="casual-avatar-glow"></div>
           <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#hudGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="hudGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
-          <div class="casual-avatar-img" id="casual-avatar">&#x1F9D1;&#x200D;&#x1F4BB;</div>
+          <div class="casual-avatar-img" id="casual-avatar">P1</div>
         </div>
         <div class="casual-stats">
           <div class="casual-name" id="casual-name">PLAYER_ONE</div>
@@ -1245,7 +1695,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
           <div class="casual-avatar-ring arena-av-ring">
             <div class="casual-avatar-glow"></div>
             <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#dashGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="dashGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
-            <div class="casual-avatar-img" id="arena-avatar">&#x1F9D1;&#x200D;&#x1F4BB;</div>
+            <div class="casual-avatar-img" id="arena-avatar">P1</div>
           </div>
           <div class="arena-hud-info">
             <div class="arena-big-rank"><span class="arena-big-rank-num" id="arena-pos">2</span><span class="arena-big-rank-total">/200</span></div>
@@ -1282,7 +1732,7 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
               <stop offset="100%" stop-color="#ffd700"/>
             </linearGradient></defs>
           </svg>
-          <div class="ai-help-face">&#x1F9E0;</div>
+          <div class="ai-help-face" style="font-style:normal">AI</div>
         </div>
         <div class="ai-help-info">
           <div class="ai-help-title">AI COACH</div>
@@ -1319,6 +1769,38 @@ body.light-theme .joker-grey-wrap{color:#444 !important}
 </div>
 
 <script>
+/* ===== Dual-screen view detection ===== */
+const _urlParams = new URLSearchParams(window.location.search);
+const _viewMode = _urlParams.get('view'); // 'touch' | 'table' | null
+let _autoJoined = false;
+if(_viewMode === 'touch' || _viewMode === 'table'){
+  document.body.classList.add('view-' + _viewMode);
+}
+// Auto-detect small screen (Pi 7" touchscreen) → apply touch mode
+// Check screen height OR use DEMO CONTROL entry. No touch requirement (VNC doesn't have it)
+if(!_viewMode && (window.screen.height <= 650 || window.innerHeight <= 550)){
+  document.body.classList.add('view-touch');
+}
+// Touch mode: inject timer bar into ctrls and wrap buttons in ctrls-row
+if(document.body.classList.contains('view-touch')){
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const ctrls = document.getElementById('ctrls');
+    if(!ctrls) return;
+    // Create timer bar
+    const tbar = document.createElement('div');
+    tbar.id = 'touch-timer-bar';
+    tbar.innerHTML = '<div class="ttb-fill" style="width:100%"></div>';
+    ctrls.insertBefore(tbar, ctrls.firstChild);
+    // Wrap existing buttons in ctrls-row
+    const row = document.createElement('div');
+    row.className = 'ctrls-row';
+    Array.from(ctrls.children).forEach(ch=>{
+      if(ch.id !== 'touch-timer-bar') row.appendChild(ch);
+    });
+    ctrls.appendChild(row);
+  });
+}
+
 const socket=io('https://crayxus-game.onrender.com',{autoConnect:false,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
 let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
@@ -1497,9 +1979,11 @@ const AudioSys={
     const o=this.ctx.createOscillator(),g=this.ctx.createGain();
     o.connect(g);g.connect(this.ctx.destination);
     const n=this.ctx.currentTime;
-    if(t==='deal'){o.type='sawtooth';o.frequency.setValueAtTime(800,n);g.gain.setValueAtTime(0.05,n);g.gain.linearRampToValueAtTime(0,n+0.05);o.start(n);o.stop(n+0.05)}
+    if(t==='deal'){o.type='square';o.frequency.setValueAtTime(220,n);o.frequency.exponentialRampToValueAtTime(80,n+0.07);g.gain.setValueAtTime(0.12,n);g.gain.exponentialRampToValueAtTime(0.001,n+0.09);o.start(n);o.stop(n+0.09)}
     else if(t==='snap'){o.type='square';o.frequency.setValueAtTime(150,n);g.gain.setValueAtTime(0.2,n);g.gain.linearRampToValueAtTime(0,n+0.1);o.start(n);o.stop(n+0.1)}
     else if(t==='click'){o.type='triangle';o.frequency.setValueAtTime(600,n);g.gain.setValueAtTime(0.1,n);g.gain.linearRampToValueAtTime(0,n+0.1);o.start(n);o.stop(n+0.1)}
+    else if(t==='sort'){o.type='sawtooth';o.frequency.setValueAtTime(800,n);o.frequency.exponentialRampToValueAtTime(200,n+0.3);g.gain.setValueAtTime(0.07,n);g.gain.exponentialRampToValueAtTime(0.001,n+0.35);o.start(n);o.stop(n+0.35)}
+    else if(t==='chime'){o.type='sine';o.frequency.setValueAtTime(523,n);o.frequency.setValueAtTime(659,n+0.12);g.gain.setValueAtTime(0.1,n);g.gain.exponentialRampToValueAtTime(0.001,n+0.3);o.start(n);o.stop(n+0.3)}
   }
 };
 
@@ -1805,21 +2289,37 @@ function renderUI(){
 
 function startTimer(){
   stopTimer();
-  timeLeft=60;
+  const TIMER_TOTAL = 25;
+  timeLeft=TIMER_TOTAL;
   let tt=document.getElementById('my-timer-txt');
   if(tt){tt.style.display='block';tt.innerText=timeLeft+'s';tt.style.color='var(--gold)';}
+  // Touch mode: update timer bar
+  _updateTimerBar(timeLeft, TIMER_TOTAL);
   timerInterval=setInterval(()=>{
     timeLeft--;
     if(tt)tt.innerText=timeLeft+'s';
     if(timeLeft<=10&&tt)tt.style.color='var(--red)';
+    _updateTimerBar(timeLeft, TIMER_TOTAL);
     if(timeLeft<=0){stopTimer();autoPlay();}
   },1000);
+}
+
+function _updateTimerBar(left, total){
+  let bar = document.getElementById('touch-timer-bar');
+  if(!bar) return;
+  let fill = bar.querySelector('.ttb-fill');
+  if(!fill) return;
+  const pct = Math.max(0, (left / total) * 100);
+  fill.style.width = pct + '%';
+  if(left <= 8) fill.classList.add('ttb-warn');
+  else fill.classList.remove('ttb-warn');
 }
 
 function stopTimer(){
   clearInterval(timerInterval);timerInterval=null;
   let tt=document.getElementById('my-timer-txt');
   if(tt){tt.style.display='none';tt.style.color='var(--gold)';}
+  _updateTimerBar(0, 1);
 }
 
 function startOpponentTimer(){
@@ -1904,7 +2404,7 @@ function calcResult(){
       upgradeMsg=`\n我方打${myLvl} · 对方打${opLvl}`;
       if(window._upgradeFinished){
         let who=(lastWinTeam===0)===(mySeat%2===0)?'我方':'对方';
-        upgradeMsg+=`\n🏆 ${who}双上过A，升级模式胜利！`;
+        upgradeMsg+=`\n★${who}双上过A，升级模式胜利！`;
       }
     } else {
       // Training (local): compute locally
@@ -1928,7 +2428,7 @@ function calcResult(){
       upgradeMsg=`\n我方打${myLvl} · 对方打${opLvl}`;
       if(curLvl>=idxA&&teamPts===4){
         let who=winTeamIdx===0?'我方':'对方';
-        upgradeMsg+=`\n🏆 ${who}双上过A，升级模式胜利！`;
+        upgradeMsg+=`\n★${who}双上过A，升级模式胜利！`;
         window._upgradeFinished=true;
       }else if(curLvl>=idxA&&winTeamIdx===(winTeam.includes(mySeat)?0:1)){
         upgradeMsg+='\n⚠️ 打A必须双上才能过关！';
@@ -2167,7 +2667,9 @@ let currentScreen='mode-select';
 function switchScreen(id){
   currentScreen=id;
   document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  if(!id)return;
   let t=document.getElementById(id);
+  if(!t)return;
   t.style.display='flex';
   setTimeout(()=>t.classList.add('active'),10);
   if(id==='mode-select'){setTimeout(startSpotlight,1500)}else{stopSpotlight()}
@@ -2176,7 +2678,7 @@ function switchScreen(id){
 socket.on('connect',()=>{
   document.getElementById('conn-status').innerText="Online";
   document.getElementById('conn-status').style.color="#0f0";
-  let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
+  let b=document.getElementById('find-btn');if(!b._demoMode){b.innerText="FIND MATCH";}b.disabled=false;
 });
 // Notify server immediately when browser tab is closed/refreshed
 window.addEventListener('beforeunload',()=>{
@@ -2310,9 +2812,11 @@ function _doEnterGame(d){
   }else{
     // Casual mode: show casual HUD, hide arena HUD and EVO
     if(arenaHud)arenaHud.style.display='none';
-    if(casualHud)casualHud.style.display='block';
-    if(pme)pme.style.display='none';
-    if(aiBtn)aiBtn.style.display='block';
+    var _isTouch=document.body.classList.contains('view-touch');
+    var _isTable=document.body.classList.contains('view-table');
+    if(casualHud)casualHud.style.display=_isTable?'none':'block';
+    if(pme)pme.style.display=_isTable?'':'none';
+    if(aiBtn)aiBtn.style.display=(_isTouch||_isTable)?'none':'block';
     if(evoBar)evoBar.style.display='none';
     // Toggle fixed/upgrade HUD
     let fixedS=document.getElementById('fixed-stats');
@@ -2338,7 +2842,7 @@ function _doEnterGame(d){
   if(window._applyWeChatProfile)window._applyWeChatProfile();
   const afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='block';
   afkEnabled=false;clearTimeout(afkTimer);
-  const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='';afkbtn.innerHTML='🤖 AFK 自动';}
+  const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='';afkbtn.innerHTML='🤖 代打';}
   const afkbadge=document.getElementById('afk-badge');if(afkbadge)afkbadge.style.display='none';
   sessionEloChange=0;lastMoveWasTimeout=false;
   let de=document.getElementById('disp-elo');if(de)de.innerText=myElo;
@@ -2802,14 +3306,12 @@ function autoPlay(){
     afkEnabled=true;
     const btn=document.getElementById('afk-btn');
     const badge=document.getElementById('afk-badge');
-    if(btn){btn.className='afk-on';btn.innerHTML='🤖 AFK <span style="color:#0f0">ON</span>';}
+    if(btn){btn.className='afk-on';btn.innerHTML='🤖 代打 <span style="color:#0f0">ON</span>';}
     if(badge)badge.style.display='block';
   }
-  toast("超时 - AFK自动打牌已开启");doHint();
-  let s=myCards.filter(c=>c.sel);
-  if(s.length>0)setTimeout(sendPlay,500);
-  else if(!lastHand&&myCards.length>0){myCards[myCards.length-1].sel=true;renderHand();setTimeout(sendPlay,500)}
-  else sendPass();
+  toast("超时 - 代打已开启");
+  // Use doAFKPlay which has robust fallback logic
+  doAFKPlay();
 }
 
 async function modelPickMove(seat,hand){
@@ -3083,9 +3585,341 @@ function joinGame(){
   }
 }
 
+// ===== KEYBOARD GRID RENDERER (touch mode) =====
+const KB_RANKS = ['2','A','K','Q','J','10','9','8','7','6','5','4','3'];
+const KB_SUITS = ['♠','♥','♣','♦'];
+const KB_SUIT_CLS = {'♠':'kb-spade','♥':'kb-heart','♣':'kb-club','♦':'kb-diamond'};
+const KB_VAL_MAP = {'2':0,'A':1,'K':2,'Q':3,'J':4,'10':5,'9':6,'8':7,'7':8,'6':9,'5':10,'4':11,'3':12};
+const KB_DISP = {'10':'T'};
+let _kbGridBuilt = false;
+let _kbDealTimer = null;
+
+function renderHandKeyboard(isDealing){
+  const h = document.getElementById('hand');
+
+  // --- Build touch HUD (once) ---
+  let tHud = document.getElementById('touch-hud');
+  if(!tHud){
+    tHud = document.createElement('div');
+    tHud.id = 'touch-hud';
+    const pName = localStorage.getItem('crayxus_name') || 'PLAYER';
+    const wins = parseInt(localStorage.getItem('crayxus_wins'))||0;
+    const games = parseInt(localStorage.getItem('crayxus_games'))||0;
+    const wr = games > 0 ? Math.round(wins/games*100) : 0;
+    tHud.innerHTML = `<div class="th-avatar">P1</div>
+      <div class="th-info">
+        <div class="th-name">${pName}</div>
+        <div class="th-stats">WIN <span class="th-val">${wr}%</span> · <span class="th-val">${games}</span> G</div>
+      </div>`;
+    document.getElementById('view').appendChild(tHud);
+  }
+
+  // Build grid structure (once, then reuse)
+  let grid = h.querySelector('.kb-grid');
+  if(!grid){
+    grid = document.createElement('div');
+    grid.className = 'kb-grid';
+    _buildKbGrid(grid);
+    h.innerHTML = '';
+    h.appendChild(grid);
+    _kbGridBuilt = true;
+  }
+
+  // Cancel ongoing deal animation
+  if(_kbDealTimer){ clearTimeout(_kbDealTimer); _kbDealTimer = null; }
+
+  // Map myCards to grid keys
+  const allKeys = grid.querySelectorAll('.kb-key');
+  // Reset all keys to unlit
+  allKeys.forEach(k => {
+    k.classList.remove('kb-lit','kb-sel','kb-dark','kb-dealing','kb-sorted');
+    k.style.transform = '';
+    k.style.transition = '';
+    k.style.animation = '';
+    k._card = null;
+  });
+
+  // Track how many cards of each suit+value we've placed
+  const placed = {};
+
+  // Sort cards: higher priority first (matches keyboard left-to-right)
+  const sortedCards = [...myCards].sort((a,b) => b.p - a.p);
+
+  sortedCards.forEach(c => {
+    const key = _findKbKey(grid, c, placed);
+    if(!key) return;
+    key._card = c;
+    if(!isDealing){
+      key.classList.add(c.sel ? 'kb-sel' : 'kb-lit');
+    }
+  });
+
+  if(isDealing){
+    _kbDealAnimation(grid, sortedCards, placed);
+  } else {
+    // Immediately sort cards to bottom (no animation)
+    _kbApplySort(grid);
+  }
+}
+
+function _buildKbGrid(grid){
+  for(let row = 0; row < 8; row++){
+    const suitIdx = Math.floor(row / 2);
+    const suit = KB_SUITS[suitIdx];
+    const suitCls = KB_SUIT_CLS[suit];
+
+    // Col 0: 大王 (only rows 6-7)
+    if(row >= 6){
+      const k = _makeKbKey('大王', `${suitCls} kb-big-joker`, suit, row, 0);
+      k.dataset.val = 'Bg';
+      grid.appendChild(k);
+    } else {
+      grid.appendChild(_makeKbEmpty());
+    }
+
+    // Col 1: 小王 (only rows 6-7)
+    if(row >= 6){
+      const k = _makeKbKey('小王', `${suitCls} kb-small-joker`, suit, row, 1);
+      k.dataset.val = 'Sm';
+      grid.appendChild(k);
+    } else {
+      grid.appendChild(_makeKbEmpty());
+    }
+
+    // Cols 2-14: ranks
+    for(let ci = 0; ci < KB_RANKS.length; ci++){
+      const rank = KB_RANKS[ci];
+      const disp = KB_DISP[rank] || rank;
+      const k = _makeKbKey(disp, suitCls, suit, row, ci + 2);
+      k.dataset.val = rank;
+      grid.appendChild(k);
+    }
+  }
+}
+
+function _makeKbKey(label, cls, suit, row, col){
+  const k = document.createElement('div');
+  k.className = `kb-key ${cls}`;
+  k.dataset.row = row;
+  k.dataset.col = col;
+  k.dataset.suit = suit;
+  k.textContent = label;
+  const sub = document.createElement('span');
+  sub.className = 'kb-sub';
+  sub.textContent = suit;
+  k.appendChild(sub);
+  // Click handler
+  k.onclick = e => {
+    e.stopPropagation();
+    if(!k._card) return;
+    if(window._tributePickMode){
+      myCards.forEach(x => x.sel = false);
+      k._card.sel = true;
+      renderHand();
+      let btn = document.getElementById('tpb-confirm');
+      if(btn) btn.disabled = false;
+      AudioSys.play('click');
+      return;
+    }
+    k._card.sel = !k._card.sel;
+    renderHand();
+    AudioSys.play('click');
+  };
+  return k;
+}
+
+function _makeKbEmpty(){
+  const e = document.createElement('div');
+  e.className = 'kb-empty';
+  return e;
+}
+
+function _findKbKey(grid, card, placed){
+  let val = card.v;
+  let suit = card.s;
+
+  if(suit === 'JOKER'){
+    // Joker: col 0 (Bg) or col 1 (Sm), rows 6-7
+    const col = val === 'Bg' ? 0 : 1;
+    const pkey = `joker-${val}`;
+    const count = placed[pkey] || 0;
+    placed[pkey] = count + 1;
+    const targetRow = 6 + count; // row 6 first, then 7
+    if(targetRow > 7) return null;
+    return grid.querySelector(`.kb-key[data-row="${targetRow}"][data-col="${col}"]`);
+  }
+
+  // Regular card: find column by value
+  const colIdx = KB_VAL_MAP[val];
+  if(colIdx === undefined) return null;
+  const col = colIdx + 2;
+
+  // Find suit rows
+  const suitIdx = KB_SUITS.indexOf(suit);
+  if(suitIdx < 0) return null;
+  const baseRow = suitIdx * 2;
+
+  const pkey = `${suit}-${val}`;
+  const count = placed[pkey] || 0;
+  placed[pkey] = count + 1;
+  const targetRow = baseRow + count;
+  if(targetRow > baseRow + 1) return null;
+
+  return grid.querySelector(`.kb-key[data-row="${targetRow}"][data-col="${col}"]`);
+}
+
+function _kbApplySort(grid){
+  const allKeys = grid.querySelectorAll('.kb-key');
+  const columns = {};
+  allKeys.forEach(k => {
+    const col = parseInt(k.dataset.col);
+    const row = parseInt(k.dataset.row);
+    if(!columns[col]) columns[col] = [];
+    const isLit = k.classList.contains('kb-lit') || k.classList.contains('kb-sel');
+    columns[col].push({el: k, row, isLit, top: k.offsetTop});
+  });
+
+  for(const col of Object.keys(columns)){
+    const keys = columns[col].sort((a,b) => a.row - b.row);
+    const litInCol = keys.filter(k => k.isLit);
+    const dimInCol = keys.filter(k => !k.isLit);
+    if(litInCol.length === 0 || litInCol.length === keys.length) continue;
+
+    // Use actual pixel positions as target slots
+    const tops = keys.map(k => k.top).sort((a,b) => a - b);
+
+    // Dim keys float to top slots
+    dimInCol.forEach((k, i) => {
+      const shift = tops[i] - k.top;
+      k.el.style.transition = 'none';
+      k.el.style.transform = shift ? `translateY(${shift}px)` : '';
+    });
+
+    // Lit keys sink to bottom slots (gravity)
+    litInCol.forEach((k, i) => {
+      const shift = tops[dimInCol.length + i] - k.top;
+      k.el.style.transition = 'none';
+      k.el.style.transform = shift ? `translateY(${shift}px)` : '';
+    });
+  }
+}
+
+function _kbDealAnimation(grid, sortedCards, placed){
+  if(_kbDealTimer) clearTimeout(_kbDealTimer);
+
+  const allKeys = grid.querySelectorAll('.kb-key');
+  // All keys go dark
+  allKeys.forEach(k => k.classList.add('kb-dark'));
+
+  // Re-map cards to keys for animation
+  const placedAnim = {};
+  const cardKeys = [];
+  // Deal in shuffled order for natural feel
+  const shuffled = [...sortedCards];
+  for(let i = shuffled.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  shuffled.forEach(c => {
+    const key = _findKbKey(grid, c, placedAnim);
+    if(key) {
+      key._card = c;
+      cardKeys.push({card: c, el: key});
+    }
+  });
+
+  const DEAL_INTERVAL = 150; // ~4s for 27 cards
+
+  cardKeys.forEach((ck, i) => {
+    _kbDealTimer = setTimeout(() => {
+      ck.el.classList.remove('kb-dark');
+      ck.el.style.animation = 'none';
+      void ck.el.offsetHeight;
+      ck.el.classList.add('kb-dealing');
+      setTimeout(() => {
+        ck.el.classList.remove('kb-dealing');
+        ck.el.style.animation = '';
+        ck.el.classList.add('kb-lit');
+      }, 200);
+      if(i % 4 === 0) AudioSys.play('deal');
+    }, i * DEAL_INTERVAL);
+  });
+
+  // After all dealt: dim unlit, pause, then sort down
+  const allDealtTime = cardKeys.length * DEAL_INTERVAL + 300;
+  _kbDealTimer = setTimeout(() => {
+    allKeys.forEach(k => {
+      if(k.classList.contains('kb-dark')){
+        k.classList.remove('kb-dark');
+        k.style.transition = 'all 0.4s';
+      }
+    });
+
+    // Sort after 0.8s pause
+    _kbDealTimer = setTimeout(() => {
+      AudioSys.play('sort');
+      _kbSortAnimation(grid, cardKeys);
+      setTimeout(() => AudioSys.play('chime'), 600);
+    }, 800);
+  }, allDealtTime);
+}
+
+function _kbSortAnimation(grid, cardKeys){
+  const allKeys = grid.querySelectorAll('.kb-key');
+  const litSet = new Set(cardKeys.map(ck => ck.el));
+
+  // Group all keys by column, read actual pixel positions
+  const columns = {};
+  allKeys.forEach(k => {
+    const col = parseInt(k.dataset.col);
+    const row = parseInt(k.dataset.row);
+    if(!columns[col]) columns[col] = [];
+    columns[col].push({el: k, row, isLit: litSet.has(k), top: k.offsetTop});
+  });
+
+  let colDelay = 0;
+  const colOrder = Object.keys(columns).map(Number).sort((a,b) => a - b);
+
+  for(const col of colOrder){
+    const keys = columns[col].sort((a,b) => a.row - b.row);
+    const litInCol = keys.filter(k => k.isLit);
+    const dimInCol = keys.filter(k => !k.isLit);
+
+    if(litInCol.length === 0 || litInCol.length === keys.length) continue;
+
+    // Use actual pixel positions as target slots
+    const tops = keys.map(k => k.top).sort((a,b) => a - b);
+    const delay = colDelay * 60;
+
+    // Dim keys float to top slots
+    dimInCol.forEach((k, i) => {
+      const shift = tops[i] - k.top;
+      setTimeout(() => {
+        k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
+        k.el.style.transform = shift ? `translateY(${shift}px)` : '';
+      }, delay);
+    });
+
+    // Lit keys fall to bottom slots (gravity)
+    litInCol.forEach((k, i) => {
+      const shift = tops[dimInCol.length + i] - k.top;
+      setTimeout(() => {
+        k.el.style.transition = 'transform 0.45s cubic-bezier(0.22,1,0.36,1)';
+        k.el.style.transform = shift ? `translateY(${shift}px)` : '';
+        k.el.classList.add('kb-sorted');
+        k.el.classList.remove('kb-lit');
+      }, delay);
+    });
+
+    colDelay++;
+  }
+}
+
 function renderHand(isDealing=false){
   const h=document.getElementById('hand');
-  h.innerHTML='';
+  const _isTouchView = document.body.classList.contains('view-touch');
+  if(!_isTouchView) h.innerHTML='';
   myCards.sort((a,b)=>b.p-a.p||(a.s>b.s?1:-1));
   const groups=[];
   let curP=null,curGrp=null;
@@ -3094,23 +3928,52 @@ function renderHand(isDealing=false){
     else curGrp.cards.push(c);
   });
   const totalCols = groups.length;
-  const GAP = 5;
   const viewW = Math.min(window.innerWidth, document.getElementById('view').offsetWidth||window.innerWidth);
-  const availW = viewW - 20;
-  let CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
-  CW = Math.max(44, Math.min(100, CW));
+  let GAP, CW;
+
+  if(_isTouchView){
+    // === TOUCH MODE: Keyboard grid layout ===
+    renderHandKeyboard(isDealing);
+    return;
+  } else {
+    GAP = 5;
+    const availW = viewW - 20;
+    CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
+    CW = Math.max(44, Math.min(100, CW));
+  }
   const CH = Math.round(CW * 1.42);
-  const PEEK = Math.round(CW * 36/66);
+  let PEEK = Math.round(CW * 36/66);
+  // Touch mode: if tallest stack overflows zone, shrink PEEK to fit
+  if(_isTouchView){
+    const viewEl2 = document.getElementById('view');
+    const zH = Math.floor((viewEl2 ? viewEl2.offsetHeight : window.innerHeight) * 0.7);
+    const maxN = Math.max(1, ...groups.map(g => g.cards.length));
+    const tallestStack = CH + (maxN - 1) * PEEK;
+    if(tallestStack > zH - 8){
+      // Shrink peek so it fits: CH + (maxN-1)*newPeek = zH - 8
+      PEEK = maxN > 1 ? Math.floor((zH - 8 - CH) / (maxN - 1)) : PEEK;
+      PEEK = Math.max(PEEK, 16); // minimum peek to still see rank label
+    }
+  }
   const fVal  = Math.max(10, Math.round(CW * 18/66));
   const fSuit = Math.max(9, Math.round(CW * 15/66));
   const fCenter = Math.max(14, Math.round(CW * 32/66));
 
-  groups.forEach(gr=>{
+  groups.forEach((gr, gi)=>{
     const n = gr.cards.length;
     const stackH = CH + (n-1)*PEEK;
     const allSel = gr.cards.every(c=>c.sel);
     const wrap = document.createElement('div');
     wrap.className = 'grp-wrap';
+    // Touch mode: apply overlap via negative margin, z-index so left cards on top
+    if(_isTouchView && GAP < 0 && gi < totalCols - 1){
+      wrap.style.marginRight = GAP + 'px';
+    }
+    if(_isTouchView){
+      // Right cards on top of left → left card's top-left label stays visible
+      wrap.style.position = 'relative';
+      wrap.style.zIndex = String(gi + 1);
+    }
     const col = document.createElement('div');
     col.className = 'grp-col';
     col.style.cssText = `width:${CW}px;height:${stackH}px;`;
@@ -3173,17 +4036,40 @@ function renderHand(isDealing=false){
       col.appendChild(stackCard);
     });
     wrap.appendChild(col);
-    const selBtn = document.createElement('button');
-    selBtn.className = 'grp-sel-btn' + (allSel?' all-sel':'');
-    selBtn.textContent = allSel ? '✓全' : '全选';
-    selBtn.style.width = CW+'px';
-    selBtn.onclick = e=>{
-      e.stopPropagation();
-      const nowAll = gr.cards.every(c=>c.sel);
-      gr.cards.forEach(c=>c.sel=!nowAll);
-      renderHand(); AudioSys.play('click');
-    };
-    wrap.appendChild(selBtn);
+
+    if(_isTouchView){
+      // Touch mode: select buttons go to bottom bar, not in grp-wrap
+      const selbar = document.getElementById('touch-selbar');
+      if(selbar){
+        const selBtn = document.createElement('button');
+        selBtn.className = 'tsel-btn' + (allSel?' all-sel':'');
+        selBtn.textContent = '▲';
+        // All buttons same width as visible card portion
+        let btnW = (gi < totalCols - 1 && GAP < 0) ? (CW + GAP) : CW;
+        btnW = Math.max(btnW, 28);
+        selBtn.style.width = btnW + 'px';
+        selBtn.onclick = e=>{
+          e.stopPropagation();
+          const nowAll = gr.cards.every(c=>c.sel);
+          gr.cards.forEach(c=>c.sel=!nowAll);
+          renderHand(); AudioSys.play('click');
+        };
+        selbar.appendChild(selBtn);
+      }
+    } else {
+      const selBtn = document.createElement('button');
+      selBtn.className = 'grp-sel-btn' + (allSel?' all-sel':'');
+      selBtn.textContent = allSel ? '✓全' : '全选';
+      selBtn.style.width = CW+'px';
+      selBtn.onclick = e=>{
+        e.stopPropagation();
+        const nowAll = gr.cards.every(c=>c.sel);
+        gr.cards.forEach(c=>c.sel=!nowAll);
+        renderHand(); AudioSys.play('click');
+      };
+      wrap.appendChild(selBtn);
+    }
+
     h.appendChild(wrap);
   });
   requestAnimationFrame(()=>requestAnimationFrame(()=>repositionButtons()));
@@ -3192,6 +4078,8 @@ function renderHand(isDealing=false){
 function repositionButtons(){
   const handEl = document.getElementById('hand');
   if(!handEl) return;
+  // Touch mode: layout is pure CSS flex, skip JS repositioning
+  if(document.body.classList.contains('view-touch')) return;
   const vh = window.innerHeight;
   const isMobile = vh < 500 || window.innerWidth < 500;
   let maxWrapH = 0;
@@ -3224,10 +4112,12 @@ function repositionButtons(){
   const pme   = document.getElementById('pzone-me');
   if(ctrls) ctrls.style.bottom = btnBottom + 'px';
   if(pme)   pme.style.bottom   = (btnBottom + 4) + 'px';
-  const afkBtn=document.getElementById('afk-btn');
-  const afkBadge=document.getElementById('afk-badge');
-  if(afkBtn){afkBtn.style.bottom=(handBottom+Math.round(newHandH/2)-15)+'px';afkBtn.style.right='10px'}
-  if(afkBadge){afkBadge.style.bottom=(handBottom+newHandH-5)+'px';afkBadge.style.right='8px'}
+  if(!_isTouchView){
+    const afkBtn=document.getElementById('afk-btn');
+    const afkBadge=document.getElementById('afk-badge');
+    if(afkBtn){afkBtn.style.bottom=(handBottom+Math.round(newHandH/2)-15)+'px';afkBtn.style.right='10px'}
+    if(afkBadge){afkBadge.style.bottom=(handBottom+newHandH-5)+'px';afkBadge.style.right='8px'}
+  }
 }
 window.addEventListener('resize', ()=>{
   if(myCards.length > 0) requestAnimationFrame(()=>requestAnimationFrame(()=>{ renderHand(); }));
@@ -3243,16 +4133,16 @@ function toggleAFK(){
   const badge = document.getElementById('afk-badge');
   if(afkEnabled){
     btn.className = 'afk-on';
-    btn.innerHTML = '🤖 AFK <span style="color:#0f0">ON</span>';
+    btn.innerHTML = '🤖 代打 <span style="color:#0f0">ON</span>';
     badge.style.display = 'block';
-    toast('AFK 自动打牌已开启');
+    toast('代打已开启');
     if(isMyTurn) scheduleAFK();
   } else {
     btn.className = '';
-    btn.innerHTML = '🤖 AFK 自动';
+    btn.innerHTML = '🤖 代打';
     badge.style.display = 'none';
     clearTimeout(afkTimer);
-    toast('AFK 自动打牌已关闭');
+    toast('代打已关闭');
   }
 }
 
@@ -3267,14 +4157,21 @@ function scheduleAFK(){
 
 function doAFKPlay(){
   if(!isMyTurn || gameOver) return;
+  if(!myCards.length) return;
   myCards.forEach(c=>c.sel=false);
   const g = analyzeHand(myCards);
   let pick = null;
   if(!lastHand){
+    // Free lead: pick weakest single
     if(g.singles.length){
       const normals = g.singles.filter(s=>s[0].s!=='JOKER'&&s[0].v!=='2');
       normals.sort((a,b)=>a[0].p-b[0].p);
       pick = normals.length ? normals[0] : g.singles[0];
+    }
+    // Fallback: just play any one card
+    if(!pick || !pick.length){
+      const sorted = [...myCards].filter(c=>c.s!=='JOKER').sort((a,b)=>a.p-b.p);
+      pick = [sorted.length ? sorted[0] : myCards[0]];
     }
   } else {
     pick = findMatch(g, lastHand);
@@ -3285,18 +4182,27 @@ function doAFKPlay(){
   if(pick && pick.length > 0){
     pick.forEach(c=>c.sel=true);
     renderHand();
-    setTimeout(()=>{if(isMyTurn && afkEnabled) sendPlay();}, 300);
+    setTimeout(()=>{
+      if(!isMyTurn || gameOver) return;
+      sendPlay();
+      // Safety: if sendPlay failed (invalid hand type), force pass or retry
+      setTimeout(()=>{
+        if(isMyTurn && !gameOver){
+          if(lastHand) sendPass();
+          else { myCards.forEach(c=>c.sel=false); if(myCards.length){myCards[myCards.length-1].sel=true;renderHand();setTimeout(sendPlay,200)} }
+        }
+      }, 500);
+    }, 300);
   } else {
+    // Can't beat — pass
     if(lastHand) {
-      setTimeout(()=>{if(isMyTurn && afkEnabled) sendPass();}, 300);
+      setTimeout(()=>{if(isMyTurn && !gameOver) sendPass();}, 300);
     } else {
-      if(myCards.length > 0){
-        const sorted = [...myCards].filter(c=>c.s!=='JOKER').sort((a,b)=>a.p-b.p);
-        const weakest = sorted.length ? sorted[0] : myCards[0];
-        weakest.sel = true;
-        renderHand();
-        setTimeout(()=>{if(isMyTurn && afkEnabled) sendPlay();}, 300);
-      }
+      // Must lead but no valid hand found — play weakest card
+      const weakest = myCards[myCards.length-1];
+      weakest.sel = true;
+      renderHand();
+      setTimeout(()=>{if(isMyTurn && !gameOver) sendPlay();}, 300);
     }
   }
 }
@@ -3909,7 +4815,8 @@ function startTrainingGame(isContinue){
   // Show casual HUD or arena HUD
   let casualHud = document.getElementById('casual-hud');
   let arenaHud = document.getElementById('arena-hud');
-  if(casualHud) casualHud.style.display = (gameMode==='casual') ? 'block' : 'none';
+  const _touchMode = document.body.classList.contains('view-touch');
+  if(casualHud) casualHud.style.display = (gameMode==='casual' || _touchMode) ? 'block' : 'none';
   if(arenaHud) arenaHud.style.display = (gameMode==='arena') ? 'block' : 'none';
   // Update casual stats + toggle fixed/upgrade HUD
   if(gameMode==='casual'){
@@ -4366,6 +5273,9 @@ function tProcessAction(d){
   // Check finish
   if(d.type==='play'&&tLocalCards[d.seat].length===0&&!finishOrder.includes(d.seat)){
     finishOrder.push(d.seat);
+    // Clear finished player's out zone after a brief display
+    let fViewId=(d.seat-mySeat+4)%4;
+    setTimeout(()=>{let el=document.getElementById('out-'+fViewId);if(el){el.classList.add('dimmed');setTimeout(()=>{el.innerHTML='';el.classList.remove('dimmed')},400)}},1500);
   }
 
   // Check game over: both teammates finished or 3 players done
@@ -5505,6 +6415,152 @@ if('serviceWorker' in navigator){
 }
 
 setTimeout(startSpotlight, 1500);
+
+/* ===== BroadcastChannel dual-screen sync ===== */
+const _bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('crayxus_dual') : null;
+
+function broadcastViewState(){
+  if(!_bc || _viewMode === 'table') return;
+  const state = {type:'viewSync', outs:{}, avatars:{}, badges:{}, finishBadges:{}, typeBadges:{},
+    counts:counts.slice(), turn:turn, mySeat:mySeat, gameOver:gameOver,
+    finishOrder:finishOrder.slice(), timeLeft:timeLeft, timerActive:!!timerInterval};
+  for(let i=0;i<4;i++){
+    const el=document.getElementById('out-'+i);
+    if(el) state.outs[i]={html:el.innerHTML, classes:el.className};
+    const av=document.getElementById('av-'+i);
+    if(av) state.avatars[i]={classes:av.className, text:av.innerText};
+    const nb=document.getElementById('n-'+i);
+    if(nb) state.badges[i]={display:nb.style.display, text:nb.innerText};
+    const fb=document.getElementById('f-'+i);
+    if(fb) state.finishBadges[i]={display:fb.style.display, text:fb.innerText};
+    const tb=document.getElementById('type-'+i);
+    if(tb) state.typeBadges[i]={display:tb.style.display, text:tb.innerText, classes:tb.className};
+  }
+  state.mobileScore={};
+  for(let i=0;i<4;i++){const ms=document.getElementById('ms-p'+i);if(ms)state.mobileScore[i]=ms.innerText;}
+  const msElo=document.getElementById('ms-elo');if(msElo)state.mobileScore.elo=msElo.innerText;
+  const tst=document.getElementById('tst');
+  if(tst&&parseFloat(tst.style.opacity)>0)state.toast=tst.innerText;
+  const rm=document.getElementById('result-modal');
+  if(rm&&(rm.style.display==='flex'||rm.style.display==='block')){
+    state.result={title:document.getElementById('res-title')?.innerText,
+      desc:document.getElementById('res-desc')?.innerText,
+      points:document.getElementById('res-points')?.innerText,
+      elo:document.getElementById('res-elo')?.innerText};
+  }
+  try{_bc.postMessage(state);}catch(e){}
+}
+
+if(_viewMode==='table'&&_bc){
+  _bc.onmessage=function(ev){
+    const s=ev.data;if(s.type!=='viewSync')return;
+    for(let i=0;i<4;i++){
+      const el=document.getElementById('out-'+i);
+      if(el&&s.outs[i]){el.innerHTML=s.outs[i].html;el.className=s.outs[i].classes;}
+      const av=document.getElementById('av-'+i);
+      if(av&&s.avatars[i]){av.className=s.avatars[i].classes;av.innerText=s.avatars[i].text;}
+      const nb=document.getElementById('n-'+i);
+      if(nb&&s.badges[i]){nb.style.display=s.badges[i].display;nb.innerText=s.badges[i].text;}
+      const fb=document.getElementById('f-'+i);
+      if(fb&&s.finishBadges[i]){fb.style.display=s.finishBadges[i].display;fb.innerText=s.finishBadges[i].text;}
+      const tb=document.getElementById('type-'+i);
+      if(tb&&s.typeBadges[i]){tb.style.display=s.typeBadges[i].display;tb.innerText=s.typeBadges[i].text;tb.className=s.typeBadges[i].classes;}
+    }
+    if(s.mobileScore){
+      for(let i=0;i<4;i++){const ms=document.getElementById('ms-p'+i);if(ms&&s.mobileScore[i]!==undefined)ms.innerText=s.mobileScore[i];}
+      const msElo=document.getElementById('ms-elo');if(msElo&&s.mobileScore.elo)msElo.innerText=s.mobileScore.elo;
+    }
+    if(s.toast){const tst=document.getElementById('tst');if(tst){tst.innerText=s.toast;tst.style.opacity=1;clearTimeout(tst._tid);tst._tid=setTimeout(()=>{tst.style.opacity=0},2000);}}
+    const rm=document.getElementById('result-modal');
+    if(s.result){if(rm)rm.style.display='flex';
+      const rt=document.getElementById('res-title');if(rt)rt.innerText=s.result.title;
+      const rd=document.getElementById('res-desc');if(rd)rd.innerText=s.result.desc;
+      const rp=document.getElementById('res-points');if(rp)rp.innerText=s.result.points;
+      const re=document.getElementById('res-elo');if(re)re.innerText=s.result.elo;
+    }else{if(rm)rm.style.display='none';}
+  };
+}
+
+// Hook into renderUI to broadcast
+const _origRenderUI=renderUI;
+renderUI=function(){_origRenderUI();broadcastViewState();};
+const _origHandleSync=handleSync;
+handleSync=function(d){_origHandleSync(d);broadcastViewState();};
+if(_viewMode!=='table'){setInterval(()=>{if(timerInterval)broadcastViewState();},1000);}
+
+/* ===== DEMO dual-screen mode ===== */
+function startDemo(view){
+  document.body.classList.add('view-'+view);
+  if(typeof AudioSys!=='undefined')AudioSys.init();
+  gameMode='casual';
+  casualMode='fixed';
+  currentWildValue='2';
+  if(!socket.connected) socket.connect();
+
+  if(view==='table'){
+    // TABLE VIEW: spectator only — show room list, click to spectate
+    socket.on('spectateInit',function(d){
+      mySeat=d.seat;
+      myRoomCode=d.roomCode;
+      gameMode='casual';
+      casualMode='fixed';
+      console.log('[Spectator] Watching from seat',d.seat,'room',d.roomCode);
+    });
+    // Replace lobby content with room list
+    var lc=document.querySelector('#lobby .lobby-card');
+    lc.innerHTML='<div style="font-size:24px;font-weight:bold;margin-bottom:8px;color:#fff">DEMO VIEW</div>'+
+      '<div style="color:#888;margin-bottom:16px;font-size:13px">SPECTATOR · Select a room to watch</div>'+
+      '<div id="room-list" style="width:100%;max-height:300px;overflow-y:auto;margin-bottom:16px"></div>'+
+      '<button class="btn-large" onclick="loadRoomList()" style="margin-bottom:8px">REFRESH</button>'+
+      '<div id="conn-status" style="font-size:12px;color:#666">Loading rooms...</div>';
+    switchScreen('lobby');
+    loadRoomList();
+  } else {
+    // TOUCH VIEW: normal player — create/join room
+    document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='DEMO CONTROL';
+    document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='Create room, then share code for VIEW';
+    var eloRow=document.getElementById('lobby-elo');
+    if(eloRow)eloRow.parentElement.parentElement.style.display='none';
+    switchScreen('lobby');
+  }
+}
+
+function loadRoomList(){
+  var rl=document.getElementById('room-list');
+  if(!rl)return;
+  rl.innerHTML='<div style="color:#666;padding:20px;text-align:center">Loading...</div>';
+  fetch('/api/rooms').then(r=>r.json()).then(function(list){
+    if(!list.length){
+      rl.innerHTML='<div style="color:#666;padding:30px;text-align:center;font-size:14px">No active rooms<br><span style="font-size:11px;color:#555">Start a game from DEMO CONTROL first</span></div>';
+      document.getElementById('conn-status').innerText='No rooms found';
+      return;
+    }
+    var html='';
+    list.forEach(function(rm){
+      var status=rm.active?'<span style="color:#0f0">PLAYING</span>':'<span style="color:#fa0">WAITING</span>';
+      html+='<div onclick="spectateRoom(\''+rm.code+'\')" style="display:flex;justify-content:space-between;align-items:center;'+
+        'padding:14px 16px;margin-bottom:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);'+
+        'border-radius:12px;cursor:pointer;transition:background 0.2s" '+
+        'onmouseenter="this.style.background=\'rgba(0,255,200,0.1)\';this.style.borderColor=\'rgba(0,255,200,0.3)\'" '+
+        'onmouseleave="this.style.background=\'rgba(255,255,255,0.06)\';this.style.borderColor=\'rgba(255,255,255,0.1)\'">' +
+        '<div><div style="font-size:18px;font-weight:bold;letter-spacing:2px;color:#fff">'+rm.code+'</div>'+
+        '<div style="font-size:11px;color:#888;margin-top:2px">'+rm.humans+' player'+(rm.humans>1?'s':'')+'</div></div>'+
+        '<div style="text-align:right"><div style="font-size:12px">'+status+'</div>'+
+        '<div style="font-size:10px;color:#666;margin-top:2px">'+rm.mode+'</div></div></div>';
+    });
+    rl.innerHTML=html;
+    document.getElementById('conn-status').innerText=list.length+' room(s) available';
+  }).catch(function(){
+    rl.innerHTML='<div style="color:#f66;padding:20px;text-align:center">Failed to load rooms</div>';
+  });
+}
+
+function spectateRoom(code){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  var g=document.getElementById('game-ui');
+  g.style.display='flex';g.style.opacity='1';
+  socket.emit('spectateGame',{roomCode:code});
+}
 </script>
 </body>
 </html>

@@ -82,6 +82,26 @@ app.get('/api/replays', (req, res) => {
     } catch(e) { res.json([]); }
 });
 
+app.get('/api/rooms', (req, res) => {
+    let list = [];
+    for (let rid in rooms) {
+        let r = rooms[rid];
+        let humanCount = 0;
+        for (let i = 0; i < 4; i++) if (r.seats[i] && r.seats[i] !== 'BOT') humanCount++;
+        if (humanCount > 0) {
+            list.push({
+                code: rid,
+                players: r.count,
+                humans: humanCount,
+                mode: r.mode || 'arena',
+                casualMode: r.casualMode || 'fixed',
+                active: !!(r.game && r.game.active)
+            });
+        }
+    }
+    res.json(list);
+});
+
 app.get('/api/replays/:file', (req, res) => {
     try {
         const fpath = path.join(REPLAY_DIR, req.params.file);
@@ -440,6 +460,37 @@ io.on('connection', (socket) => {
         if (hostSid) {
             Object.keys(room.players).forEach(sid => io.to(sid).emit('hostStatus', { isHost: (sid===hostSid) }));
         }
+    });
+
+    /* Spectator mode: join room without taking a seat */
+    socket.on('spectateGame', (data) => {
+        let roomId = (data && data.roomCode) ? data.roomCode.trim().toUpperCase() : null;
+        if (!roomId) { socket.emit('err', '需要房间码'); return; }
+        if (!rooms[roomId]) { socket.emit('err', '房间不存在'); return; }
+        let room = rooms[roomId];
+        socket.join(roomId);
+        let spectateSeat = 0;
+        for (let i = 0; i < 4; i++) {
+            if (room.seats[i] && room.seats[i] !== 'BOT') { spectateSeat = i; break; }
+        }
+        socket.emit('spectateInit', { seat: spectateSeat, roomCode: roomId });
+        if (room.game && room.game.active) {
+            let g = room.game;
+            let botSeats = []; for(let i=0;i<4;i++) if(room.seats[i]==='BOT') botSeats.push(i);
+            // Send gameStart FIRST so client sets up game UI
+            socket.emit('gameStart', { startTurn: g.turn, botSeats, highCards: [] });
+            // Then send cards after a small delay so UI is ready
+            setTimeout(() => {
+                socket.emit('dealCards', { cards: g.hands[spectateSeat] });
+                // Send all other players' cards for VIEW display
+                let bc = {};
+                for (let i = 0; i < 4; i++) {
+                    if (i !== spectateSeat && g.hands[i]) bc[i] = g.hands[i];
+                }
+                socket.emit('botCards', bc);
+            }, 100);
+        }
+        gameLog(`[Spectator] ${socket.id} spectating room ${roomId} from seat ${spectateSeat}`);
     });
 
     socket.on('startMatch', () => {
