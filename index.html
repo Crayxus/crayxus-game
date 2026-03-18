@@ -2179,8 +2179,10 @@ socket.on('connect',()=>{
   let b=document.getElementById('find-btn');b.innerText="FIND MATCH";b.disabled=false;
 });
 // Notify server immediately when browser tab is closed/refreshed
-window.addEventListener('beforeunload',()=>{socket.emit('leaveGame');socket.disconnect();});
-window.addEventListener('pagehide',()=>{socket.emit('leaveGame');socket.disconnect();});
+window.addEventListener('beforeunload',()=>{
+  if(!gameOver){return;}
+  socket.emit('leaveGame');socket.disconnect();
+});
 socket.on('disconnect',()=>{
   document.getElementById('conn-status').innerText="Reconnecting...";
   document.getElementById('conn-status').style.color="#ff0";
@@ -2579,7 +2581,7 @@ function handleSync(d){
   if(d.type==='pass'){
     area.innerHTML='<span style="font-size:20px;color:#888;font-weight:bold">PASS</span>';
     tPassCount++;
-    tMoveHistory.push({seat:d.seat,cards:[],isBomb:false});
+    tMoveHistory.push({seat:d.seat,cards:[],isBomb:false,handType:null});
     if(d.seat===mySeat){let eloDelta=evaluateMove('pass',null,null,false);if(eloDelta!==0){applyElo(eloDelta);showEloFloat(eloDelta)}}
   }
   else if(d.type==='play'){
@@ -2608,7 +2610,7 @@ function handleSync(d){
       d.cards.forEach(c=>{tPlayedCards[d.seat][cardToUid(c)]+=1});
       if(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush'))tBombCounts[d.seat]++;
     }
-    tMoveHistory.push({seat:d.seat,cards:d.cards?d.cards.map(c=>cardToUid(c)):[],isBomb:!!(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush'))});
+    tMoveHistory.push({seat:d.seat,cards:d.cards?d.cards.map(c=>cardToUid(c)):[],isBomb:!!(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush')),handType:d.handType||null});
     if(d.seat===mySeat&&d.cards&&d.cards.length>0){
       let playedIds=d.cards.map(x=>x.id);
       myCards=myCards.filter(c=>!playedIds.includes(c.id));
@@ -2841,7 +2843,7 @@ async function modelPickMove(seat,hand){
     }
     if(moves.length===0)return null;
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
-    let sv=encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
+    let sv=v5Mode?encodeStateV5(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
     let mvs=moves.map(m=>cardsToVec54(m));
     let res=await Promise.race([
       runModelBatch(sv,mvs,seat),
@@ -2928,7 +2930,7 @@ async function beamPickMove(seat,hand){
     if(moves.length===0)return null;
     if(moves.length===1)return moves[0];
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
-    let sv=encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
+    let sv=v5Mode?encodeStateV5(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
     let mvs=moves.map(m=>cardsToVec54(m));
     let res=await Promise.race([runModelBatch(sv,mvs,seat),new Promise(r=>setTimeout(()=>r(null),5000))]);
     if(!res)return undefined;
@@ -2983,7 +2985,7 @@ async function beamPickMove(seat,hand){
       }else if(newHand&&newHand.length>0){
         let newMoves=genMoves(newHand,simLH,seat,simFO);
         if(newMoves.length>0){
-          let newSv=encodeState322(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1);
+          let newSv=v5Mode?encodeStateV5(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1,tMoveHistory):encodeState322(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1);
           let newMvs=newMoves.map(m=>cardsToVec54(m));
           let newRes=await Promise.race([runModelBatch(newSv,newMvs,seat),new Promise(r=>setTimeout(()=>r(null),3000))]);
           if(newRes){
@@ -3699,7 +3701,9 @@ let tPlayedCards={};
 let tBombCounts=[0,0,0,0];
 let onnxSession=null;
 let dmcMode=false; // true if using DMC dual-input model
-let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool} for history encoding
+let v5Mode=false;  // true if using V5 714-dim state encoder
+let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool, handType:obj} for history encoding
+const ONNX_MODEL_URL_V5='onnx_model/guandan_dmc_v5.onnx';
 const ONNX_MODEL_URL_DMC='onnx_model/guandan_dmc.onnx';
 const MCTS_API='http://localhost:8000';
 let mctsAvailable=false; // detected at startup
@@ -4304,7 +4308,7 @@ function tProcessAction(d){
     area.innerHTML='';area.classList.remove('dimmed','highlight');
     if(d.type==='pass'){
       area.innerHTML='<span style="font-size:20px;color:#888;font-weight:bold">PASS</span>';
-      tMoveHistory.push({seat:d.seat,cards:[],isBomb:false});
+      tMoveHistory.push({seat:d.seat,cards:[],isBomb:false,handType:null});
       if(d.seat===mySeat){
         let eloDelta=evaluateMove('pass',null,null,false);
         if(eloDelta!==0){applyElo(eloDelta);showEloFloat(eloDelta)}
@@ -4340,7 +4344,7 @@ function tProcessAction(d){
       tLocalCards[d.seat]=tLocalCards[d.seat].filter(c=>!pIds.includes(c.id));
       d.cards.forEach(c=>{tPlayedCards[d.seat][cardToUid(c)]+=1});
       if(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush'))tBombCounts[d.seat]++;
-      tMoveHistory.push({seat:d.seat,cards:d.cards.map(c=>cardToUid(c)),isBomb:!!(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush'))});
+      tMoveHistory.push({seat:d.seat,cards:d.cards.map(c=>cardToUid(c)),isBomb:!!(d.handType&&(d.handType.type==='bomb'||d.handType.type==='straight_flush')),handType:d.handType||null});
 
       if(d.seat===mySeat){
         myCards=tLocalCards[0];
@@ -4500,18 +4504,454 @@ function encodeState322(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,
   // o+=4; // o=326
   return v;
 }
+
+/* ===== V5 STATE ENCODER (714 dims) ===== */
+function uidToSuitVal(uid){
+  if(uid===52)return[null,16]; // small joker
+  if(uid===53)return[null,17]; // big joker
+  let suit=Math.floor(uid/13),val=(uid%13)+3;
+  return[suit,val];
+}
+
+function encodeStateV5(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory){
+  const v=new Float32Array(714);
+  // === V1 Base (326 dims) ===
+  const base=encodeState322(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner);
+  v.set(base,0);
+  let o=326;
+
+  const partner=(seat+2)%4, leftOpp=(seat+1)%4, rightOpp=(seat+3)%4;
+  const hv=cardsToVec54(handCards);
+
+  // === V2: Unseen cards belief (54 dims) [326:380] ===
+  const unseen=new Float32Array(54);
+  for(let i=0;i<54;i++){
+    unseen[i]=Math.max(0,Math.min(2, 2.0 - hv[i] - myPl[i] - loPl[i] - paPl[i] - roPl[i]));
+    v[o+i]=unseen[i]/2.0;
+  }
+  o+=54; // 380
+
+  // === V2: Partner hand estimate (54 dims) [380:434] ===
+  let totalOther=0;
+  for(let i=0;i<4;i++){if(i!==seat)totalOther+=cnts[i]}
+  if(totalOther>0){
+    const partnerRatio=cnts[partner]/totalOther;
+    for(let i=0;i<54;i++) v[o+i]=unseen[i]*partnerRatio/2.0;
+  }
+  o+=54; // 434
+
+  // === V2: Teammate signals (8 dims) [434:442] ===
+  if(gameHistory&&gameHistory.length>0){
+    let partnerPasses=0,partnerBombs=0,partnerTotal=0;
+    let partnerPlayStrengths=[];
+    let myLastWasSingle=false,partnerSupported=false;
+    let partnerCurrentPasses=0,partnerLastPass=false;
+    for(const entry of gameHistory){
+      if(entry.seat===partner){
+        partnerTotal++;
+        if(!entry.cards||entry.cards.length===0){
+          partnerPasses++;partnerCurrentPasses++;partnerLastPass=true;
+        }else{
+          partnerCurrentPasses=0;partnerLastPass=false;
+          if(entry.handType){
+            const val=entry.handType.val||0;
+            if(val!==999) partnerPlayStrengths.push(val/17);
+            const ht=entry.handType.type||'';
+            if(ht==='bomb'||ht==='straight_flush') partnerBombs++;
+            if(ht==='single'&&val<=6) v[434]=1.0; // [0] led with small single
+            if(partnerTotal<=5&&val>=14) v[436]=1.0; // [2] big card early
+            if(myLastWasSingle&&ht==='pair') partnerSupported=true;
+          }
+        }
+      }
+      if(entry.seat===seat){
+        myLastWasSingle=!!(entry.handType&&entry.handType.type==='single');
+      }
+    }
+    if(partnerTotal>0) v[435]=partnerPasses/partnerTotal; // [1] pass rate
+    v[437]=Math.min(partnerBombs/4.0,1.0); // [3] bomb usage
+    v[438]=Math.min(partnerCurrentPasses/3.0,1.0); // [4] consecutive passes
+    v[439]=partnerSupported?1.0:0.0; // [5] supported
+    if(partnerPlayStrengths.length>0){
+      let avg=partnerPlayStrengths.reduce((a,b)=>a+b,0)/partnerPlayStrengths.length;
+      v[440]=avg; // [6] avg play strength
+    }
+    v[441]=partnerLastPass?1.0:0.0; // [7] last action was pass
+  }
+  o+=8; // 442
+
+  // === V2: Opponent threats (16 dims) [442:458] ===
+  const opps=[leftOpp,rightOpp];
+  for(let idx=0;idx<2;idx++){
+    const opp=opps[idx];
+    v[o+idx]=cnts[opp]/27.0;
+    v[o+2+idx]=(bCnts[opp]||0)/4.0;
+    let oppPlays=0,oppPasses=0,oppStrengths=[],oppRecentCards=0;
+    if(gameHistory){
+      for(const entry of gameHistory){
+        if(entry.seat!==opp)continue;
+        if(!entry.cards||entry.cards.length===0) oppPasses++;
+        else{
+          oppPlays++;
+          if(entry.handType&&entry.handType.val!==undefined&&entry.handType.val!==999)
+            oppStrengths.push(entry.handType.val/17);
+        }
+      }
+      // Recent cards from last 16 entries
+      const recent16=gameHistory.slice(-16);
+      const recentOpp=recent16.filter(e=>e.seat===opp&&e.cards&&e.cards.length>0).slice(-4);
+      for(const r of recentOpp) oppRecentCards+=r.cards.length;
+    }
+    const totalActs=oppPlays+oppPasses;
+    v[o+4+idx]=totalActs>0?oppPasses/totalActs:0;
+    v[o+6+idx]=oppStrengths.length>0?oppStrengths.reduce((a,b)=>a+b,0)/oppStrengths.length:0;
+    const playedCount=27-cnts[opp];
+    v[o+8+idx]=Math.min(playedCount/20.0,1.0);
+    if(oppStrengths.length>0) v[o+10+idx]=oppStrengths[oppStrengths.length-1];
+    v[o+12+idx]=Math.min(oppRecentCards/16.0,1.0);
+  }
+  // Team card differential
+  const TEAM_A=[0,2],TEAM_B=[1,3];
+  const myTeam=TEAM_A.includes(seat)?TEAM_A:TEAM_B;
+  const oppTeam=TEAM_A.includes(seat)?TEAM_B:TEAM_A;
+  const myTeamCards=cnts[myTeam[0]]+cnts[myTeam[1]];
+  const oppTeamCards=cnts[oppTeam[0]]+cnts[oppTeam[1]];
+  v[o+14]=(myTeamCards-oppTeamCards)/54.0;
+  const minOpp=Math.min(cnts[leftOpp],cnts[rightOpp]);
+  v[o+15]=1.0-Math.min(minOpp/10.0,1.0);
+  o+=16; // 458
+
+  // === V2: Round context (16 dims) [458:474] ===
+  if(gameHistory&&gameHistory.length>0){
+    v[o]=Math.min(gameHistory.length/80.0,1.0); // [0] round progress
+    let trickActions=0,trickBeats=0,passesInTrick=0;
+    for(let i=gameHistory.length-1;i>=0;i--){
+      const entry=gameHistory[i];
+      if(!entry.cards||entry.cards.length===0){passesInTrick++;trickActions++;}
+      else{trickBeats++;trickActions++;if(trickBeats>1&&trickActions>4)break;}
+    }
+    v[o+1]=Math.min(trickActions/8.0,1.0); // [1] actions in trick
+    const partnerSeat=(seat+2)%4;
+    v[o+2]=(lhOwner===seat||lhOwner===partnerSeat)?1.0:0.0; // [2] trick control
+    v[o+3]=Math.min(passesInTrick/3.0,1.0); // [3] passes in trick
+    // [4:8] last 4 hand types
+    let recentTypes=[];
+    for(let i=gameHistory.length-1;i>=0&&recentTypes.length<4;i--){
+      const entry=gameHistory[i];
+      if(entry.handType&&entry.handType.type){
+        const ht=entry.handType.type;
+        if(ht==='single')recentTypes.push(0.2);
+        else if(ht==='pair')recentTypes.push(0.4);
+        else if(ht==='triple'||ht==='3+2')recentTypes.push(0.6);
+        else if(ht==='straight'||ht==='plate'||ht==='tube')recentTypes.push(0.8);
+        else if(ht==='bomb'||ht==='straight_flush')recentTypes.push(1.0);
+      }
+    }
+    for(let i=0;i<recentTypes.length&&i<4;i++) v[o+4+i]=recentTypes[i];
+    v[o+8]=Math.min(trickBeats/5.0,1.0); // [8] trick escalation
+    const totalRemaining=cnts[0]+cnts[1]+cnts[2]+cnts[3];
+    v[o+9]=1.0-totalRemaining/108.0; // [9] game phase
+    // [10:12] team streaks (simplified)
+    for(let i=gameHistory.length-1;i>=0;i--){
+      const entry=gameHistory[i];
+      if(entry.cards&&entry.cards.length>0&&entry.handType){
+        if(myTeam.includes(entry.seat)) v[o+10]=Math.min(v[o+10]+0.2,1.0);
+        else v[o+11]=Math.min(v[o+11]+0.2,1.0);
+        break;
+      }
+    }
+    // [12:16] per-player pass frequency in last 8 turns
+    const recent8=gameHistory.slice(-8);
+    for(let i=0;i<4;i++){
+      const rel=(seat+i)%4;
+      const pActions=recent8.filter(e=>e.seat===rel);
+      if(pActions.length>0){
+        const pc=pActions.filter(e=>!e.cards||e.cards.length===0).length;
+        v[o+12+i]=pc/pActions.length;
+      }
+    }
+  }
+  o+=16; // 474
+
+  // === V2: Strategic features (16 dims) [474:490] ===
+  const totalCards=handCards.length;
+  if(totalCards>0){
+    const valueCounts=new Int32Array(15); // val 3-17 mapped to 0-14
+    const suitCounts=new Int32Array(4);
+    let highCount=0,lowCount=0,midCount=0,strengthSum=0;
+    for(let uid=0;uid<54;uid++){
+      const cnt=hv[uid];
+      if(cnt===0)continue;
+      const [suit,val]=uidToSuitVal(uid);
+      if(val!==null){
+        const idx=Math.min(Math.max(val-3,0),14);
+        valueCounts[idx]+=cnt;
+        strengthSum+=val*cnt;
+        if(val>=14) highCount+=cnt;
+        else if(val<=7) lowCount+=cnt;
+        else midCount+=cnt;
+        if(suit!==null&&suit>=0&&suit<4) suitCounts[suit]+=cnt;
+      }
+    }
+    for(const juid of[52,53]){if(hv[juid]>0) highCount+=hv[juid]}
+    v[o]= strengthSum/(totalCards*17); // [0] hand strength
+    let connections=0;
+    for(let i=0;i<14;i++){if(valueCounts[i]>0&&valueCounts[i+1]>0) connections++}
+    v[o+1]=Math.min(connections/8.0,1.0); // [1] connectivity
+    let pairs=0,triples=0,singles=0,quads=0,distinct=0;
+    for(let i=0;i<15;i++){
+      if(valueCounts[i]>=4) quads++;
+      if(valueCounts[i]>=3) triples++;
+      if(valueCounts[i]>=2) pairs++;
+      if(valueCounts[i]===1) singles++;
+      if(valueCounts[i]>0) distinct++;
+    }
+    v[o+2]=Math.min(pairs/6.0,1.0); // [2] pair density
+    v[o+3]=Math.min(triples/4.0,1.0); // [3] triple+ density
+    v[o+4]=Math.min(singles/10.0,1.0); // [4] singleton count
+    v[o+5]=Math.min(quads/3.0,1.0); // [5] bomb potential
+    v[o+6]=hv[WILD_UID]/2.0; // [6] wild card advantage
+    v[o+7]=Math.min(distinct/13.0,1.0); // [7] hand flexibility
+    for(let i=0;i<4;i++) v[o+8+i]=suitCounts[i]/Math.max(totalCards,1); // [8:12] suit dist
+    v[o+12]=Math.min(highCount/10.0,1.0); // [12] high cards
+    v[o+13]=Math.min(lowCount/10.0,1.0); // [13] low cards
+    v[o+14]=Math.min(midCount/10.0,1.0); // [14] mid cards
+    // [15] hand entropy
+    const probs=[];
+    for(let i=0;i<15;i++){if(valueCounts[i]>0) probs.push(valueCounts[i]/totalCards)}
+    if(probs.length>1){
+      let ent=0;for(const p of probs) ent-=p*Math.log2(p+1e-10);
+      v[o+15]=Math.min(ent/4.0,1.0);
+    }
+  }
+  o+=16; // 490
+
+  // === V5: Remaining counts one-hot (84 dims) [490:574] ===
+  for(const player of[leftOpp,rightOpp,partner]){
+    const c=Math.min(Math.floor(cnts[player]),27);
+    v[o+c]=1.0;
+    o+=28;
+  } // 574
+
+  // === V5: Last play full cards (54 dims) [574:628] ===
+  if(gameHistory){
+    for(let i=gameHistory.length-1;i>=0;i--){
+      const entry=gameHistory[i];
+      if(entry.cards&&entry.cards.length>0){
+        for(const uid of entry.cards){if(uid>=0&&uid<54) v[o+uid]+=1.0}
+        break;
+      }
+    }
+  }
+  o+=54; // 628
+
+  // === V5: Partner's last play (54 dims) [628:682] ===
+  if(gameHistory){
+    for(let i=gameHistory.length-1;i>=0;i--){
+      const entry=gameHistory[i];
+      if(entry.seat===partner&&entry.cards&&entry.cards.length>0){
+        for(const uid of entry.cards){if(uid>=0&&uid<54) v[o+uid]+=1.0}
+        break;
+      }
+    }
+  }
+  o+=54; // 682
+
+  // === V5: Hand decomposition (12 dims) [682:694] ===
+  if(totalCards>0){
+    const vc=new Int32Array(15);
+    for(let uid=0;uid<54;uid++){
+      if(hv[uid]===0)continue;
+      const[,val]=uidToSuitVal(uid);
+      if(val!==null) vc[Math.min(Math.max(val-3,0),14)]+=hv[uid];
+    }
+    // [0] Min moves estimate (greedy decomposition)
+    const rem=new Int32Array(vc);
+    let movesNeeded=0,bomdsInHand=0;
+    for(let i=0;i<15;i++){while(rem[i]>=4){rem[i]-=4;movesNeeded++;bomdsInHand++}}
+    const triIdx=[],pairIdx=[];
+    for(let i=0;i<15;i++){if(rem[i]>=3)triIdx.push(i);else if(rem[i]>=2)pairIdx.push(i)}
+    for(const t of triIdx){if(pairIdx.length>0){rem[t]-=3;const p=pairIdx.shift();rem[p]-=2;movesNeeded++}else{rem[t]-=3;movesNeeded++}}
+    for(let i=0;i<15;i++){while(rem[i]>=2){rem[i]-=2;movesNeeded++}}
+    for(let i=0;i<15;i++) movesNeeded+=rem[i];
+    v[o]=Math.min(movesNeeded/15.0,1.0);
+    // [1] Control cards
+    let control=0;
+    for(let i=12;i<15;i++){if(vc[i]>0)control++}
+    if(vc[11]>0) control++;
+    v[o+1]=Math.min(control/6.0,1.0);
+    // [2] Bombs in hand
+    let bombsInHand2=0;
+    for(let i=0;i<15;i++){if(vc[i]>=4) bombsInHand2++}
+    if(hv[52]>0&&hv[53]>0&&(hv[52]+hv[53])>=4) bombsInHand2++;
+    v[o+2]=Math.min(bombsInHand2/3.0,1.0);
+    // [3],[7] Straight potential / max straight length
+    let maxRun=0,curRun=0;
+    for(let i=0;i<13;i++){if(vc[i]>0){curRun++;maxRun=Math.max(maxRun,curRun)}else curRun=0}
+    v[o+3]=Math.min(maxRun/8.0,1.0);
+    // [4] Pair coverage
+    let pairCount=0;for(let i=0;i<13;i++){if(vc[i]>=2)pairCount++}
+    v[o+4]=Math.min(pairCount/8.0,1.0);
+    // [5] Triple coverage
+    let tripleCount=0;for(let i=0;i<13;i++){if(vc[i]>=3)tripleCount++}
+    v[o+5]=Math.min(tripleCount/4.0,1.0);
+    // [6] Singleton count
+    let singletonCount=0;for(let i=0;i<15;i++){if(vc[i]===1)singletonCount++}
+    v[o+6]=Math.min(singletonCount/10.0,1.0);
+    // [7] Max straight length (reuse maxRun)
+    v[o+7]=Math.min(maxRun/8.0,1.0);
+    // [8] Connected pairs
+    let connectedPairs=0,curCp=0;
+    for(let i=0;i<13;i++){if(vc[i]>=2){curCp++;connectedPairs=Math.max(connectedPairs,curCp)}else curCp=0}
+    v[o+8]=Math.min(connectedPairs/4.0,1.0);
+    // [9] Hand quality composite
+    let quality=(1.0-v[o+6])*0.3+v[o+2]*0.25+v[o+4]*0.2+v[o+3]*0.15+v[o+1]*0.1;
+    v[o+9]=Math.min(quality,1.0);
+    // [10] Unbeatable cards
+    let unbeatable=0;
+    if(vc[12]>=2) unbeatable+=1;
+    if(vc[12]>=1) unbeatable+=1;
+    if(hv[53]>0) unbeatable+=1;
+    if(hv[52]>0) unbeatable+=0.5;
+    if(bombsInHand2>0) unbeatable+=bombsInHand2;
+    v[o+10]=Math.min(unbeatable/6.0,1.0);
+    // [11] One-shot finish potential
+    if(totalCards<=2) v[o+11]=1.0;
+    else if(totalCards<=5){let dv=0;for(let i=0;i<15;i++){if(vc[i]>0)dv++}v[o+11]=dv<=2?0.8:0.3}
+    else if(totalCards<=8) v[o+11]=0.1;
+  }
+  o+=12; // 694
+
+  // === V5: Cooperation intent (8 dims) [694:702] ===
+  {
+    const partnerCards=cnts[partner],leftCards=cnts[leftOpp],rightCards=cnts[rightOpp],myC=cnts[seat];
+    const myTC=myC+partnerCards,oppTC=leftCards+rightCards;
+    // [0] partner close to finishing
+    if(!finOrd.includes(partner)) v[o]=Math.max(0,1.0-partnerCards/5.0);
+    else v[o]=1.0;
+    // [1] opponent close to finishing
+    let minOppC=99;
+    if(!finOrd.includes(leftOpp)) minOppC=Math.min(minOppC,leftCards);
+    if(!finOrd.includes(rightOpp)) minOppC=Math.min(minOppC,rightCards);
+    if(minOppC<99) v[o+1]=Math.max(0,1.0-minOppC/5.0);
+    // [2] my team leading
+    if(oppTC>0) v[o+2]=Math.max(0,(oppTC-myTC)/27.0);
+    // [3] my team trailing
+    if(myTC>0) v[o+3]=Math.max(0,(myTC-oppTC)/27.0);
+    // [4] positional advantage
+    v[o+4]=0.5;
+    // [5] endgame flag
+    const totalRem=cnts[0]+cnts[1]+cnts[2]+cnts[3];
+    if(totalRem<20) v[o+5]=1.0-totalRem/20.0;
+    else if(totalRem<40) v[o+5]=0.3;
+    // [6] double-finish opportunity
+    if(!finOrd.includes(partner)&&!finOrd.includes(seat)){
+      const combined=myC+partnerCards;
+      if(combined<=10) v[o+6]=1.0-combined/10.0;
+    }else if(finOrd.includes(partner)){
+      v[o+6]=Math.max(0,1.0-myC/10.0);
+    }
+    // [7] prevent double-loss
+    let activeOpps=[];
+    if(!finOrd.includes(leftOpp)) activeOpps.push(leftCards);
+    if(!finOrd.includes(rightOpp)) activeOpps.push(rightCards);
+    if(activeOpps.length===2){
+      const combinedOpp=activeOpps[0]+activeOpps[1];
+      if(combinedOpp<=10) v[o+7]=1.0-combinedOpp/10.0;
+    }
+  }
+  o+=8; // 702
+
+  // === V5: Wild card strategy (12 dims) [702:714] ===
+  {
+    const myWilds=hv[WILD_UID];
+    v[o]=myWilds>0?1.0:0.0; // [0] holds wild
+    // Value counts excluding wild card
+    const wvc=new Int32Array(13); // values 3-15 (idx 0-12)
+    for(let uid=0;uid<54;uid++){
+      if(uid===WILD_UID)continue;
+      if(hv[uid]===0)continue;
+      const[,val]=uidToSuitVal(uid);
+      if(val!==null&&val>=3&&val<=15) wvc[val-3]+=hv[uid];
+    }
+    // [1] Wild can complete a straight
+    if(myWilds>0){
+      for(let start=0;start<9;start++){
+        let gaps=0;
+        for(let j=0;j<5;j++){if(wvc[start+j]===0) gaps++}
+        if(gaps<=myWilds&&gaps>0){v[o+1]=1.0;break}
+      }
+    }
+    // [2-5] Max same-rank count (thermometer encoding)
+    let maxCount=0;
+    for(let i=0;i<13;i++){
+      let effective=wvc[i]>0?wvc[i]+myWilds:wvc[i];
+      maxCount=Math.max(maxCount,effective);
+    }
+    let maxRaw=0;for(let i=0;i<13;i++) maxRaw=Math.max(maxRaw,wvc[i]);
+    const best=Math.max(maxCount,maxRaw);
+    if(best>=6) v[o+2]=1.0;
+    if(best>=5) v[o+3]=1.0;
+    if(best>=4) v[o+4]=1.0;
+    if(best>=3) v[o+5]=1.0;
+    // [6] 4+ consecutive ranks
+    let maxRun2=0,curRun2=0;
+    for(let i=0;i<13;i++){
+      if(wvc[i]>0){curRun2++;maxRun2=Math.max(maxRun2,curRun2)}
+      else{if(myWilds>0&&curRun2>0){curRun2++;maxRun2=Math.max(maxRun2,curRun2)}else curRun2=0}
+    }
+    v[o+6]=maxRun2>=4?1.0:0.0;
+    // [7] Fullhouse pattern
+    for(let i=0;i<12;i++){
+      const c1=wvc[i],c2=wvc[i+1];
+      if((c1>=3&&c2>=2)||(c1>=2&&c2>=3)){v[o+7]=1.0;break}
+      if(myWilds>0&&((c1+myWilds>=3&&c2>=2)||(c1>=2&&c2+myWilds>=3))){v[o+7]=1.0;break}
+    }
+    // [8] Wild can complete plate
+    for(let i=0;i<12;i++){
+      const c1=wvc[i],c2=wvc[i+1];
+      const need=Math.max(0,3-c1)+Math.max(0,3-c2);
+      if(need<=myWilds&&need>0&&c1>0&&c2>0){v[o+8]=1.0;break}
+    }
+    // [9] Adjacent pairs (tube potential)
+    for(let i=0;i<12;i++){
+      const c1=wvc[i],c2=wvc[i+1];
+      if(c1>=2&&c2>=2){v[o+9]=1.0;break}
+      if(myWilds>0&&((c1>=1&&c2>=2)||(c1>=2&&c2>=1))){v[o+9]=1.0;break}
+    }
+    // [10] Wild cards in opponent hands (estimated)
+    const wildsPlayed=myPl[WILD_UID]+loPl[WILD_UID]+paPl[WILD_UID]+roPl[WILD_UID];
+    const wildsAccounted=myWilds+wildsPlayed;
+    const wildsUnknown=Math.max(0,4-wildsAccounted);
+    const totalOtherW=cnts[0]+cnts[1]+cnts[2]+cnts[3]-cnts[seat];
+    const oppTotalW=totalOtherW-cnts[partner];
+    let oppWildEst=0;
+    if(totalOtherW>0) oppWildEst=wildsUnknown*(oppTotalW/totalOtherW);
+    v[o+10]=Math.min(oppWildEst/2.0,1.0);
+    // [11] Wild card scarcity
+    const totalRemW=cnts[0]+cnts[1]+cnts[2]+cnts[3];
+    const gameProgress=1.0-totalRemW/108.0;
+    if(wildsUnknown>0&&gameProgress>0.3) v[o+11]=gameProgress*(wildsUnknown/4.0);
+  }
+  o+=12; // 714
+
+  return v;
+}
+
 async function runModelBatch(sv,mvs,observerSeat){
   if(!onnxSession)return null;
   const n=mvs.length;
   if(dmcMode){
-    // DMC dual-input: history (n,15,62) + state_action (n,380)
+    // DMC dual-input: history (n,15,62) + state_action (n, stateDim+54)
+    const stateDim=v5Mode?714:326;
+    const saDim=stateDim+54;
     const hBuf=new Float32Array(n*15*62);
     const hist=encodeHistoryTensor(observerSeat!==undefined?observerSeat:mySeat);
     for(let i=0;i<n;i++)hBuf.set(hist,i*15*62);
-    const saBuf=new Float32Array(n*380);
-    for(let i=0;i<n;i++){saBuf.set(sv,i*380);saBuf.set(mvs[i],i*380+326)}
+    const saBuf=new Float32Array(n*saDim);
+    for(let i=0;i<n;i++){saBuf.set(sv,i*saDim);saBuf.set(mvs[i],i*saDim+stateDim)}
     const hT=new ort.Tensor('float32',hBuf,[n,15,62]);
-    const saT=new ort.Tensor('float32',saBuf,[n,380]);
+    const saT=new ort.Tensor('float32',saBuf,[n,saDim]);
     const r=await onnxSession.run({history:hT,state_action:saT});
     const qv=r.q_value.data,out=[];
     for(let i=0;i<n;i++)out.push({ms:qv[i],wr:Math.max(0,Math.min(1,(qv[i]+4)/8))});
@@ -4584,28 +5024,41 @@ async function loadOnnxModel(){
     return buf.buffer;
   }
   try{
-    setProgress(0,'Downloading AI model...');
-    const buf=await fetchWithProgress(ONNX_MODEL_URL_DMC);
-    setProgress(92,'Initializing AI...');
-    onnxSession=await ort.InferenceSession.create(buf,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
-    dmcMode=true;
+    setProgress(0,'Downloading V5 AI model...');
+    const buf5=await fetchWithProgress(ONNX_MODEL_URL_V5);
+    setProgress(92,'Initializing V5 AI...');
+    onnxSession=await ort.InferenceSession.create(buf5,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
+    dmcMode=true;v5Mode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ DMC AI model loaded (78MB, V4 78.5% WR, wild card fixed)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V4 AI模型已加载';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V4 78.5% ✓';if(badge)badge.style.color='var(--neon)';
-  }catch(e){
-    console.warn('DMC model not available, trying legacy:',e.message);
+    console.log('%c✅ DMC V5 AI model loaded (714-dim state encoder)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V5 AI模型已加载';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V5 ✓';if(badge)badge.style.color='var(--neon)';
+  }catch(e5){
+    console.warn('V5 model not available, trying V4 DMC:',e5.message);
     try{
-      setProgress(50,'Loading fallback model...');
-      onnxSession=await ort.InferenceSession.create(ONNX_MODEL_URL_OLD,{executionProviders:['wasm']});
-      dmcMode=false;
+      setProgress(0,'Downloading AI model...');
+      const buf=await fetchWithProgress(ONNX_MODEL_URL_DMC);
+      setProgress(92,'Initializing AI...');
+      onnxSession=await ort.InferenceSession.create(buf,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
+      dmcMode=true;v5Mode=false;
       setProgress(100,'AI Ready ✓');
-      let cn=document.getElementById('coach-note');if(cn)cn.innerText='AI模型已加载';
-    }catch(e2){
-      console.warn('No ONNX model available:',e2.message);
-      onnxSession=null;dmcMode=false;
-      setProgress(100,'Using rule-based AI');
-      let cn=document.getElementById('coach-note');if(cn)cn.innerText='模型未加载 · 使用启发式规则';
+      console.log('%c✅ DMC V4 AI model loaded (78MB, V4 78.5% WR, wild card fixed)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+      let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V4 AI模型已加载';
+      let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V4 78.5% ✓';if(badge)badge.style.color='var(--neon)';
+    }catch(e){
+      console.warn('DMC model not available, trying legacy:',e.message);
+      try{
+        setProgress(50,'Loading fallback model...');
+        onnxSession=await ort.InferenceSession.create(ONNX_MODEL_URL_OLD,{executionProviders:['wasm']});
+        dmcMode=false;v5Mode=false;
+        setProgress(100,'AI Ready ✓');
+        let cn=document.getElementById('coach-note');if(cn)cn.innerText='AI模型已加载';
+      }catch(e2){
+        console.warn('No ONNX model available:',e2.message);
+        onnxSession=null;dmcMode=false;v5Mode=false;
+        setProgress(100,'Using rule-based AI');
+        let cn=document.getElementById('coach-note');if(cn)cn.innerText='模型未加载 · 使用启发式规则';
+      }
     }
   }
   // Show start button after model load attempt
@@ -4688,7 +5141,7 @@ async function getCoachSuggestions(hand,prevLastHand,prePlayedSnap,preBombSnap){
       let lo=(mySeat+1)%4,pa=(mySeat+2)%4,ro=(mySeat+3)%4;
       let preC=[...counts];preC[mySeat]=h.length;
       let bc=preBombSnap||tBombCounts;
-      let sv=encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1);
+      let sv=v5Mode?encodeStateV5(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1,tMoveHistory):encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1);
       let mvs=moves.map(m=>cardsToVec54(m.cards));
       let res=await runModelBatch(sv,mvs,mySeat);
       if(res){for(let i=0;i<moves.length;i++)moves[i].winRate=Math.round(Math.max(0,Math.min(100,res[i].wr*100)))}
