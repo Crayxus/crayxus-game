@@ -4112,7 +4112,7 @@ function repositionButtons(){
   const pme   = document.getElementById('pzone-me');
   if(ctrls) ctrls.style.bottom = btnBottom + 'px';
   if(pme)   pme.style.bottom   = (btnBottom + 4) + 'px';
-  if(!_isTouchView){
+  if(!document.body.classList.contains('view-touch')){
     const afkBtn=document.getElementById('afk-btn');
     const afkBadge=document.getElementById('afk-badge');
     if(afkBtn){afkBtn.style.bottom=(handBottom+Math.round(newHandH/2)-15)+'px';afkBtn.style.right='10px'}
