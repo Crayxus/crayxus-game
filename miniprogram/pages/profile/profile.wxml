@@ -1,218 +1,82 @@
-<!-- Crayxus Player ID Card — Full Screen -->
-<view class="page {{theme === 'classic' ? 'classic' : ''}}">
-  <!-- Particles -->
-  <view class="particles">
-    <view class="particle p1"></view>
-    <view class="particle p2"></view>
-    <view class="particle p3"></view>
-    <view class="particle p4"></view>
-    <view class="particle p5"></view>
-    <view class="particle p6"></view>
-    <view class="particle p7"></view>
-    <view class="particle p8"></view>
-  </view>
-
-  <!-- Status Bar Spacer -->
+<!-- 个人中心 -->
+<view class="page">
   <view style="height:{{statusBarHeight}}px"></view>
 
-  <!-- Top Row: version + buttons (positioned below capsule) -->
-  <view class="top-row" style="padding-top:{{menuBottom - statusBarHeight}}px;padding-right:{{menuRight}}px">
-    <view class="top-left">
-      <text class="top-ver">V41.1</text>
-    </view>
-    <view class="top-right" style="display:flex;align-items:center;gap:12rpx">
-      <view class="top-scan-btn" bindtap="toggleTheme">
-        <text class="top-scan-icon">{{theme === 'cyber' ? '🎨' : '🌙'}}</text>
-      </view>
-      <view class="top-scan-btn" bindtap="onScanLogin">
-        <text class="top-scan-icon">⊞</text>
-      </view>
-    </view>
+  <!-- Header -->
+  <view class="header">
+    <text class="header-title">我的</text>
   </view>
 
-  <!-- User Info Bar -->
-  <view class="user-bar">
-    <view class="user-bar-left">
-      <button wx:if="{{!avatarUrl}}" class="ub-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-        <view class="ub-avatar ub-avatar-empty">+</view>
+  <!-- 用户信息 -->
+  <view class="user-card">
+    <view class="user-left">
+      <button wx:if="{{!avatarUrl}}" class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <view class="avatar avatar-empty">+</view>
       </button>
-      <image wx:else class="ub-avatar" src="{{avatarUrl}}" mode="aspectFill" bindtap="onTapAvatar"></image>
-      <view class="ub-info">
-        <input wx:if="{{!hasNickname}}" class="ub-name-input" type="nickname" placeholder="Set Nickname" bindchange="onNicknameChange" />
-        <text wx:else class="ub-name" bindtap="onTapNickname">{{nickname}}</text>
-        <text class="ub-title">{{title}}</text>
-      </view>
+      <image wx:else class="avatar" src="{{avatarUrl}}" mode="aspectFill" bindtap="onTapAvatar"></image>
     </view>
-    <view class="ub-rank-pill" style="background:{{casual.rankColor}}18;border-color:{{casual.rankColor}}40">
-      <text class="ub-rank-text" style="color:{{casual.rankColor}}">{{casual.rankName}}</text>
-      <view class="ub-stars">
-        <text wx:for="{{casual.starsArr}}" wx:key="index" style="color:{{item.filled ? casual.rankColor : '#333'}}">★</text>
+    <view class="user-info">
+      <input wx:if="{{!hasNickname}}" class="name-input" type="nickname" placeholder="点击设置昵称" bindchange="onNicknameChange" />
+      <text wx:else class="name" bindtap="onTapNickname">{{nickname}}</text>
+      <view class="danli-badge" wx:if="{{danli.score}}">
+        <text class="danli-badge-score">蛋力值 {{danli.score}}</text>
+        <text class="danli-badge-rank">{{danli.rank}}</text>
+      </view>
+      <text class="danli-badge-empty" wx:else>尚未测评蛋力值</text>
+    </view>
+  </view>
+
+  <!-- 六维雷达 -->
+  <view class="section" wx:if="{{danli.score}}">
+    <view class="section-title">六边形战士</view>
+    <view class="dim-list">
+      <view class="dim-row" wx:for="{{dims}}" wx:key="key">
+        <text class="dim-icon">{{item.icon}}</text>
+        <text class="dim-name">{{item.name}}</text>
+        <view class="dim-bar">
+          <view class="dim-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+        </view>
+        <text class="dim-val" style="color:{{item.color}}">{{item.val}}</text>
       </view>
     </view>
   </view>
 
-  <!-- Hero Card (avatar card with holographic frame) -->
-  <view class="hero-section">
-    <view class="hero-card">
-      <view class="hero-glow"></view>
-      <view class="hero-frame" style="border-color:{{casual.rankColor}}">
-        <button wx:if="{{!avatarUrl}}" class="hero-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-          <view class="hero-avatar hero-avatar-empty">
-            <text class="hero-plus">+</text>
-            <text class="hero-plus-hint">TAP TO SET</text>
-          </view>
-        </button>
-        <image wx:else class="hero-avatar" src="{{avatarUrl}}" mode="aspectFill" bindtap="onTapAvatar"></image>
+  <!-- 训练统计 -->
+  <view class="section">
+    <view class="section-title">训练数据</view>
+    <view class="stat-list">
+      <view class="stat-row">
+        <text class="stat-label">训练场次</text>
+        <text class="stat-val">{{training.totalSessions}}</text>
+      </view>
+      <view class="stat-row">
+        <text class="stat-label">总手数</text>
+        <text class="stat-val">{{training.totalHands}}</text>
+      </view>
+      <view class="stat-row">
+        <text class="stat-label">平均准确率</text>
+        <text class="stat-val accent">{{training.accuracy || '--'}}%</text>
+      </view>
+      <view class="stat-row">
+        <text class="stat-label">最佳准确率</text>
+        <text class="stat-val gold">{{training.bestAccuracy || '--'}}%</text>
       </view>
     </view>
   </view>
 
-  <!-- Tab Bar -->
-  <view class="tab-bar">
-    <view class="tab {{activeTab === 'casual' ? 'tab-on tab-c' : ''}}" bindtap="switchTab" data-tab="casual">
-      <text class="tab-icon">🎮</text>
-      <text class="tab-txt">CASUAL</text>
+  <!-- 操作 -->
+  <view class="section">
+    <view class="action-row" bindtap="onShareCard">
+      <text class="action-icon">📤</text>
+      <text class="action-label">分享给好友</text>
+      <text class="action-arrow">›</text>
     </view>
-    <view class="tab {{activeTab === 'training' ? 'tab-on tab-t' : ''}}" bindtap="switchTab" data-tab="training">
-      <text class="tab-icon">🎓</text>
-      <text class="tab-txt">TRAINING</text>
-    </view>
-    <view class="tab {{activeTab === 'arena' ? 'tab-on tab-a' : ''}}" bindtap="switchTab" data-tab="arena">
-      <text class="tab-icon">⚔️</text>
-      <text class="tab-txt">ARENA</text>
+    <view class="action-row" bindtap="onScanLogin">
+      <text class="action-icon">📱</text>
+      <text class="action-label">扫码登录游戏</text>
+      <text class="action-arrow">›</text>
     </view>
   </view>
 
-  <!-- Stats List -->
-  <view class="stats-list">
-    <!-- CASUAL -->
-    <block wx:if="{{activeTab === 'casual'}}">
-      <view class="sl-row">
-        <view class="sl-icon-wrap cyan-bg"><text class="sl-icon">🏆</text></view>
-        <text class="sl-label">Win Rate</text>
-        <text class="sl-val cyan">{{casual.winRate}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap gold-bg"><text class="sl-icon">🎯</text></view>
-        <text class="sl-label">Games Played</text>
-        <text class="sl-val gold">{{casual.totalGames}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap neon-bg"><text class="sl-icon">✅</text></view>
-        <text class="sl-label">Total Wins</text>
-        <text class="sl-val neon">{{casual.wins}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap fire-bg"><text class="sl-icon">🔥</text></view>
-        <text class="sl-label">Win Streak</text>
-        <text class="sl-val {{casual.streak >= 3 ? 'fire' : 'white'}}">{{casual.streak}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap mag-bg"><text class="sl-icon">⭐</text></view>
-        <text class="sl-label">Best Streak</text>
-        <text class="sl-val gold">{{casual.bestStreak}}</text>
-      </view>
-    </block>
-
-    <!-- TRAINING -->
-    <block wx:if="{{activeTab === 'training'}}">
-      <view class="sl-row">
-        <view class="sl-icon-wrap gold-bg"><text class="sl-icon">📚</text></view>
-        <text class="sl-label">Sessions</text>
-        <text class="sl-val gold">{{training.totalSessions}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap cyan-bg"><text class="sl-icon">🃏</text></view>
-        <text class="sl-label">Hands Played</text>
-        <text class="sl-val cyan">{{training.totalHands}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap neon-bg"><text class="sl-icon">🤖</text></view>
-        <text class="sl-label">Coach Used</text>
-        <text class="sl-val neon">{{training.coachUsed}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap cyan-bg"><text class="sl-icon">🎯</text></view>
-        <text class="sl-label">Accuracy</text>
-        <text class="sl-val cyan">{{training.accuracy}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap mag-bg"><text class="sl-icon">⚡</text></view>
-        <text class="sl-label">Avg Hand Power</text>
-        <text class="sl-val magenta">{{training.avgHandPower}}</text>
-      </view>
-    </block>
-
-    <!-- ARENA -->
-    <block wx:if="{{activeTab === 'arena'}}">
-      <view class="sl-row">
-        <view class="sl-icon-wrap cyan-bg"><text class="sl-icon">🏅</text></view>
-        <text class="sl-label">Ranking</text>
-        <text class="sl-val cyan">#{{arena.rank}} <text class="sl-sub">/{{arena.totalPlayers}}</text></text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap gold-bg"><text class="sl-icon">🏆</text></view>
-        <text class="sl-label">Win Rate</text>
-        <text class="sl-val gold">{{arena.winRate}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap neon-bg"><text class="sl-icon">⚡</text></view>
-        <text class="sl-label">ELO Rating</text>
-        <text class="sl-val neon">{{arena.elo}}</text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap neon-bg"><text class="sl-icon">✅</text></view>
-        <text class="sl-label">Wins / Losses</text>
-        <text class="sl-val"><text class="neon">{{arena.wins}}</text> <text class="sl-slash">/</text> <text class="red">{{arena.losses}}</text></text>
-      </view>
-      <view class="sl-row">
-        <view class="sl-icon-wrap mag-bg"><text class="sl-icon">💥</text></view>
-        <text class="sl-label">Double Rate</text>
-        <text class="sl-val magenta">{{arena.doubleRate}}</text>
-      </view>
-    </block>
-  </view>
-
-  <!-- Setup Modal (appears after scan if avatar/nickname not set) -->
-  <view class="setup-mask" wx:if="{{showSetupModal}}" bindtap="onCloseSetup">
-    <view class="setup-modal" catchtap="">
-      <text class="setup-title">SET YOUR PROFILE</text>
-      <text class="setup-hint">Set avatar & nickname to sync with game</text>
-
-      <!-- Avatar -->
-      <view class="setup-row">
-        <text class="setup-label">Avatar</text>
-        <button class="setup-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onSetupAvatar">
-          <image wx:if="{{avatarUrl}}" class="setup-avatar-img" src="{{avatarUrl}}" mode="aspectFill"></image>
-          <text wx:else class="setup-avatar-plus">+</text>
-        </button>
-        <text class="setup-check" wx:if="{{avatarUrl}}">✓</text>
-      </view>
-
-      <!-- Nickname -->
-      <view class="setup-row">
-        <text class="setup-label">Nickname</text>
-        <input class="setup-nick-input" type="nickname" placeholder="Tap to set" bindchange="onSetupNickname" value="{{nickname}}" />
-        <text class="setup-check" wx:if="{{nickname}}">✓</text>
-      </view>
-
-      <text class="setup-note">Both are required to complete login</text>
-    </view>
-  </view>
-
-  <!-- Bottom Nav Bar -->
-  <view class="bottom-nav">
-    <view class="nav-item" bindtap="onScanLogin">
-      <text class="nav-icon">📱</text>
-      <text class="nav-label">Scan</text>
-    </view>
-    <view class="nav-item nav-active">
-      <text class="nav-icon">🃏</text>
-      <text class="nav-label">Profile</text>
-    </view>
-    <view class="nav-item" bindtap="onShareCard">
-      <text class="nav-icon">📤</text>
-      <text class="nav-label">Share</text>
-    </view>
-  </view>
+  <view style="height:120rpx"></view>
 </view>

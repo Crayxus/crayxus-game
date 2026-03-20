@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>蛋力值测评 — 你的掼蛋水平几分？</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0e1a;--card:#141926;--accent:#00d4aa;--accent2:#7c4dff;
+  --gold:#ffd700;--red:#ff4757;--green:#2ed573;
+  --text:#e8e8e8;--dim:#8892a4;--border:#1e2a3a;
+}
+body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* Screens */
+.screen{display:none;min-height:100vh;padding:24px 20px}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* Intro screen */
+.intro{text-align:center;max-width:400px}
+.intro .logo{font-size:64px;margin-bottom:16px}
+.intro h1{font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.intro p{color:var(--dim);font-size:15px;line-height:1.6;margin-bottom:32px}
+.intro .hex-preview{display:flex;justify-content:center;gap:8px;margin:24px 0;flex-wrap:wrap}
+.intro .hex-preview span{background:var(--card);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:13px;color:var(--dim)}
+.start-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:16px 64px;border-radius:50px;font-size:18px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 8px 32px rgba(0,212,170,.3)}
+.start-btn:active{transform:scale(.97)}
+
+/* Question screen */
+.q-screen{max-width:500px;width:100%;justify-content:flex-start;padding-top:40px}
+
+/* Progress */
+.progress{width:100%;margin-bottom:24px}
+.progress-bar{width:100%;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease;border-radius:2px}
+.progress-text{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--dim)}
+
+/* Question card */
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;margin-bottom:20px;animation:slideIn .4s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+.q-dim{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.q-dim .dim-icon{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.q-text{font-size:16px;line-height:1.7;margin-bottom:8px}
+.q-scenario{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:20px;padding:12px 16px;background:rgba(0,212,170,.05);border-radius:12px;border-left:3px solid var(--accent)}
+
+/* Options */
+.options{display:flex;flex-direction:column;gap:10px}
+.opt{background:#0d1220;border:2px solid var(--border);border-radius:14px;padding:14px 18px;font-size:14px;line-height:1.5;cursor:pointer;transition:all .2s;text-align:left;color:var(--text)}
+.opt:active{transform:scale(.98)}
+.opt:hover{border-color:rgba(0,212,170,.3)}
+.opt.selected{border-color:var(--accent);background:rgba(0,212,170,.08)}
+.opt .opt-label{font-weight:600;color:var(--accent);margin-right:8px}
+
+/* Result screen */
+.result-screen{max-width:420px;width:100%;text-align:center}
+.result-screen h2{font-size:24px;margin-bottom:4px}
+.result-score{font-size:72px;font-weight:800;background:linear-gradient(135deg,var(--gold),#ff9500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:8px 0}
+.result-rank{font-size:18px;color:var(--accent);font-weight:600;margin-bottom:24px}
+
+/* Radar chart */
+.radar-wrap{position:relative;width:300px;height:300px;margin:0 auto 24px}
+.radar-wrap canvas{width:100%;height:100%}
+
+/* Dimension breakdown */
+.dim-list{width:100%;margin:16px 0}
+.dim-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.dim-row:last-child{border:none}
+.dim-row .dim-name{width:60px;font-size:13px;font-weight:600;text-align:left}
+.dim-row .dim-bar-bg{flex:1;height:8px;background:var(--border);border-radius:4px;margin:0 12px;overflow:hidden}
+.dim-row .dim-bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.dim-row .dim-val{width:40px;font-size:14px;font-weight:700;text-align:right}
+
+/* Share */
+.share-area{margin-top:24px;width:100%}
+.share-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:14px 48px;border-radius:50px;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-bottom:12px}
+.share-btn:active{transform:scale(.97)}
+.retry-btn{background:transparent;border:1px solid var(--border);color:var(--dim);padding:12px 32px;border-radius:50px;font-size:14px;cursor:pointer;width:100%}
+
+/* Share card (for screenshot) */
+#share-card{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.85);z-index:100;justify-content:center;align-items:center;padding:20px}
+#share-card.show{display:flex}
+#share-card .card-inner{background:linear-gradient(135deg,#141926,#1a2540);border-radius:24px;padding:32px 24px;max-width:360px;width:100%;text-align:center;position:relative}
+#share-card .close-share{position:absolute;top:12px;right:16px;font-size:24px;color:var(--dim);cursor:pointer;background:none;border:none}
+#share-card .card-score{font-size:56px;font-weight:800;color:var(--gold)}
+#share-card .card-rank{font-size:16px;color:var(--accent);margin:4px 0 16px}
+#share-card canvas{margin:0 auto}
+#share-card .card-hint{color:var(--dim);font-size:12px;margin-top:16px}
+
+/* Loading */
+.loading{text-align:center;padding:40px}
+.loading .spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Mobile optimize */
+@media(max-width:400px){
+  .q-text{font-size:15px}
+  .opt{padding:12px 14px;font-size:13px}
+  .result-score{font-size:60px}
+  .radar-wrap{width:260px;height:260px}
+}
+</style>
+</head>
+<body>
+
+<!-- Intro Screen -->
+<div id="s-intro" class="screen active">
+  <div class="intro">
+    <div class="logo">🃏</div>
+    <h1>蛋力值测评</h1>
+    <p>18道实战场景题，5分钟测出你的掼蛋真实水平<br>六边形战士，你能拿几分？</p>
+    <div class="hex-preview">
+      <span>🎯 出牌</span><span>🤝 配合</span><span>💣 炸弹</span>
+      <span>🧠 记牌</span><span>♟️ 大局</span><span>💪 心态</span>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">开始测评</button>
+  </div>
+</div>
+
+<!-- Question Screen -->
+<div id="s-quiz" class="screen q-screen">
+  <div class="progress">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    <div class="progress-text"><span id="prog-num">1/18</span><span id="prog-dim"></span></div>
+  </div>
+  <div class="q-card" id="q-card">
+    <div class="q-dim" id="q-dim"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-scenario" id="q-scenario"></div>
+    <div class="options" id="q-options"></div>
+  </div>
+</div>
+
+<!-- Loading Screen -->
+<div id="s-loading" class="screen">
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>正在分析你的蛋力值...</p>
+  </div>
+</div>
+
+<!-- Result Screen -->
+<div id="s-result" class="screen result-screen">
+  <h2>你的蛋力值</h2>
+  <div class="result-score" id="r-score">0</div>
+  <div class="result-rank" id="r-rank"></div>
+  <div class="radar-wrap"><canvas id="radar" width="600" height="600"></canvas></div>
+  <div class="dim-list" id="dim-list"></div>
+  <div class="share-area">
+    <button class="share-btn" onclick="showShareCard()">生成分享卡</button>
+    <button class="retry-btn" onclick="retryQuiz()">重新测评</button>
+  </div>
+</div>
+
+<!-- Share Card Overlay -->
+<div id="share-card">
+  <div class="card-inner">
+    <button class="close-share" onclick="hideShareCard()">×</button>
+    <p style="font-size:14px;color:var(--dim);margin-bottom:8px">我的掼蛋蛋力值</p>
+    <div class="card-score" id="sc-score"></div>
+    <div class="card-rank" id="sc-rank"></div>
+    <canvas id="sc-radar" width="400" height="400"></canvas>
+    <p class="card-hint">长按保存图片 · 发到朋友圈挑战好友</p>
+  </div>
+</div>
+
+<script>
+// ===== 题库 =====
+// 6维度: timing(出牌), teamwork(配合), bombing(炸弹), memory(记牌), strategy(大局), mental(心态)
+// 每题: dim(维度), level(1基础/2中级/3进阶), q(题目), scenario(场景描述), opts(选项), scores(每选项对应该维度得分0-5)
+const QUESTIONS = [
+  // === 出牌 timing ×3 ===
+  {
+    dim: 'timing', level: 1,
+    q: '你是头家（先出牌），手里有一对K和一对3，你先出什么？',
+    scenario: '开局阶段，27张牌在手，对家还没出过牌。',
+    opts: ['先出对3，留大牌控制', '先出对K，给对家压力', '拆开出一张3试探', '随便出，开局不重要'],
+    scores: [5, 2, 1, 0]
+  },
+  {
+    dim: 'timing', level: 2,
+    q: '你手里还剩8张牌，有一个顺子(5-6-7-8-9)和3张散牌(J、Q、A)。现在轮到你出牌且没人压你，怎么出？',
+    scenario: '对家剩12张，对手分别剩6张和10张。',
+    opts: ['先出顺子，大的先走', '先出散牌，最后顺子一波走', '出J试探，保留灵活性', '出A，先把最大的散牌出掉'],
+    scores: [2, 5, 3, 1]
+  },
+  {
+    dim: 'timing', level: 3,
+    q: '你手上剩5张：对7、对K、和一张单A。上家刚出了一张10，你跟不跟？',
+    scenario: '你是第三个走的，下家（对手）剩3张牌，报警了。对家剩9张。',
+    opts: ['出A压住，不让下家捡漏', '不跟，等出对子', '出对K压（不合规只是判断）', '跟一张K'],
+    scores: [5, 1, 0, 3]
+  },
+
+  // === 配合 teamwork ×3 ===
+  {
+    dim: 'teamwork', level: 1,
+    q: '对家出了一张5，被下家用7压了。你手里有8和K，你出哪张？',
+    scenario: '对家手牌还很多（20+张），游戏刚开始。',
+    opts: ['出8，刚好压住就行', '出K，直接拿回控制权', '不出，让对家自己处理', '出8是对的，省大牌'],
+    scores: [5, 2, 0, 4]
+  },
+  {
+    dim: 'teamwork', level: 2,
+    q: '对家剩4张牌快要走了，他出了一对6。对手PASS了，轮到你，你手里有对8和对J。',
+    scenario: '你还剩11张牌，对手分别剩15张和8张。',
+    opts: ['PASS，让对家继续出', '出对8，帮对家挡一下对手', '出对J确保拿到控制权', 'PASS是最佳配合'],
+    scores: [5, 2, 1, 5]
+  },
+  {
+    dim: 'teamwork', level: 3,
+    q: '你是末家位置，对家已经走了（头游）。现在场上你和两个对手，你手里有一个炸弹。对手A出了一手牌，对手B说PASS。',
+    scenario: '对手A剩6张，对手B剩2张。你剩10张。',
+    opts: ['炸对手A，阻止他出牌', '不炸，等对手B出牌时再炸', '看情况，如果对手A的牌不大就不炸', '炸对手B更重要，他快走了'],
+    scores: [3, 1, 5, 2]
+  },
+
+  // === 炸弹 bombing ×3 ===
+  {
+    dim: 'bombing', level: 1,
+    q: '你手里有一个4张炸弹（4个9），游戏刚开始。你会什么时候用？',
+    scenario: '你是第二个出牌，手里还有24张其他牌，牌力一般。',
+    opts: ['开局就炸，先声夺人', '等对手出大牌时炸', '保留到关键时刻（自己或对家要走时）', '尽量不用，留到最后'],
+    scores: [0, 2, 5, 3]
+  },
+  {
+    dim: 'bombing', level: 2,
+    q: '你有一个5张炸弹（5个J），对手刚用了一个4张炸弹（4个8）。你炸不炸？',
+    scenario: '你剩14张牌，对手出完这个炸后剩7张。对家剩18张。',
+    opts: ['立刻炸回去，压制对手', '忍住不炸，我的炸弹更值钱', '看对家的表情/出牌节奏再决定', '炸完之后我能连续出走就炸'],
+    scores: [2, 3, 1, 5]
+  },
+  {
+    dim: 'bombing', level: 3,
+    q: '残局阶段：你剩6张牌（一个炸弹4个Q + 一对3），对家已走。你的两个对手分别剩3张和5张。轮到你出牌。',
+    scenario: '场上没有人压你，你可以自由出牌。',
+    opts: ['先出对3，再炸，最后…等等走不掉', '先炸弹出去拿控制权，再出对3', '出对3，如果被压就用炸弹', '直接对3+炸弹全出（不合规）'],
+    scores: [3, 2, 5, 0]
+  },
+
+  // === 记牌 memory ×3 ===
+  {
+    dim: 'memory', level: 1,
+    q: '游戏进行到中期，已经出过两张A了。你手里有一张A，请问外面还有几张A？',
+    scenario: '两副牌共108张，每个点数有8张（4花色×2副）。',
+    opts: ['还有5张', '还有3张', '还有4张', '不确定，没数'],
+    scores: [5, 0, 0, 0]
+  },
+  {
+    dim: 'memory', level: 2,
+    q: '对手A已经出过3个单张2（非蛋牌），你手里有2个2。请问场上还有几张2没出？',
+    scenario: '两副牌每个点数8张，蛋牌（红心主牌）不算在内。假设蛋牌为5不是2。',
+    opts: ['还有3张', '还有5张', '还有2张', '记不清了'],
+    scores: [5, 0, 0, 0]
+  },
+  {
+    dim: 'memory', level: 3,
+    q: '同花顺需要同一花色5张连续牌。已知黑桃7、8各出了一张，你手里有黑桃6、9、10各一张。外面还可能凑出黑桃6-10同花顺吗？',
+    scenario: '两副牌，每张牌有2张。关键：黑桃7和8各出了1张，各还剩1张。',
+    opts: ['可能，7和8各还剩一张', '不可能了', '要看其他花色', '没法判断'],
+    scores: [5, 0, 0, 1]
+  },
+
+  // === 大局 strategy ×3 ===
+  {
+    dim: 'strategy', level: 1,
+    q: '你拿到牌后发现牌非常好（有2个炸弹，多个大牌），你的目标是？',
+    scenario: '开局发牌后的第一反应。',
+    opts: ['争头游，越快走越好', '双上！配合对家一起走', '稳着打，反正牌好不急', '先看看对家的牌力再说'],
+    scores: [3, 5, 1, 2]
+  },
+  {
+    dim: 'strategy', level: 2,
+    q: '你是第二个走的（二游），对家还剩很多牌。你走了之后，对家能不能走直接决定是双上还是头末。你最后两手牌怎么出？',
+    scenario: '你剩一对A和一张小王。对家剩15张牌。',
+    opts: ['先对A再小王，快走', '先小王拿控制权给对家，再出对A走', '先出对A，留小王接风给对家', '都行，反正我能走'],
+    scores: [1, 2, 5, 0]
+  },
+  {
+    dim: 'strategy', level: 3,
+    q: '升级模式：你们队打到A了，对手打到K。这局你拿到的牌很一般（没炸弹，中等牌力）。你的策略是？',
+    scenario: '打A必须双上才能过关。对面打K也很关键。',
+    opts: ['拼了，全力冲双上', '保守打，防止对手双上更重要', '配合对家，如果对家牌好就辅助他', '看局势随机应变'],
+    scores: [1, 3, 4, 5]
+  },
+
+  // === 心态 mental ×3 ===
+  {
+    dim: 'mental', level: 1,
+    q: '你刚输了一个炸弹（对手用更大的炸弹压了你），现在手上没有炸弹了。你的心态是？',
+    scenario: '游戏进行到中期，你还有牌力但失去了最大的武器。',
+    opts: ['有点烦，感觉要输了', '没关系，炸弹不是唯一的出路', '开始想怎么用剩余的牌做文章', '怪自己不该那么早出炸弹'],
+    scores: [0, 3, 5, 1]
+  },
+  {
+    dim: 'mental', level: 2,
+    q: '连续3局对手都拿到了好牌，你们队连输3局。第4局发牌后你发现牌还是一般。你怎么想？',
+    scenario: '升级模式，你们已经落后2个级别。',
+    opts: ['今天运气太差了，打不了', '牌差就防守，不让对方双上就是胜利', '跟对家配合好，差牌也能翻盘', '认了，等好牌再说'],
+    scores: [0, 3, 5, 1]
+  },
+  {
+    dim: 'mental', level: 3,
+    q: '你犯了一个明显的错误（该出炸弹没出，让对手走了），对家看了你一眼。你接下来怎么做？',
+    scenario: '关键局，你的失误可能导致从双上变成头末。',
+    opts: ['道歉并更加专注接下来的牌', '装作没注意到，继续打', '心里很慌，后面打得更保守了', '仔细分析剩余牌，找补救方案'],
+    scores: [3, 1, 0, 5]
+  }
+];
+
+// ===== 维度配置 =====
+const DIMS = {
+  timing:   { name: '出牌', icon: '🎯', color: '#ff6b6b' },
+  teamwork: { name: '配合', icon: '🤝', color: '#ffd93d' },
+  bombing:  { name: '炸弹', icon: '💣', color: '#ff9500' },
+  memory:   { name: '记牌', icon: '🧠', color: '#00d4aa' },
+  strategy: { name: '大局', icon: '♟️', color: '#7c4dff' },
+  mental:   { name: '心态', icon: '💪', color: '#3d9dff' }
+};
+const DIM_KEYS = Object.keys(DIMS);
+
+// ===== State =====
+let currentQ = 0;
+let answers = []; // {dim, level, score}
+let dimScores = {};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== Start =====
+function startQuiz() {
+  currentQ = 0;
+  answers = [];
+  dimScores = {};
+  DIM_KEYS.forEach(k => dimScores[k] = []);
+  showScreen('s-quiz');
+  renderQuestion();
+}
+
+function retryQuiz() {
+  startQuiz();
+}
+
+// ===== Render Question =====
+function renderQuestion() {
+  let q = QUESTIONS[currentQ];
+  let dim = DIMS[q.dim];
+
+  document.getElementById('prog-fill').style.width = ((currentQ + 1) / QUESTIONS.length * 100) + '%';
+  document.getElementById('prog-num').textContent = `${currentQ + 1}/${QUESTIONS.length}`;
+  document.getElementById('prog-dim').textContent = dim.icon + ' ' + dim.name + '·' + ['基础','中级','进阶'][q.level - 1];
+
+  document.getElementById('q-dim').innerHTML = `<span class="dim-icon" style="background:${dim.color}">${dim.icon}</span> ${dim.name}能力`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-scenario').textContent = q.scenario;
+
+  let labels = ['A', 'B', 'C', 'D'];
+  document.getElementById('q-options').innerHTML = q.opts.map((opt, i) =>
+    `<div class="opt" onclick="selectAnswer(${i})"><span class="opt-label">${labels[i]}</span>${opt}</div>`
+  ).join('');
+
+  // Re-trigger animation
+  let card = document.getElementById('q-card');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'slideIn .4s ease';
+}
+
+function selectAnswer(idx) {
+  let q = QUESTIONS[currentQ];
+  let score = q.scores[idx];
+
+  // Visual feedback
+  let opts = document.querySelectorAll('.opt');
+  opts[idx].classList.add('selected');
+
+  answers.push({ dim: q.dim, level: q.level, score });
+  dimScores[q.dim].push(score);
+
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ >= QUESTIONS.length) {
+      showResults();
+    } else {
+      renderQuestion();
+    }
+  }, 400);
+}
+
+// ===== Results =====
+function showResults() {
+  showScreen('s-loading');
+
+  setTimeout(() => {
+    // Calculate dimension scores (weighted by level)
+    let dimFinal = {};
+    DIM_KEYS.forEach(k => {
+      let scores = [];
+      answers.filter(a => a.dim === k).forEach(a => {
+        // Weight: level 1 = 1x, level 2 = 1.5x, level 3 = 2x
+        let weight = a.level === 1 ? 1 : a.level === 2 ? 1.5 : 2;
+        scores.push({ score: a.score, weight });
+      });
+      let totalWeight = scores.reduce((s, x) => s + x.weight, 0);
+      let weightedSum = scores.reduce((s, x) => s + x.score * x.weight, 0);
+      // Scale to 0-1000/6 range per dimension (max ~167 per dim)
+      let rawPercent = totalWeight > 0 ? weightedSum / (5 * totalWeight) : 0;
+      dimFinal[k] = Math.round(rawPercent * 1000);
+    });
+
+    let totalScore = Math.round(DIM_KEYS.reduce((s, k) => s + dimFinal[k], 0) / 6);
+
+    // Rank
+    let rank = totalScore >= 900 ? '六边形战士 👑' :
+               totalScore >= 750 ? '高手过招 🔥' :
+               totalScore >= 600 ? '中坚力量 ⭐' :
+               totalScore >= 400 ? '潜力新星 🌱' :
+               totalScore >= 200 ? '入门选手 📖' : '掼蛋小白 🐣';
+
+    showScreen('s-result');
+
+    // Animate score
+    animateNumber('r-score', 0, totalScore, 1500);
+    document.getElementById('r-rank').textContent = rank;
+
+    // Draw radar
+    setTimeout(() => drawRadar('radar', dimFinal, 300), 300);
+
+    // Dimension breakdown
+    let listHtml = '';
+    DIM_KEYS.forEach(k => {
+      let d = DIMS[k];
+      let pct = dimFinal[k] / 10;
+      listHtml += `<div class="dim-row">
+        <div class="dim-name">${d.icon} ${d.name}</div>
+        <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
+        <div class="dim-val" style="color:${d.color}">${dimFinal[k]}</div>
+      </div>`;
+    });
+    document.getElementById('dim-list').innerHTML = listHtml;
+
+    // Save for share
+    window._result = { score: totalScore, rank, dimFinal };
+  }, 1800);
+}
+
+function animateNumber(elId, from, to, duration) {
+  let el = document.getElementById(elId);
+  let start = performance.now();
+  function step(now) {
+    let t = Math.min((now - start) / duration, 1);
+    t = 1 - Math.pow(1 - t, 3); // ease out
+    el.textContent = Math.round(from + (to - from) * t);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ===== Radar Chart (Canvas) =====
+function drawRadar(canvasId, dimFinal, size) {
+  let canvas = document.getElementById(canvasId);
+  let ctx = canvas.getContext('2d');
+  let cx = canvas.width / 2, cy = canvas.height / 2;
+  let r = canvas.width * 0.38;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  let n = 6;
+  let angles = [];
+  for (let i = 0; i < n; i++) angles.push(-Math.PI / 2 + (2 * Math.PI / n) * i);
+
+  // Grid lines
+  for (let level = 1; level <= 5; level++) {
+    let lr = r * level / 5;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      let x = cx + lr * Math.cos(angles[i]);
+      let y = cy + lr * Math.sin(angles[i]);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = level === 5 ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.06)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Axis lines
+  for (let i = 0; i < n; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + r * Math.cos(angles[i]), cy + r * Math.sin(angles[i]));
+    ctx.strokeStyle = 'rgba(255,255,255,.08)';
+    ctx.stroke();
+  }
+
+  // Data polygon
+  let values = DIM_KEYS.map(k => dimFinal[k] / 1000);
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    let v = Math.max(values[i], 0.05); // min visible
+    let x = cx + r * v * Math.cos(angles[i]);
+    let y = cy + r * v * Math.sin(angles[i]);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+
+  // Gradient fill
+  let grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  grad.addColorStop(0, 'rgba(0,212,170,.35)');
+  grad.addColorStop(1, 'rgba(124,77,255,.2)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,212,170,.8)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Data points
+  for (let i = 0; i < n; i++) {
+    let v = Math.max(values[i], 0.05);
+    let x = cx + r * v * Math.cos(angles[i]);
+    let y = cy + r * v * Math.sin(angles[i]);
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = DIMS[DIM_KEYS[i]].color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // Labels
+  let fontSize = canvas.width > 400 ? 16 : 13;
+  ctx.font = `bold ${fontSize}px -apple-system, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i < n; i++) {
+    let lx = cx + (r + 30) * Math.cos(angles[i]);
+    let ly = cy + (r + 30) * Math.sin(angles[i]);
+    let d = DIMS[DIM_KEYS[i]];
+    ctx.fillStyle = d.color;
+    ctx.fillText(d.icon + ' ' + d.name, lx, ly);
+  }
+}
+
+// ===== Share =====
+function showShareCard() {
+  let r = window._result;
+  if (!r) return;
+  document.getElementById('sc-score').textContent = r.score;
+  document.getElementById('sc-rank').textContent = r.rank;
+  document.getElementById('share-card').classList.add('show');
+  setTimeout(() => drawRadar('sc-radar', r.dimFinal, 200), 100);
+}
+
+function hideShareCard() {
+  document.getElementById('share-card').classList.remove('show');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!-- 掼蛋训练首页 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- Header -->
+  <view class="header">
+    <text class="header-title">掼蛋训练</text>
+    <view class="header-right">
+      <view class="scan-btn" bindtap="onScanLogin">
+        <text class="scan-icon">⊞</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 蛋力值卡片 -->
+  <view class="danli-card" bindtap="goDanli">
+    <view class="danli-left">
+      <view class="danli-label">我的蛋力值</view>
+      <view class="danli-score-row">
+        <text class="danli-score">{{danli.score || '--'}}</text>
+        <text class="danli-max">/1000</text>
+      </view>
+      <text class="danli-rank">{{danli.rank || '尚未测评'}}</text>
+    </view>
+    <view class="danli-right">
+      <!-- 简版六边形 -->
+      <canvas canvas-id="radar" id="radar" style="width:140rpx;height:140rpx"></canvas>
+      <text class="danli-test-btn" wx:if="{{!danli.score}}">立即测评 →</text>
+      <text class="danli-test-btn" wx:else>重新测评 →</text>
+    </view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="entry-grid">
+    <view class="entry-card entry-training" bindtap="goTraining">
+      <text class="entry-icon">🎯</text>
+      <text class="entry-name">AI训练</text>
+      <text class="entry-desc">AI教练实时指导</text>
+    </view>
+    <view class="entry-card entry-tournament" bindtap="goTournament">
+      <text class="entry-icon">🏆</text>
+      <text class="entry-name">赛事报名</text>
+      <text class="entry-desc">团建 · 公益赛</text>
+    </view>
+    <view class="entry-card entry-replay" bindtap="goReplay">
+      <text class="entry-icon">📊</text>
+      <text class="entry-name">复盘分析</text>
+      <text class="entry-desc">AI深度分析</text>
+    </view>
+    <view class="entry-card entry-daily" bindtap="goDailyQuiz">
+      <text class="entry-icon">📝</text>
+      <text class="entry-name">每日一题</text>
+      <text class="entry-desc">每天进步一点</text>
+    </view>
+  </view>
+
+  <!-- 六维能力详情 -->
+  <view class="section" wx:if="{{danli.score}}">
+    <view class="section-title">能力雷达</view>
+    <view class="dim-list">
+      <view class="dim-row" wx:for="{{dims}}" wx:key="key">
+        <text class="dim-icon">{{item.icon}}</text>
+        <text class="dim-name">{{item.name}}</text>
+        <view class="dim-bar">
+          <view class="dim-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+        </view>
+        <text class="dim-val" style="color:{{item.color}}">{{item.val}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 训练统计 -->
+  <view class="section">
+    <view class="section-title">训练记录</view>
+    <view class="stat-grid">
+      <view class="stat-item">
+        <text class="stat-val">{{training.totalSessions}}</text>
+        <text class="stat-label">训练场次</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-val">{{training.totalHands}}</text>
+        <text class="stat-label">总手数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-val">{{training.accuracy || '--'}}%</text>
+        <text class="stat-label">准确率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-val">{{training.bestAccuracy || '--'}}%</text>
+        <text class="stat-label">最佳</text>
+      </view>
+    </view>
+  </view>
+
+  <view style="height:120rpx"></view>
+</view>
