@@ -295,6 +295,33 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .user-login-hint{position:absolute;font-size:11px;color:#888;letter-spacing:1px;cursor:pointer;transition:color 0.2s}
 .user-login-hint:hover{color:var(--neon)}
 
+/* QR login breathing dock */
+#qr-login-section{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:50;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  opacity:0.35;transition:opacity 0.6s ease,transform 0.6s ease;cursor:pointer}
+#qr-login-section:hover{opacity:1;transform:translateX(-50%) translateY(-4px)}
+#qr-login-section .qr-dock{
+  background:rgba(10,10,20,0.6);border:1px solid rgba(0,255,255,0.08);border-radius:14px;
+  padding:12px 16px;backdrop-filter:blur(12px);text-align:center;
+  transition:background 0.6s,border-color 0.6s,box-shadow 0.6s}
+#qr-login-section:hover .qr-dock{
+  background:rgba(10,10,20,0.92);border-color:rgba(0,255,255,0.25);
+  box-shadow:0 0 30px rgba(0,255,255,0.08),0 0 60px rgba(0,255,255,0.04)}
+#qr-login-section .qr-label{font-size:9px;color:rgba(0,255,255,0.4);letter-spacing:3px;margin-bottom:6px;
+  transition:color 0.6s}
+#qr-login-section:hover .qr-label{color:rgba(0,255,255,0.7)}
+#qr-login-section .qr-canvas-wrap{position:relative;border-radius:6px;overflow:hidden;line-height:0}
+#qr-login-section .qr-canvas-wrap::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 40%,rgba(0,255,255,0.06) 100%);
+  pointer-events:none;opacity:0;transition:opacity 0.6s}
+#qr-login-section:hover .qr-canvas-wrap::after{opacity:1}
+#qr-login-section .qr-hint{font-size:8px;color:rgba(255,255,255,0.12);margin-top:5px;letter-spacing:1px;
+  transition:color 0.6s}
+#qr-login-section:hover .qr-hint{color:rgba(255,255,255,0.35)}
+@keyframes qrBreath{0%,100%{opacity:0.3}50%{opacity:0.5}}
+#qr-login-section{animation:qrBreath 4s ease-in-out infinite}
+#qr-login-section:hover{animation:none;opacity:1}
+
 /* old sidebar dashboard removed — replaced by arena-hud overlay */
 .dash-reset-btn{display:block;margin:4px auto 0;background:transparent;color:#444;border:1px solid #333;padding:4px 14px;border-radius:6px;cursor:pointer;font-size:8px;letter-spacing:1px;font-family:'Orbitron',sans-serif;transition:all 0.2s}
 .dash-reset-btn:hover{color:#888;border-color:#555}
@@ -925,8 +952,10 @@ body.light-theme .holo-stat-val{color:#2a2520 !important;text-shadow:none !impor
 body.light-theme .holo-stat-label{color:#999 !important}
 body.light-theme #theme-toggle{background:rgba(0,0,0,0.05) !important;border-color:rgba(0,0,0,0.12) !important}
 body.light-theme #theme-label{color:rgba(0,0,0,0.5) !important}
-body.light-theme #qr-login-section>div{background:rgba(255,255,255,0.9) !important;border-color:rgba(0,0,0,0.1) !important}
-body.light-theme #qr-login-section>div>div:first-child{color:rgba(0,0,0,0.4) !important}
+body.light-theme #qr-login-section .qr-dock{background:rgba(255,255,255,0.8) !important;border-color:rgba(0,0,0,0.08) !important}
+body.light-theme #qr-login-section:hover .qr-dock{background:rgba(255,255,255,0.95) !important;border-color:rgba(0,0,0,0.15) !important;box-shadow:0 4px 20px rgba(0,0,0,0.08) !important}
+body.light-theme #qr-login-section .qr-label{color:rgba(0,0,0,0.3) !important}
+body.light-theme #qr-login-section:hover .qr-label{color:rgba(0,0,0,0.5) !important}
 /* Light theme: lobby */
 body.light-theme #lobby{background:radial-gradient(circle,#f5f0e8 0%,#ede6d6 100%) !important}
 body.light-theme .lobby-title{color:#2a2520 !important;text-shadow:none !important}
@@ -1506,22 +1535,6 @@ body.view-table .holo-hex-grid{opacity:0.05}
         <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">COMING SOON</div>
       </div>
     </div>
-    <!-- Demo dual-screen buttons -->
-    <div style="display:flex;gap:16px;margin-top:20px;position:relative;z-index:50">
-      <div class="holo-btn" onclick="startDemo('touch')" style="width:180px;padding:14px 10px">
-        <div class="h-icon" style="font-size:24px;font-weight:900;color:var(--neon)">CTL</div>
-        <div class="h-name" style="font-size:13px">DEMO CONTROL</div>
-        <div class="h-desc" style="font-size:9px">TOUCHSCREEN<br>CARDS + ACTIONS</div>
-        <div class="h-tag" style="background:rgba(0,255,200,0.1);color:#00ffcc;border:1px solid rgba(0,255,200,0.3);font-size:8px">7" TOUCH</div>
-      </div>
-      <div class="holo-btn" onclick="startDemo('table')" style="width:180px;padding:14px 10px">
-        <div class="h-icon" style="font-size:24px;font-weight:900;color:#6666ff">VIEW</div>
-        <div class="h-name" style="font-size:13px">DEMO VIEW</div>
-        <div class="h-desc" style="font-size:9px">DISPLAY SCREEN<br>TABLE OVERVIEW</div>
-        <div class="h-tag" style="background:rgba(100,100,255,0.1);color:#6666ff;border:1px solid rgba(100,100,255,0.3);font-size:8px">DISPLAY</div>
-      </div>
-    </div>
-    <div style="margin-top:8px;font-size:10px;color:rgba(255,255,255,0.25);position:relative;z-index:50">树莓派双屏模式：先点 CONTROL 再点 VIEW 加入同房间</div>
   </div>
 
   <!-- Theme toggle button -->
@@ -1530,12 +1543,14 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <span id="theme-label" style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:1px;font-family:'Orbitron','Segoe UI',sans-serif">DARK</span>
   </div>
 
-  <!-- QR Login — always visible -->
-  <div id="qr-login-section" style="position:absolute;bottom:35px;left:50%;transform:translateX(-50%);z-index:50;display:flex;flex-direction:column;align-items:center;gap:10px">
-    <div style="background:rgba(10,10,20,0.92);border:1px solid rgba(0,255,255,0.15);border-radius:16px;padding:16px 20px;backdrop-filter:blur(12px);text-align:center">
-      <div style="font-size:10px;color:rgba(0,255,255,0.5);letter-spacing:3px;margin-bottom:8px">WECHAT SCAN</div>
-      <canvas id="qr-canvas" width="140" height="140" style="border-radius:8px;background:#fff;image-rendering:pixelated"></canvas>
-      <div style="font-size:9px;color:rgba(255,255,255,0.15);margin-top:6px;letter-spacing:1px" id="qr-session-id"></div>
+  <!-- QR Login — breathing dock -->
+  <div id="qr-login-section">
+    <div class="qr-dock">
+      <div class="qr-label">WECHAT SCAN</div>
+      <div class="qr-canvas-wrap">
+        <canvas id="qr-canvas" width="120" height="120" style="border-radius:6px;background:#fff;image-rendering:pixelated"></canvas>
+      </div>
+      <div class="qr-hint" id="qr-session-id"></div>
     </div>
   </div>
 
@@ -1769,37 +1784,10 @@ body.view-table .holo-hex-grid{opacity:0.05}
 </div>
 
 <script>
-/* ===== Dual-screen view detection ===== */
+/* ===== View mode init ===== */
 const _urlParams = new URLSearchParams(window.location.search);
-const _viewMode = _urlParams.get('view'); // 'touch' | 'table' | null
+const _viewMode = null;
 let _autoJoined = false;
-if(_viewMode === 'touch' || _viewMode === 'table'){
-  document.body.classList.add('view-' + _viewMode);
-}
-// Auto-detect small screen (Pi 7" touchscreen) → apply touch mode
-// Check screen height OR use DEMO CONTROL entry. No touch requirement (VNC doesn't have it)
-if(!_viewMode && (window.screen.height <= 650 || window.innerHeight <= 550)){
-  document.body.classList.add('view-touch');
-}
-// Touch mode: inject timer bar into ctrls and wrap buttons in ctrls-row
-if(document.body.classList.contains('view-touch')){
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const ctrls = document.getElementById('ctrls');
-    if(!ctrls) return;
-    // Create timer bar
-    const tbar = document.createElement('div');
-    tbar.id = 'touch-timer-bar';
-    tbar.innerHTML = '<div class="ttb-fill" style="width:100%"></div>';
-    ctrls.insertBefore(tbar, ctrls.firstChild);
-    // Wrap existing buttons in ctrls-row
-    const row = document.createElement('div');
-    row.className = 'ctrls-row';
-    Array.from(ctrls.children).forEach(ch=>{
-      if(ch.id !== 'touch-timer-bar') row.appendChild(ch);
-    });
-    ctrls.appendChild(row);
-  });
-}
 
 const socket=io('https://crayxus-game.onrender.com',{autoConnect:false,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
@@ -6420,7 +6408,7 @@ setTimeout(startSpotlight, 1500);
 const _bc = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('crayxus_dual') : null;
 
 function broadcastViewState(){
-  if(!_bc || _viewMode === 'table') return;
+  if(!_bc) return;
   const state = {type:'viewSync', outs:{}, avatars:{}, badges:{}, finishBadges:{}, typeBadges:{},
     counts:counts.slice(), turn:turn, mySeat:mySeat, gameOver:gameOver,
     finishOrder:finishOrder.slice(), timeLeft:timeLeft, timerActive:!!timerInterval};
@@ -6451,116 +6439,14 @@ function broadcastViewState(){
   try{_bc.postMessage(state);}catch(e){}
 }
 
-if(_viewMode==='table'&&_bc){
-  _bc.onmessage=function(ev){
-    const s=ev.data;if(s.type!=='viewSync')return;
-    for(let i=0;i<4;i++){
-      const el=document.getElementById('out-'+i);
-      if(el&&s.outs[i]){el.innerHTML=s.outs[i].html;el.className=s.outs[i].classes;}
-      const av=document.getElementById('av-'+i);
-      if(av&&s.avatars[i]){av.className=s.avatars[i].classes;av.innerText=s.avatars[i].text;}
-      const nb=document.getElementById('n-'+i);
-      if(nb&&s.badges[i]){nb.style.display=s.badges[i].display;nb.innerText=s.badges[i].text;}
-      const fb=document.getElementById('f-'+i);
-      if(fb&&s.finishBadges[i]){fb.style.display=s.finishBadges[i].display;fb.innerText=s.finishBadges[i].text;}
-      const tb=document.getElementById('type-'+i);
-      if(tb&&s.typeBadges[i]){tb.style.display=s.typeBadges[i].display;tb.innerText=s.typeBadges[i].text;tb.className=s.typeBadges[i].classes;}
-    }
-    if(s.mobileScore){
-      for(let i=0;i<4;i++){const ms=document.getElementById('ms-p'+i);if(ms&&s.mobileScore[i]!==undefined)ms.innerText=s.mobileScore[i];}
-      const msElo=document.getElementById('ms-elo');if(msElo&&s.mobileScore.elo)msElo.innerText=s.mobileScore.elo;
-    }
-    if(s.toast){const tst=document.getElementById('tst');if(tst){tst.innerText=s.toast;tst.style.opacity=1;clearTimeout(tst._tid);tst._tid=setTimeout(()=>{tst.style.opacity=0},2000);}}
-    const rm=document.getElementById('result-modal');
-    if(s.result){if(rm)rm.style.display='flex';
-      const rt=document.getElementById('res-title');if(rt)rt.innerText=s.result.title;
-      const rd=document.getElementById('res-desc');if(rd)rd.innerText=s.result.desc;
-      const rp=document.getElementById('res-points');if(rp)rp.innerText=s.result.points;
-      const re=document.getElementById('res-elo');if(re)re.innerText=s.result.elo;
-    }else{if(rm)rm.style.display='none';}
-  };
-}
 
 // Hook into renderUI to broadcast
 const _origRenderUI=renderUI;
 renderUI=function(){_origRenderUI();broadcastViewState();};
 const _origHandleSync=handleSync;
 handleSync=function(d){_origHandleSync(d);broadcastViewState();};
-if(_viewMode!=='table'){setInterval(()=>{if(timerInterval)broadcastViewState();},1000);}
+setInterval(()=>{if(timerInterval)broadcastViewState();},1000);
 
-/* ===== DEMO dual-screen mode ===== */
-function startDemo(view){
-  document.body.classList.add('view-'+view);
-  if(typeof AudioSys!=='undefined')AudioSys.init();
-  gameMode='casual';
-  casualMode='fixed';
-  currentWildValue='2';
-  if(!socket.connected) socket.connect();
-
-  if(view==='table'){
-    // TABLE VIEW: spectator only — show room list, click to spectate
-    socket.on('spectateInit',function(d){
-      mySeat=d.seat;
-      myRoomCode=d.roomCode;
-      gameMode='casual';
-      casualMode='fixed';
-      console.log('[Spectator] Watching from seat',d.seat,'room',d.roomCode);
-    });
-    // Replace lobby content with room list
-    var lc=document.querySelector('#lobby .lobby-card');
-    lc.innerHTML='<div style="font-size:24px;font-weight:bold;margin-bottom:8px;color:#fff">DEMO VIEW</div>'+
-      '<div style="color:#888;margin-bottom:16px;font-size:13px">SPECTATOR · Select a room to watch</div>'+
-      '<div id="room-list" style="width:100%;max-height:300px;overflow-y:auto;margin-bottom:16px"></div>'+
-      '<button class="btn-large" onclick="loadRoomList()" style="margin-bottom:8px">REFRESH</button>'+
-      '<div id="conn-status" style="font-size:12px;color:#666">Loading rooms...</div>';
-    switchScreen('lobby');
-    loadRoomList();
-  } else {
-    // TOUCH VIEW: normal player — create/join room
-    document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='DEMO CONTROL';
-    document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='Create room, then share code for VIEW';
-    var eloRow=document.getElementById('lobby-elo');
-    if(eloRow)eloRow.parentElement.parentElement.style.display='none';
-    switchScreen('lobby');
-  }
-}
-
-function loadRoomList(){
-  var rl=document.getElementById('room-list');
-  if(!rl)return;
-  rl.innerHTML='<div style="color:#666;padding:20px;text-align:center">Loading...</div>';
-  fetch('/api/rooms').then(r=>r.json()).then(function(list){
-    if(!list.length){
-      rl.innerHTML='<div style="color:#666;padding:30px;text-align:center;font-size:14px">No active rooms<br><span style="font-size:11px;color:#555">Start a game from DEMO CONTROL first</span></div>';
-      document.getElementById('conn-status').innerText='No rooms found';
-      return;
-    }
-    var html='';
-    list.forEach(function(rm){
-      var status=rm.active?'<span style="color:#0f0">PLAYING</span>':'<span style="color:#fa0">WAITING</span>';
-      html+='<div onclick="spectateRoom(\''+rm.code+'\')" style="display:flex;justify-content:space-between;align-items:center;'+
-        'padding:14px 16px;margin-bottom:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);'+
-        'border-radius:12px;cursor:pointer;transition:background 0.2s" '+
-        'onmouseenter="this.style.background=\'rgba(0,255,200,0.1)\';this.style.borderColor=\'rgba(0,255,200,0.3)\'" '+
-        'onmouseleave="this.style.background=\'rgba(255,255,255,0.06)\';this.style.borderColor=\'rgba(255,255,255,0.1)\'">' +
-        '<div><div style="font-size:18px;font-weight:bold;letter-spacing:2px;color:#fff">'+rm.code+'</div>'+
-        '<div style="font-size:11px;color:#888;margin-top:2px">'+rm.humans+' player'+(rm.humans>1?'s':'')+'</div></div>'+
-        '<div style="text-align:right"><div style="font-size:12px">'+status+'</div>'+
-        '<div style="font-size:10px;color:#666;margin-top:2px">'+rm.mode+'</div></div></div>';
-    });
-    rl.innerHTML=html;
-    document.getElementById('conn-status').innerText=list.length+' room(s) available';
-  }).catch(function(){
-    rl.innerHTML='<div style="color:#f66;padding:20px;text-align:center">Failed to load rooms</div>';
-  });
-}
-
-function spectateRoom(code){
-  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
-  var g=document.getElementById('game-ui');
-  g.style.display='flex';g.style.opacity='1';
-  socket.emit('spectateGame',{roomCode:code});
-}
 </script>
 </body>
 </html>
