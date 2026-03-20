@@ -37,7 +37,34 @@
         <text class="day-today" wx:if="{{item.isToday}}">TODAY</text>
       </view>
       <view wx:if="{{item.events.length === 0}}" class="day-empty">暂无赛事</view>
-      <view class="event-card" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" bindtap="showDetail" data-code="{{evt.code}}">
+      <!-- 团建卡片 (已预约) -->
+      <view class="event-card booked" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType === 'teambuilding' && evt.status === 'booked'}}">
+        <view class="ec-header">
+          <view class="ec-type teambuilding">团建</view>
+          <text class="ec-date">{{evt.eventTime}}</text>
+        </view>
+        <text class="ec-name">{{evt.bookedBy || '企业团建'}}</text>
+        <view class="ec-info">
+          <text class="ec-location">📍 {{evt.location}} · {{evt.bookedCount}}人</text>
+        </view>
+        <view class="ec-status closed">已占用</view>
+      </view>
+
+      <!-- 团建卡片 (可预约) -->
+      <view class="event-card" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType === 'teambuilding' && evt.status !== 'booked'}}" bindtap="openBooking" data-code="{{evt.code}}">
+        <view class="ec-header">
+          <view class="ec-type teambuilding">团建</view>
+          <text class="ec-date">{{evt.eventTime}}</text>
+        </view>
+        <text class="ec-name">企业团建 · 可预约</text>
+        <view class="ec-info">
+          <text class="ec-location">📍 杭州 · 场地可定制</text>
+        </view>
+        <view class="ec-book-btn">预约团建 →</view>
+      </view>
+
+      <!-- 普通赛事卡片 -->
+      <view class="event-card" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType !== 'teambuilding'}}" bindtap="showDetail" data-code="{{evt.code}}">
         <view class="ec-header">
           <view class="ec-type {{evt.eventType}}">{{evt.eventTypeText}}</view>
           <text class="ec-date">{{evt.eventTime}}</text>
@@ -45,7 +72,6 @@
         <text class="ec-name">{{evt.name}}</text>
         <view class="ec-info">
           <text class="ec-location">📍 {{evt.location || '待定'}}</text>
-          <text class="ec-fee">{{evt.fee ? '¥' + evt.fee : '免费'}}</text>
         </view>
         <view class="ec-capacity">
           <view class="ec-cap-bar">
@@ -104,9 +130,6 @@
         <text class="dl">地点</text><text class="dv">{{detailEvent.location || '待定'}}</text>
       </view>
       <view class="detail-row">
-        <text class="dl">费用</text><text class="dv">{{detailEvent.fee ? '¥' + detailEvent.fee : '免费'}}</text>
-      </view>
-      <view class="detail-row">
         <text class="dl">人数</text><text class="dv">{{detailEvent.playerCount}}/{{detailEvent.capacity}}</text>
       </view>
       <view class="detail-row" wx:if="{{detailEvent.description}}">
@@ -129,6 +152,69 @@
       </view>
       <view class="modal-actions" wx:else>
         <view class="modal-btn cancel" bindtap="closeDetail">关闭</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 团建预约弹窗 -->
+  <view class="modal-mask" wx:if="{{showBooking}}" bindtap="closeBooking">
+    <view class="modal-body" catchtap="">
+      <text class="modal-title">预约企业团建</text>
+      <text class="modal-event">AI一体机 · 专业计分 · 茶歇配套</text>
+
+      <view class="form-group">
+        <text class="form-label">选择规模</text>
+        <view class="tier-grid">
+          <view class="tier-card {{bookingTier === 20 ? 'selected' : ''}}" bindtap="selectTier" data-tier="20">
+            <text class="tier-num">20人</text>
+            <text class="tier-sub">5桌</text>
+          </view>
+          <view class="tier-card {{bookingTier === 40 ? 'selected' : ''}}" bindtap="selectTier" data-tier="40">
+            <text class="tier-num">40人</text>
+            <text class="tier-sub">10桌</text>
+          </view>
+          <view class="tier-card {{bookingTier === 0 ? 'selected' : ''}}" bindtap="selectTier" data-tier="0">
+            <text class="tier-num">定制</text>
+            <text class="tier-sub">自定义</text>
+          </view>
+        </view>
+      </view>
+      <view class="form-group">
+        <text class="form-label">公司/团队名称</text>
+        <input class="form-input" placeholder="例：xx科技有限公司" value="{{bkCompany}}" bindinput="onBkCompany" />
+      </view>
+      <view class="form-group">
+        <text class="form-label">联系人</text>
+        <input class="form-input" placeholder="姓名" value="{{bkContact}}" bindinput="onBkContact" />
+      </view>
+      <view class="form-group">
+        <text class="form-label">联系电话</text>
+        <input class="form-input" placeholder="手机号" type="number" value="{{bkPhone}}" bindinput="onBkPhone" />
+      </view>
+
+      <view class="deposit-box">
+        <text class="deposit-label">预付定金</text>
+        <text class="deposit-amount">¥100</text>
+        <text class="deposit-note">支付后团建经理将在24h内联系您</text>
+      </view>
+
+      <view class="modal-actions">
+        <view class="modal-btn cancel" bindtap="closeBooking">取消</view>
+        <view class="modal-btn submit gold" bindtap="submitBooking">支付 ¥100 预约</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Dummy 支付成功 -->
+  <view class="modal-mask" wx:if="{{showPaySuccess}}" bindtap="closePaySuccess">
+    <view class="modal-body" catchtap="" style="text-align:center">
+      <text style="font-size:120rpx;display:block;margin:20rpx 0">✅</text>
+      <text class="modal-title" style="color:#00d4aa">预约成功！</text>
+      <text style="display:block;font-size:26rpx;color:rgba(255,255,255,.5);line-height:1.8;margin:20rpx 0">
+        定金 ¥100 已收到\n团建经理将在24小时内联系您\n确认场地、时间和具体方案
+      </text>
+      <view class="modal-actions">
+        <view class="modal-btn submit" bindtap="closePaySuccess">返回日历</view>
       </view>
     </view>
   </view>

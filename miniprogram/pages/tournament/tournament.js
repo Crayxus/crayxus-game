@@ -18,7 +18,14 @@ Page({
     formNickname: '',
     formPhone: '',
     formTeam: '',
-    formNote: ''
+    formNote: '',
+    // Booking
+    showBooking: false,
+    showPaySuccess: false,
+    bookingTier: 20,
+    bkCompany: '',
+    bkContact: '',
+    bkPhone: ''
   },
 
   onLoad() {
@@ -198,5 +205,48 @@ Page({
       },
       fail: () => wx.showToast({ title: '网络错误', icon: 'none' })
     })
+  },
+
+  // === Teambuilding Booking ===
+  openBooking(e) {
+    const nickname = app.globalData.nickname || ''
+    this.setData({ showBooking: true, bookingTier: 20, bkContact: nickname })
+  },
+
+  closeBooking() {
+    this.setData({ showBooking: false })
+  },
+
+  selectTier(e) {
+    const tier = parseInt(e.currentTarget.dataset.tier)
+    this.setData({ bookingTier: tier })
+  },
+
+  onBkCompany(e) { this.setData({ bkCompany: e.detail.value }) },
+  onBkContact(e) { this.setData({ bkContact: e.detail.value }) },
+  onBkPhone(e) { this.setData({ bkPhone: e.detail.value }) },
+
+  submitBooking() {
+    const { bkCompany, bkContact, bkPhone, bookingTier } = this.data
+    if (!bkCompany.trim()) {
+      wx.showToast({ title: '请输入公司名称', icon: 'none' })
+      return
+    }
+    if (!bkContact.trim()) {
+      wx.showToast({ title: '请输入联系人', icon: 'none' })
+      return
+    }
+    if (!bkPhone.trim()) {
+      wx.showToast({ title: '请输入联系电话', icon: 'none' })
+      return
+    }
+
+    // Dummy payment — show success directly
+    this.setData({ showBooking: false, showPaySuccess: true })
+  },
+
+  closePaySuccess() {
+    this.setData({ showPaySuccess: false })
+    this.loadEvents()
   }
 })

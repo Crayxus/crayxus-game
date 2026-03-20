@@ -1125,21 +1125,24 @@ if (Object.keys(tournaments).length === 0) {
             description: '周末公益赛，免费参加，奖品丰厚！冠军获Crayxus定制一体机体验券。'
         },
         {
-            code: 'HZ0326', name: '钱塘江企业团建赛', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            code: 'HZ0326', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
             casualMode: 'fixed', organizer: 'Crayxus',
-            status: 'open', players: [
-                { nickname: '阿里-小明', phone: '136****3456', team: '阿里巴巴', joinedAt: '2026-03-19T09:00:00Z' },
-                { nickname: '网易-老赵', phone: '135****7890', team: '网易', joinedAt: '2026-03-19T10:00:00Z' },
-                { nickname: '华为-小陈', phone: '188****2345', team: '华为', joinedAt: '2026-03-20T08:00:00Z' },
-                { nickname: '海康-大刘', phone: '189****6789', team: '海康威视', joinedAt: '2026-03-20T09:00:00Z' },
-                { nickname: '吉利-阿杰', phone: '158****1111', team: '吉利汽车', joinedAt: '2026-03-20T14:00:00Z' },
-                { nickname: '蚂蚁-小王', phone: '159****2222', team: '蚂蚁集团', joinedAt: '2026-03-21T10:00:00Z' }
-            ],
+            status: 'booked', players: [],
             rounds: [], currentRound: 0,
             createdAt: '2026-03-19T09:00:00Z',
             eventType: 'teambuilding', eventDate: '2026-03-26', eventTime: '14:00',
-            location: '杭州·滨江区星光大道·江畔云会所2楼', capacity: 40, fee: 198,
-            description: '企业团建专场，含下午茶+晚宴。AI一体机辅助计分，瑞士制4轮。'
+            location: '杭州·滨江区', capacity: 40, fee: 0,
+            description: '', bookedBy: '某互联网公司', bookedCount: 32
+        },
+        {
+            code: 'HZ0327', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-19T09:00:00Z',
+            eventType: 'teambuilding', eventDate: '2026-03-27', eventTime: '14:00',
+            location: '杭州·可定制', capacity: 40, fee: 0,
+            description: '可预约团建场次，填写人数即可'
         },
         {
             code: 'HZ0329', name: '运河掼蛋周末赛', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
@@ -1167,14 +1170,24 @@ if (Object.keys(tournaments).length === 0) {
             description: '清明假期大型掼蛋公开赛，6轮瑞士制。Crayxus AI一体机全程计分+实时排名。'
         },
         {
-            code: 'HZ0403', name: '未来科技城团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            code: 'HZ0402', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T11:00:00Z',
+            eventType: 'teambuilding', eventDate: '2026-04-02', eventTime: '14:00',
+            location: '杭州·余杭区', capacity: 20, fee: 0,
+            description: '', bookedBy: '某科技公司', bookedCount: 16
+        },
+        {
+            code: 'HZ0403', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
             casualMode: 'fixed', organizer: 'Crayxus',
             status: 'open', players: [],
             rounds: [], currentRound: 0,
             createdAt: '2026-03-21T11:00:00Z',
-            eventType: 'teambuilding', eventDate: '2026-04-03', eventTime: '15:00',
-            location: '杭州·余杭区未来科技城·梦想小镇众创空间', capacity: 20, fee: 168,
-            description: '科技城企业专属团建，含轻食茶歇，AI教学+比赛一体化体验。'
+            eventType: 'teambuilding', eventDate: '2026-04-03', eventTime: '14:00',
+            location: '杭州·可定制', capacity: 40, fee: 0,
+            description: '可预约团建场次，填写人数即可'
         },
         {
             code: 'HZ0405', name: '西溪湿地春日赛', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
@@ -1210,26 +1223,30 @@ function genTournamentCode() {
     return code;
 }
 
-// List tournaments
+// List tournaments (teambuilding shows limited info)
 app.get('/api/tournaments', (req, res) => {
-    let list = Object.values(tournaments).map(t => ({
-        code: t.code,
-        name: t.name,
-        format: t.format,
-        status: t.status,
-        playerCount: t.players.length,
-        players: t.players,
-        currentRound: t.currentRound,
-        totalRounds: t.totalRounds,
-        createdAt: t.createdAt,
-        eventType: t.eventType || 'open',
-        eventDate: t.eventDate || t.createdAt.split('T')[0],
-        eventTime: t.eventTime || '14:00',
-        location: t.location || '',
-        capacity: t.capacity || 0,
-        fee: t.fee || 0,
-        organizer: t.organizer
-    })).sort((a, b) => {
+    let list = Object.values(tournaments).map(t => {
+        let isTeambuilding = t.eventType === 'teambuilding';
+        return {
+            code: t.code,
+            name: t.name,
+            format: t.format,
+            status: t.status,
+            playerCount: isTeambuilding ? (t.bookedCount || 0) : t.players.length,
+            players: isTeambuilding ? [] : t.players, // hide player details for teambuilding
+            currentRound: t.currentRound,
+            totalRounds: t.totalRounds,
+            createdAt: t.createdAt,
+            eventType: t.eventType || 'open',
+            eventDate: t.eventDate || t.createdAt.split('T')[0],
+            eventTime: t.eventTime || '14:00',
+            location: t.location || '',
+            capacity: t.capacity || 0,
+            organizer: t.organizer,
+            bookedBy: isTeambuilding ? (t.bookedBy || '') : undefined,
+            bookedCount: isTeambuilding ? (t.bookedCount || 0) : undefined
+        };
+    }).sort((a, b) => {
         // Sort by event date, then by creation date
         let da = a.eventDate || a.createdAt;
         let db = b.eventDate || b.createdAt;

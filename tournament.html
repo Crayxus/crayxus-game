@@ -149,6 +149,11 @@ body.bigscreen table.sb td{font-size:18px;padding:14px 20px}
 .toast.show{display:block;animation:fadeIn .3s}
 @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
+/* Booking Tiers */
+.bk-tier{flex:1;padding:16px 10px;border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card)}
+.bk-tier:hover{border-color:rgba(255,149,0,.3)}
+.bk-tier.selected{border-color:var(--orange);background:rgba(255,149,0,.08);box-shadow:0 0 16px rgba(255,149,0,.15)}
+
 /* Mobile */
 @media(max-width:500px){
   .form-row{grid-template-columns:1fr}
@@ -301,6 +306,83 @@ body.bigscreen table.sb td{font-size:18px;padding:14px 20px}
   </div>
 </div>
 
+<!-- Booking Modal (团建预约) -->
+<div class="modal-mask" id="booking-modal">
+  <div class="modal">
+    <h3>预约企业团建</h3>
+    <div class="modal-sub">AI一体机 · 专业计分 · 茶歇配套</div>
+    <div class="form-group">
+      <label>选择规模</label>
+      <div style="display:flex;gap:10px;margin-top:6px" id="bk-tiers">
+        <div class="bk-tier selected" onclick="selectTier(this,20)" data-count="20">
+          <div style="font-size:24px;margin-bottom:4px">👥</div>
+          <div style="font-weight:700">20人</div>
+          <div style="font-size:12px;color:var(--dim)">5桌</div>
+        </div>
+        <div class="bk-tier" onclick="selectTier(this,40)" data-count="40">
+          <div style="font-size:24px;margin-bottom:4px">👥👥</div>
+          <div style="font-weight:700">40人</div>
+          <div style="font-size:12px;color:var(--dim)">10桌</div>
+        </div>
+        <div class="bk-tier" onclick="selectTier(this,0)" data-count="0">
+          <div style="font-size:24px;margin-bottom:4px">✨</div>
+          <div style="font-weight:700">定制</div>
+          <div style="font-size:12px;color:var(--dim)">自定义</div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>公司/团队名称 *</label>
+      <input id="bk-company" placeholder="例：xx科技有限公司" maxlength="40">
+    </div>
+    <div class="form-group">
+      <label>联系人 *</label>
+      <input id="bk-contact" placeholder="姓名" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>联系电话 *</label>
+      <input id="bk-phone" type="tel" placeholder="手机号" maxlength="11">
+    </div>
+    <div style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:12px;padding:14px;margin:16px 0;text-align:center">
+      <div style="font-size:13px;color:var(--dim);margin-bottom:4px">预付定金</div>
+      <div style="font-size:28px;font-weight:900;color:var(--gold)">¥100</div>
+      <div style="font-size:12px;color:var(--dim);margin-top:4px">支付后我们的团建经理将在24h内联系您</div>
+    </div>
+    <button class="submit-btn" onclick="submitBooking()" style="background:linear-gradient(135deg,var(--gold),var(--orange))">支付 ¥100 预约</button>
+    <div class="cancel-link" onclick="closeBooking()">取消</div>
+  </div>
+</div>
+
+<!-- Dummy Payment Page -->
+<div class="modal-mask" id="payment-modal">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:48px;margin:20px 0">💳</div>
+    <h3>支付确认</h3>
+    <div style="font-size:36px;font-weight:900;color:var(--gold);margin:16px 0">¥100.00</div>
+    <div style="color:var(--dim);font-size:13px;margin-bottom:20px">Crayxus 团建预约定金</div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px">
+      <button class="submit-btn" style="width:auto;padding:12px 32px;background:#07c160" onclick="fakePay('wechat')">微信支付</button>
+      <button class="submit-btn" style="width:auto;padding:12px 32px;background:#1677ff" onclick="fakePay('alipay')">支付宝</button>
+    </div>
+    <div class="cancel-link" onclick="closePayment()">取消支付</div>
+  </div>
+</div>
+
+<!-- Payment Success -->
+<div class="modal-mask" id="payment-success-modal">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:64px;margin:20px 0">✅</div>
+    <h3 style="color:var(--accent)">预约成功！</h3>
+    <div style="color:var(--dim);font-size:14px;margin:16px 0;line-height:1.8">
+      定金 ¥100 已收到<br>
+      我们的团建经理将在 <span style="color:var(--gold);font-weight:700">24小时内</span> 联系您<br>
+      确认场地、时间和具体方案
+    </div>
+    <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:14px;margin:16px 0;text-align:left;font-size:13px;color:var(--dim)" id="bk-summary"></div>
+    <button class="submit-btn" onclick="closePaymentSuccess()">返回赛事日历</button>
+  </div>
+</div>
+
 <button class="fullscreen-btn" onclick="document.body.classList.toggle('bigscreen')" id="fs-btn">大屏模式</button>
 <div class="toast" id="toast"></div>
 
@@ -433,11 +515,49 @@ function renderEventCard(t) {
   let isFull = cap > 0 && count >= cap;
   let pct = cap > 0 ? Math.min(count / cap * 100, 100) : 0;
   let fillClass = pct >= 100 ? 'full' : pct >= 75 ? 'high' : '';
-  let fee = t.fee || 0;
   let time = t.eventTime || '14:00';
   let loc = t.location || '待定';
-  let isJoined = t.players && t.players.some(p => p.phone === myInfo.phone && p.name === myInfo.name);
 
+  // Teambuilding: special card
+  if (type === 'teambuilding') {
+    if (t.status === 'booked') {
+      return `
+        <div class="evt" style="opacity:.7">
+          <div class="evt-top">
+            <div class="evt-name">${esc(t.bookedBy || '企业团建')}</div>
+            <span class="evt-type teambuilding">团建</span>
+          </div>
+          <div class="evt-info">
+            <span><span class="icon">🕐</span>${time}</span>
+            <span><span class="icon">📍</span>${esc(loc)}</span>
+            <span><span class="icon">👥</span>${t.bookedCount || '--'}人</span>
+          </div>
+          <div class="evt-bottom">
+            <span class="evt-capacity" style="color:var(--dim)">已预约</span>
+            <button class="evt-btn full">已占用</button>
+          </div>
+        </div>`;
+    } else {
+      return `
+        <div class="evt">
+          <div class="evt-top">
+            <div class="evt-name">企业团建 · 可预约</div>
+            <span class="evt-type teambuilding">团建</span>
+          </div>
+          <div class="evt-info">
+            <span><span class="icon">🕐</span>${time}</span>
+            <span><span class="icon">📍</span>杭州 · 场地可定制</span>
+          </div>
+          <div class="evt-bottom" style="flex-wrap:wrap;gap:8px">
+            <span style="font-size:13px;color:var(--dim)">AI一体机 + 计分 + 茶歇</span>
+            <button class="evt-btn signup" onclick="event.stopPropagation();openBooking('${t.code}')">预约团建</button>
+          </div>
+        </div>`;
+    }
+  }
+
+  // Regular event card
+  let isJoined = t.players && t.players.some(p => p.phone === myInfo.phone && p.name === myInfo.name);
   let btnHtml = '';
   if (t.status === 'finished') {
     btnHtml = `<button class="evt-btn view" onclick="event.stopPropagation();openEvent('${t.code}')">查看结果</button>`;
@@ -466,7 +586,6 @@ function renderEventCard(t) {
           ${cap > 0 ? `<span class="capacity-bar"><span class="capacity-fill ${fillClass}" style="width:${pct}%"></span></span>` : ''}
         </span>
         <span style="display:flex;align-items:center">
-          <span class="evt-fee ${fee > 0 ? 'paid' : 'free'}">${fee > 0 ? '¥' + fee : '免费'}</span>
           ${btnHtml}
         </span>
       </div>
@@ -586,7 +705,6 @@ function renderDetail(t) {
     <span>🏷️ ${TYPE_LABELS[type]}</span>
     <span>🎯 ${FORMAT_LABELS[t.format]} · ${t.totalRounds}轮</span>
     <span>👥 ${count}${cap > 0 ? '/' + cap : ''}人</span>
-    <span>${fee > 0 ? '💰 ¥' + fee : '🎁 免费'}</span>
   `;
   document.getElementById('d-meta').innerHTML = meta;
   document.getElementById('d-desc').textContent = t.description || '暂无说明';
@@ -740,6 +858,57 @@ function shareEvent(code) {
     let i = document.createElement('input'); i.value = url; document.body.appendChild(i); i.select(); document.execCommand('copy'); document.body.removeChild(i);
     toast('链接已复制');
   });
+}
+
+// ===== Teambuilding Booking =====
+let bookingCode = '';
+let bookingTier = 20;
+
+function selectTier(el, count) {
+  document.querySelectorAll('.bk-tier').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  bookingTier = count;
+}
+
+function openBooking(code) {
+  bookingCode = code;
+  if (myInfo.name) document.getElementById('bk-contact').value = myInfo.name;
+  if (myInfo.phone) document.getElementById('bk-phone').value = myInfo.phone;
+  document.getElementById('booking-modal').classList.add('show');
+}
+function closeBooking() { document.getElementById('booking-modal').classList.remove('show'); }
+
+function submitBooking() {
+  let company = document.getElementById('bk-company').value.trim();
+  let contact = document.getElementById('bk-contact').value.trim();
+  let phone = document.getElementById('bk-phone').value.trim();
+  if (!company) { toast('请输入公司名称'); return; }
+  if (!contact) { toast('请输入联系人'); return; }
+  if (!phone || phone.length < 8) { toast('请输入联系电话'); return; }
+
+  // Save booking info
+  window._bookingInfo = { company, contact, phone, tier: bookingTier || '定制' };
+  closeBooking();
+  // Show dummy payment
+  document.getElementById('payment-modal').classList.add('show');
+}
+
+function closePayment() { document.getElementById('payment-modal').classList.remove('show'); }
+
+function fakePay(method) {
+  document.getElementById('payment-modal').classList.remove('show');
+  // Show success
+  let info = window._bookingInfo || {};
+  let tierText = info.tier === 0 ? '定制规模' : info.tier + '人';
+  document.getElementById('bk-summary').innerHTML =
+    `公司：${esc(info.company)}<br>联系人：${esc(info.contact)}<br>电话：${info.phone}<br>规模：${tierText}<br>支付方式：${method === 'wechat' ? '微信支付' : '支付宝'}`;
+  document.getElementById('payment-success-modal').classList.add('show');
+  toast('预约成功！');
+}
+
+function closePaymentSuccess() {
+  document.getElementById('payment-success-modal').classList.remove('show');
+  loadEvents();
 }
 
 // ===== Init =====

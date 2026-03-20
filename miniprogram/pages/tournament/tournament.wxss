@@ -257,3 +257,54 @@ page { background: #0a0e1a; }
 .pl-idx { font-size: 22rpx; color: rgba(255,255,255,.3); width: 40rpx; }
 .pl-name { font-size: 26rpx; color: rgba(255,255,255,.7); flex: 1; }
 .pl-team { font-size: 22rpx; color: rgba(0,212,170,.6); }
+
+/* Booked card */
+.event-card.booked { opacity: .6; }
+
+/* Book button in card */
+.ec-book-btn {
+  margin-top: 12rpx;
+  text-align: center;
+  padding: 14rpx;
+  background: rgba(255,149,0,.12);
+  border: 1rpx solid rgba(255,149,0,.3);
+  border-radius: 12rpx;
+  color: #ff9500;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+/* Tier Grid */
+.tier-grid { display: flex; gap: 16rpx; margin-top: 12rpx; }
+.tier-card {
+  flex: 1;
+  padding: 24rpx 12rpx;
+  border: 2rpx solid rgba(255,255,255,.1);
+  border-radius: 14rpx;
+  text-align: center;
+  background: rgba(255,255,255,.03);
+}
+.tier-card.selected {
+  border-color: rgba(255,149,0,.5);
+  background: rgba(255,149,0,.08);
+}
+.tier-num { display: block; font-size: 30rpx; font-weight: 800; color: #fff; }
+.tier-sub { display: block; font-size: 20rpx; color: rgba(255,255,255,.35); margin-top: 4rpx; }
+
+/* Deposit box */
+.deposit-box {
+  background: rgba(255,215,0,.06);
+  border: 1rpx solid rgba(255,215,0,.2);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  text-align: center;
+  margin: 20rpx 0;
+}
+.deposit-label { display: block; font-size: 22rpx; color: rgba(255,255,255,.4); }
+.deposit-amount { display: block; font-size: 56rpx; font-weight: 900; color: #ffd700; margin: 8rpx 0; }
+.deposit-note { display: block; font-size: 20rpx; color: rgba(255,255,255,.3); }
+
+.modal-btn.gold {
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000;
+}
