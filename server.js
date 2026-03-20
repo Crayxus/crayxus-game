@@ -1106,6 +1106,98 @@ try {
     gameLog(`[Tournament] Loaded ${Object.keys(tournaments).length} tournaments from disk`);
 } catch(e) { gameLog(`[Tournament] Load error: ${e.message}`); }
 
+// Seed demo tournaments if none exist
+if (Object.keys(tournaments).length === 0) {
+    const demoEvents = [
+        {
+            code: 'HZ0325', name: '西湖掼蛋公益赛', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [
+                { nickname: 'Crayxus', joinedAt: '2026-03-20T10:00:00Z' },
+                { nickname: '老王', phone: '138****1234', team: '西湖队', joinedAt: '2026-03-20T12:00:00Z' },
+                { nickname: '张三', phone: '139****5678', team: '钱塘队', joinedAt: '2026-03-20T14:00:00Z' },
+                { nickname: '小李', phone: '137****9012', joinedAt: '2026-03-21T08:00:00Z' }
+            ],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-20T10:00:00Z',
+            eventType: 'charity', eventDate: '2026-03-25', eventTime: '13:30',
+            location: '杭州·西湖区文化馆3楼多功能厅', capacity: 32, fee: 0,
+            description: '周末公益赛，免费参加，奖品丰厚！冠军获Crayxus定制一体机体验券。'
+        },
+        {
+            code: 'HZ0326', name: '钱塘江企业团建赛', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [
+                { nickname: '阿里-小明', phone: '136****3456', team: '阿里巴巴', joinedAt: '2026-03-19T09:00:00Z' },
+                { nickname: '网易-老赵', phone: '135****7890', team: '网易', joinedAt: '2026-03-19T10:00:00Z' },
+                { nickname: '华为-小陈', phone: '188****2345', team: '华为', joinedAt: '2026-03-20T08:00:00Z' },
+                { nickname: '海康-大刘', phone: '189****6789', team: '海康威视', joinedAt: '2026-03-20T09:00:00Z' },
+                { nickname: '吉利-阿杰', phone: '158****1111', team: '吉利汽车', joinedAt: '2026-03-20T14:00:00Z' },
+                { nickname: '蚂蚁-小王', phone: '159****2222', team: '蚂蚁集团', joinedAt: '2026-03-21T10:00:00Z' }
+            ],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-19T09:00:00Z',
+            eventType: 'teambuilding', eventDate: '2026-03-26', eventTime: '14:00',
+            location: '杭州·滨江区星光大道·江畔云会所2楼', capacity: 40, fee: 198,
+            description: '企业团建专场，含下午茶+晚宴。AI一体机辅助计分，瑞士制4轮。'
+        },
+        {
+            code: 'HZ0329', name: '运河掼蛋周末赛', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [
+                { nickname: '掼蛋老炮', phone: '133****4444', joinedAt: '2026-03-21T08:00:00Z' },
+                { nickname: '运河小哥', phone: '155****5555', team: '运河队', joinedAt: '2026-03-21T09:00:00Z' }
+            ],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T08:00:00Z',
+            eventType: 'charity', eventDate: '2026-03-29', eventTime: '13:00',
+            location: '杭州·拱墅区运河文化广场·茶语轩', capacity: 24, fee: 0,
+            description: '运河畔的周末掼蛋，免费参赛，茶歇供应。前三名获精美奖品。'
+        },
+        {
+            code: 'HZ0401', name: '清明掼蛋邀请赛', format: 'swiss', totalRounds: 6, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [
+                { nickname: 'Crayxus', joinedAt: '2026-03-21T10:00:00Z' }
+            ],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T10:00:00Z',
+            eventType: 'open', eventDate: '2026-04-01', eventTime: '10:00',
+            location: '杭州·上城区南宋御街·龙井茶馆', capacity: 48, fee: 88,
+            description: '清明假期大型掼蛋公开赛，6轮瑞士制。Crayxus AI一体机全程计分+实时排名。'
+        },
+        {
+            code: 'HZ0403', name: '未来科技城团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T11:00:00Z',
+            eventType: 'teambuilding', eventDate: '2026-04-03', eventTime: '15:00',
+            location: '杭州·余杭区未来科技城·梦想小镇众创空间', capacity: 20, fee: 168,
+            description: '科技城企业专属团建，含轻食茶歇，AI教学+比赛一体化体验。'
+        },
+        {
+            code: 'HZ0405', name: '西溪湿地春日赛', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [
+                { nickname: '湿地鸟叔', phone: '177****6666', joinedAt: '2026-03-21T12:00:00Z' },
+                { nickname: '花港观鱼', phone: '178****7777', team: '西溪队', joinedAt: '2026-03-21T13:00:00Z' },
+                { nickname: '晴天娃娃', phone: '176****8888', joinedAt: '2026-03-21T14:00:00Z' }
+            ],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T12:00:00Z',
+            eventType: 'charity', eventDate: '2026-04-05', eventTime: '13:30',
+            location: '杭州·西湖区西溪湿地·福堤茶室', capacity: 32, fee: 0,
+            description: '春日掼蛋，西溪湿地户外赛。免费参加，感受自然中的博弈乐趣。'
+        }
+    ];
+    demoEvents.forEach(t => {
+        tournaments[t.code] = t;
+        saveTournament(t);
+    });
+    gameLog(`[Tournament] Seeded ${demoEvents.length} demo events`);
+}
+
 function saveTournament(t) {
     fs.writeFile(path.join(TOURNAMENT_DIR, t.code + '.json'), JSON.stringify(t, null, 2), () => {});
 }

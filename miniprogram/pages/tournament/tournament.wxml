@@ -21,28 +21,41 @@
     <text class="empty-sub">敬请期待下期活动</text>
   </view>
 
-  <!-- 赛事列表 -->
-  <view class="event-list" wx:if="{{!loading && events.length > 0}}">
-    <view class="week-label">{{weekLabel}}</view>
+  <!-- 周导航 -->
+  <view class="week-nav" wx:if="{{!loading}}">
+    <view class="week-arrow" bindtap="prevWeek">←</view>
+    <text class="week-label-text">{{weekLabel}}</text>
+    <view class="week-arrow" bindtap="nextWeek">→</view>
+  </view>
 
-    <view class="event-card" wx:for="{{events}}" wx:key="code" bindtap="showDetail" data-code="{{item.code}}">
-      <view class="ec-header">
-        <view class="ec-type {{item.eventType}}">{{item.eventTypeText}}</view>
-        <text class="ec-date">{{item.eventDate}} {{item.eventTime}}</text>
+  <!-- 赛事列表 (按日期分组) -->
+  <view class="event-list" wx:if="{{!loading && dayGroups.length > 0}}">
+    <view wx:for="{{dayGroups}}" wx:key="date" class="day-group">
+      <view class="day-header">
+        <text class="day-date">{{item.label}}</text>
+        <text class="day-weekday">{{item.weekday}}</text>
+        <text class="day-today" wx:if="{{item.isToday}}">TODAY</text>
       </view>
-      <text class="ec-name">{{item.name}}</text>
-      <view class="ec-info">
-        <text class="ec-location">📍 {{item.location || '待定'}}</text>
-        <text class="ec-fee">{{item.fee ? '¥' + item.fee : '免费'}}</text>
-      </view>
-      <view class="ec-capacity">
-        <view class="ec-cap-bar">
-          <view class="ec-cap-fill" style="width:{{item.playerCount / item.capacity * 100}}%"></view>
+      <view wx:if="{{item.events.length === 0}}" class="day-empty">暂无赛事</view>
+      <view class="event-card" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" bindtap="showDetail" data-code="{{evt.code}}">
+        <view class="ec-header">
+          <view class="ec-type {{evt.eventType}}">{{evt.eventTypeText}}</view>
+          <text class="ec-date">{{evt.eventTime}}</text>
         </view>
-        <text class="ec-cap-text">{{item.playerCount}}/{{item.capacity}}人</text>
-      </view>
-      <view class="ec-status {{item.status === 'open' ? 'open' : 'closed'}}">
-        {{item.status === 'open' ? '报名中' : item.status === 'started' ? '进行中' : '已结束'}}
+        <text class="ec-name">{{evt.name}}</text>
+        <view class="ec-info">
+          <text class="ec-location">📍 {{evt.location || '待定'}}</text>
+          <text class="ec-fee">{{evt.fee ? '¥' + evt.fee : '免费'}}</text>
+        </view>
+        <view class="ec-capacity">
+          <view class="ec-cap-bar">
+            <view class="ec-cap-fill" style="width:{{evt.capPct}}%"></view>
+          </view>
+          <text class="ec-cap-text">{{evt.playerCount}}/{{evt.capacity}}人</text>
+        </view>
+        <view class="ec-status {{evt.status === 'open' ? 'open' : 'closed'}}">
+          {{evt.status === 'open' ? '报名中' : evt.status === 'started' ? '进行中' : '已结束'}}
+        </view>
       </view>
     </view>
   </view>
