@@ -7,7 +7,7 @@ Page({
     nickname: '',
     hasNickname: false,
     danli: { score: 0, rank: '' },
-    training: { totalSessions: 0, totalHands: 0, accuracy: 0, bestAccuracy: 0 },
+    quiz: { totalQuestions: 0, correctRate: 0, streak: 0, bestStreak: 0 },
     dims: []
   },
 
@@ -33,7 +33,7 @@ Page({
 
   loadData() {
     const danli = app.globalData.danli || {}
-    const training = app.globalData.training || {}
+    const quiz = wx.getStorageSync('crayxus_quiz') || {}
 
     const dimConfig = [
       { key: 'timing', name: '出牌', icon: '🎯', color: '#ff6b6b' },
@@ -50,7 +50,7 @@ Page({
       pct: ((danli[d.key] || 0) / 10).toFixed(0)
     }))
 
-    this.setData({ danli, training, dims })
+    this.setData({ danli, quiz, dims })
   },
 
   // Avatar

@@ -17,14 +17,6 @@ App({
       mental: 0,
       rank: '',
       testedAt: ''
-    },
-
-    // 训练数据
-    training: {
-      totalSessions: 0,
-      totalHands: 0,
-      accuracy: 0,
-      bestAccuracy: 0
     }
   },
 
@@ -38,10 +30,6 @@ App({
     const danli = wx.getStorageSync('crayxus_danli')
     if (danli) {
       this.globalData.danli = danli
-    }
-    const training = wx.getStorageSync('crayxus_training')
-    if (training) {
-      this.globalData.training = training
     }
   }
 })

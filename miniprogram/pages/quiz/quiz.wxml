@@ -1,0 +1,95 @@
+<!-- 蛋力值测评 / 每日做题 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- 顶部导航 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">←</view>
+    <text class="nav-title">{{mode === 'danli' ? '蛋力值测评' : '每日做题'}}</text>
+    <view class="nav-right">
+      <text class="nav-progress" wx:if="{{started}}">{{currentIndex + 1}}/{{questions.length}}</text>
+    </view>
+  </view>
+
+  <!-- 开始页 -->
+  <view class="start-page" wx:if="{{!started && !finished}}">
+    <view class="start-icon">{{mode === 'danli' ? '🎯' : '📝'}}</view>
+    <view class="start-title">{{mode === 'danli' ? '蛋力值测评' : '每日做题'}}</view>
+    <view class="start-desc" wx:if="{{mode === 'danli'}}">
+      18道题，6大维度全面评估你的掼蛋实力\n出牌 · 配合 · 炸弹 · 记牌 · 大局 · 心态
+    </view>
+    <view class="start-desc" wx:else>
+      每天3道精选题目，坚持练习提升实力
+    </view>
+    <view class="start-btn" bindtap="startQuiz">开始答题</view>
+  </view>
+
+  <!-- 答题中 -->
+  <view class="quiz-body" wx:if="{{started && !finished}}">
+    <!-- 进度条 -->
+    <view class="progress-bar">
+      <view class="progress-fill" style="width:{{(currentIndex + 1) / questions.length * 100}}%"></view>
+    </view>
+
+    <!-- 维度标签 -->
+    <view class="dim-tag" style="background:{{currentQ.dimColor}}22;color:{{currentQ.dimColor}};border:1rpx solid {{currentQ.dimColor}}44">
+      {{currentQ.dimIcon}} {{currentQ.dimName}} · 难度{{currentQ.difficulty}}
+    </view>
+
+    <!-- 题目 -->
+    <view class="question-card">
+      <view class="q-text">{{currentQ.question}}</view>
+      <view class="q-options">
+        <view
+          class="q-option {{selectedAnswer === idx ? (showResult ? (idx === currentQ.correct ? 'correct' : 'wrong') : 'selected') : (showResult && idx === currentQ.correct ? 'correct' : '')}}"
+          wx:for="{{currentQ.options}}"
+          wx:key="index"
+          wx:for-index="idx"
+          data-idx="{{idx}}"
+          bindtap="selectAnswer"
+        >
+          <text class="opt-letter">{{['A','B','C','D'][idx]}}</text>
+          <text class="opt-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 解析 -->
+    <view class="explain-card" wx:if="{{showResult}}">
+      <text class="explain-title">{{selectedAnswer === currentQ.correct ? '✓ 回答正确' : '✗ 回答错误'}}</text>
+      <text class="explain-text">{{currentQ.explain}}</text>
+    </view>
+
+    <!-- 下一题按钮 -->
+    <view class="next-btn" wx:if="{{showResult}}" bindtap="nextQuestion">
+      {{currentIndex < questions.length - 1 ? '下一题 →' : '查看结果'}}
+    </view>
+  </view>
+
+  <!-- 结果页 -->
+  <view class="result-page" wx:if="{{finished}}">
+    <view class="result-score-ring">
+      <text class="result-score">{{result.score}}</text>
+      <text class="result-max">/{{mode === 'danli' ? '1000' : questions.length}}</text>
+    </view>
+    <text class="result-rank" wx:if="{{mode === 'danli'}}">{{result.rank}}</text>
+    <text class="result-correct" wx:else>答对 {{result.correct}}/{{questions.length}} 题</text>
+
+    <!-- 蛋力值六维详情 -->
+    <view class="result-dims" wx:if="{{mode === 'danli'}}">
+      <view class="result-dim" wx:for="{{result.dims}}" wx:key="key">
+        <text class="rd-icon">{{item.icon}}</text>
+        <text class="rd-name">{{item.name}}</text>
+        <view class="rd-bar">
+          <view class="rd-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+        </view>
+        <text class="rd-val" style="color:{{item.color}}">{{item.val}}</text>
+      </view>
+    </view>
+
+    <view class="result-actions">
+      <view class="result-btn primary" bindtap="retryQuiz">再来一次</view>
+      <view class="result-btn" bindtap="goBack">返回首页</view>
+    </view>
+  </view>
+</view>

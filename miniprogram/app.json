@@ -1,6 +1,8 @@
 {
   "pages": [
     "pages/home/home",
+    "pages/quiz/quiz",
+    "pages/tournament/tournament",
     "pages/profile/profile"
   ],
   "window": {

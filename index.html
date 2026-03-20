@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Crayxus V41.1 - Stable</title>
+<title>Crayxus V44 - Arena + Tournament</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+<!-- ONNX removed: training moved to WeChat mini-program -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
 :root{--bg:#000;--neon:#00ffcc;--gold:#ffc800;--red:#ff3b30;--panel:rgba(20,22,28,0.98);
@@ -1548,27 +1548,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
     </div>
   </div>
 
-  <div id="mode-loading" style="position:absolute;bottom:80px;width:300px;text-align:center"><div id="mode-load-text" style="color:#555;font-size:11px;margin-bottom:6px">Loading AI...</div><div style="width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden"><div id="mode-load-bar" style="height:100%;width:0%;background:var(--neon);border-radius:2px;transition:width 0.3s"></div></div></div>
 
-  <!-- Casual sub-mode popup -->
-  <div id="casual-popup" style="display:none">
-    <div class="casual-popup-inner">
-      <div class="casual-popup-title">选择玩法</div>
-      <div class="casual-popup-btns">
-        <div class="casual-popup-btn" onclick="startCasualMode('fixed')">
-          <div class="cpb-icon">🃏</div>
-          <div class="cpb-name">定蛋模式</div>
-          <div class="cpb-desc">蛋牌固定红心2<br>每局翻牌定先手<br>积分排名永久记录</div>
-        </div>
-        <div class="casual-popup-btn cpb-upgrade" onclick="startCasualMode('upgrade')">
-          <div class="cpb-icon">⬆️</div>
-          <div class="cpb-name">升级模式</div>
-          <div class="cpb-desc">从2打到A升级<br>进贡还贡规则<br>先过A者获胜</div>
-        </div>
-      </div>
-      <div class="casual-popup-back" onclick="closeCasualPopup()">← 返回</div>
-    </div>
-  </div>
 </div>
 
 <div id="lobby" class="screen">
@@ -1634,7 +1614,6 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <div id="highcard-overlay">
       <div class="hc-title" id="hc-title">翻牌定先手</div>
     </div>
-    <div class="training-badge" id="training-badge">🎓 TRAINING</div>
     <button id="afk-btn" onclick="toggleAFK()">🤖 代打</button>
     <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;top:10px;right:10px;z-index:501;background:rgba(20,20,30,0.6);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙</button>
     <div id="afk-badge">代打</div>
@@ -1662,40 +1641,6 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <button class="btn b-play" onclick="sendPlay()">出牌</button>
     </div>
     <div id="evo-bar"><span class="evo-icon">⚡</span><span class="evo-score" id="evo-score">--</span><span class="evo-tier" id="evo-tier">EVO</span><span class="evo-detail" id="evo-detail"></span></div>
-    <div id="casual-hud" style="display:none">
-      <div class="casual-hud-inner">
-        <div class="casual-avatar-ring">
-          <div class="casual-avatar-glow"></div>
-          <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#hudGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="hudGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
-          <div class="casual-avatar-img" id="casual-avatar">P1</div>
-        </div>
-        <div class="casual-stats">
-          <div class="casual-name" id="casual-name">PLAYER_ONE</div>
-          <div class="casual-rank-row">
-            <span class="casual-rank-badge">BRONZE V</span>
-            <div class="casual-rank-stars" id="casual-stars"></div>
-          </div>
-          <!-- Team score -->
-          <div class="casual-team-score">
-            <span class="cts-label">US</span><span class="cts-val" id="casual-team-my" style="color:var(--neon)">0</span>
-            <span class="cts-vs">·</span>
-            <span class="cts-label">THEM</span><span class="cts-val" id="casual-team-op" style="color:var(--red)">0</span>
-          </div>
-          <!-- 定蛋 stats -->
-          <div class="casual-kda" id="fixed-stats">
-            <div class="kda-item"><span class="kda-val" id="casual-winrate">0%</span><span class="kda-label">WIN RATE</span></div>
-            <div class="kda-item gold"><span class="kda-val" id="casual-games">0</span><span class="kda-label">GAMES</span></div>
-            <div class="kda-item"><span class="kda-val" id="casual-streak">0</span><span class="kda-label">STREAK</span></div>
-          </div>
-          <!-- 升级 level display -->
-          <div class="casual-kda" id="upgrade-stats" style="display:none">
-            <div class="kda-item"><span class="kda-val" id="up-my-lvl" style="color:var(--cyan);text-shadow:0 0 8px var(--cyan)">2</span><span class="kda-label">我方</span></div>
-            <div class="kda-item"><span class="kda-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">♥<span id="up-wild-val">2</span></span><span class="kda-label">蛋牌</span></div>
-            <div class="kda-item"><span class="kda-val" id="up-op-lvl" style="color:#ff6b6b;text-shadow:0 0 8px rgba(255,100,100,0.4)">2</span><span class="kda-label">对方</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
     <!-- Arena HUD (compact overlay card) -->
     <div id="arena-hud" style="display:none">
       <div class="arena-hud-inner">
@@ -1752,14 +1697,6 @@ body.view-table .holo-hex-grid{opacity:0.05}
     </div>
     <div class="toast" id="tst"></div>
     <div class="elo-float" id="elo-float"></div>
-    <div id="coach-panel">
-      <div class="coach-box">
-        <div class="coach-title">🎓 AI 教练分析</div>
-        <div id="coach-moves"></div>
-        <div class="coach-dismiss"><button onclick="dismissCoach()">继续游戏</button></div>
-        <div class="coach-note" id="coach-note">AI模型加载中...</div>
-      </div>
-    </div>
   </div>
 </div>
 

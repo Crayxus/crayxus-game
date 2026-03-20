@@ -41,25 +41,25 @@
     </view>
   </view>
 
-  <!-- 训练统计 -->
+  <!-- 做题统计 -->
   <view class="section">
-    <view class="section-title">训练数据</view>
+    <view class="section-title">做题数据</view>
     <view class="stat-list">
       <view class="stat-row">
-        <text class="stat-label">训练场次</text>
-        <text class="stat-val">{{training.totalSessions}}</text>
+        <text class="stat-label">总做题数</text>
+        <text class="stat-val">{{quiz.totalQuestions || 0}}</text>
       </view>
       <view class="stat-row">
-        <text class="stat-label">总手数</text>
-        <text class="stat-val">{{training.totalHands}}</text>
+        <text class="stat-label">正确率</text>
+        <text class="stat-val accent">{{quiz.correctRate || '--'}}%</text>
       </view>
       <view class="stat-row">
-        <text class="stat-label">平均准确率</text>
-        <text class="stat-val accent">{{training.accuracy || '--'}}%</text>
+        <text class="stat-label">连续天数</text>
+        <text class="stat-val gold">{{quiz.streak || 0}}</text>
       </view>
       <view class="stat-row">
-        <text class="stat-label">最佳准确率</text>
-        <text class="stat-val gold">{{training.bestAccuracy || '--'}}%</text>
+        <text class="stat-label">最佳连续</text>
+        <text class="stat-val">{{quiz.bestStreak || 0}}</text>
       </view>
     </view>
   </view>

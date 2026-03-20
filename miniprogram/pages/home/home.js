@@ -4,7 +4,7 @@ Page({
   data: {
     statusBarHeight: 44,
     danli: { score: 0, rank: '' },
-    training: { totalSessions: 0, totalHands: 0, accuracy: 0, bestAccuracy: 0 },
+    quiz: { totalQuestions: 0, correctRate: 0, streak: 0, bestStreak: 0 },
     dims: []
   },
 
@@ -21,7 +21,7 @@ Page({
 
   loadData() {
     const danli = app.globalData.danli || {}
-    const training = app.globalData.training || {}
+    const quiz = wx.getStorageSync('crayxus_quiz') || {}
 
     const dimConfig = [
       { key: 'timing', name: '出牌', icon: '🎯', color: '#ff6b6b' },
@@ -38,62 +38,22 @@ Page({
       pct: ((danli[d.key] || 0) / 10).toFixed(0)
     }))
 
-    this.setData({ danli, training, dims })
+    this.setData({ danli, quiz, dims })
   },
 
-  // 蛋力值测评
+  // 蛋力值测评 — 跳转原生测评页
   goDanli() {
-    const url = app.globalData.serverUrl + '/danli'
-    wx.navigateTo({
-      url: '/pages/home/home', // webview not available without webview page
-      fail: () => {
-        // Fallback: copy link
-        wx.setClipboardData({
-          data: url,
-          success: () => {
-            wx.showToast({ title: '链接已复制，请在浏览器打开', icon: 'none', duration: 2000 })
-          }
-        })
-      }
-    })
+    wx.navigateTo({ url: '/pages/quiz/quiz?mode=danli' })
   },
 
-  // AI训练 - 打开游戏网页
-  goTraining() {
-    const url = app.globalData.serverUrl
-    wx.setClipboardData({
-      data: url,
-      success: () => {
-        wx.showToast({ title: '链接已复制，浏览器打开开始训练', icon: 'none', duration: 2000 })
-      }
-    })
+  // 每日做题
+  goDailyQuiz() {
+    wx.navigateTo({ url: '/pages/quiz/quiz?mode=daily' })
   },
 
   // 赛事报名
   goTournament() {
-    const url = app.globalData.serverUrl + '/tournament'
-    wx.setClipboardData({
-      data: url,
-      success: () => {
-        wx.showToast({ title: '链接已复制，浏览器打开查看赛事', icon: 'none', duration: 2000 })
-      }
-    })
-  },
-
-  // 复盘
-  goReplay() {
-    const url = app.globalData.serverUrl + '/replay'
-    wx.setClipboardData({
-      data: url,
-      success: () => {
-        wx.showToast({ title: '链接已复制，浏览器打开查看复盘', icon: 'none', duration: 2000 })
-      }
-    })
-  },
-
-  // 每日一题（暂未实现）
-  goDailyQuiz() {
-    wx.showToast({ title: '即将上线', icon: 'none' })
+    wx.navigateTo({ url: '/pages/tournament/tournament' })
   },
 
   // 扫码登录
