@@ -1484,7 +1484,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
   <div class="mode-select-wrap">
     <div class="mode-select-title">GUANDAN</div>
-    <div class="mode-select-sub">A I &nbsp; T R A I N I N G</div>
+    <div class="mode-select-sub">A I &nbsp; A R E N A</div>
 
     <!-- Avatar section like holo_main -->
     <div class="holo-avatar-section">
@@ -1516,17 +1516,17 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
     <!-- Holographic mode buttons -->
     <div class="holo-btns" id="holo-btns">
-      <div class="holo-btn training-btn" onclick="selectMode('training')" data-mode="training" onmouseenter="showModeInfo('training')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#9672;</div>
-        <div class="h-name">TRAINING</div>
-        <div class="h-desc">AI COACH MODE<br>REAL-TIME ANALYSIS</div>
-        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">START</div>
+      <div class="holo-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
+        <div class="h-icon" style="font-style:normal">&#9654;</div>
+        <div class="h-name">ARENA</div>
+        <div class="h-desc">ONLINE 2V2<br>ELO RANKING</div>
+        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">PLAY NOW</div>
       </div>
-      <div class="holo-btn" onclick="window.location.href='/danli'" data-mode="danli" onmouseenter="showModeInfo('danli')" onmouseleave="showModeInfo(null)">
+      <div class="holo-btn training-btn" onclick="window.location.href='/danli'" data-mode="danli" onmouseenter="showModeInfo('danli')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#11042;</div>
         <div class="h-name">SKILL TEST</div>
         <div class="h-desc">HEXAGONAL WARRIOR<br>18 SCENARIO QUIZ</div>
-        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">5 MIN</div>
+        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">5 MIN</div>
       </div>
       <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9733;</div>
@@ -2566,8 +2566,13 @@ function selectMode(mode){
   gameMode=mode;
   stopSpotlight();
   if(window._applyWeChatProfile)window._applyWeChatProfile();
-  if(mode==='training'){
-    startTrainingGame();
+  if(mode==='arena'){
+    if(!socket.connected) socket.connect();
+    document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='SEASON 1';
+    document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='2V2 RANKED · 1-4 PLAYERS';
+    var eloRow=document.getElementById('lobby-elo');
+    if(eloRow)eloRow.parentElement.parentElement.style.display='';
+    switchScreen('lobby');
   }
 }
 
