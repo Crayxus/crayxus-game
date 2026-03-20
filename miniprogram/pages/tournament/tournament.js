@@ -1,7 +1,7 @@
 const app = getApp()
 
 const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六']
-const TYPE_TEXTS = { teambuilding: '团建', charity: '公益赛', open: '公开赛' }
+const TYPE_TEXTS = { teambuilding: '团建', bounty: 'AI Bounty', open: '公开赛' }
 
 Page({
   data: {

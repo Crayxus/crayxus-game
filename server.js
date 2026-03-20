@@ -1110,7 +1110,7 @@ try {
 if (Object.keys(tournaments).length === 0) {
     const demoEvents = [
         {
-            code: 'HZ0325', name: '西湖掼蛋公益赛', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            code: 'HZ0325', name: 'AI Bounty · 西湖站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
             casualMode: 'fixed', organizer: 'Crayxus',
             status: 'open', players: [
                 { nickname: 'Crayxus', joinedAt: '2026-03-20T10:00:00Z' },
@@ -1120,9 +1120,9 @@ if (Object.keys(tournaments).length === 0) {
             ],
             rounds: [], currentRound: 0,
             createdAt: '2026-03-20T10:00:00Z',
-            eventType: 'charity', eventDate: '2026-03-25', eventTime: '13:30',
+            eventType: 'bounty', eventDate: '2026-03-25', eventTime: '13:30',
             location: '杭州·西湖区文化馆3楼多功能厅', capacity: 32, fee: 0,
-            description: '周末公益赛，免费参加，奖品丰厚！冠军获Crayxus定制一体机体验券。'
+            description: '免费参赛，击败AI即赢奖金！Crayxus AI一体机实时对战+计分。'
         },
         {
             code: 'HZ0326', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
@@ -1145,7 +1145,7 @@ if (Object.keys(tournaments).length === 0) {
             description: '可预约团建场次，填写人数即可'
         },
         {
-            code: 'HZ0329', name: '运河掼蛋周末赛', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            code: 'HZ0329', name: 'AI Bounty · 运河站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
             casualMode: 'fixed', organizer: 'Crayxus',
             status: 'open', players: [
                 { nickname: '掼蛋老炮', phone: '133****4444', joinedAt: '2026-03-21T08:00:00Z' },
@@ -1153,21 +1153,21 @@ if (Object.keys(tournaments).length === 0) {
             ],
             rounds: [], currentRound: 0,
             createdAt: '2026-03-21T08:00:00Z',
-            eventType: 'charity', eventDate: '2026-03-29', eventTime: '13:00',
+            eventType: 'bounty', eventDate: '2026-03-29', eventTime: '13:00',
             location: '杭州·拱墅区运河文化广场·茶语轩', capacity: 24, fee: 0,
-            description: '运河畔的周末掼蛋，免费参赛，茶歇供应。前三名获精美奖品。'
+            description: '免费参赛，击败AI赢奖金！运河畔的周末AI Bounty，茶歇供应。'
         },
         {
-            code: 'HZ0401', name: '清明掼蛋邀请赛', format: 'swiss', totalRounds: 6, gamesPerRound: 2,
+            code: 'HZ0401', name: 'AI Bounty · 清明特别站', format: 'swiss', totalRounds: 6, gamesPerRound: 2,
             casualMode: 'fixed', organizer: 'Crayxus',
             status: 'open', players: [
                 { nickname: 'Crayxus', joinedAt: '2026-03-21T10:00:00Z' }
             ],
             rounds: [], currentRound: 0,
             createdAt: '2026-03-21T10:00:00Z',
-            eventType: 'open', eventDate: '2026-04-01', eventTime: '10:00',
-            location: '杭州·上城区南宋御街·龙井茶馆', capacity: 48, fee: 88,
-            description: '清明假期大型掼蛋公开赛，6轮瑞士制。Crayxus AI一体机全程计分+实时排名。'
+            eventType: 'bounty', eventDate: '2026-04-01', eventTime: '10:00',
+            location: '杭州·上城区南宋御街·龙井茶馆', capacity: 48, fee: 0,
+            description: '清明假期AI Bounty特别站！6轮瑞士制，免费参赛，击败AI赢双倍奖金！'
         },
         {
             code: 'HZ0402', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
@@ -1199,9 +1199,9 @@ if (Object.keys(tournaments).length === 0) {
             ],
             rounds: [], currentRound: 0,
             createdAt: '2026-03-21T12:00:00Z',
-            eventType: 'charity', eventDate: '2026-04-05', eventTime: '13:30',
+            eventType: 'bounty', eventDate: '2026-04-05', eventTime: '13:30',
             location: '杭州·西湖区西溪湿地·福堤茶室', capacity: 32, fee: 0,
-            description: '春日掼蛋，西溪湿地户外赛。免费参加，感受自然中的博弈乐趣。'
+            description: '春日AI Bounty，西溪湿地户外站。免费参赛，击败AI赢奖金！'
         }
     ];
     demoEvents.forEach(t => {

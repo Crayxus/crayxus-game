@@ -114,7 +114,7 @@ page { background: #0a0e1a; }
   font-weight: 700;
 }
 .ec-type.teambuilding { background: rgba(255,149,0,.15); color: #ff9500; }
-.ec-type.charity { background: rgba(0,212,170,.15); color: #00d4aa; }
+.ec-type.bounty { background: rgba(0,212,170,.15); color: #00d4aa; }
 .ec-type.open { background: rgba(124,77,255,.15); color: #7c4dff; }
 .ec-date { font-size: 22rpx; color: rgba(255,255,255,.4); }
 .ec-name { font-size: 32rpx; font-weight: 800; color: #fff; display: block; margin-bottom: 12rpx; }
