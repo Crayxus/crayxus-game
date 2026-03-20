@@ -17,6 +17,9 @@ const PORT = process.env.PORT || 3000;
 const SERVER_VERSION = 'V43';
 app.get('/api/version', (req, res) => res.json({ version: SERVER_VERSION }));
 
+// Replay analysis page
+app.get('/replay', (req, res) => res.sendFile(path.join(__dirname, 'replay.html')));
+
 // Game event logging
 const LOG_FILE = path.join(__dirname, 'game_log.txt');
 function gameLog(msg) {
