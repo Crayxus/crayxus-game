@@ -139,9 +139,9 @@ Page({
       if (dayEvents.length > 0) {
         const ev = dayEvents[0]
         if (ev.eventType === 'bounty_team') {
-          type = 'bounty_team'
+          type = (ev.status === 'booked' || ev.status === 'finished') ? 'booked' : 'bounty_team'
         } else if (ev.eventType === 'bounty_solo' || ev.eventType === 'bounty') {
-          type = 'bounty_solo'
+          type = (ev.status === 'finished' || (ev.capacity > 0 && (ev.players || []).length >= ev.capacity)) ? 'bounty_full' : 'bounty_solo'
         } else if (ev.eventType === 'teambuilding') {
           type = ev.status === 'booked' ? 'booked' : 'available'
         } else if (ev.eventType === 'open') {
@@ -149,8 +149,9 @@ Page({
           shortName = ev.name ? ev.name.substring(0, 4) : '赛事'
         }
       } else if (!isOtherMonth && isWeekend) {
-        // Auto-fill weekends with AI Bounty Solo
         type = 'bounty_solo'
+      } else if (!isOtherMonth && !isWeekend) {
+        type = 'bounty_team'
       }
 
       calCells.push({
@@ -195,11 +196,21 @@ Page({
     const ev = dayEvents[0]
     let tagText = '', tagClass = ''
     if (ev.eventType === 'bounty_team') {
-      tagText = '免费·组队'
-      tagClass = 'tag-bounty-team'
+      if (ev.status === 'booked' || ev.status === 'finished') {
+        tagText = '已占'
+        tagClass = 'tag-booked'
+      } else {
+        tagText = '付费·组队'
+        tagClass = 'tag-bounty-team'
+      }
     } else if (ev.eventType === 'bounty_solo' || ev.eventType === 'bounty') {
-      tagText = '免费·个人'
-      tagClass = 'tag-bounty-solo'
+      if (ev.status === 'finished' || (ev.capacity > 0 && (ev.players || []).length >= ev.capacity)) {
+        tagText = '已满'
+        tagClass = 'tag-full'
+      } else {
+        tagText = '免费·个人'
+        tagClass = 'tag-bounty-solo'
+      }
     } else if (ev.eventType === 'teambuilding' && ev.status === 'booked') {
       tagText = '已预约'
       tagClass = 'tag-booked'

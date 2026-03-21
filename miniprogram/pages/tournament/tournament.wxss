@@ -148,6 +148,11 @@ page { background: #0a0e1a; }
   color: #ff6b35;
 }
 
+.full-tag {
+  background: rgba(255,60,60,.12);
+  color: #ff4444;
+}
+
 .booked-tag {
   background: rgba(255,255,255,.06);
   color: rgba(255,255,255,.3);
@@ -176,8 +181,14 @@ page { background: #0a0e1a; }
 .cal-cell.bounty_team {
   background: rgba(0,212,170,.04);
 }
+.cal-cell.bounty_team {
+  background: rgba(0,212,170,.04);
+}
 .cal-cell.bounty_solo {
   background: rgba(255,107,53,.04);
+}
+.cal-cell.bounty_full {
+  background: rgba(255,60,60,.03);
 }
 .cal-cell.booked {
   background: rgba(255,255,255,.02);
@@ -264,6 +275,7 @@ page { background: #0a0e1a; }
 }
 .dc-tag.tag-bounty-team { background: rgba(0,212,170,.12); color: #00d4aa; }
 .dc-tag.tag-bounty-solo { background: rgba(255,107,53,.12); color: #ff6b35; }
+.dc-tag.tag-full { background: rgba(255,60,60,.12); color: #ff4444; }
 .dc-tag.tag-booked { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); }
 .dc-tag.tag-avail { background: rgba(255,149,0,.1); color: #ff9500; }
 .dc-tag.tag-open { background: rgba(124,77,255,.1); color: #7c4dff; }

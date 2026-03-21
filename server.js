@@ -1175,6 +1175,58 @@ if (Object.keys(tournaments).length === 0) {
             eventType: 'bounty_solo', eventDate: '2026-04-05', eventTime: '13:30',
             location: '杭州·西湖区西溪湿地·福堤茶室', capacity: 32, fee: 0,
             description: '春日AI Bounty Solo，西溪湿地户外站。免费个人参赛，击败AI赢奖金！'
+        },
+        // 已满的Solo（过去的周末）
+        {
+            code: 'HZ0322', name: 'AI Bounty Solo · 钱塘站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'finished', players: Array.from({length: 24}, (_, i) => ({ nickname: '选手' + (i+1), joinedAt: '2026-03-18T10:00:00Z' })),
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-15T10:00:00Z',
+            eventType: 'bounty_solo', eventDate: '2026-03-22', eventTime: '13:00',
+            location: '杭州·钱塘区金沙湖·棋牌室', capacity: 24, fee: 0,
+            description: 'AI Bounty Solo 钱塘站，已结束。'
+        },
+        {
+            code: 'HZ0315', name: 'AI Bounty Solo · 灵隐站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'finished', players: Array.from({length: 32}, (_, i) => ({ nickname: '玩家' + (i+1), joinedAt: '2026-03-10T10:00:00Z' })),
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-10T10:00:00Z',
+            eventType: 'bounty_solo', eventDate: '2026-03-15', eventTime: '13:30',
+            location: '杭州·西湖区灵隐路·茶馆', capacity: 32, fee: 0,
+            description: 'AI Bounty Solo 灵隐站，已结束。'
+        },
+        // 已占的Team（过去的工作日）
+        {
+            code: 'HZ0324', name: 'AI Bounty Team · 滨江站', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-18T10:00:00Z',
+            eventType: 'bounty_team', eventDate: '2026-03-24', eventTime: '14:00',
+            location: '杭州·滨江区网易大厦', capacity: 40, fee: 0,
+            description: '', bookedBy: '网易互娱', bookedCount: 36
+        },
+        {
+            code: 'HZ0319', name: 'AI Bounty Team · 未来科技城站', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-12T10:00:00Z',
+            eventType: 'bounty_team', eventDate: '2026-03-19', eventTime: '14:00',
+            location: '杭州·余杭区未来科技城·海创园', capacity: 32, fee: 0,
+            description: '', bookedBy: '阿里云智能', bookedCount: 28
+        },
+        {
+            code: 'HZ0331', name: 'AI Bounty Team · 城西站', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-25T10:00:00Z',
+            eventType: 'bounty_team', eventDate: '2026-03-31', eventTime: '14:00',
+            location: '杭州·西湖区黄龙体育中心', capacity: 40, fee: 0,
+            description: '', bookedBy: '字节跳动杭州', bookedCount: 40
         }
     ];
     demoEvents.forEach(t => {
