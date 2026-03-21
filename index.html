@@ -1550,6 +1550,12 @@ body.view-table .holo-hex-grid{opacity:0.05}
         <div class="h-desc">ONLINE 2V2<br>ELO RANKING</div>
         <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">PLAY NOW</div>
       </div>
+      <div class="holo-btn" onclick="window.location.href='/replay'" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
+        <div class="h-icon" style="font-style:normal">&#128269;</div>
+        <div class="h-name">AI REVIEW</div>
+        <div class="h-desc">GAME REPLAY<br>AI ANALYSIS</div>
+        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">REVIEW</div>
+      </div>
       <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9733;</div>
         <div class="h-name">TOURNAMENT</div>
@@ -2580,6 +2586,8 @@ function showModeInfo(mode){
     statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">AI</span><span class="holo-stat-label">COACH</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">DMC</span><span class="holo-stat-label">ENGINE</span></div><div class="holo-stat"><span class="holo-stat-val">V4</span><span class="holo-stat-label">78.5% WR</span></div>`;
   }else if(mode==='arena'){
     statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--magenta);text-shadow:0 0 8px var(--magenta)">#--</span><span class="holo-stat-label">RANKING</span></div><div class="holo-stat"><span class="holo-stat-val" style="color:var(--cyan);text-shadow:0 0 8px var(--cyan)">${myElo}</span><span class="holo-stat-label">ELO</span></div><div class="holo-stat"><span class="holo-stat-val">/200</span><span class="holo-stat-label">PLAYERS</span></div>`;
+  }else if(mode==='review'){
+    statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">AI</span><span class="holo-stat-label">POWERED</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">DMC</span><span class="holo-stat-label">ENGINE</span></div><div class="holo-stat"><span class="holo-stat-val">V4</span><span class="holo-stat-label">ANALYSIS</span></div>`;
   }
 }
 
