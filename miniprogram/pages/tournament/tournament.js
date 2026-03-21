@@ -1,18 +1,22 @@
 const app = getApp()
 
-const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六']
 const TYPE_TEXTS = { teambuilding: '团建', bounty: 'AI Bounty', open: '公开赛' }
+const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
 
 Page({
   data: {
     statusBarHeight: 44,
     loading: true,
-    dayGroups: [],
-    weekLabel: '',
-    weekOffset: 0,
     allEvents: [],
-    showDetail: false,
+    // Calendar
+    monthOffset: 0,
+    monthLabel: '',
+    calCells: [],
+    selectedEvent: null,
+    // Detail modal
+    showDetailModal: false,
     detailEvent: null,
+    // Join modal
     showModal: false,
     modalEvent: null,
     formNickname: '',
@@ -43,16 +47,17 @@ Page({
 
   goBack() { wx.navigateBack() },
 
-  // Week navigation
-  prevWeek() {
-    this.setData({ weekOffset: this.data.weekOffset - 1 })
+  // === Month navigation ===
+  prevMonth() {
+    this.setData({ monthOffset: this.data.monthOffset - 1, selectedEvent: null })
     this._buildCalendar()
   },
-  nextWeek() {
-    this.setData({ weekOffset: this.data.weekOffset + 1 })
+  nextMonth() {
+    this.setData({ monthOffset: this.data.monthOffset + 1, selectedEvent: null })
     this._buildCalendar()
   },
 
+  // === Load events ===
   loadEvents() {
     this.setData({ loading: true })
     wx.request({
@@ -74,53 +79,149 @@ Page({
     })
   },
 
+  // === Build monthly calendar grid ===
   _buildCalendar() {
-    const { allEvents, weekOffset } = this.data
+    const { allEvents, monthOffset } = this.data
     const now = new Date()
-    const day = now.getDay()
-    const WD_SHORT = ['日','一','二','三','四','五','六']
-
-    // Monday of current week + offset
-    const monday = new Date(now)
-    monday.setDate(now.getDate() - ((day + 6) % 7) + weekOffset * 7)
-    const sunday = new Date(monday)
-    sunday.setDate(monday.getDate() + 6)
-
-    const weekLabel = (monday.getMonth()+1) + '/' + monday.getDate() + ' — ' + (sunday.getMonth()+1) + '/' + sunday.getDate()
     const today = this._fmtDate(now)
 
-    // Build all 7 days
-    const calDays = []
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(monday)
-      d.setDate(monday.getDate() + i)
-      const ds = this._fmtDate(d)
+    // Target month
+    const year = now.getFullYear()
+    const month = now.getMonth() + monthOffset
+    const target = new Date(year, month, 1)
+    const tYear = target.getFullYear()
+    const tMonth = target.getMonth()
+
+    const monthLabel = tYear + '年' + MONTH_NAMES[tMonth]
+
+    // First day of month (0=Sun)
+    const firstDay = new Date(tYear, tMonth, 1).getDay()
+    // Days in month
+    const daysInMonth = new Date(tYear, tMonth + 1, 0).getDate()
+
+    // Monday-based offset: how many cells before day 1
+    const startOffset = (firstDay + 6) % 7  // Mon=0, Tue=1, ... Sun=6
+
+    // Build event lookup by date
+    const eventMap = {}
+    allEvents.forEach(t => {
+      const ed = t.eventDate || (t.createdAt || '').split('T')[0]
+      if (!eventMap[ed]) eventMap[ed] = []
+      eventMap[ed].push(t)
+    })
+
+    // Build 42 cells (6 rows × 7 cols)
+    const calCells = []
+    for (let i = 0; i < 42; i++) {
+      const dayNum = i - startOffset + 1
+      const isOtherMonth = dayNum < 1 || dayNum > daysInMonth
+
+      let d, ds, actualDay
+      if (isOtherMonth) {
+        d = new Date(tYear, tMonth, dayNum)
+        ds = this._fmtDate(d)
+        actualDay = d.getDate()
+      } else {
+        d = new Date(tYear, tMonth, dayNum)
+        ds = this._fmtDate(d)
+        actualDay = dayNum
+      }
+
       const dayOfWeek = d.getDay()
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
+      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5
 
-      const dayEvents = allEvents.filter(t => {
-        const ed = t.eventDate || (t.createdAt || '').split('T')[0]
-        return ed === ds
-      })
+      // Determine cell type from events
+      let type = ''
+      let shortName = ''
+      const dayEvents = eventMap[ds] || []
+      if (dayEvents.length > 0) {
+        const ev = dayEvents[0]
+        if (ev.eventType === 'bounty') {
+          type = 'bounty'
+        } else if (ev.eventType === 'teambuilding') {
+          type = ev.status === 'booked' ? 'booked' : 'available'
+        } else if (ev.eventType === 'open') {
+          type = 'open'
+          shortName = ev.name ? ev.name.substring(0, 4) : '赛事'
+        }
+      }
 
-      calDays.push({
+      calCells.push({
         date: ds,
-        d: d.getDate(),
-        wd: WD_SHORT[dayOfWeek],
+        d: actualDay,
         isToday: ds === today,
-        isWeekend,
-        hasEvent: dayEvents.length > 0,
+        isOtherMonth,
+        isWeekday,
+        type,
+        shortName,
         events: dayEvents
       })
     }
 
-    this.setData({ calDays, weekLabel })
+    this.setData({ calCells, monthLabel })
   },
 
   _fmtDate(d) {
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0')
   },
 
+  // === Cell tap → show detail card ===
+  onCellTap(e) {
+    const date = e.currentTarget.dataset.date
+    const type = e.currentTarget.dataset.type
+    if (!type) {
+      this.setData({ selectedEvent: null })
+      return
+    }
+
+    // Find events for this date
+    const dayEvents = this.data.allEvents.filter(t => {
+      const ed = t.eventDate || (t.createdAt || '').split('T')[0]
+      return ed === date
+    })
+
+    if (dayEvents.length === 0) {
+      this.setData({ selectedEvent: null })
+      return
+    }
+
+    const ev = dayEvents[0]
+    let tagText = '', tagClass = ''
+    if (ev.eventType === 'bounty') {
+      tagText = '免费参赛'
+      tagClass = 'tag-bounty'
+    } else if (ev.eventType === 'teambuilding' && ev.status === 'booked') {
+      tagText = '已预约'
+      tagClass = 'tag-booked'
+    } else if (ev.eventType === 'teambuilding') {
+      tagText = '可预约'
+      tagClass = 'tag-avail'
+    } else if (ev.status === 'open') {
+      tagText = '报名中'
+      tagClass = 'tag-open'
+    } else {
+      tagText = '已结束'
+      tagClass = 'tag-closed'
+    }
+
+    const displayName = ev.eventType === 'teambuilding'
+      ? (ev.status === 'booked' ? (ev.bookedBy || '企业团建') + ' · 已占用' : '企业团建 · 可预约')
+      : ev.name
+
+    this.setData({
+      selectedEvent: {
+        ...ev,
+        displayName,
+        tagText,
+        tagClass,
+        eventType: ev.eventType,
+        playerCount: (ev.players || []).length,
+        capPct: ev.capacity > 0 ? Math.min((ev.players || []).length / ev.capacity * 100, 100) : 0
+      }
+    })
+  },
+
+  // === Detail modal ===
   showDetail(e) {
     const code = e.currentTarget.dataset.code
     wx.request({
@@ -130,19 +231,20 @@ Page({
         if (!t) return
         t.eventTypeText = TYPE_TEXTS[t.eventType] || '比赛'
         t.playerCount = (t.players || []).length
-        this.setData({ showDetail: true, detailEvent: t })
+        this.setData({ showDetailModal: true, detailEvent: t })
       },
       fail: () => wx.showToast({ title: '加载失败', icon: 'none' })
     })
   },
 
-  closeDetail() {
-    this.setData({ showDetail: false, detailEvent: null })
+  closeDetailModal() {
+    this.setData({ showDetailModal: false, detailEvent: null })
   },
 
+  // === Join form ===
   openJoinForm() {
     this.setData({
-      showDetail: false,
+      showDetailModal: false,
       showModal: true,
       modalEvent: this.data.detailEvent
     })
@@ -192,7 +294,7 @@ Page({
   },
 
   // === Teambuilding Booking ===
-  openBooking(e) {
+  openBooking() {
     const nickname = app.globalData.nickname || ''
     this.setData({ showBooking: true, bookingTier: 20, bkContact: nickname })
   },
@@ -211,7 +313,7 @@ Page({
   onBkPhone(e) { this.setData({ bkPhone: e.detail.value }) },
 
   submitBooking() {
-    const { bkCompany, bkContact, bkPhone, bookingTier } = this.data
+    const { bkCompany, bkContact, bkPhone } = this.data
     if (!bkCompany.trim()) {
       wx.showToast({ title: '请输入公司名称', icon: 'none' })
       return
@@ -224,8 +326,6 @@ Page({
       wx.showToast({ title: '请输入联系电话', icon: 'none' })
       return
     }
-
-    // Dummy payment — show success directly
     this.setData({ showBooking: false, showPaySuccess: true })
   },
 

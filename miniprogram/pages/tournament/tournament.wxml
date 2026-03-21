@@ -1,103 +1,90 @@
-<!-- 赛事报名 -->
+<!-- 赛事日历 -->
 <view class="page">
   <view style="height:{{statusBarHeight}}px"></view>
 
-  <!-- 顶部导航 -->
   <view class="nav-bar">
     <view class="nav-back" bindtap="goBack">←</view>
-    <text class="nav-title">赛事报名</text>
+    <text class="nav-title">赛事日历</text>
     <view class="nav-right"></view>
   </view>
 
-  <!-- 加载中 -->
-  <view class="loading" wx:if="{{loading}}">
-    <text class="loading-text">加载中...</text>
+  <!-- 月份导航 -->
+  <view class="month-nav">
+    <view class="month-arrow" bindtap="prevMonth">‹</view>
+    <text class="month-label">{{monthLabel}}</text>
+    <view class="month-arrow" bindtap="nextMonth">›</view>
   </view>
 
-  <!-- 空状态（加载失败时显示） -->
-  <view class="empty" wx:if="{{!loading && allEvents.length === 0 && calDays.length === 0}}">
-    <text class="empty-icon">🏆</text>
-    <text class="empty-text">暂无赛事安排</text>
-    <text class="empty-sub">敬请期待下期活动</text>
+  <!-- 星期头 -->
+  <view class="cal-weekdays">
+    <text class="cal-wd">一</text>
+    <text class="cal-wd">二</text>
+    <text class="cal-wd">三</text>
+    <text class="cal-wd">四</text>
+    <text class="cal-wd">五</text>
+    <text class="cal-wd we">六</text>
+    <text class="cal-wd we">日</text>
   </view>
 
-  <!-- 周导航 -->
-  <view class="week-nav" wx:if="{{!loading}}">
-    <view class="week-arrow" bindtap="prevWeek">‹</view>
-    <text class="week-label-text">{{weekLabel}}</text>
-    <view class="week-arrow" bindtap="nextWeek">›</view>
-  </view>
-
-  <!-- 7天日历头 -->
-  <view class="cal-header" wx:if="{{!loading}}">
-    <view class="cal-h-cell {{item.isToday ? 'today' : ''}} {{item.isWeekend ? 'weekend' : ''}}" wx:for="{{calDays}}" wx:key="date">
-      <text class="cal-h-wd">{{item.wd}}</text>
-      <text class="cal-h-d">{{item.d}}</text>
-      <view class="cal-h-dot" wx:if="{{item.hasEvent}}"></view>
+  <!-- 日历网格 -->
+  <view class="cal-grid">
+    <view
+      class="cal-cell {{item.isToday ? 'today' : ''}} {{item.isOtherMonth ? 'other' : ''}} {{item.type}}"
+      wx:for="{{calCells}}"
+      wx:key="date"
+      bindtap="onCellTap"
+      data-date="{{item.date}}"
+      data-type="{{item.type}}"
+    >
+      <text class="cell-d">{{item.d}}</text>
+      <!-- 赛事标记 -->
+      <view class="cell-tag bounty-tag" wx:if="{{item.type === 'bounty'}}">AI Bounty</view>
+      <view class="cell-tag booked-tag" wx:if="{{item.type === 'booked'}}">已占</view>
+      <view class="cell-tag avail-tag" wx:if="{{item.type === 'available'}}">可约</view>
+      <view class="cell-tag open-tag" wx:if="{{item.type === 'open'}}">{{item.shortName || '赛事'}}</view>
+      <!-- 空白天 -->
+      <view class="cell-dot" wx:if="{{!item.type && !item.isOtherMonth && item.isWeekday}}"></view>
     </view>
   </view>
 
-  <!-- Roster 日历格 -->
-  <view class="roster" wx:if="{{!loading}}">
-    <view class="roster-row {{item.isToday ? 'today' : ''}} {{item.isWeekend ? 'weekend' : ''}}" wx:for="{{calDays}}" wx:key="date">
-      <!-- 左侧日期列 -->
-      <view class="roster-date">
-        <text class="roster-wd">{{item.wd}}</text>
-        <text class="roster-d">{{item.d}}</text>
+  <!-- 图例 -->
+  <view class="legend">
+    <view class="legend-item"><view class="legend-dot bounty"></view><text>AI Bounty（免费·击败AI赢奖金）</text></view>
+    <view class="legend-item"><view class="legend-dot booked"></view><text>团建（已预约）</text></view>
+    <view class="legend-item"><view class="legend-dot avail"></view><text>团建（可预约）</text></view>
+  </view>
+
+  <!-- 选中日期的事件详情 -->
+  <view class="detail-card" wx:if="{{selectedEvent}}">
+    <view class="dc-bar {{selectedEvent.eventType}}"></view>
+    <view class="dc-body">
+      <view class="dc-top">
+        <text class="dc-name">{{selectedEvent.displayName}}</text>
+        <text class="dc-tag {{selectedEvent.tagClass}}">{{selectedEvent.tagText}}</text>
+      </view>
+      <view class="dc-row" wx:if="{{selectedEvent.eventTime}}">
+        <text class="dc-icon">🕐</text><text class="dc-text">{{selectedEvent.eventDate}} {{selectedEvent.eventTime}}</text>
+      </view>
+      <view class="dc-row" wx:if="{{selectedEvent.location}}">
+        <text class="dc-icon">📍</text><text class="dc-text">{{selectedEvent.location}}</text>
+      </view>
+      <view class="dc-row" wx:if="{{selectedEvent.capacity}}">
+        <text class="dc-icon">👥</text>
+        <text class="dc-text">{{selectedEvent.playerCount || 0}}/{{selectedEvent.capacity}}人</text>
+        <view class="dc-cap-bar" wx:if="{{selectedEvent.eventType !== 'teambuilding'}}">
+          <view class="dc-cap-fill" style="width:{{selectedEvent.capPct || 0}}%"></view>
+        </view>
+      </view>
+      <view class="dc-row" wx:if="{{selectedEvent.description}}">
+        <text class="dc-icon">📝</text><text class="dc-text">{{selectedEvent.description}}</text>
       </view>
 
-      <!-- 右侧内容区 -->
-      <view class="roster-content">
-        <!-- 无赛事 -->
-        <view class="roster-empty" wx:if="{{!item.events || item.events.length === 0}}">
-          <text class="roster-dash">—</text>
-        </view>
-
-        <!-- 团建已预约 -->
-        <view class="roster-event booked" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType === 'teambuilding' && evt.status === 'booked'}}">
-          <view class="re-bar teambuilding"></view>
-          <view class="re-body">
-            <view class="re-top">
-              <text class="re-time">{{evt.eventTime}}</text>
-              <text class="re-tag booked-tag">已占用</text>
-            </view>
-            <text class="re-name dim">{{evt.bookedBy || '企业团建'}}</text>
-            <text class="re-loc">{{evt.location}} · {{evt.bookedCount}}人</text>
-          </view>
-        </view>
-
-        <!-- 团建可预约 -->
-        <view class="roster-event" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType === 'teambuilding' && evt.status !== 'booked'}}" bindtap="openBooking" data-code="{{evt.code}}">
-          <view class="re-bar teambuilding"></view>
-          <view class="re-body">
-            <view class="re-top">
-              <text class="re-time">{{evt.eventTime}}</text>
-              <text class="re-tag open-tag">可预约</text>
-            </view>
-            <text class="re-name">企业团建</text>
-            <text class="re-loc">杭州 · 场地可定制</text>
-            <text class="re-action">预约 →</text>
-          </view>
-        </view>
-
-        <!-- AI Bounty / 普通赛事 -->
-        <view class="roster-event" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType !== 'teambuilding'}}" bindtap="showDetail" data-code="{{evt.code}}">
-          <view class="re-bar {{evt.eventType}}"></view>
-          <view class="re-body">
-            <view class="re-top">
-              <text class="re-time">{{evt.eventTime}}</text>
-              <text class="re-tag {{evt.status === 'open' ? 'open-tag' : 'closed-tag'}}">{{evt.status === 'open' ? '报名中' : '已结束'}}</text>
-            </view>
-            <text class="re-name">{{evt.name}}</text>
-            <text class="re-loc">{{evt.location || '待定'}}</text>
-            <view class="re-bottom">
-              <view class="re-cap-bar">
-                <view class="re-cap-fill" style="width:{{evt.capPct}}%"></view>
-              </view>
-              <text class="re-cap-text">{{evt.playerCount}}/{{evt.capacity}}</text>
-            </view>
-          </view>
-        </view>
+      <!-- 操作按钮 -->
+      <view class="dc-actions" wx:if="{{selectedEvent.eventType === 'teambuilding' && selectedEvent.status !== 'booked'}}">
+        <view class="dc-btn gold" bindtap="openBooking">预约团建 ¥100</view>
+      </view>
+      <view class="dc-actions" wx:if="{{selectedEvent.eventType !== 'teambuilding' && selectedEvent.status === 'open'}}">
+        <view class="dc-btn primary" bindtap="showDetail" data-code="{{selectedEvent.code}}">查看详情 · 报名</view>
       </view>
     </view>
   </view>
@@ -107,7 +94,6 @@
     <view class="modal-body" catchtap="">
       <text class="modal-title">报名参赛</text>
       <text class="modal-event">{{modalEvent.name}}</text>
-
       <view class="form-group">
         <text class="form-label">昵称</text>
         <input class="form-input" placeholder="你的昵称" value="{{formNickname}}" bindinput="onNickname" />
@@ -124,7 +110,6 @@
         <text class="form-label">备注</text>
         <input class="form-input" placeholder="选填" value="{{formNote}}" bindinput="onNote" />
       </view>
-
       <view class="modal-actions">
         <view class="modal-btn cancel" bindtap="closeModal">取消</view>
         <view class="modal-btn submit" bindtap="submitJoin">确认报名</view>
@@ -133,26 +118,14 @@
   </view>
 
   <!-- 赛事详情弹窗 -->
-  <view class="modal-mask" wx:if="{{showDetail}}" bindtap="closeDetail">
+  <view class="modal-mask" wx:if="{{showDetailModal}}" bindtap="closeDetailModal">
     <view class="modal-body detail-body" catchtap="">
       <text class="modal-title">{{detailEvent.name}}</text>
-      <view class="detail-row">
-        <text class="dl">类型</text><text class="dv">{{detailEvent.eventTypeText}}</text>
-      </view>
-      <view class="detail-row">
-        <text class="dl">时间</text><text class="dv">{{detailEvent.eventDate}} {{detailEvent.eventTime}}</text>
-      </view>
-      <view class="detail-row">
-        <text class="dl">地点</text><text class="dv">{{detailEvent.location || '待定'}}</text>
-      </view>
-      <view class="detail-row">
-        <text class="dl">人数</text><text class="dv">{{detailEvent.playerCount}}/{{detailEvent.capacity}}</text>
-      </view>
-      <view class="detail-row" wx:if="{{detailEvent.description}}">
-        <text class="dl">简介</text><text class="dv">{{detailEvent.description}}</text>
-      </view>
-
-      <!-- 已报名选手列表 -->
+      <view class="detail-row"><text class="dl">类型</text><text class="dv">{{detailEvent.eventTypeText}}</text></view>
+      <view class="detail-row"><text class="dl">时间</text><text class="dv">{{detailEvent.eventDate}} {{detailEvent.eventTime}}</text></view>
+      <view class="detail-row"><text class="dl">地点</text><text class="dv">{{detailEvent.location || '待定'}}</text></view>
+      <view class="detail-row"><text class="dl">人数</text><text class="dv">{{detailEvent.playerCount}}/{{detailEvent.capacity}}</text></view>
+      <view class="detail-row" wx:if="{{detailEvent.description}}"><text class="dl">简介</text><text class="dv">{{detailEvent.description}}</text></view>
       <view class="player-list" wx:if="{{detailEvent.players && detailEvent.players.length}}">
         <text class="pl-title">已报名 ({{detailEvent.players.length}}人)</text>
         <view class="pl-row" wx:for="{{detailEvent.players}}" wx:key="index">
@@ -161,13 +134,12 @@
           <text class="pl-team" wx:if="{{item.team}}">{{item.team}}</text>
         </view>
       </view>
-
       <view class="modal-actions" wx:if="{{detailEvent.status === 'open'}}">
-        <view class="modal-btn cancel" bindtap="closeDetail">关闭</view>
+        <view class="modal-btn cancel" bindtap="closeDetailModal">关闭</view>
         <view class="modal-btn submit" bindtap="openJoinForm">我要报名</view>
       </view>
       <view class="modal-actions" wx:else>
-        <view class="modal-btn cancel" bindtap="closeDetail">关闭</view>
+        <view class="modal-btn cancel" bindtap="closeDetailModal">关闭</view>
       </view>
     </view>
   </view>
@@ -177,21 +149,17 @@
     <view class="modal-body" catchtap="">
       <text class="modal-title">预约企业团建</text>
       <text class="modal-event">AI一体机 · 专业计分 · 茶歇配套</text>
-
       <view class="form-group">
         <text class="form-label">选择规模</text>
         <view class="tier-grid">
           <view class="tier-card {{bookingTier === 20 ? 'selected' : ''}}" bindtap="selectTier" data-tier="20">
-            <text class="tier-num">20人</text>
-            <text class="tier-sub">5桌</text>
+            <text class="tier-num">20人</text><text class="tier-sub">5桌</text>
           </view>
           <view class="tier-card {{bookingTier === 40 ? 'selected' : ''}}" bindtap="selectTier" data-tier="40">
-            <text class="tier-num">40人</text>
-            <text class="tier-sub">10桌</text>
+            <text class="tier-num">40人</text><text class="tier-sub">10桌</text>
           </view>
           <view class="tier-card {{bookingTier === 0 ? 'selected' : ''}}" bindtap="selectTier" data-tier="0">
-            <text class="tier-num">定制</text>
-            <text class="tier-sub">自定义</text>
+            <text class="tier-num">定制</text><text class="tier-sub">自定义</text>
           </view>
         </view>
       </view>
@@ -207,13 +175,11 @@
         <text class="form-label">联系电话</text>
         <input class="form-input" placeholder="手机号" type="number" value="{{bkPhone}}" bindinput="onBkPhone" />
       </view>
-
       <view class="deposit-box">
         <text class="deposit-label">预付定金</text>
         <text class="deposit-amount">¥100</text>
         <text class="deposit-note">支付后团建经理将在24h内联系您</text>
       </view>
-
       <view class="modal-actions">
         <view class="modal-btn cancel" bindtap="closeBooking">取消</view>
         <view class="modal-btn submit gold" bindtap="submitBooking">支付 ¥100 预约</view>
@@ -221,7 +187,7 @@
     </view>
   </view>
 
-  <!-- Dummy 支付成功 -->
+  <!-- 支付成功 -->
   <view class="modal-mask" wx:if="{{showPaySuccess}}" bindtap="closePaySuccess">
     <view class="modal-body" catchtap="" style="text-align:center">
       <text style="font-size:120rpx;display:block;margin:20rpx 0">✅</text>
@@ -235,5 +201,5 @@
     </view>
   </view>
 
-  <view style="height:120rpx"></view>
+  <view style="height:60rpx"></view>
 </view>
