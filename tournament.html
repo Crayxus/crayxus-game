@@ -27,53 +27,73 @@ a{color:var(--accent);text-decoration:none}
 .view{display:none;padding:20px;max-width:800px;margin:0 auto}
 .view.active{display:block}
 
-/* Week Nav */
-.week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.week-nav .week-label{font-size:18px;font-weight:700}
-.week-nav button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px}
-.week-nav button:hover{border-color:var(--accent)}
+/* Month Nav */
+.month-nav{display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:20px}
+.month-nav button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:10px;cursor:pointer;font-size:16px}
+.month-nav button:hover{border-color:var(--accent)}
+.month-nav .month-label{font-size:20px;font-weight:800;letter-spacing:1px}
 
-/* Day Group */
-.day-group{margin-bottom:24px}
-.day-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.day-date{font-size:15px;font-weight:700;color:var(--accent)}
-.day-weekday{font-size:13px;color:var(--dim)}
-.day-today{background:var(--accent);color:#000;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+/* Calendar Weekday Header */
+.cal-weekdays{display:flex;margin-bottom:6px}
+.cal-wd{flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--dim);padding:6px 0}
+.cal-wd.we{color:rgba(0,212,170,.6)}
 
-/* Event Card */
-.evt{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;transition:all .2s}
-.evt:hover{border-color:rgba(0,212,170,.3)}
-.evt-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.evt-name{font-size:17px;font-weight:700;flex:1}
-.evt-type{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px}
-.evt-type.teambuilding{background:rgba(255,149,0,.15);color:var(--orange)}
-.evt-type.bounty,.evt-type.bounty_solo{background:rgba(255,107,53,.15);color:#ff6b35}
-.evt-type.bounty_team{background:rgba(0,212,170,.15);color:var(--accent)}
-.evt-type.open{background:rgba(124,77,255,.15);color:var(--accent2)}
+/* Calendar Grid */
+.cal-grid{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.01)}
+.cal-cell{width:calc(100%/7);min-height:80px;display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.04);border-right:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .15s}
+.cal-cell:nth-child(7n){border-right:none}
+.cal-cell:hover{background:rgba(255,255,255,.03)}
+.cal-cell.other{opacity:.25;pointer-events:none}
+.cal-cell.today .cell-d{color:#000;background:var(--accent);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:30px}
+.cell-d{font-size:15px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:4px}
+.cell-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;margin-top:2px}
+.cell-tag.bounty-team{background:rgba(0,212,170,.15);color:var(--accent)}
+.cell-tag.bounty-solo{background:rgba(255,107,53,.15);color:#ff6b35}
+.cell-tag.booked{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3)}
+.cell-tag.full{background:rgba(255,60,60,.12);color:#ff4444}
+.cell-tag.avail{background:rgba(255,149,0,.12);color:var(--orange)}
+.cell-tag.open-evt{background:rgba(124,77,255,.12);color:var(--accent2)}
 
-.evt-info{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:13px;color:var(--dim)}
-.evt-info span{display:flex;align-items:center;gap:4px}
-.evt-info .icon{font-size:14px}
+/* Cell type tints */
+.cal-cell.bounty_team{background:rgba(0,212,170,.03)}
+.cal-cell.bounty_solo{background:rgba(255,107,53,.03)}
+.cal-cell.booked{background:rgba(255,255,255,.015)}
+.cal-cell.bounty_full{background:rgba(255,60,60,.02)}
 
-.evt-bottom{display:flex;align-items:center;justify-content:space-between}
-.evt-capacity{font-size:13px}
-.evt-capacity .count{color:var(--accent);font-weight:700}
-.evt-capacity .full{color:var(--red)}
-.capacity-bar{width:120px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-left:8px;display:inline-block;vertical-align:middle}
-.capacity-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .3s}
-.capacity-fill.high{background:var(--orange)}
-.capacity-fill.full{background:var(--red)}
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:20px 0;padding:0 4px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.legend-dot.team{background:var(--accent)}
+.legend-dot.solo{background:#ff6b35}
+.legend-dot.bk{background:rgba(255,255,255,.2)}
+.legend-dot.av{background:var(--orange)}
 
+/* Detail Card (below calendar) */
+.detail-card{margin:16px 0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;display:none}
+.detail-card.show{display:block}
+.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dc-name{font-size:18px;font-weight:800;flex:1}
+.dc-tag{font-size:12px;font-weight:700;padding:4px 12px;border-radius:8px;margin-left:10px}
+.dc-tag.tag-team{background:rgba(0,212,170,.12);color:var(--accent)}
+.dc-tag.tag-solo{background:rgba(255,107,53,.12);color:#ff6b35}
+.dc-tag.tag-booked{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3)}
+.dc-tag.tag-avail{background:rgba(255,149,0,.1);color:var(--orange)}
+.dc-tag.tag-full{background:rgba(255,60,60,.12);color:#ff4444}
+.dc-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:14px;color:var(--dim)}
+.dc-actions{margin-top:14px}
+.dc-btn{display:inline-block;padding:10px 28px;border-radius:12px;border:none;font-size:14px;cursor:pointer;font-weight:700}
+.dc-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.dc-btn.gold{background:linear-gradient(135deg,var(--gold),var(--orange));color:#000}
+.dc-btn.dim{background:var(--border);color:var(--dim);cursor:not-allowed}
+
+/* Event Card (kept for detail view) */
 .evt-btn{padding:8px 20px;border-radius:10px;border:none;font-size:13px;cursor:pointer;font-weight:700}
 .evt-btn.signup{background:var(--accent);color:#000}
 .evt-btn.signup:hover{box-shadow:0 4px 16px rgba(0,212,170,.3)}
 .evt-btn.full{background:var(--border);color:var(--dim);cursor:not-allowed}
 .evt-btn.joined{background:rgba(0,212,170,.15);color:var(--accent);border:1px solid rgba(0,212,170,.3)}
 .evt-btn.view{background:var(--card);color:var(--accent);border:1px solid var(--border)}
-
-.evt-fee{font-size:14px;font-weight:700;margin-left:12px}
-.evt-fee.free{color:var(--green)}
-.evt-fee.paid{color:var(--gold)}
 
 /* Empty state */
 .empty-state{text-align:center;padding:60px 20px;color:var(--dim)}
@@ -174,12 +194,24 @@ body.bigscreen table.sb td{font-size:18px;padding:14px 20px}
 
 <!-- View: Event Calendar -->
 <div id="v-list" class="view active">
-  <div class="week-nav">
-    <button onclick="changeWeek(-1)">← 上周</button>
-    <span class="week-label" id="week-label"></span>
-    <button onclick="changeWeek(1)">下周 →</button>
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">‹</button>
+    <span class="month-label" id="month-label"></span>
+    <button onclick="changeMonth(1)">›</button>
   </div>
-  <div id="evt-calendar"></div>
+  <div class="cal-weekdays">
+    <span class="cal-wd">一</span><span class="cal-wd">二</span><span class="cal-wd">三</span>
+    <span class="cal-wd">四</span><span class="cal-wd">五</span>
+    <span class="cal-wd we">六</span><span class="cal-wd we">日</span>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot team"></div><span>AI Team（工作日·组队）</span></div>
+    <div class="legend-item"><div class="legend-dot solo"></div><span>AI Solo（周末·个人）</span></div>
+    <div class="legend-item"><div class="legend-dot bk"></div><span>已占（已预约）</span></div>
+    <div class="legend-item"><div class="legend-dot av"></div><span>可约（可预约）</span></div>
+  </div>
+  <div class="detail-card" id="detail-card"></div>
 </div>
 
 <!-- View: Create Event -->
@@ -391,10 +423,12 @@ body.bigscreen table.sb td{font-size:18px;padding:14px 20px}
 <script>
 const API = window.location.origin;
 let currentEvent = null;
-let currentWeekOffset = 0;
+let monthOffset = 0;
+let allEvents = [];
 let myInfo = JSON.parse(localStorage.getItem('t_myinfo') || 'null') || {};
 
 const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 const TYPE_LABELS = {teambuilding:'企业团建', bounty:'AI Bounty', bounty_team:'AI Team', bounty_solo:'AI Solo', open:'公开赛'};
 const FORMAT_LABELS = {swiss:'瑞士制', 'round-robin':'循环赛', elimination:'淘汰赛'};
 
@@ -415,240 +449,163 @@ function toast(msg) {
 }
 function esc(s) { let d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-// ===== Week helpers =====
-function getWeekRange(offset) {
-  let now = new Date();
-  let day = now.getDay();
-  let mon = new Date(now); mon.setDate(now.getDate() - day + 1 + offset * 7);
-  let sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-  return { start: mon, end: sun };
-}
 function fmtDate(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function isToday(dateStr) { return dateStr === fmtDate(new Date()); }
 
-function changeWeek(dir) { currentWeekOffset += dir; loadEvents(); }
+function changeMonth(dir) { monthOffset += dir; buildCalendar(); }
 
-// ===== Load Events (Calendar View) =====
+// ===== Load Events =====
 async function loadEvents() {
-  let range = getWeekRange(currentWeekOffset);
-  document.getElementById('week-label').textContent =
-    `${range.start.getMonth()+1}/${range.start.getDate()} - ${range.end.getMonth()+1}/${range.end.getDate()}`;
-
   try {
     let res = await fetch(API + '/api/tournaments');
-    let list = await res.json();
-
-    // Group by date within the week
-    let startStr = fmtDate(range.start);
-    let endStr = fmtDate(range.end);
-
-    // Filter events in this week
-    let weekEvents = list.filter(t => {
-      let d = t.eventDate || t.createdAt.split('T')[0];
-      return d >= startStr && d <= endStr;
-    });
-
-    // Group by date
-    let groups = {};
-    // Generate all 7 days
-    for (let i = 0; i < 7; i++) {
-      let d = new Date(range.start); d.setDate(range.start.getDate() + i);
-      let ds = fmtDate(d);
-      groups[ds] = { date: ds, weekday: WEEKDAYS[d.getDay()], events: [] };
-    }
-    weekEvents.forEach(t => {
-      let d = t.eventDate || t.createdAt.split('T')[0];
-      if (groups[d]) groups[d].events.push(t);
-    });
-
-    let cal = document.getElementById('evt-calendar');
-    let html = '';
-    let hasAny = false;
-
-    Object.values(groups).forEach(g => {
-      let today = isToday(g.date);
-      let dayLabel = g.date.split('-').slice(1).join('/');
-
-      if (g.events.length > 0 || today) {
-        html += `<div class="day-group">
-          <div class="day-header">
-            <span class="day-date">${dayLabel}</span>
-            <span class="day-weekday">${g.weekday}</span>
-            ${today ? '<span class="day-today">TODAY</span>' : ''}
-          </div>`;
-
-        if (g.events.length === 0) {
-          // Auto-fill: weekends = AI Solo, weekdays = AI Team
-          let gDate = new Date(g.date + 'T12:00:00');
-          let gDay = gDate.getDay();
-          let isWkend = gDay === 0 || gDay === 6;
-          if (isWkend) {
-            html += `<div class="evt">
-              <div class="evt-top">
-                <div class="evt-name">AI Bounty Solo</div>
-                <span class="evt-type bounty_solo">AI Solo</span>
-              </div>
-              <div class="evt-info">
-                <span><span class="icon">🕐</span>13:00</span>
-                <span><span class="icon">📍</span>杭州 · 待定</span>
-                <span style="color:#ff6b35;font-weight:600">免费参赛</span>
-              </div>
-              <div class="evt-bottom">
-                <span class="evt-capacity">击败AI赢奖金</span>
-                <button class="evt-btn signup" style="background:#ff6b35">即将开放</button>
-              </div>
-            </div>`;
-          } else {
-            html += `<div class="evt">
-              <div class="evt-top">
-                <div class="evt-name">AI Bounty Team</div>
-                <span class="evt-type bounty_team">AI Team</span>
-              </div>
-              <div class="evt-info">
-                <span><span class="icon">🕐</span>14:00</span>
-                <span><span class="icon">📍</span>杭州 · 可预约</span>
-                <span style="color:var(--accent);font-weight:600">组队挑战</span>
-              </div>
-              <div class="evt-bottom">
-                <span class="evt-capacity">付费 · 组队击败AI赢奖金</span>
-                <button class="evt-btn signup">预约场次</button>
-              </div>
-            </div>`;
-          }
-        } else {
-          hasAny = true;
-          g.events.forEach(t => { html += renderEventCard(t); });
-        }
-        html += '</div>';
-      }
-    });
-
-    // Also show upcoming events beyond this week
-    let futureEvents = list.filter(t => {
-      let d = t.eventDate || t.createdAt.split('T')[0];
-      return d > endStr && t.status === 'open';
-    }).slice(0, 5);
-
-    if (futureEvents.length > 0) {
-      html += `<div class="day-group"><div class="day-header"><span class="day-date">即将到来</span></div>`;
-      futureEvents.forEach(t => { html += renderEventCard(t); });
-      html += '</div>';
-    }
-
-    if (!hasAny && futureEvents.length === 0) {
-      html += `<div class="empty-state">
-        <span class="empty-icon">🏆</span>
-        <p>本周暂无赛事安排<br>点击右上角「发布赛事」创建活动</p>
-      </div>`;
-    }
-
-    cal.innerHTML = html;
+    allEvents = await res.json();
+    buildCalendar();
   } catch(e) { console.error(e); }
 }
 
-function renderEventCard(t) {
-  let type = t.eventType || 'open';
-  let cap = t.capacity || 0;
-  let count = t.playerCount || 0;
-  let isFull = cap > 0 && count >= cap;
-  let pct = cap > 0 ? Math.min(count / cap * 100, 100) : 0;
-  let fillClass = pct >= 100 ? 'full' : pct >= 75 ? 'high' : '';
-  let time = t.eventTime || '14:00';
-  let loc = t.location || '待定';
+// ===== Build Monthly Calendar Grid =====
+function buildCalendar() {
+  let now = new Date();
+  let today = fmtDate(now);
+  let tYear = now.getFullYear(), tMonth = now.getMonth() + monthOffset;
+  let target = new Date(tYear, tMonth, 1);
+  let yr = target.getFullYear(), mo = target.getMonth();
 
-  // Bounty Team: booked shows "已占"
-  if (type === 'bounty_team' && (t.status === 'booked' || t.status === 'finished')) {
-    return `
-      <div class="evt" style="opacity:.7">
-        <div class="evt-top">
-          <div class="evt-name">${esc(t.bookedBy || t.name || 'AI Bounty Team')}</div>
-          <span class="evt-type bounty_team">AI Team</span>
-        </div>
-        <div class="evt-info">
-          <span><span class="icon">🕐</span>${time}</span>
-          <span><span class="icon">📍</span>${esc(loc)}</span>
-          <span><span class="icon">👥</span>${t.bookedCount || count || '--'}人</span>
-        </div>
-        <div class="evt-bottom">
-          <span class="evt-capacity" style="color:var(--dim)">已占用</span>
-          <button class="evt-btn full">已占</button>
-        </div>
-      </div>`;
-  }
+  document.getElementById('month-label').textContent = yr + '年' + MONTH_NAMES[mo];
 
-  // Teambuilding: special card
-  if (type === 'teambuilding') {
-    if (t.status === 'booked') {
-      return `
-        <div class="evt" style="opacity:.7">
-          <div class="evt-top">
-            <div class="evt-name">${esc(t.bookedBy || '企业团建')}</div>
-            <span class="evt-type teambuilding">团建</span>
-          </div>
-          <div class="evt-info">
-            <span><span class="icon">🕐</span>${time}</span>
-            <span><span class="icon">📍</span>${esc(loc)}</span>
-            <span><span class="icon">👥</span>${t.bookedCount || '--'}人</span>
-          </div>
-          <div class="evt-bottom">
-            <span class="evt-capacity" style="color:var(--dim)">已预约</span>
-            <button class="evt-btn full">已占用</button>
-          </div>
-        </div>`;
-    } else {
-      return `
-        <div class="evt">
-          <div class="evt-top">
-            <div class="evt-name">企业团建 · 可预约</div>
-            <span class="evt-type teambuilding">团建</span>
-          </div>
-          <div class="evt-info">
-            <span><span class="icon">🕐</span>${time}</span>
-            <span><span class="icon">📍</span>杭州 · 场地可定制</span>
-          </div>
-          <div class="evt-bottom" style="flex-wrap:wrap;gap:8px">
-            <span style="font-size:13px;color:var(--dim)">AI一体机 + 计分 + 茶歇</span>
-            <button class="evt-btn signup" onclick="event.stopPropagation();openBooking('${t.code}')">预约团建</button>
-          </div>
-        </div>`;
+  let firstDay = new Date(yr, mo, 1).getDay();
+  let daysInMonth = new Date(yr, mo + 1, 0).getDate();
+  let startOffset = (firstDay + 6) % 7;
+
+  // Event lookup
+  let eventMap = {};
+  allEvents.forEach(t => {
+    let ed = t.eventDate || (t.createdAt || '').split('T')[0];
+    if (!eventMap[ed]) eventMap[ed] = [];
+    eventMap[ed].push(t);
+  });
+
+  let grid = document.getElementById('cal-grid');
+  let html = '';
+
+  for (let i = 0; i < 42; i++) {
+    let dayNum = i - startOffset + 1;
+    let isOther = dayNum < 1 || dayNum > daysInMonth;
+    let d = new Date(yr, mo, dayNum);
+    let ds = fmtDate(d);
+    let dow = d.getDay();
+    let isWeekend = dow === 0 || dow === 6;
+
+    let type = '', tagHtml = '', tagClass = '';
+    let dayEvents = eventMap[ds] || [];
+
+    if (dayEvents.length > 0) {
+      let ev = dayEvents[0];
+      if (ev.eventType === 'bounty_team') {
+        if (ev.status === 'booked' || ev.status === 'finished') {
+          type = 'booked'; tagHtml = '<span class="cell-tag booked">已占</span>';
+        } else {
+          type = 'bounty_team'; tagHtml = '<span class="cell-tag bounty-team">AI Team</span>';
+        }
+      } else if (ev.eventType === 'bounty_solo' || ev.eventType === 'bounty') {
+        if (ev.status === 'finished' || (ev.capacity > 0 && (ev.players||[]).length >= ev.capacity)) {
+          type = 'bounty_full'; tagHtml = '<span class="cell-tag full">已满</span>';
+        } else {
+          type = 'bounty_solo'; tagHtml = '<span class="cell-tag bounty-solo">AI Solo</span>';
+        }
+      } else if (ev.eventType === 'teambuilding') {
+        if (ev.status === 'booked') {
+          type = 'booked'; tagHtml = '<span class="cell-tag booked">已占</span>';
+        } else {
+          type = 'booked'; tagHtml = '<span class="cell-tag avail">可约</span>';
+        }
+      } else {
+        type = 'open'; tagHtml = `<span class="cell-tag open-evt">${esc((ev.name||'').substring(0,4))}</span>`;
+      }
+    } else if (!isOther && isWeekend) {
+      type = 'bounty_solo'; tagHtml = '<span class="cell-tag bounty-solo">AI Solo</span>';
+    } else if (!isOther && !isWeekend) {
+      type = 'bounty_team'; tagHtml = '<span class="cell-tag bounty-team">AI Team</span>';
     }
+
+    let classes = 'cal-cell';
+    if (isOther) classes += ' other';
+    if (ds === today) classes += ' today';
+    if (type) classes += ' ' + type;
+
+    html += `<div class="${classes}" onclick="onCellTap('${ds}')" data-date="${ds}">
+      <span class="cell-d">${d.getDate()}</span>
+      ${isOther ? '' : tagHtml}
+    </div>`;
   }
 
-  // Regular event card
-  let isJoined = t.players && t.players.some(p => p.phone === myInfo.phone && p.name === myInfo.name);
-  let btnHtml = '';
-  if (t.status === 'finished') {
-    btnHtml = `<button class="evt-btn view" onclick="event.stopPropagation();openEvent('${t.code}')">查看结果</button>`;
-  } else if (isJoined) {
-    btnHtml = `<button class="evt-btn joined">已报名 ✓</button>`;
-  } else if (isFull) {
-    btnHtml = `<button class="evt-btn full">已满</button>`;
+  grid.innerHTML = html;
+  document.getElementById('detail-card').className = 'detail-card';
+}
+
+// ===== Cell Tap → Detail Card =====
+function onCellTap(ds) {
+  let dayEvents = allEvents.filter(t => (t.eventDate || (t.createdAt||'').split('T')[0]) === ds);
+  let card = document.getElementById('detail-card');
+  let d = new Date(ds + 'T12:00:00');
+  let dow = d.getDay();
+  let isWeekend = dow === 0 || dow === 6;
+
+  if (dayEvents.length > 0) {
+    let ev = dayEvents[0];
+    let name = ev.name || (ev.eventType === 'teambuilding' ? '企业团建' : 'AI Bounty');
+    let tagText = '', tagClass = '', btnHtml = '';
+
+    if (ev.eventType === 'bounty_team') {
+      if (ev.status === 'booked' || ev.status === 'finished') {
+        name = (ev.bookedBy || ev.name) + ' · 已占用';
+        tagText = '已占'; tagClass = 'tag-booked';
+      } else {
+        tagText = '付费·组队'; tagClass = 'tag-team';
+        btnHtml = `<span class="dc-btn primary" onclick="openEvent('${ev.code}')">查看详情 · 报名</span>`;
+      }
+    } else if (ev.eventType === 'bounty_solo' || ev.eventType === 'bounty') {
+      if (ev.status === 'finished' || (ev.capacity > 0 && (ev.players||[]).length >= ev.capacity)) {
+        tagText = '已满'; tagClass = 'tag-full';
+      } else {
+        tagText = '免费·个人'; tagClass = 'tag-solo';
+        btnHtml = `<span class="dc-btn primary" onclick="openEvent('${ev.code}')">查看详情 · 报名</span>`;
+      }
+    } else if (ev.eventType === 'teambuilding') {
+      if (ev.status === 'booked') {
+        name = (ev.bookedBy || '企业团建') + ' · 已占用';
+        tagText = '已占'; tagClass = 'tag-booked';
+      } else {
+        tagText = '可预约'; tagClass = 'tag-avail';
+        btnHtml = `<span class="dc-btn gold" onclick="openBooking('${ev.code}')">预约团建 ¥100</span>`;
+      }
+    } else {
+      tagText = TYPE_LABELS[ev.eventType] || '赛事'; tagClass = 'tag-team';
+      btnHtml = `<span class="dc-btn primary" onclick="openEvent('${ev.code}')">查看详情 · 报名</span>`;
+    }
+
+    let count = ev.playerCount || (ev.players||[]).length || 0;
+    card.innerHTML = `
+      <div class="dc-top"><span class="dc-name">${esc(name)}</span><span class="dc-tag ${tagClass}">${tagText}</span></div>
+      ${ev.eventTime ? `<div class="dc-row">🕐 ${ds} ${ev.eventTime}</div>` : ''}
+      ${ev.location ? `<div class="dc-row">📍 ${esc(ev.location)}</div>` : ''}
+      ${ev.capacity ? `<div class="dc-row">👥 ${count}/${ev.capacity}人</div>` : ''}
+      ${ev.description ? `<div class="dc-row">📝 ${esc(ev.description)}</div>` : ''}
+      ${btnHtml ? `<div class="dc-actions">${btnHtml}</div>` : ''}`;
+    card.className = 'detail-card show';
   } else {
-    btnHtml = `<button class="evt-btn signup" onclick="event.stopPropagation();openSignup('${t.code}','${esc(t.name)}')">立即报名</button>`;
+    // Auto-filled day
+    let label = isWeekend ? 'AI Bounty Solo' : 'AI Bounty Team';
+    let tag = isWeekend ? '<span class="dc-tag tag-solo">免费·个人</span>' : '<span class="dc-tag tag-team">付费·组队</span>';
+    let desc = isWeekend ? '周末免费参赛，击败AI赢奖金！' : '工作日组队挑战，付费参赛。';
+    card.innerHTML = `
+      <div class="dc-top"><span class="dc-name">${label}</span>${tag}</div>
+      <div class="dc-row">📅 ${ds} ${isWeekend ? '13:00' : '14:00'}</div>
+      <div class="dc-row">📍 杭州 · 待定</div>
+      <div class="dc-row">📝 ${desc}</div>
+      <div class="dc-actions"><span class="dc-btn dim">即将开放报名</span></div>`;
+    card.className = 'detail-card show';
   }
-
-  return `
-    <div class="evt" onclick="openEvent('${t.code}')">
-      <div class="evt-top">
-        <div class="evt-name">${esc(t.name)}</div>
-        <span class="evt-type ${type}">${TYPE_LABELS[type] || type}</span>
-      </div>
-      <div class="evt-info">
-        <span><span class="icon">🕐</span>${time}</span>
-        <span><span class="icon">📍</span>${esc(loc)}</span>
-        <span><span class="icon">🎯</span>${FORMAT_LABELS[t.format] || t.format} · ${t.totalRounds}轮</span>
-      </div>
-      <div class="evt-bottom">
-        <span class="evt-capacity">
-          <span class="${isFull ? 'full' : 'count'}">${count}</span>${cap > 0 ? '/' + cap + '人' : '人'}
-          ${cap > 0 ? `<span class="capacity-bar"><span class="capacity-fill ${fillClass}" style="width:${pct}%"></span></span>` : ''}
-        </span>
-        <span style="display:flex;align-items:center">
-          ${btnHtml}
-        </span>
-      </div>
-    </div>
-  `;
 }
 
 // ===== Create Event =====
