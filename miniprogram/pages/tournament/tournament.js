@@ -173,7 +173,7 @@ Page({
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0')
   },
 
-  // === Cell tap → show detail card ===
+  // === Cell tap → show detail card or modal ===
   onCellTap(e) {
     const date = e.currentTarget.dataset.date
     const type = e.currentTarget.dataset.type
@@ -188,8 +188,45 @@ Page({
       return ed === date
     })
 
+    // Auto-filled date (no API event)
     if (dayEvents.length === 0) {
-      this.setData({ selectedEvent: null })
+      const d = new Date(date + 'T12:00:00')
+      const dow = d.getDay()
+      const isWeekend = dow === 0 || dow === 6
+
+      if (isWeekend) {
+        // AI Solo - show signup modal directly
+        this.setData({
+          selectedEvent: {
+            displayName: 'AI Bounty Solo',
+            tagText: '免费·个人',
+            tagClass: 'tag-bounty-solo',
+            eventType: 'bounty_solo',
+            eventDate: date,
+            eventTime: '13:00',
+            location: '杭州 · 待定',
+            description: '周末免费参赛，击败AI赢奖金！',
+            status: 'upcoming',
+            isAutoFill: true
+          }
+        })
+      } else {
+        // AI Team - show booking modal
+        this.setData({
+          selectedEvent: {
+            displayName: 'AI Bounty Team',
+            tagText: '付费·组队',
+            tagClass: 'tag-bounty-team',
+            eventType: 'bounty_team',
+            eventDate: date,
+            eventTime: '14:00',
+            location: '杭州 · 可预约',
+            description: '工作日组队挑战，付费参赛击败AI赢奖金！',
+            status: 'upcoming',
+            isAutoFill: true
+          }
+        })
+      }
       return
     }
 
@@ -242,6 +279,23 @@ Page({
     })
   },
 
+  // === Auto-fill signup (Solo free) ===
+  openAutoSignup() {
+    const ev = this.data.selectedEvent
+    if (!ev) return
+    this.setData({
+      showModal: true,
+      modalEvent: {
+        name: ev.displayName + ' · ' + ev.eventDate,
+        code: null,
+        isAutoFill: true,
+        eventDate: ev.eventDate,
+        eventTime: ev.eventTime,
+        eventType: ev.eventType
+      }
+    })
+  },
+
   // === Detail modal ===
   showDetail(e) {
     const code = e.currentTarget.dataset.code
@@ -288,6 +342,13 @@ Page({
     }
     if (!formPhone.trim()) {
       wx.showToast({ title: '请输入手机号', icon: 'none' })
+      return
+    }
+
+    // Auto-fill event (no real code yet)
+    if (modalEvent.isAutoFill || !modalEvent.code) {
+      wx.showToast({ title: '报名成功！开放后通知您', icon: 'success' })
+      this.setData({ showModal: false, modalEvent: null })
       return
     }
 

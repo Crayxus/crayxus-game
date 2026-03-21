@@ -83,11 +83,25 @@
       </view>
 
       <!-- 操作按钮 -->
+      <!-- 团建可预约 -->
       <view class="dc-actions" wx:if="{{selectedEvent.eventType === 'teambuilding' && selectedEvent.status !== 'booked'}}">
         <view class="dc-btn gold" bindtap="openBooking">预约团建 ¥100</view>
       </view>
-      <view class="dc-actions" wx:if="{{selectedEvent.eventType !== 'teambuilding' && selectedEvent.status === 'open'}}">
+      <!-- 有具体赛事可报名 -->
+      <view class="dc-actions" wx:if="{{!selectedEvent.isAutoFill && selectedEvent.eventType !== 'teambuilding' && selectedEvent.status === 'open'}}">
         <view class="dc-btn primary" bindtap="showDetail" data-code="{{selectedEvent.code}}">查看详情 · 报名</view>
+      </view>
+      <!-- 自动填充的Solo(免费) - 直接报名 -->
+      <view class="dc-actions" wx:if="{{selectedEvent.isAutoFill && selectedEvent.eventType === 'bounty_solo'}}">
+        <view class="dc-btn primary" bindtap="openAutoSignup">我要报名（免费）</view>
+      </view>
+      <!-- 自动填充的Team(付费) - 预约 -->
+      <view class="dc-actions" wx:if="{{selectedEvent.isAutoFill && selectedEvent.eventType === 'bounty_team'}}">
+        <view class="dc-btn gold" bindtap="openBooking">预约场次</view>
+      </view>
+      <!-- 已占/已满 -->
+      <view class="dc-actions" wx:if="{{selectedEvent.status === 'booked' || selectedEvent.status === 'finished'}}">
+        <view class="dc-btn dim">{{selectedEvent.tagText}}</view>
       </view>
     </view>
   </view>

@@ -331,6 +331,10 @@ page { background: #0a0e1a; }
   background: linear-gradient(135deg, #ffd700, #ff9500);
   color: #000;
 }
+.dc-btn.dim {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.3);
+}
 
 /* ===== Modals ===== */
 .modal-mask {
