@@ -1110,21 +1110,6 @@ try {
 if (Object.keys(tournaments).length === 0) {
     const demoEvents = [
         {
-            code: 'HZ0325', name: 'AI Bounty Team · 西湖站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
-            casualMode: 'fixed', organizer: 'Crayxus',
-            status: 'open', players: [
-                { nickname: 'Crayxus', joinedAt: '2026-03-20T10:00:00Z' },
-                { nickname: '老王', phone: '138****1234', team: '西湖队', joinedAt: '2026-03-20T12:00:00Z' },
-                { nickname: '张三', phone: '139****5678', team: '钱塘队', joinedAt: '2026-03-20T14:00:00Z' },
-                { nickname: '小李', phone: '137****9012', joinedAt: '2026-03-21T08:00:00Z' }
-            ],
-            rounds: [], currentRound: 0,
-            createdAt: '2026-03-20T10:00:00Z',
-            eventType: 'bounty_team', eventDate: '2026-03-25', eventTime: '13:30',
-            location: '杭州·西湖区文化馆3楼多功能厅', capacity: 32, fee: 0,
-            description: '免费参赛，组队击败AI赢奖金！Crayxus AI一体机实时对战+计分。'
-        },
-        {
             code: 'HZ0326', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
             casualMode: 'fixed', organizer: 'Crayxus',
             status: 'booked', players: [],
@@ -1156,18 +1141,6 @@ if (Object.keys(tournaments).length === 0) {
             eventType: 'bounty_solo', eventDate: '2026-03-29', eventTime: '13:00',
             location: '杭州·拱墅区运河文化广场·茶语轩', capacity: 24, fee: 0,
             description: '免费参赛，个人挑战AI赢奖金！运河畔的周末Solo Bounty，茶歇供应。'
-        },
-        {
-            code: 'HZ0401', name: 'AI Bounty Team · 清明特别站', format: 'swiss', totalRounds: 6, gamesPerRound: 2,
-            casualMode: 'fixed', organizer: 'Crayxus',
-            status: 'open', players: [
-                { nickname: 'Crayxus', joinedAt: '2026-03-21T10:00:00Z' }
-            ],
-            rounds: [], currentRound: 0,
-            createdAt: '2026-03-21T10:00:00Z',
-            eventType: 'bounty_team', eventDate: '2026-04-01', eventTime: '10:00',
-            location: '杭州·上城区南宋御街·龙井茶馆', capacity: 48, fee: 0,
-            description: '清明假期AI Bounty Team特别站！6轮瑞士制，免费组队参赛，击败AI赢双倍奖金！'
         },
         {
             code: 'HZ0402', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,

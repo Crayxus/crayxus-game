@@ -134,13 +134,13 @@ Page({
       let type = ''
       let shortName = ''
       const dayEvents = eventMap[ds] || []
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
+
       if (dayEvents.length > 0) {
         const ev = dayEvents[0]
         if (ev.eventType === 'bounty_team') {
           type = 'bounty_team'
-        } else if (ev.eventType === 'bounty_solo') {
-          type = 'bounty_solo'
-        } else if (ev.eventType === 'bounty') {
+        } else if (ev.eventType === 'bounty_solo' || ev.eventType === 'bounty') {
           type = 'bounty_solo'
         } else if (ev.eventType === 'teambuilding') {
           type = ev.status === 'booked' ? 'booked' : 'available'
@@ -148,6 +148,9 @@ Page({
           type = 'open'
           shortName = ev.name ? ev.name.substring(0, 4) : '赛事'
         }
+      } else if (!isOtherMonth && isWeekend) {
+        // Auto-fill weekends with AI Bounty Solo
+        type = 'bounty_solo'
       }
 
       calCells.push({
