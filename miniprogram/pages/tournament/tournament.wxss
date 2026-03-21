@@ -138,9 +138,14 @@ page { background: #0a0e1a; }
   text-align: center;
 }
 
-.bounty-tag {
+.bounty-team-tag {
   background: rgba(0,212,170,.15);
   color: #00d4aa;
+}
+
+.bounty-solo-tag {
+  background: rgba(255,107,53,.15);
+  color: #ff6b35;
 }
 
 .booked-tag {
@@ -168,8 +173,11 @@ page { background: #0a0e1a; }
 }
 
 /* Event type background tints */
-.cal-cell.bounty {
+.cal-cell.bounty_team {
   background: rgba(0,212,170,.04);
+}
+.cal-cell.bounty_solo {
+  background: rgba(255,107,53,.04);
 }
 .cal-cell.booked {
   background: rgba(255,255,255,.02);
@@ -200,7 +208,8 @@ page { background: #0a0e1a; }
   border-radius: 4rpx;
   flex-shrink: 0;
 }
-.legend-dot.bounty { background: #00d4aa; }
+.legend-dot.bounty-team { background: #00d4aa; }
+.legend-dot.bounty-solo { background: #ff6b35; }
 .legend-dot.booked { background: rgba(255,255,255,.2); }
 .legend-dot.avail { background: #ff9500; }
 .legend-item text {
@@ -221,7 +230,8 @@ page { background: #0a0e1a; }
   width: 8rpx;
   flex-shrink: 0;
 }
-.dc-bar.bounty { background: #00d4aa; }
+.dc-bar.bounty_team { background: #00d4aa; }
+.dc-bar.bounty_solo { background: #ff6b35; }
 .dc-bar.teambuilding { background: #ff9500; }
 .dc-bar.open { background: #7c4dff; }
 
@@ -252,7 +262,8 @@ page { background: #0a0e1a; }
   margin-left: 12rpx;
   flex-shrink: 0;
 }
-.dc-tag.tag-bounty { background: rgba(0,212,170,.12); color: #00d4aa; }
+.dc-tag.tag-bounty-team { background: rgba(0,212,170,.12); color: #00d4aa; }
+.dc-tag.tag-bounty-solo { background: rgba(255,107,53,.12); color: #ff6b35; }
 .dc-tag.tag-booked { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); }
 .dc-tag.tag-avail { background: rgba(255,149,0,.1); color: #ff9500; }
 .dc-tag.tag-open { background: rgba(124,77,255,.1); color: #7c4dff; }

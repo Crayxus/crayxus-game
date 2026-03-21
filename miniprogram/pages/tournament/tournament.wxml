@@ -38,7 +38,8 @@
     >
       <text class="cell-d">{{item.d}}</text>
       <!-- 赛事标记 -->
-      <view class="cell-tag bounty-tag" wx:if="{{item.type === 'bounty'}}">AI Bounty</view>
+      <view class="cell-tag bounty-team-tag" wx:if="{{item.type === 'bounty_team'}}">Team</view>
+      <view class="cell-tag bounty-solo-tag" wx:if="{{item.type === 'bounty_solo'}}">Solo</view>
       <view class="cell-tag booked-tag" wx:if="{{item.type === 'booked'}}">已占</view>
       <view class="cell-tag avail-tag" wx:if="{{item.type === 'available'}}">可约</view>
       <view class="cell-tag open-tag" wx:if="{{item.type === 'open'}}">{{item.shortName || '赛事'}}</view>
@@ -49,7 +50,8 @@
 
   <!-- 图例 -->
   <view class="legend">
-    <view class="legend-item"><view class="legend-dot bounty"></view><text>AI Bounty（免费·击败AI赢奖金）</text></view>
+    <view class="legend-item"><view class="legend-dot bounty-team"></view><text>AI Bounty Team（工作日·组队）</text></view>
+    <view class="legend-item"><view class="legend-dot bounty-solo"></view><text>AI Bounty Solo（周末·个人）</text></view>
     <view class="legend-item"><view class="legend-dot booked"></view><text>团建（已预约）</text></view>
     <view class="legend-item"><view class="legend-dot avail"></view><text>团建（可预约）</text></view>
   </view>

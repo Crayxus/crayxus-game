@@ -1,6 +1,6 @@
 const app = getApp()
 
-const TYPE_TEXTS = { teambuilding: '团建', bounty: 'AI Bounty', open: '公开赛' }
+const TYPE_TEXTS = { teambuilding: '团建', bounty_team: 'AI Bounty Team', bounty_solo: 'AI Bounty Solo', bounty: 'AI Bounty', open: '公开赛' }
 const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
 
 Page({
@@ -136,8 +136,12 @@ Page({
       const dayEvents = eventMap[ds] || []
       if (dayEvents.length > 0) {
         const ev = dayEvents[0]
-        if (ev.eventType === 'bounty') {
-          type = 'bounty'
+        if (ev.eventType === 'bounty_team') {
+          type = 'bounty_team'
+        } else if (ev.eventType === 'bounty_solo') {
+          type = 'bounty_solo'
+        } else if (ev.eventType === 'bounty') {
+          type = 'bounty_solo'
         } else if (ev.eventType === 'teambuilding') {
           type = ev.status === 'booked' ? 'booked' : 'available'
         } else if (ev.eventType === 'open') {
@@ -187,9 +191,12 @@ Page({
 
     const ev = dayEvents[0]
     let tagText = '', tagClass = ''
-    if (ev.eventType === 'bounty') {
-      tagText = '免费参赛'
-      tagClass = 'tag-bounty'
+    if (ev.eventType === 'bounty_team') {
+      tagText = '免费·组队'
+      tagClass = 'tag-bounty-team'
+    } else if (ev.eventType === 'bounty_solo' || ev.eventType === 'bounty') {
+      tagText = '免费·个人'
+      tagClass = 'tag-bounty-solo'
     } else if (ev.eventType === 'teambuilding' && ev.status === 'booked') {
       tagText = '已预约'
       tagClass = 'tag-booked'
