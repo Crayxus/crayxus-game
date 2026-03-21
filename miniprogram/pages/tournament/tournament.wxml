@@ -23,64 +23,80 @@
 
   <!-- 周导航 -->
   <view class="week-nav" wx:if="{{!loading}}">
-    <view class="week-arrow" bindtap="prevWeek">←</view>
+    <view class="week-arrow" bindtap="prevWeek">‹</view>
     <text class="week-label-text">{{weekLabel}}</text>
-    <view class="week-arrow" bindtap="nextWeek">→</view>
+    <view class="week-arrow" bindtap="nextWeek">›</view>
   </view>
 
-  <!-- 赛事列表 (按日期分组) -->
-  <view class="event-list" wx:if="{{!loading && dayGroups.length > 0}}">
-    <view wx:for="{{dayGroups}}" wx:key="date" class="day-group">
-      <view class="day-header">
-        <text class="day-date">{{item.label}}</text>
-        <text class="day-weekday">{{item.weekday}}</text>
-        <text class="day-today" wx:if="{{item.isToday}}">TODAY</text>
-      </view>
-      <view wx:if="{{item.events.length === 0}}" class="day-empty">暂无赛事</view>
-      <!-- 团建卡片 (已预约) -->
-      <view class="event-card booked" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType === 'teambuilding' && evt.status === 'booked'}}">
-        <view class="ec-header">
-          <view class="ec-type teambuilding">团建</view>
-          <text class="ec-date">{{evt.eventTime}}</text>
-        </view>
-        <text class="ec-name">{{evt.bookedBy || '企业团建'}}</text>
-        <view class="ec-info">
-          <text class="ec-location">📍 {{evt.location}} · {{evt.bookedCount}}人</text>
-        </view>
-        <view class="ec-status closed">已占用</view>
+  <!-- 7天日历头 -->
+  <view class="cal-header" wx:if="{{!loading}}">
+    <view class="cal-h-cell {{item.isToday ? 'today' : ''}} {{item.isWeekend ? 'weekend' : ''}}" wx:for="{{calDays}}" wx:key="date">
+      <text class="cal-h-wd">{{item.wd}}</text>
+      <text class="cal-h-d">{{item.d}}</text>
+      <view class="cal-h-dot" wx:if="{{item.hasEvent}}"></view>
+    </view>
+  </view>
+
+  <!-- Roster 日历格 -->
+  <view class="roster" wx:if="{{!loading}}">
+    <view class="roster-row {{item.isToday ? 'today' : ''}} {{item.isWeekend ? 'weekend' : ''}}" wx:for="{{calDays}}" wx:key="date">
+      <!-- 左侧日期列 -->
+      <view class="roster-date">
+        <text class="roster-wd">{{item.wd}}</text>
+        <text class="roster-d">{{item.d}}</text>
       </view>
 
-      <!-- 团建卡片 (可预约) -->
-      <view class="event-card" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType === 'teambuilding' && evt.status !== 'booked'}}" bindtap="openBooking" data-code="{{evt.code}}">
-        <view class="ec-header">
-          <view class="ec-type teambuilding">团建</view>
-          <text class="ec-date">{{evt.eventTime}}</text>
+      <!-- 右侧内容区 -->
+      <view class="roster-content">
+        <!-- 无赛事 -->
+        <view class="roster-empty" wx:if="{{!item.events || item.events.length === 0}}">
+          <text class="roster-dash">—</text>
         </view>
-        <text class="ec-name">企业团建 · 可预约</text>
-        <view class="ec-info">
-          <text class="ec-location">📍 杭州 · 场地可定制</text>
-        </view>
-        <view class="ec-book-btn">预约团建 →</view>
-      </view>
 
-      <!-- 普通赛事卡片 -->
-      <view class="event-card" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType !== 'teambuilding'}}" bindtap="showDetail" data-code="{{evt.code}}">
-        <view class="ec-header">
-          <view class="ec-type {{evt.eventType}}">{{evt.eventTypeText}}</view>
-          <text class="ec-date">{{evt.eventTime}}</text>
-        </view>
-        <text class="ec-name">{{evt.name}}</text>
-        <view class="ec-info">
-          <text class="ec-location">📍 {{evt.location || '待定'}}</text>
-        </view>
-        <view class="ec-capacity">
-          <view class="ec-cap-bar">
-            <view class="ec-cap-fill" style="width:{{evt.capPct}}%"></view>
+        <!-- 团建已预约 -->
+        <view class="roster-event booked" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType === 'teambuilding' && evt.status === 'booked'}}">
+          <view class="re-bar teambuilding"></view>
+          <view class="re-body">
+            <view class="re-top">
+              <text class="re-time">{{evt.eventTime}}</text>
+              <text class="re-tag booked-tag">已占用</text>
+            </view>
+            <text class="re-name dim">{{evt.bookedBy || '企业团建'}}</text>
+            <text class="re-loc">{{evt.location}} · {{evt.bookedCount}}人</text>
           </view>
-          <text class="ec-cap-text">{{evt.playerCount}}/{{evt.capacity}}人</text>
         </view>
-        <view class="ec-status {{evt.status === 'open' ? 'open' : 'closed'}}">
-          {{evt.status === 'open' ? '报名中' : evt.status === 'started' ? '进行中' : '已结束'}}
+
+        <!-- 团建可预约 -->
+        <view class="roster-event" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType === 'teambuilding' && evt.status !== 'booked'}}" bindtap="openBooking" data-code="{{evt.code}}">
+          <view class="re-bar teambuilding"></view>
+          <view class="re-body">
+            <view class="re-top">
+              <text class="re-time">{{evt.eventTime}}</text>
+              <text class="re-tag open-tag">可预约</text>
+            </view>
+            <text class="re-name">企业团建</text>
+            <text class="re-loc">杭州 · 场地可定制</text>
+            <text class="re-action">预约 →</text>
+          </view>
+        </view>
+
+        <!-- AI Bounty / 普通赛事 -->
+        <view class="roster-event" wx:for="{{item.events}}" wx:for-item="evt" wx:key="code" wx:if="{{evt.eventType !== 'teambuilding'}}" bindtap="showDetail" data-code="{{evt.code}}">
+          <view class="re-bar {{evt.eventType}}"></view>
+          <view class="re-body">
+            <view class="re-top">
+              <text class="re-time">{{evt.eventTime}}</text>
+              <text class="re-tag {{evt.status === 'open' ? 'open-tag' : 'closed-tag'}}">{{evt.status === 'open' ? '报名中' : '已结束'}}</text>
+            </view>
+            <text class="re-name">{{evt.name}}</text>
+            <text class="re-loc">{{evt.location || '待定'}}</text>
+            <view class="re-bottom">
+              <view class="re-cap-bar">
+                <view class="re-cap-fill" style="width:{{evt.capPct}}%"></view>
+              </view>
+              <text class="re-cap-text">{{evt.playerCount}}/{{evt.capacity}}</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>

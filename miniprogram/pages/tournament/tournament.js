@@ -78,6 +78,7 @@ Page({
     const { allEvents, weekOffset } = this.data
     const now = new Date()
     const day = now.getDay()
+    const WD_SHORT = ['日','一','二','三','四','五','六']
 
     // Monday of current week + offset
     const monday = new Date(now)
@@ -85,52 +86,35 @@ Page({
     const sunday = new Date(monday)
     sunday.setDate(monday.getDate() + 6)
 
-    const weekLabel = (monday.getMonth()+1) + '/' + monday.getDate() + ' - ' + (sunday.getMonth()+1) + '/' + sunday.getDate()
-
+    const weekLabel = (monday.getMonth()+1) + '/' + monday.getDate() + ' — ' + (sunday.getMonth()+1) + '/' + sunday.getDate()
     const today = this._fmtDate(now)
-    const startStr = this._fmtDate(monday)
-    const endStr = this._fmtDate(sunday)
 
-    // Build 7 day slots
-    const dayGroups = []
+    // Build all 7 days
+    const calDays = []
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday)
       d.setDate(monday.getDate() + i)
       const ds = this._fmtDate(d)
+      const dayOfWeek = d.getDay()
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
+
       const dayEvents = allEvents.filter(t => {
         const ed = t.eventDate || (t.createdAt || '').split('T')[0]
         return ed === ds
       })
 
-      // Only show days that have events or are today
-      if (dayEvents.length > 0 || ds === today) {
-        dayGroups.push({
-          date: ds,
-          label: (d.getMonth()+1) + '/' + d.getDate(),
-          weekday: WEEKDAYS[d.getDay()],
-          isToday: ds === today,
-          events: dayEvents
-        })
-      }
-    }
-
-    // Also show future events beyond this week
-    const futureEvents = allEvents.filter(t => {
-      const ed = t.eventDate || (t.createdAt || '').split('T')[0]
-      return ed > endStr && t.status === 'open'
-    }).slice(0, 5)
-
-    if (futureEvents.length > 0) {
-      dayGroups.push({
-        date: 'future',
-        label: '即将到来',
-        weekday: '',
-        isToday: false,
-        events: futureEvents
+      calDays.push({
+        date: ds,
+        d: d.getDate(),
+        wd: WD_SHORT[dayOfWeek],
+        isToday: ds === today,
+        isWeekend,
+        hasEvent: dayEvents.length > 0,
+        events: dayEvents
       })
     }
 
-    this.setData({ dayGroups, weekLabel })
+    this.setData({ calDays, weekLabel })
   },
 
   _fmtDate(d) {
