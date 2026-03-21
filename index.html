@@ -665,6 +665,8 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .holo-rank-stars{display:flex;gap:2px;font-size:18px}
 .casual-rank-stars{display:flex;gap:2px;font-size:16px}
 .holo-player-stats{display:flex;gap:20px;margin-top:4px}
+.holo-logout{margin-top:8px;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.25);cursor:pointer;transition:all 0.3s;font-family:'Orbitron','Segoe UI',sans-serif}
+.holo-logout:hover{color:rgba(255,100,100,0.8);text-shadow:0 0 8px rgba(255,100,100,0.3)}
 .holo-stat{display:flex;flex-direction:column;align-items:center}
 .holo-stat-val{font-size:20px;font-weight:900;color:#00ffff;text-shadow:0 0 10px #00ffff;font-family:'Orbitron','Segoe UI',sans-serif}
 .holo-stat-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-top:2px;font-family:'Orbitron','Segoe UI',sans-serif}
@@ -1511,6 +1513,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
           <div class="holo-stat"><span class="holo-stat-val holo-gold" id="holo-games">0</span><span class="holo-stat-label">GAMES</span></div>
           <div class="holo-stat"><span class="holo-stat-val" id="holo-weekly">#--</span><span class="holo-stat-label">WEEKLY</span></div>
         </div>
+        <div class="holo-logout" id="holo-logout" onclick="doLogout()" style="display:none">LOG OUT</div>
       </div>
     </div>
 
@@ -6110,12 +6113,24 @@ function updateLoginDisplay(){
   const avatarSection=document.getElementById('holo-avatar-section');
   const qrInline=document.getElementById('qr-inline-login');
   const qrDock=document.getElementById('qr-login-section');
+  var logoutBtn=document.getElementById('holo-logout');
   if(avatarSection)avatarSection.style.display=isLoggedIn?'':'none';
   if(qrInline)qrInline.style.display=isLoggedIn?'none':'';
   if(qrDock)qrDock.style.display=isLoggedIn?'none':'';
+  if(logoutBtn)logoutBtn.style.display=isLoggedIn?'':'none';
   if(!isLoggedIn){
     try{generateLoginQR()}catch(e){console.error('QR generation failed:',e)}
   }
+}
+function doLogout(){
+  localStorage.removeItem('crayxus_wx_nickname');
+  localStorage.removeItem('crayxus_wx_avatar');
+  // Reset avatar display
+  var avEl=document.querySelector('.holo-avatar-img');
+  if(avEl)avEl.innerHTML='P1';
+  var nameEl=document.getElementById('holo-player-name');
+  if(nameEl)nameEl.innerText='PLAYER_ONE';
+  updateLoginDisplay();
 }
 // Auto-generate QR on page load (delay to ensure DOM & library ready)
 setTimeout(()=>{updateLoginDisplay()},2000);
