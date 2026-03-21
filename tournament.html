@@ -47,7 +47,8 @@ a{color:var(--accent);text-decoration:none}
 .evt-name{font-size:17px;font-weight:700;flex:1}
 .evt-type{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;margin-left:8px}
 .evt-type.teambuilding{background:rgba(255,149,0,.15);color:var(--orange)}
-.evt-type.bounty{background:rgba(0,212,170,.15);color:var(--accent)}
+.evt-type.bounty,.evt-type.bounty_solo{background:rgba(255,107,53,.15);color:#ff6b35}
+.evt-type.bounty_team{background:rgba(0,212,170,.15);color:var(--accent)}
 .evt-type.open{background:rgba(124,77,255,.15);color:var(--accent2)}
 
 .evt-info{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:13px;color:var(--dim)}
@@ -191,7 +192,8 @@ body.bigscreen table.sb td{font-size:18px;padding:14px 20px}
   <div class="form-group">
     <label>赛事类型</label>
     <select id="f-type">
-      <option value="bounty">AI Bounty（击败AI赢奖金）</option>
+      <option value="bounty_team">AI Bounty Team（工作日·付费组队）</option>
+      <option value="bounty_solo">AI Bounty Solo（周末·免费个人）</option>
       <option value="teambuilding">企业团建</option>
       <option value="open">公开赛</option>
     </select>
@@ -393,7 +395,7 @@ let currentWeekOffset = 0;
 let myInfo = JSON.parse(localStorage.getItem('t_myinfo') || 'null') || {};
 
 const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
-const TYPE_LABELS = {teambuilding:'企业团建', bounty:'AI Bounty', open:'公开赛'};
+const TYPE_LABELS = {teambuilding:'企业团建', bounty:'AI Bounty', bounty_team:'AI Team', bounty_solo:'AI Solo', open:'公开赛'};
 const FORMAT_LABELS = {swiss:'瑞士制', 'round-robin':'循环赛', elimination:'淘汰赛'};
 
 function goBack() { window.location.href = '/'; }
@@ -517,6 +519,26 @@ function renderEventCard(t) {
   let fillClass = pct >= 100 ? 'full' : pct >= 75 ? 'high' : '';
   let time = t.eventTime || '14:00';
   let loc = t.location || '待定';
+
+  // Bounty Team: booked shows "已占"
+  if (type === 'bounty_team' && (t.status === 'booked' || t.status === 'finished')) {
+    return `
+      <div class="evt" style="opacity:.7">
+        <div class="evt-top">
+          <div class="evt-name">${esc(t.bookedBy || t.name || 'AI Bounty Team')}</div>
+          <span class="evt-type bounty_team">AI Team</span>
+        </div>
+        <div class="evt-info">
+          <span><span class="icon">🕐</span>${time}</span>
+          <span><span class="icon">📍</span>${esc(loc)}</span>
+          <span><span class="icon">👥</span>${t.bookedCount || count || '--'}人</span>
+        </div>
+        <div class="evt-bottom">
+          <span class="evt-capacity" style="color:var(--dim)">已占用</span>
+          <button class="evt-btn full">已占</button>
+        </div>
+      </div>`;
+  }
 
   // Teambuilding: special card
   if (type === 'teambuilding') {
@@ -702,7 +724,7 @@ function renderDetail(t) {
   let meta = `
     <span>📅 ${t.eventDate || '--'} ${t.eventTime || ''}</span>
     <span>📍 ${esc(t.location || '待定')}</span>
-    <span>🏷️ ${TYPE_LABELS[type]}</span>
+    <span>🏷️ ${TYPE_LABELS[type] || type}</span>
     <span>🎯 ${FORMAT_LABELS[t.format]} · ${t.totalRounds}轮</span>
     <span>👥 ${count}${cap > 0 ? '/' + cap : ''}人</span>
   `;
