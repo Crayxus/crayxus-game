@@ -14,8 +14,8 @@
     <text class="loading-text">加载中...</text>
   </view>
 
-  <!-- 空状态 -->
-  <view class="empty" wx:if="{{!loading && events.length === 0}}">
+  <!-- 空状态（加载失败时显示） -->
+  <view class="empty" wx:if="{{!loading && allEvents.length === 0 && calDays.length === 0}}">
     <text class="empty-icon">🏆</text>
     <text class="empty-text">暂无赛事安排</text>
     <text class="empty-sub">敬请期待下期活动</text>
