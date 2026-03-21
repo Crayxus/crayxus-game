@@ -478,7 +478,43 @@ async function loadEvents() {
           </div>`;
 
         if (g.events.length === 0) {
-          html += `<div style="color:var(--dim);font-size:13px;padding:8px 0">暂无赛事安排</div>`;
+          // Auto-fill: weekends = AI Solo, weekdays = AI Team
+          let gDate = new Date(g.date + 'T12:00:00');
+          let gDay = gDate.getDay();
+          let isWkend = gDay === 0 || gDay === 6;
+          if (isWkend) {
+            html += `<div class="evt">
+              <div class="evt-top">
+                <div class="evt-name">AI Bounty Solo</div>
+                <span class="evt-type bounty_solo">AI Solo</span>
+              </div>
+              <div class="evt-info">
+                <span><span class="icon">🕐</span>13:00</span>
+                <span><span class="icon">📍</span>杭州 · 待定</span>
+                <span style="color:#ff6b35;font-weight:600">免费参赛</span>
+              </div>
+              <div class="evt-bottom">
+                <span class="evt-capacity">击败AI赢奖金</span>
+                <button class="evt-btn signup" style="background:#ff6b35">即将开放</button>
+              </div>
+            </div>`;
+          } else {
+            html += `<div class="evt">
+              <div class="evt-top">
+                <div class="evt-name">AI Bounty Team</div>
+                <span class="evt-type bounty_team">AI Team</span>
+              </div>
+              <div class="evt-info">
+                <span><span class="icon">🕐</span>14:00</span>
+                <span><span class="icon">📍</span>杭州 · 可预约</span>
+                <span style="color:var(--accent);font-weight:600">组队挑战</span>
+              </div>
+              <div class="evt-bottom">
+                <span class="evt-capacity">付费 · 组队击败AI赢奖金</span>
+                <button class="evt-btn signup">预约场次</button>
+              </div>
+            </div>`;
+          }
         } else {
           hasAny = true;
           g.events.forEach(t => { html += renderEventCard(t); });
