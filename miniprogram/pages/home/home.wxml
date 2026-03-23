@@ -1,0 +1,90 @@
+<!-- 掼蛋首页 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- Header -->
+  <view class="header">
+    <text class="header-title">Crayxus 掼蛋</text>
+    <view class="header-right">
+      <view class="scan-btn" bindtap="onScanLogin">
+        <text class="scan-icon">⊞</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 蛋力值卡片 -->
+  <view class="danli-card" bindtap="goDanli">
+    <view class="danli-left">
+      <view class="danli-label">我的蛋力值</view>
+      <view class="danli-score-row">
+        <text class="danli-score">{{danli.score || '--'}}</text>
+        <text class="danli-max">/1000</text>
+      </view>
+      <text class="danli-rank">{{danli.rank || '尚未测评'}}</text>
+    </view>
+    <view class="danli-right">
+      <canvas canvas-id="radar" id="radar" style="width:140rpx;height:140rpx"></canvas>
+      <text class="danli-test-btn" wx:if="{{!danli.score}}">立即测评 →</text>
+      <text class="danli-test-btn" wx:else>重新测评 →</text>
+    </view>
+  </view>
+
+  <!-- 功能入口 (3个: 蛋力测评 / 每日做题 / 赛事报名) -->
+  <view class="entry-grid three-col">
+    <view class="entry-card entry-danli" bindtap="goDanli">
+      <text class="entry-icon">🎯</text>
+      <text class="entry-name">蛋力测评</text>
+      <text class="entry-desc">18题测出实力</text>
+    </view>
+    <view class="entry-card entry-daily" bindtap="goDailyQuiz">
+      <text class="entry-icon">📝</text>
+      <text class="entry-name">每日做题</text>
+      <text class="entry-desc">每天进步一点</text>
+    </view>
+    <view class="entry-card entry-tournament" bindtap="goTournament">
+      <text class="entry-icon">🏆</text>
+      <text class="entry-name">赛事报名</text>
+      <text class="entry-desc">团建 · 公益赛</text>
+    </view>
+  </view>
+
+  <!-- 六维能力详情 -->
+  <view class="section" wx:if="{{danli.score}}">
+    <view class="section-title">能力雷达</view>
+    <view class="dim-list">
+      <view class="dim-row" wx:for="{{dims}}" wx:key="key">
+        <text class="dim-icon">{{item.icon}}</text>
+        <text class="dim-name">{{item.name}}</text>
+        <view class="dim-bar">
+          <view class="dim-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+        </view>
+        <text class="dim-val" style="color:{{item.color}}">{{item.val}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 做题统计 -->
+  <view class="section">
+    <view class="section-title">做题记录</view>
+    <view class="stat-grid">
+      <view class="stat-item">
+        <text class="stat-val">{{quiz.totalQuestions || 0}}</text>
+        <text class="stat-label">总做题数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-val">{{quiz.correctRate || '--'}}%</text>
+        <text class="stat-label">正确率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-val">{{quiz.streak || 0}}</text>
+        <text class="stat-label">连续天数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-val">{{quiz.bestStreak || 0}}</text>
+        <text class="stat-label">最佳连续</text>
+      </view>
+    </view>
+  </view>
+
+  <view style="height:120rpx"></view>
+</view>

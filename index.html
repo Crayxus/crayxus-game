@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Crayxus V41.1 - Stable</title>
+<title>Crayxus V44 - Arena + Tournament</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.0/dist/ort.min.js"></script>
@@ -235,7 +235,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
   pointer-events:none;animation:bgCoreGlow 6s ease-in-out infinite}
 @keyframes bgCoreGlow{0%,100%{opacity:0.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
 .mode-select-wrap{display:flex;flex-direction:column;align-items:center;gap:30px;position:relative;z-index:10;margin-top:-20px}
-.mode-select-title{font-size:72px;font-weight:900;letter-spacing:8px;color:#fff;
+.mode-select-title{font-size:52px;font-weight:900;letter-spacing:6px;color:#fff;
   font-family:'Orbitron','Segoe UI',sans-serif;
   background:linear-gradient(135deg,#00ffff,#ffd700,#ff00ff);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
@@ -666,6 +666,8 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .holo-rank-stars{display:flex;gap:2px;font-size:18px}
 .casual-rank-stars{display:flex;gap:2px;font-size:16px}
 .holo-player-stats{display:flex;gap:20px;margin-top:4px}
+.holo-logout{margin-top:12px;font-size:12px;letter-spacing:3px;color:rgba(255,100,100,0.5);cursor:pointer;transition:all 0.3s;font-family:'Orbitron','Segoe UI',sans-serif;padding:6px 20px;border:1px solid rgba(255,100,100,0.2);border-radius:8px;background:rgba(255,100,100,0.05)}
+.holo-logout:hover{color:rgba(255,100,100,0.9);border-color:rgba(255,100,100,0.5);background:rgba(255,100,100,0.1);text-shadow:0 0 10px rgba(255,100,100,0.4)}
 .holo-stat{display:flex;flex-direction:column;align-items:center}
 .holo-stat-val{font-size:20px;font-weight:900;color:#00ffff;text-shadow:0 0 10px #00ffff;font-family:'Orbitron','Segoe UI',sans-serif}
 .holo-stat-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-top:2px;font-family:'Orbitron','Segoe UI',sans-serif}
@@ -806,7 +808,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 /* === Arena HUD (compact overlay card) === */
 #arena-hud{
   position:absolute;
-  bottom:30px;
+  top:80px;
   left:16px;
   z-index:400;
   pointer-events:none;
@@ -1484,11 +1486,11 @@ body.view-table .holo-hex-grid{opacity:0.05}
   </div>
 
   <div class="mode-select-wrap">
-    <div class="mode-select-title">GUANDAN</div>
-    <div class="mode-select-sub">A I &nbsp; A R E N A</div>
+    <div class="mode-select-title">CRAYXUS GUANDAN</div>
+    <div class="mode-select-sub">A I &nbsp; B O U N T Y &nbsp; H U N T E R</div>
 
-    <!-- Avatar section like holo_main -->
-    <div class="holo-avatar-section">
+    <!-- Avatar section (shown when logged in) -->
+    <div class="holo-avatar-section" id="holo-avatar-section">
       <div class="holo-avatar-ring">
         <div class="holo-avatar-glow"></div>
         <svg viewBox="0 0 152 152" fill="none">
@@ -1512,28 +1514,57 @@ body.view-table .holo-hex-grid{opacity:0.05}
           <div class="holo-stat"><span class="holo-stat-val holo-gold" id="holo-games">0</span><span class="holo-stat-label">GAMES</span></div>
           <div class="holo-stat"><span class="holo-stat-val" id="holo-weekly">#--</span><span class="holo-stat-label">WEEKLY</span></div>
         </div>
+        <div class="holo-logout" id="holo-logout" onclick="doLogout()" style="display:none">LOG OUT</div>
+      </div>
+    </div>
+
+    <!-- QR Login inline (shown when NOT logged in, replaces avatar section) -->
+    <div class="holo-avatar-section" id="qr-inline-login" style="display:none;cursor:pointer">
+      <div class="holo-avatar-ring">
+        <div class="holo-avatar-glow"></div>
+        <svg viewBox="0 0 152 152" fill="none">
+          <circle cx="76" cy="76" r="74" stroke="url(#msGrad2)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/>
+          <defs><linearGradient id="msGrad2" x1="0" y1="0" x2="152" y2="152">
+            <stop offset="0%" stop-color="#00ffff"/>
+            <stop offset="100%" stop-color="#00ffcc"/>
+          </linearGradient></defs>
+        </svg>
+        <div class="holo-avatar-img" style="font-size:0;line-height:120px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:50%">
+          <canvas id="qr-inline-canvas" width="100" height="100" style="border-radius:8px;background:#fff;image-rendering:pixelated;width:90px;height:90px"></canvas>
+        </div>
+      </div>
+      <div class="holo-player-info">
+        <div class="holo-player-name" style="color:rgba(0,255,255,0.7);font-size:16px;letter-spacing:3px">扫码登录</div>
+        <div class="holo-player-rank">
+          <span class="holo-rank-badge" style="background:rgba(0,255,255,0.08);color:rgba(0,255,255,0.5);border-color:rgba(0,255,255,0.2)">WECHAT SCAN</span>
+        </div>
+        <div class="holo-player-stats" style="opacity:0.3">
+          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">WIN RATE</span></div>
+          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">GAMES</span></div>
+          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">WEEKLY</span></div>
+        </div>
       </div>
     </div>
 
     <!-- Holographic mode buttons -->
     <div class="holo-btns" id="holo-btns">
-      <div class="holo-btn" onclick="selectMode('casual')" data-mode="casual" onmouseenter="showModeInfo('casual')" onmouseleave="showModeInfo(null)">
+      <div class="holo-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9654;</div>
-        <div class="h-name">CASUAL</div>
-        <div class="h-desc">PLAY FOR FUN<br>AI HINTS FOR VIP</div>
-        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">FREE PLAY</div>
-      </div>
-      <div class="holo-btn training-btn" onclick="selectMode('training')" data-mode="training" onmouseenter="showModeInfo('training')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#9672;</div>
-        <div class="h-name">TRAINING</div>
-        <div class="h-desc">AI COACH MODE<br>VOICE INTERACTIVE</div>
-        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">LEVEL UP</div>
-      </div>
-      <div class="holo-btn arena-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#9733;</div>
         <div class="h-name">ARENA</div>
-        <div class="h-desc">WEEKLY PRIZE POOL<br>ELO RANKING</div>
-        <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">COMING SOON</div>
+        <div class="h-desc">ONLINE 2V2<br>ELO RANKING</div>
+        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">PLAY NOW</div>
+      </div>
+      <div class="holo-btn" onclick="window.location.href='/replay'" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
+        <div class="h-icon" style="font-style:normal">&#128269;</div>
+        <div class="h-name">AI REVIEW</div>
+        <div class="h-desc">GAME REPLAY<br>AI ANALYSIS</div>
+        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">REVIEW</div>
+      </div>
+      <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
+        <div class="h-icon" style="font-style:normal">&#9733;</div>
+        <div class="h-name">TOURNAMENT</div>
+        <div class="h-desc">SCOREBOARD · PAIRINGS<br>LIVE RESULTS</div>
+        <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">EVENTS</div>
       </div>
     </div>
   </div>
@@ -1544,38 +1575,8 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <span id="theme-label" style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:1px;font-family:'Orbitron','Segoe UI',sans-serif">DARK</span>
   </div>
 
-  <!-- QR Login — breathing dock -->
-  <div id="qr-login-section">
-    <div class="qr-dock">
-      <div class="qr-label">WECHAT SCAN</div>
-      <div class="qr-canvas-wrap">
-        <canvas id="qr-canvas" width="120" height="120" style="border-radius:6px;background:#fff;image-rendering:pixelated"></canvas>
-      </div>
-      <div class="qr-hint" id="qr-session-id"></div>
-    </div>
-  </div>
 
-  <div id="mode-loading" style="position:absolute;bottom:80px;width:300px;text-align:center"><div id="mode-load-text" style="color:#555;font-size:11px;margin-bottom:6px">Loading AI...</div><div style="width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden"><div id="mode-load-bar" style="height:100%;width:0%;background:var(--neon);border-radius:2px;transition:width 0.3s"></div></div></div>
 
-  <!-- Casual sub-mode popup -->
-  <div id="casual-popup" style="display:none">
-    <div class="casual-popup-inner">
-      <div class="casual-popup-title">选择玩法</div>
-      <div class="casual-popup-btns">
-        <div class="casual-popup-btn" onclick="startCasualMode('fixed')">
-          <div class="cpb-icon">🃏</div>
-          <div class="cpb-name">定蛋模式</div>
-          <div class="cpb-desc">蛋牌固定红心2<br>每局翻牌定先手<br>积分排名永久记录</div>
-        </div>
-        <div class="casual-popup-btn cpb-upgrade" onclick="startCasualMode('upgrade')">
-          <div class="cpb-icon">⬆️</div>
-          <div class="cpb-name">升级模式</div>
-          <div class="cpb-desc">从2打到A升级<br>进贡还贡规则<br>先过A者获胜</div>
-        </div>
-      </div>
-      <div class="casual-popup-back" onclick="closeCasualPopup()">← 返回</div>
-    </div>
-  </div>
 </div>
 
 <div id="lobby" class="screen">
@@ -1641,7 +1642,6 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <div id="highcard-overlay">
       <div class="hc-title" id="hc-title">翻牌定先手</div>
     </div>
-    <div class="training-badge" id="training-badge">🎓 TRAINING</div>
     <button id="afk-btn" onclick="toggleAFK()">🤖 代打</button>
     <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;top:10px;right:10px;z-index:501;background:rgba(20,20,30,0.6);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙</button>
     <div id="afk-badge">代打</div>
@@ -1669,40 +1669,6 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <button class="btn b-play" onclick="sendPlay()">出牌</button>
     </div>
     <div id="evo-bar"><span class="evo-icon">⚡</span><span class="evo-score" id="evo-score">--</span><span class="evo-tier" id="evo-tier">EVO</span><span class="evo-detail" id="evo-detail"></span></div>
-    <div id="casual-hud" style="display:none">
-      <div class="casual-hud-inner">
-        <div class="casual-avatar-ring">
-          <div class="casual-avatar-glow"></div>
-          <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#hudGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="hudGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
-          <div class="casual-avatar-img" id="casual-avatar">P1</div>
-        </div>
-        <div class="casual-stats">
-          <div class="casual-name" id="casual-name">PLAYER_ONE</div>
-          <div class="casual-rank-row">
-            <span class="casual-rank-badge">BRONZE V</span>
-            <div class="casual-rank-stars" id="casual-stars"></div>
-          </div>
-          <!-- Team score -->
-          <div class="casual-team-score">
-            <span class="cts-label">US</span><span class="cts-val" id="casual-team-my" style="color:var(--neon)">0</span>
-            <span class="cts-vs">·</span>
-            <span class="cts-label">THEM</span><span class="cts-val" id="casual-team-op" style="color:var(--red)">0</span>
-          </div>
-          <!-- 定蛋 stats -->
-          <div class="casual-kda" id="fixed-stats">
-            <div class="kda-item"><span class="kda-val" id="casual-winrate">0%</span><span class="kda-label">WIN RATE</span></div>
-            <div class="kda-item gold"><span class="kda-val" id="casual-games">0</span><span class="kda-label">GAMES</span></div>
-            <div class="kda-item"><span class="kda-val" id="casual-streak">0</span><span class="kda-label">STREAK</span></div>
-          </div>
-          <!-- 升级 level display -->
-          <div class="casual-kda" id="upgrade-stats" style="display:none">
-            <div class="kda-item"><span class="kda-val" id="up-my-lvl" style="color:var(--cyan);text-shadow:0 0 8px var(--cyan)">2</span><span class="kda-label">我方</span></div>
-            <div class="kda-item"><span class="kda-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">♥<span id="up-wild-val">2</span></span><span class="kda-label">蛋牌</span></div>
-            <div class="kda-item"><span class="kda-val" id="up-op-lvl" style="color:#ff6b6b;text-shadow:0 0 8px rgba(255,100,100,0.4)">2</span><span class="kda-label">对方</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
     <!-- Arena HUD (compact overlay card) -->
     <div id="arena-hud" style="display:none">
       <div class="arena-hud-inner">
@@ -1759,14 +1725,6 @@ body.view-table .holo-hex-grid{opacity:0.05}
     </div>
     <div class="toast" id="tst"></div>
     <div class="elo-float" id="elo-float"></div>
-    <div id="coach-panel">
-      <div class="coach-box">
-        <div class="coach-title">🎓 AI 教练分析</div>
-        <div id="coach-moves"></div>
-        <div class="coach-dismiss"><button onclick="dismissCoach()">继续游戏</button></div>
-        <div class="coach-note" id="coach-note">AI模型加载中...</div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -2569,18 +2527,11 @@ function selectMode(mode){
   if(window._applyWeChatProfile)window._applyWeChatProfile();
   if(mode==='arena'){
     if(!socket.connected) socket.connect();
-    // Restore lobby UI for arena mode
     document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='SEASON 1';
     document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='2V2 RANKED · 1-4 PLAYERS';
     var eloRow=document.getElementById('lobby-elo');
     if(eloRow)eloRow.parentElement.parentElement.style.display='';
     switchScreen('lobby');
-  }else if(mode==='casual'){
-    gameMode='casual';
-    document.getElementById('casual-popup').style.display='flex';
-    return;
-  }else{
-    startTrainingGame();
   }
 }
 
@@ -2629,6 +2580,8 @@ function showModeInfo(mode){
     statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">AI</span><span class="holo-stat-label">COACH</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">DMC</span><span class="holo-stat-label">ENGINE</span></div><div class="holo-stat"><span class="holo-stat-val">V4</span><span class="holo-stat-label">78.5% WR</span></div>`;
   }else if(mode==='arena'){
     statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--magenta);text-shadow:0 0 8px var(--magenta)">#--</span><span class="holo-stat-label">RANKING</span></div><div class="holo-stat"><span class="holo-stat-val" style="color:var(--cyan);text-shadow:0 0 8px var(--cyan)">${myElo}</span><span class="holo-stat-label">ELO</span></div><div class="holo-stat"><span class="holo-stat-val">/200</span><span class="holo-stat-label">PLAYERS</span></div>`;
+  }else if(mode==='review'){
+    statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">AI</span><span class="holo-stat-label">POWERED</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">DMC</span><span class="holo-stat-label">ENGINE</span></div><div class="holo-stat"><span class="holo-stat-val">V4</span><span class="holo-stat-label">ANALYSIS</span></div>`;
   }
 }
 
@@ -6145,10 +6098,33 @@ checkMCTS();
 })();
 
 // ========== QR Login ==========
+// Check login state and toggle avatar vs QR display
+function updateLoginDisplay(){
+  const isLoggedIn=!!localStorage.getItem('crayxus_wx_nickname');
+  const avatarSection=document.getElementById('holo-avatar-section');
+  const qrInline=document.getElementById('qr-inline-login');
+  const qrDock=document.getElementById('qr-login-section');
+  var logoutBtn=document.getElementById('holo-logout');
+  if(avatarSection)avatarSection.style.display=isLoggedIn?'':'none';
+  if(qrInline)qrInline.style.display=isLoggedIn?'none':'';
+  if(qrDock)qrDock.style.display=isLoggedIn?'none':'';
+  if(logoutBtn)logoutBtn.style.display=isLoggedIn?'':'none';
+  if(!isLoggedIn){
+    try{generateLoginQR()}catch(e){console.error('QR generation failed:',e)}
+  }
+}
+function doLogout(){
+  localStorage.removeItem('crayxus_wx_nickname');
+  localStorage.removeItem('crayxus_wx_avatar');
+  // Reset avatar display
+  var avEl=document.querySelector('.holo-avatar-img');
+  if(avEl)avEl.innerHTML='P1';
+  var nameEl=document.getElementById('holo-player-name');
+  if(nameEl)nameEl.innerText='PLAYER_ONE';
+  updateLoginDisplay();
+}
 // Auto-generate QR on page load (delay to ensure DOM & library ready)
-setTimeout(()=>{
-  try{generateLoginQR()}catch(e){console.error('QR generation failed:',e)}
-},2000);
+setTimeout(()=>{updateLoginDisplay()},2000);
 // Also regenerate when mode-select screen becomes visible
 function ensureQR(){
   const c=document.getElementById('qr-canvas');
@@ -6218,10 +6194,11 @@ function generateLoginQR(){
   if(!socket.connected)socket.connect();
   socket.emit('wx-login-register',{sessionId:_wxSessionId,stats:currentStats});
 
-  // Draw QR code on canvas
+  // Draw QR code on both canvases (bottom dock + inline avatar position)
   const canvas=document.getElementById('qr-canvas');
-  if(!canvas)return;
-  drawQR(canvas,loginUrl);
+  if(canvas)drawQR(canvas,loginUrl);
+  const inlineCanvas=document.getElementById('qr-inline-canvas');
+  if(inlineCanvas)drawQR(inlineCanvas,loginUrl);
 }
 
 // Listen for scan result from server
@@ -6230,9 +6207,10 @@ socket.on('wx-login-success',function(data){
   if(data.avatarUrl)localStorage.setItem('crayxus_wx_avatar',data.avatarUrl);
   if(data.nickname)localStorage.setItem('crayxus_wx_nickname',data.nickname);
 
-  // Close QR popup
+  // Close QR popup and switch to avatar display
   const popup=document.getElementById('qr-login-popup');
   if(popup)popup.style.display='none';
+  updateLoginDisplay();
 
   // Apply avatar directly to all avatar elements
   if(data.avatarUrl){
@@ -6393,7 +6371,7 @@ function drawQRFallback(ctx,text,size){
   applyNickname();
 
   // Re-apply after mode transitions (elements may be re-rendered)
-  window._applyWeChatProfile=function(){applyAvatar();applyNickname()};
+  window._applyWeChatProfile=function(){applyAvatar();applyNickname();if(typeof updateLoginDisplay==='function')updateLoginDisplay()};
 })();
 
 // Unregister any old service workers to clear stale cache errors

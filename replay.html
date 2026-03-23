@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Crayxus - 复盘分析</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --panel: rgba(20, 22, 28, 0.98);
+  --neon: #00ffcc;
+  --gold: #ffc800;
+  --red: #ff3b30;
+  --cyan: #00ffff;
+  --green: #34c759;
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --border: rgba(255,255,255,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI','Noto Sans SC','Microsoft YaHei',sans-serif; }
+body { background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* Header */
+.header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 24px; border-bottom:1px solid var(--border);
+  background:rgba(10,10,15,0.95); backdrop-filter:blur(10px);
+  position:sticky; top:0; z-index:100;
+}
+.header h1 { font-size:20px; font-weight:900; color:var(--neon); letter-spacing:2px; }
+.header .back-btn {
+  padding:8px 16px; border-radius:8px; border:1px solid var(--border);
+  background:transparent; color:var(--text-dim); cursor:pointer; font-size:13px;
+}
+.header .back-btn:hover { border-color:var(--neon); color:var(--neon); }
+
+/* List view */
+#list-view { padding:24px; max-width:800px; margin:0 auto; }
+.list-title { font-size:16px; color:var(--text-dim); margin-bottom:16px; }
+.replay-item {
+  padding:16px 20px; margin-bottom:8px; border-radius:12px;
+  border:1px solid var(--border); background:rgba(255,255,255,0.02);
+  cursor:pointer; transition:all 0.2s; display:flex; justify-content:space-between; align-items:center;
+}
+.replay-item:hover { border-color:var(--neon); background:rgba(0,255,200,0.04); }
+.replay-item .ri-info { display:flex; flex-direction:column; gap:4px; }
+.replay-item .ri-time { font-size:14px; font-weight:600; }
+.replay-item .ri-meta { font-size:12px; color:var(--text-dim); }
+.replay-item .ri-arrow { font-size:18px; color:var(--text-dim); }
+.empty-msg { text-align:center; color:var(--text-dim); padding:60px 20px; font-size:14px; }
+
+/* Replay view */
+#replay-view { display:none; }
+
+/* Score summary bar */
+.summary-bar {
+  display:flex; gap:16px; padding:16px 24px;
+  background:rgba(20,22,28,0.95); border-bottom:1px solid var(--border);
+  flex-wrap:wrap; align-items:center;
+}
+.summary-stat {
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:80px;
+}
+.summary-stat .ss-val { font-size:24px; font-weight:900; }
+.summary-stat .ss-label { font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; }
+.ss-perfect { color:var(--green); }
+.ss-good { color:var(--neon); }
+.ss-inaccuracy { color:var(--gold); }
+.ss-mistake { color:var(--red); }
+
+/* Main layout */
+.replay-main {
+  display:flex; height:calc(100vh - 130px); overflow:hidden;
+}
+
+/* Left: Timeline */
+.timeline-panel {
+  width:280px; min-width:280px; border-right:1px solid var(--border);
+  overflow-y:auto; background:rgba(15,15,20,0.98);
+}
+.timeline-header {
+  padding:12px 16px; font-size:13px; font-weight:700; color:var(--text-dim);
+  border-bottom:1px solid var(--border); position:sticky; top:0;
+  background:rgba(15,15,20,0.98); z-index:10;
+}
+.tl-item {
+  padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.03);
+  cursor:pointer; transition:background 0.15s; display:flex; align-items:center; gap:10px;
+}
+.tl-item:hover { background:rgba(255,255,255,0.04); }
+.tl-item.active { background:rgba(0,255,200,0.08); border-left:3px solid var(--neon); }
+.tl-item.is-mistake { border-left:3px solid var(--red); }
+.tl-item.is-inaccuracy { border-left:3px solid var(--gold); }
+.tl-item.is-perfect { border-left:3px solid var(--green); }
+.tl-seat {
+  width:28px; height:28px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:11px;
+  font-weight:700; flex-shrink:0;
+}
+.tl-seat.s0 { background:rgba(0,255,200,0.15); color:var(--neon); }
+.tl-seat.s1 { background:rgba(255,100,100,0.15); color:#ff6b6b; }
+.tl-seat.s2 { background:rgba(100,150,255,0.15); color:#6b9fff; }
+.tl-seat.s3 { background:rgba(255,200,0,0.15); color:var(--gold); }
+.tl-content { flex:1; min-width:0; }
+.tl-action { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tl-score { font-size:11px; font-weight:700; }
+.tl-cards-mini { font-size:11px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Right: Analysis panel */
+.analysis-panel {
+  flex:1; overflow-y:auto; padding:24px;
+}
+
+/* Table visualization */
+.table-view {
+  position:relative; width:100%; max-width:600px; height:360px;
+  margin:0 auto 24px; background:radial-gradient(circle, #1a3d24 0%, #0a1f10 100%);
+  border-radius:20px; border:2px solid rgba(0,255,200,0.1);
+}
+.tv-player {
+  position:absolute; display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.tv-bottom { bottom:10px; left:50%; transform:translateX(-50%); }
+.tv-top { top:10px; left:50%; transform:translateX(-50%); }
+.tv-left { top:50%; left:10px; transform:translateY(-50%); }
+.tv-right { top:50%; right:10px; transform:translateY(-50%); }
+.tv-name {
+  font-size:11px; font-weight:700; padding:2px 10px; border-radius:8px;
+  background:rgba(0,0,0,0.5);
+}
+.tv-name.human { color:var(--neon); border:1px solid rgba(0,255,200,0.3); }
+.tv-name.bot { color:var(--text-dim); border:1px solid rgba(255,255,255,0.1); }
+.tv-cards { display:flex; gap:1px; flex-wrap:wrap; justify-content:center; max-width:240px; }
+
+/* Cards */
+.card-sm {
+  width:32px; height:44px; border-radius:4px; background:#f0f0f0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size:10px; font-weight:900; border:1px solid #ccc; flex-shrink:0;
+  position:relative; font-family:Arial,sans-serif;
+}
+.card-sm.c-red { color:#d00; }
+.card-sm.c-blk { color:#111; }
+.card-sm.c-wild { border:2px solid var(--gold); background:#fffdf0; }
+.card-sm.c-joker { background:linear-gradient(135deg,#667,#223); color:#fff; border-color:#888; }
+.card-sm .cs-val { font-size:10px; line-height:1; }
+.card-sm .cs-suit { font-size:8px; line-height:1; }
+.card-back {
+  width:28px; height:38px; border-radius:3px;
+  background:linear-gradient(135deg,#1a2980,#26d0ce);
+  border:1px solid #fff; margin:-0 -8px 0 0; flex-shrink:0;
+}
+
+/* Played cards (center of table) */
+.tv-played {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  display:flex; gap:2px; align-items:center;
+}
+.tv-played-label {
+  font-size:11px; color:var(--gold); font-weight:700; margin-right:8px;
+}
+
+/* Analysis results */
+.analysis-section { margin-bottom:24px; }
+.analysis-title {
+  font-size:14px; font-weight:700; color:var(--text-dim); margin-bottom:12px;
+  text-transform:uppercase; letter-spacing:2px;
+}
+
+.move-option {
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  margin-bottom:6px; border-radius:10px; border:1px solid var(--border);
+  background:rgba(255,255,255,0.02); transition:all 0.2s;
+}
+.move-option.best { border-color:var(--gold); background:rgba(255,200,0,0.06); }
+.move-option.actual { box-shadow:inset 3px 0 0 var(--cyan); }
+.move-option.actual.best { box-shadow:inset 3px 0 0 var(--green); }
+.move-option.actual:not(.best) { box-shadow:inset 3px 0 0 var(--red); }
+
+.mo-rank {
+  width:28px; height:28px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:13px;
+  font-weight:900; flex-shrink:0;
+}
+.mo-rank.r1 { background:var(--gold); color:#000; }
+.mo-rank.r2 { background:#aaa; color:#000; }
+.mo-rank.r3 { background:#8b5e3c; color:#fff; }
+.mo-rank.rn { background:#333; color:#888; }
+
+.mo-cards { display:flex; gap:1px; flex:1; overflow-x:auto; min-width:0; align-items:center; }
+.mo-info { text-align:right; flex-shrink:0; min-width:90px; }
+.mo-type { font-size:11px; color:var(--text-dim); }
+.mo-wr { font-size:18px; font-weight:900; }
+.mo-wr.best-wr { color:var(--gold); }
+.mo-wr.ok-wr { color:var(--neon); }
+.mo-wr.bad-wr { color:var(--red); }
+.mo-diff { font-size:11px; }
+.mo-diff.loss { color:var(--red); }
+
+.actual-badge {
+  font-size:9px; padding:2px 6px; border-radius:4px;
+  background:rgba(0,255,255,0.15); color:var(--cyan);
+  font-weight:700; white-space:nowrap;
+}
+
+/* Verdict */
+.verdict {
+  padding:16px 20px; border-radius:12px; margin-bottom:20px;
+  display:flex; align-items:center; gap:16px;
+}
+.verdict.v-perfect { background:rgba(52,199,89,0.1); border:1px solid rgba(52,199,89,0.3); }
+.verdict.v-good { background:rgba(0,255,200,0.06); border:1px solid rgba(0,255,200,0.2); }
+.verdict.v-inaccuracy { background:rgba(255,200,0,0.08); border:1px solid rgba(255,200,0,0.3); }
+.verdict.v-mistake { background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.3); }
+.verdict-icon { font-size:32px; }
+.verdict-text { font-size:14px; font-weight:600; }
+.verdict-detail { font-size:12px; color:var(--text-dim); margin-top:4px; }
+
+/* Progress overlay */
+#analysis-progress {
+  display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.85); z-index:999; backdrop-filter:blur(4px);
+  flex-direction:column; align-items:center; justify-content:center; gap:20px;
+}
+#analysis-progress.show { display:flex; }
+.progress-title { font-size:18px; font-weight:700; color:var(--neon); }
+.progress-bar-wrap {
+  width:300px; height:8px; border-radius:4px; background:rgba(255,255,255,0.1);
+  overflow:hidden;
+}
+.progress-bar-fill {
+  height:100%; background:var(--neon); border-radius:4px; transition:width 0.3s;
+  width:0%;
+}
+.progress-text { font-size:13px; color:var(--text-dim); }
+
+/* Responsive */
+@media(max-width:768px) {
+  .replay-main { flex-direction:column; height:auto; }
+  .timeline-panel { width:100%; min-width:auto; max-height:200px; border-right:none; border-bottom:1px solid var(--border); }
+  .table-view { height:280px; }
+  .analysis-panel { padding:16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>CRAYXUS 复盘</h1>
+  <button class="back-btn" id="btn-back" onclick="goBack()">返回</button>
+</div>
+
+<!-- List View -->
+<div id="list-view">
+  <div class="list-title">最近牌局</div>
+  <div id="replay-list"></div>
+</div>
+
+<!-- Replay View -->
+<div id="replay-view">
+  <div class="summary-bar" id="summary-bar"></div>
+  <div class="replay-main">
+    <div class="timeline-panel">
+      <div class="timeline-header">出牌记录 <span id="tl-count"></span></div>
+      <div id="timeline"></div>
+    </div>
+    <div class="analysis-panel" id="analysis-panel">
+      <div style="text-align:center;color:var(--text-dim);padding:80px 20px">
+        <div style="font-size:40px;margin-bottom:12px">👈</div>
+        <div>选择左侧某一步查看分析</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress overlay -->
+<div id="analysis-progress">
+  <div class="progress-title">正在分析牌局...</div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
+  <div class="progress-text" id="progress-text">准备中</div>
+</div>
+
+<script src="js/game-logic.js"></script>
+<script src="js/replay-engine.js"></script>
+<script>
+const GL = window.GL;
+let engine = null;
+let currentDPIndex = -1;
+
+const SEAT_NAMES = ['你', '右方', '搭档', '左方'];
+const SEAT_COLORS = ['s0', 's1', 's2', 's3'];
+
+// ===== List View =====
+async function loadReplays() {
+  try {
+    let res = await fetch('/api/replays');
+    let list = await res.json();
+    let container = document.getElementById('replay-list');
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-msg">还没有牌局记录<br>打几局再来复盘吧</div>';
+      return;
+    }
+    container.innerHTML = '';
+    list.forEach(r => {
+      let div = document.createElement('div');
+      div.className = 'replay-item';
+      let time = new Date(r.timestamp).toLocaleString('zh-CN');
+      let humans = (r.humanSeats || []).length;
+      let wildLabel = r.wildValue && r.wildValue !== '2' ? ' | 级牌:' + r.wildValue : '';
+      div.innerHTML =
+        '<div class="ri-info">' +
+          '<div class="ri-time">' + time + '</div>' +
+          '<div class="ri-meta">' + r.totalMoves + '步 | ' + humans + '人' + wildLabel + '</div>' +
+        '</div>' +
+        '<div class="ri-arrow">→</div>';
+      div.onclick = () => openReplay(r.file);
+      container.appendChild(div);
+    });
+  } catch(e) {
+    document.getElementById('replay-list').innerHTML = '<div class="empty-msg">无法加载牌局列表</div>';
+  }
+}
+
+// ===== Open & Analyze Replay =====
+async function openReplay(file) {
+  try {
+    let res = await fetch('/api/replays/' + file);
+    let data = await res.json();
+
+    document.getElementById('list-view').style.display = 'none';
+    document.getElementById('replay-view').style.display = 'block';
+
+    // Show progress
+    let prog = document.getElementById('analysis-progress');
+    prog.classList.add('show');
+
+    // Build engine
+    engine = new ReplayEngine(data);
+
+    // Analyze
+    let humanDPs = engine.getHumanDecisionPoints();
+    let totalHuman = humanDPs.length;
+    document.getElementById('progress-text').innerText = '分析 0/' + totalHuman + ' 个决策点';
+
+    // Use setTimeout to allow UI updates
+    await new Promise(resolve => {
+      let i = 0;
+      function analyzeNext() {
+        if (i >= engine.decisionPoints.length) {
+          resolve();
+          return;
+        }
+        let dp = engine.decisionPoints[i];
+        if (dp.isHuman) {
+          engine.analyzePoint(i, 30); // 30 simulations per point
+          let done = engine.decisionPoints.slice(0, i+1).filter(d => d.isHuman && d.analysis).length;
+          document.getElementById('progress-fill').style.width = (done / totalHuman * 100) + '%';
+          document.getElementById('progress-text').innerText = '分析 ' + done + '/' + totalHuman + ' 个决策点';
+        }
+        i++;
+        setTimeout(analyzeNext, 0); // yield to UI
+      }
+      analyzeNext();
+    });
+
+    prog.classList.remove('show');
+
+    // Render
+    renderSummary();
+    renderTimeline();
+
+  } catch(e) {
+    console.error('Open replay error:', e);
+    document.getElementById('analysis-progress').classList.remove('show');
+    alert('加载失败: ' + e.message);
+  }
+}
+
+// ===== Summary Bar =====
+function renderSummary() {
+  let bar = document.getElementById('summary-bar');
+  let humanDPs = engine.getHumanDecisionPoints();
+  let stats = {perfect:0, good:0, inaccuracy:0, mistake:0, totalLoss:0};
+
+  humanDPs.forEach(dp => {
+    if (!dp.analysis) return;
+    stats[dp.analysis.rating]++;
+    stats.totalLoss += dp.analysis.loss;
+  });
+
+  let accuracy = humanDPs.length > 0 ?
+    Math.round((humanDPs.length * 100 - stats.totalLoss) / humanDPs.length * 10) / 10 : 0;
+  accuracy = Math.max(0, Math.min(100, accuracy));
+
+  bar.innerHTML =
+    '<div class="summary-stat"><div class="ss-val" style="color:var(--neon)">' + accuracy.toFixed(1) + '%</div><div class="ss-label">准确率</div></div>' +
+    '<div class="summary-stat"><div class="ss-val">' + humanDPs.length + '</div><div class="ss-label">决策数</div></div>' +
+    '<div class="summary-stat"><div class="ss-val ss-perfect">' + stats.perfect + '</div><div class="ss-label">最优</div></div>' +
+    '<div class="summary-stat"><div class="ss-val ss-good">' + stats.good + '</div><div class="ss-label">良好</div></div>' +
+    '<div class="summary-stat"><div class="ss-val ss-inaccuracy">' + stats.inaccuracy + '</div><div class="ss-label">不精确</div></div>' +
+    '<div class="summary-stat"><div class="ss-val ss-mistake">' + stats.mistake + '</div><div class="ss-label">失误</div></div>';
+}
+
+// ===== Timeline =====
+function renderTimeline() {
+  let container = document.getElementById('timeline');
+  container.innerHTML = '';
+  let dps = engine.decisionPoints;
+  document.getElementById('tl-count').innerText = '(' + dps.length + '步)';
+
+  dps.forEach((dp, idx) => {
+    let div = document.createElement('div');
+    div.className = 'tl-item';
+    if (dp.isHuman && dp.analysis) {
+      div.classList.add('is-' + dp.analysis.rating);
+    }
+
+    let seatName = dp.isHuman ? SEAT_NAMES[dp.seat] : 'BOT-' + SEAT_NAMES[dp.seat];
+    let actionText = '';
+    let cardsText = '';
+
+    if (dp.actualMove.type === 'pass') {
+      actionText = 'PASS';
+    } else if (dp.actualMove.cards) {
+      let cards = dp.actualMove.cards;
+      let ht = dp.actualMove.handType;
+      actionText = ht ? (ht.type || '') : '';
+      cardsText = cards.map(c => (c.val || c.v) + (c.suit === 'JOKER' || c.s === 'JOKER' ? '' : (c.suit || c.s))).join(' ');
+    }
+
+    let scoreHtml = '';
+    if (dp.isHuman && dp.analysis) {
+      let loss = dp.analysis.loss;
+      if (loss < 2) scoreHtml = '<span class="tl-score" style="color:var(--green)">✓</span>';
+      else if (loss < 10) scoreHtml = '<span class="tl-score" style="color:var(--neon)">' + (-loss).toFixed(0) + '</span>';
+      else if (loss < 25) scoreHtml = '<span class="tl-score" style="color:var(--gold)">-' + loss.toFixed(0) + '</span>';
+      else scoreHtml = '<span class="tl-score" style="color:var(--red)">-' + loss.toFixed(0) + '</span>';
+    }
+
+    div.innerHTML =
+      '<div class="tl-seat ' + SEAT_COLORS[dp.seat] + '">' + (dp.seat + 1) + '</div>' +
+      '<div class="tl-content">' +
+        '<div class="tl-action">' + seatName + ' ' + actionText + '</div>' +
+        '<div class="tl-cards-mini">' + cardsText + '</div>' +
+      '</div>' +
+      scoreHtml;
+
+    div.onclick = () => selectDP(idx);
+    container.appendChild(div);
+  });
+}
+
+// ===== Select Decision Point =====
+function selectDP(idx) {
+  currentDPIndex = idx;
+
+  // Highlight timeline
+  document.querySelectorAll('.tl-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+
+  let dp = engine.decisionPoints[idx];
+  let panel = document.getElementById('analysis-panel');
+
+  // If not human or not analyzed, analyze now
+  if (!dp.analysis) {
+    engine.analyzePoint(idx, 30);
+  }
+
+  // Build analysis view
+  let html = '';
+
+  // Table visualization
+  html += renderTableView(dp);
+
+  // Verdict
+  if (dp.isHuman && dp.analysis) {
+    html += renderVerdict(dp);
+  }
+
+  // Move options
+  if (dp.analysis && dp.analysis.moves.length > 0) {
+    html += '<div class="analysis-section">';
+    html += '<div class="analysis-title">所有选项分析</div>';
+    let moves = dp.analysis.moves;
+    let best = moves[0].winRate;
+
+    moves.slice(0, 8).forEach((m, i) => {
+      let cls = 'move-option';
+      if (i === 0) cls += ' best';
+      if (m.isActual) cls += ' actual';
+
+      let rankCls = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn';
+      let wrCls = i === 0 ? 'best-wr' : m.winRate >= best - 5 ? 'ok-wr' : 'bad-wr';
+      let diff = m.winRate - best;
+      let diffHtml = diff < -1 ? '<div class="mo-diff loss">' + diff.toFixed(1) + '</div>' : '';
+      let actualHtml = m.isActual ? ' <span class="actual-badge">你的选择</span>' : '';
+
+      let cardsHtml = '';
+      if (m.cards.length === 0) {
+        cardsHtml = '<span style="color:#888;font-weight:bold;padding:4px 8px">PASS</span>';
+      } else {
+        m.cards.forEach(c => {
+          cardsHtml += renderCardSmall(c);
+        });
+      }
+
+      html += '<div class="' + cls + '">' +
+        '<div class="mo-rank ' + rankCls + '">' + (i+1) + '</div>' +
+        '<div class="mo-cards">' + cardsHtml + actualHtml + '</div>' +
+        '<div class="mo-info"><div class="mo-type">' + m.label + '</div>' +
+        '<div class="mo-wr ' + wrCls + '">' + m.winRate.toFixed(1) + '%</div>' +
+        diffHtml + '</div></div>';
+    });
+
+    if (moves.length > 8) {
+      html += '<div style="text-align:center;color:var(--text-dim);font-size:12px;padding:8px">还有 ' + (moves.length - 8) + ' 个选项未显示</div>';
+    }
+    html += '</div>';
+  }
+
+  panel.innerHTML = html;
+}
+
+// ===== Render table view =====
+function renderTableView(dp) {
+  let html = '<div class="table-view">';
+  let positions = ['tv-bottom', 'tv-right', 'tv-top', 'tv-left'];
+  let humanSeat = engine.humanSeats[0] || 0;
+
+  for (let i = 0; i < 4; i++) {
+    let seat = (humanSeat + i) % 4;
+    let pos = positions[i];
+    let isHuman = engine.humanSeats.includes(seat);
+    let isCurrent = seat === dp.seat;
+    let name = SEAT_NAMES[i];
+    let nameClass = isHuman ? 'human' : 'bot';
+    if (isCurrent) nameClass += '" style="box-shadow:0 0 10px var(--neon)';
+
+    let cardsHtml = '';
+    let hand = dp.allHands[seat] || [];
+    if (isHuman || true) { // Show all hands in replay (perfect info)
+      // Show cards
+      let sorted = [...hand].sort((a,b) => a.p - b.p);
+      if (sorted.length <= 12 || isCurrent) {
+        sorted.forEach(c => { cardsHtml += renderCardSmall(c); });
+      } else {
+        cardsHtml = '<span style="color:var(--text-dim);font-size:11px">' + sorted.length + '张牌</span>';
+      }
+    }
+
+    html += '<div class="tv-player ' + pos + '">' +
+      '<div class="tv-name ' + nameClass + '">' + name + (isCurrent ? ' ⬅' : '') + ' (' + hand.length + ')</div>' +
+      '<div class="tv-cards">' + cardsHtml + '</div></div>';
+  }
+
+  // Show what was played
+  if (dp.actualMove.type === 'play' && dp.actualMove.cards) {
+    let playedHtml = '<div class="tv-played"><div class="tv-played-label">出牌:</div>';
+    dp.actualMove.cards.forEach(c => {
+      playedHtml += renderCardSmall({s: c.suit || c.s, v: c.val || c.v, p: c.p, id: c.id});
+    });
+    playedHtml += '</div>';
+    html += playedHtml;
+  } else if (dp.actualMove.type === 'pass') {
+    html += '<div class="tv-played"><div class="tv-played-label">PASS</div></div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+// ===== Render verdict =====
+function renderVerdict(dp) {
+  let a = dp.analysis;
+  let cls, icon, text, detail;
+
+  if (a.rating === 'perfect') {
+    cls = 'v-perfect'; icon = '✅'; text = '最优选择';
+    detail = '你的选择和AI推荐一致';
+  } else if (a.rating === 'good') {
+    cls = 'v-good'; icon = '👍'; text = '良好';
+    detail = '接近最优，差距 ' + a.loss.toFixed(1) + '%';
+  } else if (a.rating === 'inaccuracy') {
+    cls = 'v-inaccuracy'; icon = '⚠️'; text = '不够精确';
+    detail = '有更好的选择，损失 ' + a.loss.toFixed(1) + '%';
+  } else {
+    cls = 'v-mistake'; icon = '❌'; text = '明显失误';
+    detail = '损失 ' + a.loss.toFixed(1) + '%，最优选择在第1位';
+  }
+
+  return '<div class="verdict ' + cls + '">' +
+    '<div class="verdict-icon">' + icon + '</div>' +
+    '<div><div class="verdict-text">' + text + '</div>' +
+    '<div class="verdict-detail">' + detail + '</div></div></div>';
+}
+
+// ===== Card rendering =====
+function renderCardSmall(c) {
+  let suit = c.s || c.suit;
+  let val = c.v || c.val;
+  let p = c.p;
+
+  if (suit === 'JOKER') {
+    let label = val === 'Bg' ? '大' : '小';
+    let cls = val === 'Bg' ? 'c-joker' : 'c-joker';
+    return '<div class="card-sm ' + cls + '" style="background:' + (val === 'Bg' ? '#a22' : '#446') + ';color:#fff;border-color:#888">' +
+      '<div class="cs-val">★</div><div class="cs-suit">' + label + '</div></div>';
+  }
+
+  let isRed = suit === '♥' || suit === '♦';
+  let cls = isRed ? 'c-red' : 'c-blk';
+  if (GL.isWildCard(c)) cls += ' c-wild';
+
+  return '<div class="card-sm ' + cls + '">' +
+    '<div class="cs-val">' + val + '</div>' +
+    '<div class="cs-suit">' + suit + '</div></div>';
+}
+
+// ===== Navigation =====
+function goBack() {
+  if (document.getElementById('replay-view').style.display !== 'none') {
+    document.getElementById('replay-view').style.display = 'none';
+    document.getElementById('list-view').style.display = 'block';
+    engine = null;
+    currentDPIndex = -1;
+  } else {
+    window.location.href = '/';
+  }
+}
+
+// Init
+loadReplays();
+</script>
+</body>
+</html>

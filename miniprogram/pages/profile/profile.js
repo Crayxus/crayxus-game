@@ -2,252 +2,59 @@ const app = getApp()
 
 Page({
   data: {
-    // WeChat user
+    statusBarHeight: 44,
     avatarUrl: '',
     nickname: '',
     hasNickname: false,
-    showNicknameInput: false,
-    showSetupModal: false,
-    pendingScanResult: null,
-    menuRight: 16,
-    menuBottom: 88,
-
-    // Player info
-    title: 'Guandan Warrior',
-    level: 41,
-
-    activeTab: 'casual',
-
-    casual: {
-      rankKey: 'gold', rankName: 'GOLD III', rankColor: '#FFD700',
-      stars: 2, starsMax: 3, starsArr: [],
-      winRate: '62%', totalGames: 147, wins: 91,
-      streak: 3, bestStreak: 7
-    },
-    training: {
-      totalSessions: 86, totalHands: 1240, coachUsed: 324,
-      accuracy: '71%', bestAccuracy: '85%',
-      favoriteMove: 'Bomb', avgHandPower: 72
-    },
-    arena: {
-      elo: 1850, peakElo: 1920,
-      rank: 12, totalPlayers: 200,
-      wins: 48, losses: 22,
-      winRate: '69%', doubleRate: '34%', avgSteps: 87
-    },
-
-    cardAnimClass: 'card-enter',
-    statusBarHeight: 44,
-    theme: 'cyber'  // 'cyber' or 'classic'
+    danli: { score: 0, rank: '' },
+    quiz: { totalQuestions: 0, correctRate: 0, streak: 0, bestStreak: 0 },
+    dims: []
   },
 
   onLoad() {
-    // Get status bar height and menu button position for safe area
     try {
       const sys = wx.getSystemInfoSync()
       this.setData({ statusBarHeight: sys.statusBarHeight || 44 })
-      // Get capsule button rect to avoid overlap
-      const menuRect = wx.getMenuButtonBoundingClientRect()
-      if (menuRect) {
-        this.setData({
-          menuRight: sys.windowWidth - menuRect.left, // distance from right edge
-          menuBottom: menuRect.bottom + 6 // bottom of capsule + padding
-        })
-      }
     } catch(e) {}
-    // Restore saved theme
-    const savedTheme = wx.getStorageSync('crayxus_theme') || 'cyber'
-    this.setData({ theme: savedTheme })
     this.loadCachedUser()
-    this.loadPlayerData()
-    this.buildStars()
   },
 
   onShow() {
-    this.setData({ cardAnimClass: '' })
-    setTimeout(() => this.setData({ cardAnimClass: 'card-enter' }), 50)
+    this.loadData()
   },
-
-  // ========== WeChat Avatar & Nickname ==========
 
   loadCachedUser() {
     const cached = wx.getStorageSync('crayxus_user') || {}
     const avatarUrl = cached.avatarUrl || app.globalData.avatarUrl || ''
     const nickname = cached.nickname || app.globalData.nickname || ''
-    // Restore base64 for scan login
     if (cached.avatarBase64) app.globalData.avatarBase64 = cached.avatarBase64
-    this.setData({
-      avatarUrl,
-      nickname,
-      hasNickname: !!nickname
-    })
+    this.setData({ avatarUrl, nickname, hasNickname: !!nickname })
   },
 
-  // User taps the avatar placeholder → WeChat chooseAvatar popup
+  loadData() {
+    const danli = app.globalData.danli || {}
+    const quiz = wx.getStorageSync('crayxus_quiz') || {}
+
+    const dimConfig = [
+      { key: 'timing', name: '出牌', icon: '🎯', color: '#ff6b6b' },
+      { key: 'teamwork', name: '配合', icon: '🤝', color: '#ffd93d' },
+      { key: 'bombing', name: '炸弹', icon: '💣', color: '#ff9500' },
+      { key: 'memory', name: '记牌', icon: '🧠', color: '#00d4aa' },
+      { key: 'strategy', name: '大局', icon: '♟️', color: '#7c4dff' },
+      { key: 'mental', name: '心态', icon: '💪', color: '#3d9dff' }
+    ]
+
+    const dims = dimConfig.map(d => ({
+      ...d,
+      val: danli[d.key] || 0,
+      pct: ((danli[d.key] || 0) / 10).toFixed(0)
+    }))
+
+    this.setData({ danli, quiz, dims })
+  },
+
+  // Avatar
   onChooseAvatar(e) {
-    const { avatarUrl } = e.detail
-    if (!avatarUrl) return
-
-    // Save local temp path for display in mini program
-    app.globalData.avatarUrl = avatarUrl
-    this.setData({ avatarUrl })
-
-    // Convert to base64 for sharing with browser
-    const fs = wx.getFileSystemManager()
-    fs.readFile({
-      filePath: avatarUrl,
-      encoding: 'base64',
-      success: (res) => {
-        const base64Url = 'data:image/png;base64,' + res.data
-        app.globalData.avatarBase64 = base64Url
-        this.saveUser()
-        wx.showToast({ title: 'Avatar set!', icon: 'success' })
-      },
-      fail: () => {
-        this.saveUser()
-        wx.showToast({ title: 'Avatar set!', icon: 'success' })
-      }
-    })
-  },
-
-  // Tap existing avatar → allow re-choosing
-  onTapAvatar() {
-    wx.showActionSheet({
-      itemList: ['Change Avatar'],
-      success: (res) => {
-        if (res.tapIndex === 0) {
-          // Reset to trigger chooseAvatar button
-          this.setData({ avatarUrl: '' })
-        }
-      }
-    })
-  },
-
-  // WeChat nickname input (type="nickname" auto-fills WeChat name)
-  onNicknameChange(e) {
-    const nickname = (e.detail.value || '').trim()
-    if (!nickname) return
-
-    app.globalData.nickname = nickname
-    this.setData({ nickname, hasNickname: true })
-    this.saveUser()
-  },
-
-  // Tap nickname to edit
-  onTapNickname() {
-    this.setData({ hasNickname: false })
-  },
-
-  saveUser() {
-    const data = {
-      avatarUrl: this.data.avatarUrl,
-      avatarBase64: app.globalData.avatarBase64 || '',
-      nickname: this.data.nickname
-    }
-    wx.setStorageSync('crayxus_user', data)
-
-    // TODO: sync to game server so index.html can display the avatar
-    // wx.request({ url: 'https://your-server/api/user/avatar', method: 'POST', data })
-  },
-
-  // ========== Player Data ==========
-
-  loadPlayerData() {
-    const pd = app.globalData.playerData
-    if (!pd) return
-
-    const c = pd.casual
-    const t = pd.training
-    const a = pd.arena
-
-    this.setData({
-      title: pd.title,
-      level: pd.level,
-      casual: {
-        rankKey: c.rankKey, rankName: c.rankName, rankColor: c.rankColor,
-        stars: c.stars, starsMax: c.starsMax, starsArr: [],
-        winRate: Math.round(c.winRate * 100) + '%',
-        totalGames: c.totalGames, wins: c.wins,
-        streak: c.streak, bestStreak: c.bestStreak
-      },
-      training: {
-        totalSessions: t.totalSessions, totalHands: t.totalHands,
-        coachUsed: t.coachUsed,
-        accuracy: Math.round(t.accuracy * 100) + '%',
-        bestAccuracy: Math.round(t.bestAccuracy * 100) + '%',
-        favoriteMove: t.favoriteMove, avgHandPower: t.avgHandPower
-      },
-      arena: {
-        elo: a.elo, peakElo: a.peakElo,
-        rank: a.rank, totalPlayers: a.totalPlayers,
-        wins: a.wins, losses: a.losses,
-        winRate: Math.round(a.winRate * 100) + '%',
-        doubleRate: Math.round(a.doubleRate * 100) + '%',
-        avgSteps: a.avgSteps
-      }
-    })
-    this.buildStars()
-  },
-
-  buildStars() {
-    const c = this.data.casual
-    const arr = []
-    for (let i = 0; i < c.starsMax; i++) {
-      arr.push({ filled: i < c.stars })
-    }
-    this.setData({ 'casual.starsArr': arr })
-  },
-
-  switchTab(e) {
-    this.setData({ activeTab: e.currentTarget.dataset.tab })
-  },
-
-  toggleTheme() {
-    const next = this.data.theme === 'cyber' ? 'classic' : 'cyber'
-    this.setData({ theme: next })
-    wx.setStorageSync('crayxus_theme', next)
-  },
-
-  // ========== Scan & Share ==========
-
-  onScanLogin() {
-    wx.scanCode({
-      onlyFromCamera: false,
-      success: (res) => {
-        console.log('Scan result:', res.result)
-
-        // Parse session ID from QR URL
-        let sessionId = ''
-        try {
-          const url = new URL(res.result)
-          sessionId = url.searchParams.get('session') || ''
-        } catch(e) {
-          const match = res.result.match(/session=([A-Z0-9-]+)/i)
-          if (match) sessionId = match[1]
-        }
-
-        if (!sessionId) {
-          wx.showToast({ title: 'Invalid QR code', icon: 'none' })
-          return
-        }
-
-        // If avatar base64 or nickname not set, show setup modal first
-        if (!app.globalData.avatarBase64 || !this.data.nickname) {
-          this.setData({ showSetupModal: true, pendingScanResult: sessionId })
-          return
-        }
-
-        // All set, proceed to login
-        this.doLogin(sessionId)
-      },
-      fail: () => {
-        wx.showToast({ title: 'Cancelled', icon: 'none' })
-      }
-    })
-  },
-
-  // Setup modal: avatar chosen
-  onSetupAvatar(e) {
     const { avatarUrl } = e.detail
     if (!avatarUrl) return
     app.globalData.avatarUrl = avatarUrl
@@ -260,124 +67,97 @@ Page({
       success: (res) => {
         app.globalData.avatarBase64 = 'data:image/png;base64,' + res.data
         this.saveUser()
-        this.tryAutoLogin()
       },
-      fail: () => { this.saveUser(); this.tryAutoLogin() }
+      fail: () => this.saveUser()
     })
   },
 
-  // Setup modal: nickname set
-  onSetupNickname(e) {
+  onTapAvatar() {
+    wx.showActionSheet({
+      itemList: ['更换头像'],
+      success: (res) => {
+        if (res.tapIndex === 0) this.setData({ avatarUrl: '' })
+      }
+    })
+  },
+
+  onNicknameChange(e) {
     const nickname = (e.detail.value || '').trim()
     if (!nickname) return
     app.globalData.nickname = nickname
     this.setData({ nickname, hasNickname: true })
     this.saveUser()
-    this.tryAutoLogin()
   },
 
-  // Auto-login after setup complete (must have base64 avatar ready)
-  tryAutoLogin() {
-    if (app.globalData.avatarBase64 && this.data.nickname && this.data.pendingScanResult) {
-      this.setData({ showSetupModal: false })
-      this.doLogin(this.data.pendingScanResult)
-    }
+  onTapNickname() {
+    this.setData({ hasNickname: false })
   },
 
-  // Close setup modal
-  onCloseSetup() {
-    this.setData({ showSetupModal: false, pendingScanResult: null })
+  saveUser() {
+    wx.setStorageSync('crayxus_user', {
+      avatarUrl: this.data.avatarUrl,
+      avatarBase64: app.globalData.avatarBase64 || '',
+      nickname: this.data.nickname
+    })
   },
 
-  // Execute login request
-  doLogin(sessionId) {
-    const SERVER = 'https://crayxus-game.onrender.com'
-    wx.request({
-      url: SERVER + '/api/wx-login',
-      method: 'POST',
-      header: { 'content-type': 'application/json' },
-      data: {
-        sessionId: sessionId,
-        avatarUrl: app.globalData.avatarBase64 || this.data.avatarUrl,
-        nickname: this.data.nickname
-      },
-      success: (resp) => {
-        console.log('Login response:', resp.data)
-        if (resp.data && resp.data.success) {
-          if (resp.data.stats) this.applyServerStats(resp.data.stats)
-          wx.showToast({ title: 'Login Success!', icon: 'success' })
-        } else {
-          wx.showToast({ title: resp.data.msg || 'Login failed', icon: 'none' })
+  // Scan login
+  onScanLogin() {
+    wx.scanCode({
+      onlyFromCamera: false,
+      success: (res) => {
+        let sessionId = ''
+        try {
+          const url = new URL(res.result)
+          sessionId = url.searchParams.get('session') || ''
+        } catch(e) {
+          const match = res.result.match(/session=([A-Z0-9-]+)/i)
+          if (match) sessionId = match[1]
         }
+        if (!sessionId) {
+          wx.showToast({ title: '无效二维码', icon: 'none' })
+          return
+        }
+        wx.request({
+          url: app.globalData.serverUrl + '/api/wx-login',
+          method: 'POST',
+          header: { 'content-type': 'application/json' },
+          data: {
+            sessionId,
+            avatarUrl: app.globalData.avatarBase64 || this.data.avatarUrl,
+            nickname: this.data.nickname
+          },
+          success: (resp) => {
+            if (resp.data && resp.data.success) {
+              wx.showToast({ title: '登录成功', icon: 'success' })
+            } else {
+              wx.showToast({ title: resp.data.msg || '登录失败', icon: 'none' })
+            }
+          },
+          fail: () => wx.showToast({ title: '网络错误', icon: 'none' })
+        })
       },
-      fail: (err) => {
-        console.error('Login request failed:', JSON.stringify(err))
-        wx.showToast({ title: err.errMsg || 'Network error', icon: 'none' })
-      }
+      fail: () => wx.showToast({ title: '已取消', icon: 'none' })
     })
-    this.setData({ pendingScanResult: null })
   },
 
-  // Apply stats received from game server
-  applyServerStats(stats) {
-    if (!stats) return
-    const updates = {}
-
-    if (stats.casual) {
-      updates.casual = {
-        ...this.data.casual,
-        winRate: stats.casual.winRate || this.data.casual.winRate,
-        totalGames: stats.casual.totalGames || this.data.casual.totalGames,
-        wins: stats.casual.wins || this.data.casual.wins,
-        streak: stats.casual.streak || this.data.casual.streak,
-        bestStreak: stats.casual.bestStreak || this.data.casual.bestStreak,
-        rankName: stats.casual.rankName || this.data.casual.rankName,
-        rankColor: stats.casual.rankColor || this.data.casual.rankColor,
-        stars: stats.casual.stars != null ? stats.casual.stars : this.data.casual.stars,
-        starsMax: stats.casual.starsMax || this.data.casual.starsMax,
-        starsArr: this.data.casual.starsArr
-      }
-    }
-    if (stats.training) {
-      updates.training = { ...this.data.training, ...stats.training }
-    }
-    if (stats.arena) {
-      updates.arena = {
-        ...this.data.arena,
-        elo: stats.arena.elo || this.data.arena.elo,
-        peakElo: stats.arena.peakElo || this.data.arena.peakElo,
-        rank: stats.arena.rank || this.data.arena.rank,
-        wins: stats.arena.wins || this.data.arena.wins,
-        losses: stats.arena.losses || this.data.arena.losses,
-        winRate: stats.arena.winRate || this.data.arena.winRate
-      }
-    }
-
-    this.setData(updates)
-    if (updates.casual) this.buildStars()
-
-    // Cache stats locally
-    wx.setStorageSync('crayxus_stats', stats)
-  },
-
+  // Share
   onShareCard() {
-    wx.showShareMenu({
-      withShareTicket: true,
-      menus: ['shareAppMessage', 'shareTimeline']
-    })
+    wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage', 'shareTimeline'] })
   },
 
   onShareAppMessage() {
-    return {
-      title: `${this.data.nickname || 'Player'} | Crayxus Guandan`,
-      path: '/pages/profile/profile',
-      imageUrl: this.data.avatarUrl || ''
-    }
+    const d = this.data.danli
+    const title = d.score
+      ? `我的蛋力值${d.score}分，你敢来测吗？`
+      : '测测你的掼蛋水平，六边形战士等你挑战！'
+    return { title, path: '/pages/home/home' }
   },
 
   onShareTimeline() {
+    const d = this.data.danli
     return {
-      title: `${this.data.nickname || 'Player'} | ELO ${this.data.arena.elo} | Crayxus`
+      title: d.score ? `蛋力值${d.score} | ${d.rank}` : '掼蛋蛋力值测评'
     }
   }
 })

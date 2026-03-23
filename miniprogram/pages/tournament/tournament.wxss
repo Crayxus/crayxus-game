@@ -1,0 +1,472 @@
+page { background: #0a0e1a; }
+
+.page {
+  min-height: 100vh;
+  padding: 0 20rpx;
+  background: linear-gradient(180deg, #0a0e1a 0%, #0d1220 100%);
+}
+
+/* Nav */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0 20rpx;
+}
+.nav-back {
+  font-size: 36rpx;
+  color: rgba(255,255,255,.6);
+  width: 60rpx;
+  text-align: center;
+}
+.nav-title {
+  flex: 1;
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+}
+.nav-right { width: 60rpx; }
+
+/* ===== Month Nav ===== */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32rpx;
+  margin-bottom: 20rpx;
+}
+.month-arrow {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.04);
+  border: 1rpx solid rgba(255,255,255,.08);
+  border-radius: 12rpx;
+}
+.month-label {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 2rpx;
+}
+
+/* ===== Weekday Header ===== */
+.cal-weekdays {
+  display: flex;
+  margin-bottom: 8rpx;
+}
+.cal-wd {
+  flex: 1;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: rgba(255,255,255,.3);
+  padding: 8rpx 0;
+}
+.cal-wd.we {
+  color: rgba(0,212,170,.5);
+}
+
+/* ===== Calendar Grid ===== */
+.cal-grid {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1rpx solid rgba(255,255,255,.06);
+  border-radius: 14rpx;
+  overflow: hidden;
+  background: rgba(255,255,255,.01);
+}
+
+.cal-cell {
+  width: calc(100% / 7);
+  min-height: 120rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8rpx 2rpx;
+  border-bottom: 1rpx solid rgba(255,255,255,.04);
+  border-right: 1rpx solid rgba(255,255,255,.04);
+  box-sizing: border-box;
+  position: relative;
+}
+.cal-cell:nth-child(7n) {
+  border-right: none;
+}
+
+/* Day number */
+.cell-d {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,.5);
+  margin-bottom: 4rpx;
+}
+
+/* Other month days */
+.cal-cell.other .cell-d {
+  color: rgba(255,255,255,.12);
+}
+
+/* Today */
+.cal-cell.today .cell-d {
+  color: #000;
+  background: #00d4aa;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 40rpx;
+  text-align: center;
+}
+
+/* ===== Cell Tags (event markers) ===== */
+.cell-tag {
+  font-size: 16rpx;
+  font-weight: 700;
+  padding: 2rpx 6rpx;
+  border-radius: 4rpx;
+  margin-top: 2rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  text-align: center;
+}
+
+.bounty-team-tag {
+  background: rgba(0,212,170,.15);
+  color: #00d4aa;
+}
+
+.bounty-solo-tag {
+  background: rgba(255,107,53,.15);
+  color: #ff6b35;
+}
+
+.full-tag {
+  background: rgba(255,60,60,.12);
+  color: #ff4444;
+}
+
+.booked-tag {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.3);
+}
+
+.avail-tag {
+  background: rgba(255,149,0,.12);
+  color: #ff9500;
+}
+
+.open-tag {
+  background: rgba(124,77,255,.12);
+  color: #7c4dff;
+}
+
+/* Weekday dot (no event) */
+.cell-dot {
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  margin-top: 8rpx;
+}
+
+/* Event type background tints */
+.cal-cell.bounty_team {
+  background: rgba(0,212,170,.04);
+}
+.cal-cell.bounty_team {
+  background: rgba(0,212,170,.04);
+}
+.cal-cell.bounty_solo {
+  background: rgba(255,107,53,.04);
+}
+.cal-cell.bounty_full {
+  background: rgba(255,60,60,.03);
+}
+.cal-cell.booked {
+  background: rgba(255,255,255,.02);
+}
+.cal-cell.available {
+  background: rgba(255,149,0,.03);
+}
+.cal-cell.open {
+  background: rgba(124,77,255,.03);
+}
+
+/* ===== Legend ===== */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  margin: 24rpx 0;
+  padding: 0 8rpx;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.legend-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 4rpx;
+  flex-shrink: 0;
+}
+.legend-dot.bounty-team { background: #00d4aa; }
+.legend-dot.bounty-solo { background: #ff6b35; }
+.legend-dot.booked { background: rgba(255,255,255,.2); }
+.legend-dot.avail { background: #ff9500; }
+.legend-item text {
+  font-size: 20rpx;
+  color: rgba(255,255,255,.35);
+}
+
+/* ===== Detail Card ===== */
+.detail-card {
+  margin: 16rpx 0;
+  background: rgba(255,255,255,.03);
+  border: 1rpx solid rgba(255,255,255,.08);
+  border-radius: 18rpx;
+  overflow: hidden;
+  display: flex;
+}
+.dc-bar {
+  width: 8rpx;
+  flex-shrink: 0;
+}
+.dc-bar.bounty_team { background: #00d4aa; }
+.dc-bar.bounty_solo { background: #ff6b35; }
+.dc-bar.teambuilding { background: #ff9500; }
+.dc-bar.open { background: #7c4dff; }
+
+.dc-body {
+  flex: 1;
+  padding: 24rpx;
+}
+.dc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+.dc-name {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #fff;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dc-tag {
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  margin-left: 12rpx;
+  flex-shrink: 0;
+}
+.dc-tag.tag-bounty-team { background: rgba(0,212,170,.12); color: #00d4aa; }
+.dc-tag.tag-bounty-solo { background: rgba(255,107,53,.12); color: #ff6b35; }
+.dc-tag.tag-full { background: rgba(255,60,60,.12); color: #ff4444; }
+.dc-tag.tag-booked { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); }
+.dc-tag.tag-avail { background: rgba(255,149,0,.1); color: #ff9500; }
+.dc-tag.tag-open { background: rgba(124,77,255,.1); color: #7c4dff; }
+.dc-tag.tag-closed { background: rgba(255,255,255,.04); color: rgba(255,255,255,.25); }
+
+.dc-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  margin-bottom: 8rpx;
+}
+.dc-icon {
+  font-size: 24rpx;
+  flex-shrink: 0;
+  width: 32rpx;
+}
+.dc-text {
+  font-size: 24rpx;
+  color: rgba(255,255,255,.5);
+  flex: 1;
+}
+
+.dc-cap-bar {
+  width: 120rpx;
+  height: 8rpx;
+  background: rgba(255,255,255,.06);
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-left: 12rpx;
+  align-self: center;
+}
+.dc-cap-fill {
+  height: 100%;
+  background: #00d4aa;
+  border-radius: 4rpx;
+}
+
+.dc-actions {
+  margin-top: 16rpx;
+}
+.dc-btn {
+  text-align: center;
+  padding: 18rpx;
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+.dc-btn.primary {
+  background: linear-gradient(135deg, #00d4aa, #7c4dff);
+  color: #fff;
+}
+.dc-btn.gold {
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000;
+}
+.dc-btn.dim {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.3);
+}
+
+/* ===== Modals ===== */
+.modal-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-body {
+  width: 88%;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #151922;
+  border: 1rpx solid rgba(255,255,255,.1);
+  border-radius: 24rpx;
+  padding: 36rpx;
+}
+.modal-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 12rpx;
+}
+.modal-event {
+  display: block;
+  font-size: 26rpx;
+  color: rgba(255,255,255,.45);
+  text-align: center;
+  margin-bottom: 28rpx;
+}
+
+/* Form */
+.form-group { margin-bottom: 20rpx; }
+.form-label {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 8rpx;
+}
+.form-input {
+  width: 100%;
+  padding: 18rpx 20rpx;
+  background: rgba(255,255,255,.04);
+  border: 1rpx solid rgba(255,255,255,.1);
+  border-radius: 12rpx;
+  color: #fff;
+  font-size: 28rpx;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 28rpx;
+}
+.modal-btn {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+.modal-btn.cancel {
+  background: rgba(255,255,255,.04);
+  border: 1rpx solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.5);
+}
+.modal-btn.submit {
+  background: linear-gradient(135deg, #00d4aa, #7c4dff);
+  color: #fff;
+}
+.modal-btn.gold {
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000;
+}
+
+/* Detail Modal */
+.detail-body { max-height: 85vh; }
+.detail-row {
+  display: flex;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid rgba(255,255,255,.04);
+}
+.dl { font-size: 24rpx; color: rgba(255,255,255,.35); width: 100rpx; flex-shrink: 0; }
+.dv { font-size: 26rpx; color: rgba(255,255,255,.7); flex: 1; }
+
+/* Player List */
+.player-list { margin-top: 20rpx; }
+.pl-title {
+  display: block;
+  font-size: 26rpx; font-weight: 700; color: #fff;
+  margin-bottom: 12rpx;
+}
+.pl-row {
+  display: flex; align-items: center; gap: 12rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid rgba(255,255,255,.04);
+}
+.pl-idx { font-size: 22rpx; color: rgba(255,255,255,.3); width: 40rpx; }
+.pl-name { font-size: 26rpx; color: rgba(255,255,255,.7); flex: 1; }
+.pl-team { font-size: 22rpx; color: rgba(0,212,170,.6); }
+
+/* Booking */
+.tier-grid { display: flex; gap: 16rpx; margin-top: 12rpx; }
+.tier-card {
+  flex: 1;
+  padding: 24rpx 12rpx;
+  border: 2rpx solid rgba(255,255,255,.1);
+  border-radius: 14rpx;
+  text-align: center;
+  background: rgba(255,255,255,.03);
+}
+.tier-card.selected {
+  border-color: rgba(255,149,0,.5);
+  background: rgba(255,149,0,.08);
+}
+.tier-num { display: block; font-size: 30rpx; font-weight: 800; color: #fff; }
+.tier-sub { display: block; font-size: 20rpx; color: rgba(255,255,255,.35); margin-top: 4rpx; }
+
+.deposit-box {
+  background: rgba(255,215,0,.06);
+  border: 1rpx solid rgba(255,215,0,.2);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  text-align: center;
+  margin: 20rpx 0;
+}
+.deposit-label { display: block; font-size: 22rpx; color: rgba(255,255,255,.4); }
+.deposit-amount { display: block; font-size: 56rpx; font-weight: 900; color: #ffd700; margin: 8rpx 0; }
+.deposit-note { display: block; font-size: 20rpx; color: rgba(255,255,255,.3); }

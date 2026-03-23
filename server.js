@@ -17,6 +17,15 @@ const PORT = process.env.PORT || 3000;
 const SERVER_VERSION = 'V43';
 app.get('/api/version', (req, res) => res.json({ version: SERVER_VERSION }));
 
+// Replay analysis page
+app.get('/replay', (req, res) => res.sendFile(path.join(__dirname, 'replay.html')));
+
+// Tournament page
+app.get('/tournament', (req, res) => res.sendFile(path.join(__dirname, 'tournament.html')));
+
+// 蛋力值测评
+app.get('/danli', (req, res) => res.sendFile(path.join(__dirname, 'danli.html')));
+
 // Game event logging
 const LOG_FILE = path.join(__dirname, 'game_log.txt');
 function gameLog(msg) {
@@ -1080,6 +1089,507 @@ function broadcastUpdatedHands(room, botSeats) {
     });
 }
 
+/* =========================================
+   赛事系统 (Tournament System)
+   ========================================= */
+const TOURNAMENT_DIR = path.join(__dirname, 'tournaments');
+if (!fs.existsSync(TOURNAMENT_DIR)) fs.mkdirSync(TOURNAMENT_DIR);
+
+let tournaments = {};
+
+// Load tournaments from disk on startup
+try {
+    fs.readdirSync(TOURNAMENT_DIR).filter(f => f.endsWith('.json')).forEach(f => {
+        let t = JSON.parse(fs.readFileSync(path.join(TOURNAMENT_DIR, f)));
+        tournaments[t.code] = t;
+    });
+    gameLog(`[Tournament] Loaded ${Object.keys(tournaments).length} tournaments from disk`);
+} catch(e) { gameLog(`[Tournament] Load error: ${e.message}`); }
+
+// Seed demo tournaments if none exist
+if (Object.keys(tournaments).length === 0) {
+    const demoEvents = [
+        {
+            code: 'HZ0326', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-19T09:00:00Z',
+            eventType: 'teambuilding', eventDate: '2026-03-26', eventTime: '14:00',
+            location: '杭州·滨江区', capacity: 40, fee: 0,
+            description: '', bookedBy: '某互联网公司', bookedCount: 32
+        },
+        {
+            code: 'HZ0327', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-19T09:00:00Z',
+            eventType: 'teambuilding', eventDate: '2026-03-27', eventTime: '14:00',
+            location: '杭州·可定制', capacity: 40, fee: 0,
+            description: '可预约团建场次，填写人数即可'
+        },
+        {
+            code: 'HZ0329', name: 'AI Bounty Solo · 运河站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [
+                { nickname: '掼蛋老炮', phone: '133****4444', joinedAt: '2026-03-21T08:00:00Z' },
+                { nickname: '运河小哥', phone: '155****5555', team: '运河队', joinedAt: '2026-03-21T09:00:00Z' }
+            ],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T08:00:00Z',
+            eventType: 'bounty_solo', eventDate: '2026-03-29', eventTime: '13:00',
+            location: '杭州·拱墅区运河文化广场·茶语轩', capacity: 24, fee: 0,
+            description: '免费参赛，个人挑战AI赢奖金！运河畔的周末Solo Bounty，茶歇供应。'
+        },
+        {
+            code: 'HZ0402', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T11:00:00Z',
+            eventType: 'teambuilding', eventDate: '2026-04-02', eventTime: '14:00',
+            location: '杭州·余杭区', capacity: 20, fee: 0,
+            description: '', bookedBy: '某科技公司', bookedCount: 16
+        },
+        {
+            code: 'HZ0403', name: '企业团建', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T11:00:00Z',
+            eventType: 'teambuilding', eventDate: '2026-04-03', eventTime: '14:00',
+            location: '杭州·可定制', capacity: 40, fee: 0,
+            description: '可预约团建场次，填写人数即可'
+        },
+        {
+            code: 'HZ0405', name: 'AI Bounty Solo · 西溪站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'open', players: [
+                { nickname: '湿地鸟叔', phone: '177****6666', joinedAt: '2026-03-21T12:00:00Z' },
+                { nickname: '花港观鱼', phone: '178****7777', team: '西溪队', joinedAt: '2026-03-21T13:00:00Z' },
+                { nickname: '晴天娃娃', phone: '176****8888', joinedAt: '2026-03-21T14:00:00Z' }
+            ],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-21T12:00:00Z',
+            eventType: 'bounty_solo', eventDate: '2026-04-05', eventTime: '13:30',
+            location: '杭州·西湖区西溪湿地·福堤茶室', capacity: 32, fee: 0,
+            description: '春日AI Bounty Solo，西溪湿地户外站。免费个人参赛，击败AI赢奖金！'
+        },
+        // 已满的Solo（过去的周末）
+        {
+            code: 'HZ0322', name: 'AI Bounty Solo · 钱塘站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'finished', players: Array.from({length: 24}, (_, i) => ({ nickname: '选手' + (i+1), joinedAt: '2026-03-18T10:00:00Z' })),
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-15T10:00:00Z',
+            eventType: 'bounty_solo', eventDate: '2026-03-22', eventTime: '13:00',
+            location: '杭州·钱塘区金沙湖·棋牌室', capacity: 24, fee: 0,
+            description: 'AI Bounty Solo 钱塘站，已结束。'
+        },
+        {
+            code: 'HZ0315', name: 'AI Bounty Solo · 灵隐站', format: 'swiss', totalRounds: 5, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'finished', players: Array.from({length: 32}, (_, i) => ({ nickname: '玩家' + (i+1), joinedAt: '2026-03-10T10:00:00Z' })),
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-10T10:00:00Z',
+            eventType: 'bounty_solo', eventDate: '2026-03-15', eventTime: '13:30',
+            location: '杭州·西湖区灵隐路·茶馆', capacity: 32, fee: 0,
+            description: 'AI Bounty Solo 灵隐站，已结束。'
+        },
+        // 已占的Team（过去的工作日）
+        {
+            code: 'HZ0324', name: 'AI Bounty Team · 滨江站', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-18T10:00:00Z',
+            eventType: 'bounty_team', eventDate: '2026-03-24', eventTime: '14:00',
+            location: '杭州·滨江区网易大厦', capacity: 40, fee: 0,
+            description: '', bookedBy: '网易互娱', bookedCount: 36
+        },
+        {
+            code: 'HZ0319', name: 'AI Bounty Team · 未来科技城站', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-12T10:00:00Z',
+            eventType: 'bounty_team', eventDate: '2026-03-19', eventTime: '14:00',
+            location: '杭州·余杭区未来科技城·海创园', capacity: 32, fee: 0,
+            description: '', bookedBy: '阿里云智能', bookedCount: 28
+        },
+        {
+            code: 'HZ0331', name: 'AI Bounty Team · 城西站', format: 'swiss', totalRounds: 4, gamesPerRound: 2,
+            casualMode: 'fixed', organizer: 'Crayxus',
+            status: 'booked', players: [],
+            rounds: [], currentRound: 0,
+            createdAt: '2026-03-25T10:00:00Z',
+            eventType: 'bounty_team', eventDate: '2026-03-31', eventTime: '14:00',
+            location: '杭州·西湖区黄龙体育中心', capacity: 40, fee: 0,
+            description: '', bookedBy: '字节跳动杭州', bookedCount: 40
+        }
+    ];
+    demoEvents.forEach(t => {
+        tournaments[t.code] = t;
+        saveTournament(t);
+    });
+    gameLog(`[Tournament] Seeded ${demoEvents.length} demo events`);
+}
+
+function saveTournament(t) {
+    fs.writeFile(path.join(TOURNAMENT_DIR, t.code + '.json'), JSON.stringify(t, null, 2), () => {});
+}
+
+function genTournamentCode() {
+    let chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code;
+    do { code = ''; for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)]; }
+    while (tournaments[code]);
+    return code;
+}
+
+// List tournaments (teambuilding shows limited info)
+app.get('/api/tournaments', (req, res) => {
+    let list = Object.values(tournaments).map(t => {
+        let isTeambuilding = t.eventType === 'teambuilding';
+        return {
+            code: t.code,
+            name: t.name,
+            format: t.format,
+            status: t.status,
+            playerCount: isTeambuilding ? (t.bookedCount || 0) : t.players.length,
+            players: isTeambuilding ? [] : t.players, // hide player details for teambuilding
+            currentRound: t.currentRound,
+            totalRounds: t.totalRounds,
+            createdAt: t.createdAt,
+            eventType: t.eventType || 'open',
+            eventDate: t.eventDate || t.createdAt.split('T')[0],
+            eventTime: t.eventTime || '14:00',
+            location: t.location || '',
+            capacity: t.capacity || 0,
+            organizer: t.organizer,
+            bookedBy: isTeambuilding ? (t.bookedBy || '') : undefined,
+            bookedCount: isTeambuilding ? (t.bookedCount || 0) : undefined
+        };
+    }).sort((a, b) => {
+        // Sort by event date, then by creation date
+        let da = a.eventDate || a.createdAt;
+        let db = b.eventDate || b.createdAt;
+        return da.localeCompare(db) || new Date(a.createdAt) - new Date(b.createdAt);
+    });
+    res.json(list);
+});
+
+// Get tournament details
+app.get('/api/tournaments/:code', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.status(404).json({ error: '赛事不存在' });
+    // Compute standings
+    let standings = computeStandings(t);
+    res.json({ ...t, standings });
+});
+
+// Create tournament
+app.post('/api/tournaments', (req, res) => {
+    let { name, format, totalRounds, gamesPerRound, casualMode, organizer,
+          eventType, eventDate, eventTime, location, capacity, fee, description } = req.body;
+    if (!name || !organizer) return res.json({ error: '缺少必要信息' });
+
+    let code = genTournamentCode();
+    let t = {
+        code,
+        name: name.substring(0, 40),
+        format: format || 'swiss',
+        totalRounds: totalRounds || 5,
+        gamesPerRound: gamesPerRound || 2,
+        casualMode: casualMode || 'fixed',
+        organizer,
+        status: 'open', // open → active → finished
+        players: [{ nickname: organizer, joinedAt: new Date().toISOString() }],
+        rounds: [],
+        currentRound: 0,
+        createdAt: new Date().toISOString(),
+        // Event details
+        eventType: eventType || 'open',
+        eventDate: eventDate || new Date().toISOString().split('T')[0],
+        eventTime: eventTime || '14:00',
+        location: (location || '').substring(0, 80),
+        capacity: parseInt(capacity) || 0,
+        fee: parseFloat(fee) || 0,
+        description: (description || '').substring(0, 500)
+    };
+
+    tournaments[code] = t;
+    saveTournament(t);
+    gameLog(`[Tournament] Created: ${code} "${name}" by ${organizer} (${eventType}, ${eventDate} ${eventTime}, ${location || 'TBD'})`);
+    res.json(t);
+});
+
+// Join tournament (register)
+app.post('/api/tournaments/:code/join', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    if (t.status !== 'open') return res.json({ error: '赛事已开始，无法报名' });
+
+    let { nickname, phone, team, note } = req.body;
+    if (!nickname) return res.json({ error: '请输入姓名' });
+
+    // Check capacity
+    if (t.capacity > 0 && t.players.length >= t.capacity) {
+        return res.json({ error: '报名已满' });
+    }
+
+    // Check duplicate by phone (if provided) or nickname
+    if (phone && t.players.some(p => p.phone === phone)) {
+        return res.json({ error: '该手机号已报名' });
+    }
+    if (t.players.some(p => p.nickname === nickname && !phone)) {
+        return res.json({ error: '该姓名已报名，请填写手机号区分' });
+    }
+
+    t.players.push({
+        nickname,
+        phone: phone || '',
+        team: team || '',
+        note: note || '',
+        joinedAt: new Date().toISOString()
+    });
+    saveTournament(t);
+    gameLog(`[Tournament] ${t.code}: ${nickname}${team ? '(' + team + ')' : ''} registered (${t.players.length}/${t.capacity || '∞'})`);
+    res.json({ success: true });
+});
+
+// Start tournament (first round pairing)
+app.post('/api/tournaments/:code/start', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    if (t.status !== 'open') return res.json({ error: '赛事已开始' });
+    if (t.players.length < 4) return res.json({ error: '至少需要4人' });
+
+    // Pad to multiple of 4 if needed (bye system)
+    t.status = 'active';
+    t.currentRound = 1;
+
+    // Generate first round pairings
+    let pairings = generatePairings(t, 1);
+    t.rounds.push(pairings);
+    saveTournament(t);
+    gameLog(`[Tournament] ${t.code}: Started! Round 1 generated (${pairings.length} tables)`);
+    res.json({ success: true, currentRound: 1 });
+});
+
+// Next round
+app.post('/api/tournaments/:code/next-round', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    if (t.status !== 'active') return res.json({ error: '赛事未在进行中' });
+    if (t.currentRound >= t.totalRounds) return res.json({ error: '已达最大轮次' });
+
+    // Check current round complete
+    let lastRound = t.rounds[t.currentRound - 1];
+    if (!lastRound || !lastRound.every(m => m.result)) {
+        return res.json({ error: '当前轮次尚未全部完成' });
+    }
+
+    t.currentRound++;
+    let pairings = generatePairings(t, t.currentRound);
+    t.rounds.push(pairings);
+    saveTournament(t);
+    gameLog(`[Tournament] ${t.code}: Round ${t.currentRound} generated (${pairings.length} tables)`);
+    res.json({ success: true, currentRound: t.currentRound });
+});
+
+// Report result
+app.post('/api/tournaments/:code/result', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    let { round, match, winner, scores } = req.body;
+
+    if (round < 0 || round >= t.rounds.length) return res.json({ error: '无效轮次' });
+    let m = t.rounds[round][match];
+    if (!m) return res.json({ error: '无效桌号' });
+
+    m.result = { winner, scores, reportedAt: new Date().toISOString() };
+    saveTournament(t);
+    gameLog(`[Tournament] ${t.code}: R${round+1}M${match+1} result: team${winner} wins, scores=[${scores}]`);
+    res.json({ success: true });
+});
+
+// Finish tournament
+app.post('/api/tournaments/:code/finish', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    t.status = 'finished';
+    t.finishedAt = new Date().toISOString();
+    saveTournament(t);
+    gameLog(`[Tournament] ${t.code}: Tournament finished`);
+    res.json({ success: true });
+});
+
+// ===== Pairing Logic =====
+function generatePairings(t, roundNum) {
+    let players = t.players.map(p => p.nickname);
+    let n = players.length;
+
+    // Pad to even number of teams (2 players per team → need multiple of 4)
+    // If odd number of players, add a BYE player
+    if (n % 4 !== 0) {
+        let need = 4 - (n % 4);
+        for (let i = 0; i < need; i++) players.push(`轮空${i + 1}`);
+    }
+
+    if (t.format === 'swiss') {
+        return swissPairing(t, players, roundNum);
+    } else if (t.format === 'round-robin') {
+        return roundRobinPairing(t, players, roundNum);
+    } else {
+        return randomPairing(players);
+    }
+}
+
+function swissPairing(t, players, roundNum) {
+    if (roundNum === 1) {
+        // First round: random pairing
+        return randomPairing(players);
+    }
+
+    // Swiss: sort by score, pair adjacent
+    let standings = computeStandings(t);
+    let sorted = standings.map(s => s.nickname);
+    // Add any players not in standings
+    players.forEach(p => { if (!sorted.includes(p)) sorted.push(p); });
+
+    // Build previous opponent map to avoid rematches
+    let prevOpponents = {};
+    players.forEach(p => prevOpponents[p] = new Set());
+    for (let round of t.rounds) {
+        for (let m of round) {
+            let allP = [...m.teams[0], ...m.teams[1]];
+            for (let p1 of m.teams[0]) for (let p2 of m.teams[1]) {
+                if (prevOpponents[p1]) prevOpponents[p1].add(p2);
+                if (prevOpponents[p2]) prevOpponents[p2].add(p1);
+            }
+        }
+    }
+
+    // Pair adjacent players, try to avoid rematches
+    let used = new Set();
+    let tables = [];
+
+    // Group into teams of 2 first (adjacent pairs in standings)
+    let teams = [];
+    for (let i = 0; i < sorted.length; i++) {
+        if (used.has(sorted[i])) continue;
+        for (let j = i + 1; j < sorted.length; j++) {
+            if (used.has(sorted[j])) continue;
+            teams.push([sorted[i], sorted[j]]);
+            used.add(sorted[i]);
+            used.add(sorted[j]);
+            break;
+        }
+    }
+
+    // Now pair teams against each other
+    used.clear();
+    for (let i = 0; i < teams.length; i++) {
+        if (used.has(i)) continue;
+        let bestJ = -1;
+        for (let j = i + 1; j < teams.length; j++) {
+            if (used.has(j)) continue;
+            // Check rematch
+            let hasRematch = false;
+            for (let p1 of teams[i]) for (let p2 of teams[j]) {
+                if (prevOpponents[p1] && prevOpponents[p1].has(p2)) hasRematch = true;
+            }
+            if (!hasRematch || bestJ === -1) { bestJ = j; if (!hasRematch) break; }
+        }
+        if (bestJ >= 0) {
+            tables.push({ teams: [teams[i], teams[bestJ]], result: null });
+            used.add(i);
+            used.add(bestJ);
+        }
+    }
+
+    return tables;
+}
+
+function roundRobinPairing(t, players, roundNum) {
+    // Simple: use round number as rotation offset
+    let n = players.length;
+    let rotated = [...players];
+    for (let r = 1; r < roundNum; r++) {
+        let last = rotated.pop();
+        rotated.splice(1, 0, last);
+    }
+    return randomPairing(rotated);
+}
+
+function randomPairing(players) {
+    // Shuffle, then group into tables of 4
+    let shuffled = [...players];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    let tables = [];
+    for (let i = 0; i < shuffled.length; i += 4) {
+        if (i + 3 < shuffled.length) {
+            tables.push({
+                teams: [[shuffled[i], shuffled[i+2]], [shuffled[i+1], shuffled[i+3]]],
+                result: null
+            });
+        }
+    }
+    return tables;
+}
+
+// ===== Standings Computation =====
+function computeStandings(t) {
+    let stats = {};
+    t.players.forEach(p => {
+        stats[p.nickname] = { nickname: p.nickname, score: 0, wins: 0, losses: 0, tiebreak: 0, games: 0 };
+    });
+
+    for (let round of t.rounds) {
+        for (let m of round) {
+            if (!m.result) continue;
+            let winTeam = m.teams[m.result.winner];
+            let loseTeam = m.teams[1 - m.result.winner];
+
+            winTeam.forEach(p => {
+                if (stats[p]) {
+                    stats[p].score += m.result.scores[m.result.winner] || 3;
+                    stats[p].wins++;
+                    stats[p].games++;
+                }
+            });
+            loseTeam.forEach(p => {
+                if (stats[p]) {
+                    stats[p].score += m.result.scores[1 - m.result.winner] || 0;
+                    stats[p].losses++;
+                    stats[p].games++;
+                }
+            });
+        }
+    }
+
+    // Buchholz tiebreak: sum of opponents' scores
+    for (let round of t.rounds) {
+        for (let m of round) {
+            if (!m.result) continue;
+            let team0score = m.teams[0].reduce((s, p) => s + (stats[p] ? stats[p].score : 0), 0);
+            let team1score = m.teams[1].reduce((s, p) => s + (stats[p] ? stats[p].score : 0), 0);
+            m.teams[0].forEach(p => { if (stats[p]) stats[p].tiebreak += team1score; });
+            m.teams[1].forEach(p => { if (stats[p]) stats[p].tiebreak += team0score; });
+        }
+    }
+
+    return Object.values(stats)
+        .filter(s => !s.nickname.startsWith('轮空'))
+        .sort((a, b) => b.score - a.score || b.tiebreak - a.tiebreak || b.wins - a.wins);
+}
+
 http.listen(PORT, () => {
-    gameLog(`Crayxus V42 (Local Mode) Running on port ${PORT}`);
+    gameLog(`Crayxus V43 (Tournament System) Running on port ${PORT}`);
 });

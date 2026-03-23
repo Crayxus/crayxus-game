@@ -1,13 +1,32 @@
 {
   "pages": [
+    "pages/home/home",
+    "pages/quiz/quiz",
+    "pages/tournament/tournament",
     "pages/profile/profile"
   ],
   "window": {
-    "navigationBarTitleText": "Crayxus",
-    "navigationBarBackgroundColor": "#000000",
+    "navigationBarTitleText": "掼蛋训练",
+    "navigationBarBackgroundColor": "#0a0e1a",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#000000",
+    "backgroundColor": "#0a0e1a",
     "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8892a4",
+    "selectedColor": "#00d4aa",
+    "backgroundColor": "#0a0e1a",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

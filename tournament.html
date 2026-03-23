@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>掼蛋赛事中心</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0e1a;--card:#141926;--accent:#00d4aa;--accent2:#7c4dff;
+  --gold:#ffd700;--silver:#c0c0c0;--bronze:#cd7f32;
+  --red:#ff4757;--green:#2ed573;--blue:#3742fa;
+  --text:#e8e8e8;--dim:#8892a4;--border:#1e2a3a;
+  --orange:#ff9500;
+}
+body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+
+/* Header */
+.header{background:linear-gradient(135deg,#141926 0%,#1a2332 100%);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.header h1{font-size:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .back{color:var(--dim);cursor:pointer;font-size:14px}
+.header .back:hover{color:var(--accent)}
+.header .create-link{color:var(--accent);cursor:pointer;font-size:14px;font-weight:600}
+
+/* Views */
+.view{display:none;padding:20px;max-width:800px;margin:0 auto}
+.view.active{display:block}
+
+/* Month Nav */
+.month-nav{display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:20px}
+.month-nav button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:10px;cursor:pointer;font-size:16px}
+.month-nav button:hover{border-color:var(--accent)}
+.month-nav .month-label{font-size:20px;font-weight:800;letter-spacing:1px}
+
+/* Calendar Weekday Header */
+.cal-weekdays{display:flex;margin-bottom:6px}
+.cal-wd{flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--dim);padding:6px 0}
+.cal-wd.we{color:rgba(0,212,170,.6)}
+
+/* Calendar Grid */
+.cal-grid{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.01)}
+.cal-cell{width:calc(100%/7);min-height:80px;display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.04);border-right:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .15s}
+.cal-cell:nth-child(7n){border-right:none}
+.cal-cell:hover{background:rgba(255,255,255,.03)}
+.cal-cell.other{opacity:.25;pointer-events:none}
+.cal-cell.today .cell-d{color:#000;background:var(--accent);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:30px}
+.cell-d{font-size:15px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:4px}
+.cell-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;margin-top:2px}
+.cell-tag.bounty-team{background:rgba(0,212,170,.15);color:var(--accent)}
+.cell-tag.bounty-solo{background:rgba(255,107,53,.15);color:#ff6b35}
+.cell-tag.booked{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3)}
+.cell-tag.full{background:rgba(255,60,60,.12);color:#ff4444}
+.cell-tag.avail{background:rgba(255,149,0,.12);color:var(--orange)}
+.cell-tag.open-evt{background:rgba(124,77,255,.12);color:var(--accent2)}
+
+/* Cell type tints */
+.cal-cell.bounty_team{background:rgba(0,212,170,.03)}
+.cal-cell.bounty_solo{background:rgba(255,107,53,.03)}
+.cal-cell.booked{background:rgba(255,255,255,.015)}
+.cal-cell.bounty_full{background:rgba(255,60,60,.02)}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:20px 0;padding:0 4px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.legend-dot.team{background:var(--accent)}
+.legend-dot.solo{background:#ff6b35}
+.legend-dot.bk{background:rgba(255,255,255,.2)}
+.legend-dot.av{background:var(--orange)}
+
+/* Detail Card (below calendar) */
+.detail-card{margin:16px 0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;display:none}
+.detail-card.show{display:block}
+.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dc-name{font-size:18px;font-weight:800;flex:1}
+.dc-tag{font-size:12px;font-weight:700;padding:4px 12px;border-radius:8px;margin-left:10px}
+.dc-tag.tag-team{background:rgba(0,212,170,.12);color:var(--accent)}
+.dc-tag.tag-solo{background:rgba(255,107,53,.12);color:#ff6b35}
+.dc-tag.tag-booked{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3)}
+.dc-tag.tag-avail{background:rgba(255,149,0,.1);color:var(--orange)}
+.dc-tag.tag-full{background:rgba(255,60,60,.12);color:#ff4444}
+.dc-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:14px;color:var(--dim)}
+.dc-actions{margin-top:14px}
+.dc-btn{display:inline-block;padding:10px 28px;border-radius:12px;border:none;font-size:14px;cursor:pointer;font-weight:700}
+.dc-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.dc-btn.gold{background:linear-gradient(135deg,var(--gold),var(--orange));color:#000}
+.dc-btn.dim{background:var(--border);color:var(--dim);cursor:not-allowed}
+
+/* Event Card (kept for detail view) */
+.evt-btn{padding:8px 20px;border-radius:10px;border:none;font-size:13px;cursor:pointer;font-weight:700}
+.evt-btn.signup{background:var(--accent);color:#000}
+.evt-btn.signup:hover{box-shadow:0 4px 16px rgba(0,212,170,.3)}
+.evt-btn.full{background:var(--border);color:var(--dim);cursor:not-allowed}
+.evt-btn.joined{background:rgba(0,212,170,.15);color:var(--accent);border:1px solid rgba(0,212,170,.3)}
+.evt-btn.view{background:var(--card);color:var(--accent);border:1px solid var(--border)}
+
+/* Empty state */
+.empty-state{text-align:center;padding:60px 20px;color:var(--dim)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:16px;display:block}
+.empty-state p{font-size:15px;line-height:1.8}
+
+/* Sign up Modal */
+.modal-mask{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:100;justify-content:center;align-items:center;padding:20px}
+.modal-mask.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:18px;margin-bottom:4px}
+.modal .modal-sub{color:var(--dim);font-size:13px;margin-bottom:20px}
+.modal .close-btn{position:absolute;top:12px;right:16px;font-size:24px;color:var(--dim);cursor:pointer;background:none;border:none}
+
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;color:var(--dim);margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:#0d1220;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+.form-group textarea{resize:vertical;min-height:60px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:12px;border-radius:12px;font-size:15px;cursor:pointer;font-weight:700;width:100%;margin-top:4px}
+.cancel-link{display:block;text-align:center;margin-top:12px;color:var(--dim);font-size:13px;cursor:pointer}
+
+/* Event Detail View */
+.detail-header{margin-bottom:20px}
+.detail-header h2{font-size:22px;font-weight:700;margin-bottom:6px}
+.detail-meta{display:flex;flex-wrap:wrap;gap:16px;color:var(--dim);font-size:14px;margin-bottom:16px}
+.detail-meta span{display:flex;align-items:center;gap:6px}
+.detail-desc{font-size:14px;line-height:1.8;color:rgba(255,255,255,.7);padding:16px;background:rgba(255,255,255,.02);border-radius:12px;margin-bottom:20px;white-space:pre-wrap}
+
+.detail-action{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.detail-action .evt-btn{padding:12px 32px;font-size:15px}
+
+.player-list{margin-top:16px}
+.player-list h3{font-size:16px;font-weight:600;margin-bottom:12px}
+.pl-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pl-item:last-child{border:none}
+.pl-num{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.pl-name{font-size:14px;font-weight:600;flex:1}
+.pl-team{font-size:12px;color:var(--dim)}
+.pl-time{font-size:11px;color:var(--dim)}
+
+/* Scoreboard & Pairings (reuse from v1) */
+.tab-bar{display:flex;justify-content:center;gap:8px;margin:16px 0}
+.tab-btn{padding:8px 20px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;font-size:14px}
+.tab-btn.active{background:var(--card);color:var(--text)}
+
+table.sb{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden}
+table.sb th{background:#0d1220;padding:10px 14px;text-align:left;font-size:12px;color:var(--dim);font-weight:500}
+table.sb td{padding:10px 14px;border-top:1px solid var(--border);font-size:13px}
+table.sb .rank{font-weight:700;width:36px;text-align:center}
+table.sb .rank-1{color:var(--gold)}
+table.sb .rank-2{color:var(--silver)}
+table.sb .rank-3{color:var(--bronze)}
+table.sb .score{font-weight:700;color:var(--accent)}
+
+.pair-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.pair-card .table-num{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:6px}
+.pair-card .teams{display:flex;align-items:center;justify-content:center;gap:14px}
+.pair-card .team{text-align:center;flex:1;font-size:13px;font-weight:600}
+.pair-card .vs{color:var(--dim);font-weight:700;font-size:14px}
+.pair-card .result{margin-top:8px;font-size:12px;color:var(--dim);text-align:center}
+.pair-card .winner{color:var(--gold);font-weight:600}
+
+/* Big Screen */
+.fullscreen-btn{position:fixed;bottom:20px;right:20px;background:var(--accent2);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;z-index:100;display:none}
+body.bigscreen .header{display:none}
+body.bigscreen .view{max-width:100%;padding:40px 60px}
+body.bigscreen table.sb td{font-size:18px;padding:14px 20px}
+
+/* Toast */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);padding:10px 22px;border-radius:10px;font-size:14px;z-index:200;display:none}
+.toast.show{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Booking Tiers */
+.bk-tier{flex:1;padding:16px 10px;border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card)}
+.bk-tier:hover{border-color:rgba(255,149,0,.3)}
+.bk-tier.selected{border-color:var(--orange);background:rgba(255,149,0,.08);box-shadow:0 0 16px rgba(255,149,0,.15)}
+
+/* Mobile */
+@media(max-width:500px){
+  .form-row{grid-template-columns:1fr}
+  .evt-info{gap:8px}
+  .evt-bottom{flex-wrap:wrap;gap:8px}
+  .detail-meta{gap:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="back" onclick="goBack()">← 返回</span>
+  <h1>掼蛋赛事中心</h1>
+  <span class="create-link" onclick="showView('v-create')">+ 发布赛事</span>
+</div>
+
+<!-- View: Event Calendar -->
+<div id="v-list" class="view active">
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">‹</button>
+    <span class="month-label" id="month-label"></span>
+    <button onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="cal-weekdays">
+    <span class="cal-wd">一</span><span class="cal-wd">二</span><span class="cal-wd">三</span>
+    <span class="cal-wd">四</span><span class="cal-wd">五</span>
+    <span class="cal-wd we">六</span><span class="cal-wd we">日</span>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot team"></div><span>AI Team（工作日·组队）</span></div>
+    <div class="legend-item"><div class="legend-dot solo"></div><span>AI Solo（周末·个人）</span></div>
+    <div class="legend-item"><div class="legend-dot bk"></div><span>已占（已预约）</span></div>
+    <div class="legend-item"><div class="legend-dot av"></div><span>可约（可预约）</span></div>
+  </div>
+  <div class="detail-card" id="detail-card"></div>
+</div>
+
+<!-- View: Create Event -->
+<div id="v-create" class="view">
+  <h2 style="margin-bottom:20px">发布赛事</h2>
+  <div class="form-group">
+    <label>赛事名称</label>
+    <input id="f-name" placeholder="例：周六公益掼蛋赛" maxlength="40">
+  </div>
+  <div class="form-group">
+    <label>赛事类型</label>
+    <select id="f-type">
+      <option value="bounty_team">AI Bounty Team（工作日·付费组队）</option>
+      <option value="bounty_solo">AI Bounty Solo（周末·免费个人）</option>
+      <option value="teambuilding">企业团建</option>
+      <option value="open">公开赛</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>日期</label>
+      <input id="f-date" type="date">
+    </div>
+    <div class="form-group">
+      <label>时间</label>
+      <input id="f-time" type="time" value="14:00">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>地点</label>
+    <input id="f-location" placeholder="例：杭州市西湖区xx路xx号" maxlength="80">
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>人数上限</label>
+      <select id="f-capacity">
+        <option value="8">8人（2桌）</option>
+        <option value="12">12人（3桌）</option>
+        <option value="16" selected>16人（4桌）</option>
+        <option value="20">20人（5桌）</option>
+        <option value="24">24人（6桌）</option>
+        <option value="32">32人（8桌）</option>
+        <option value="48">48人（12桌）</option>
+        <option value="0">不限</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>费用（元）</label>
+      <input id="f-fee" type="number" value="0" min="0" placeholder="0为免费">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>赛制</label>
+      <select id="f-format">
+        <option value="swiss">瑞士制（推荐）</option>
+        <option value="round-robin">循环赛</option>
+        <option value="elimination">淘汰赛</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>轮次</label>
+      <select id="f-rounds">
+        <option value="3">3轮</option>
+        <option value="4">4轮</option>
+        <option value="5" selected>5轮</option>
+        <option value="6">6轮</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>赛事说明（选填）</label>
+    <textarea id="f-desc" placeholder="奖品设置、注意事项等"></textarea>
+  </div>
+  <div class="form-group">
+    <label>组织者</label>
+    <input id="f-organizer" placeholder="你的名字" maxlength="20">
+  </div>
+  <button class="submit-btn" onclick="createEvent()">发布赛事</button>
+  <div class="cancel-link" onclick="showView('v-list')">取消</div>
+</div>
+
+<!-- View: Event Detail -->
+<div id="v-detail" class="view">
+  <div class="detail-header">
+    <h2 id="d-name"></h2>
+    <div class="detail-meta" id="d-meta"></div>
+  </div>
+  <div class="detail-desc" id="d-desc"></div>
+  <div class="detail-action" id="d-actions"></div>
+
+  <div class="tab-bar" id="d-tabs">
+    <button class="tab-btn active" onclick="detailTab('players')" id="dt-players">报名列表</button>
+    <button class="tab-btn" onclick="detailTab('scoreboard')" id="dt-scoreboard">积分榜</button>
+    <button class="tab-btn" onclick="detailTab('pairings')" id="dt-pairings">对阵</button>
+  </div>
+
+  <div id="dp-players"></div>
+  <div id="dp-scoreboard" style="display:none"></div>
+  <div id="dp-pairings" style="display:none"></div>
+</div>
+
+<!-- Sign Up Modal -->
+<div class="modal-mask" id="signup-modal">
+  <div class="modal">
+    <h3>报名参赛</h3>
+    <div class="modal-sub" id="sm-event-name"></div>
+    <div class="form-group">
+      <label>姓名 *</label>
+      <input id="sm-name" placeholder="真实姓名" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>手机号 *</label>
+      <input id="sm-phone" type="tel" placeholder="联系电话" maxlength="11">
+    </div>
+    <div class="form-group">
+      <label>团队/公司（选填）</label>
+      <input id="sm-team" placeholder="团建填写公司名" maxlength="30">
+    </div>
+    <div class="form-group">
+      <label>备注（选填）</label>
+      <input id="sm-note" placeholder="特殊需求等" maxlength="50">
+    </div>
+    <button class="submit-btn" onclick="submitSignup()">确认报名</button>
+    <div class="cancel-link" onclick="closeSignup()">取消</div>
+  </div>
+</div>
+
+<!-- Booking Modal (团建预约) -->
+<div class="modal-mask" id="booking-modal">
+  <div class="modal">
+    <h3>预约企业团建</h3>
+    <div class="modal-sub">AI一体机 · 专业计分 · 茶歇配套</div>
+    <div class="form-group">
+      <label>选择规模</label>
+      <div style="display:flex;gap:10px;margin-top:6px" id="bk-tiers">
+        <div class="bk-tier selected" onclick="selectTier(this,20)" data-count="20">
+          <div style="font-size:24px;margin-bottom:4px">👥</div>
+          <div style="font-weight:700">20人</div>
+          <div style="font-size:12px;color:var(--dim)">5桌</div>
+        </div>
+        <div class="bk-tier" onclick="selectTier(this,40)" data-count="40">
+          <div style="font-size:24px;margin-bottom:4px">👥👥</div>
+          <div style="font-weight:700">40人</div>
+          <div style="font-size:12px;color:var(--dim)">10桌</div>
+        </div>
+        <div class="bk-tier" onclick="selectTier(this,0)" data-count="0">
+          <div style="font-size:24px;margin-bottom:4px">✨</div>
+          <div style="font-weight:700">定制</div>
+          <div style="font-size:12px;color:var(--dim)">自定义</div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>公司/团队名称 *</label>
+      <input id="bk-company" placeholder="例：xx科技有限公司" maxlength="40">
+    </div>
+    <div class="form-group">
+      <label>联系人 *</label>
+      <input id="bk-contact" placeholder="姓名" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>联系电话 *</label>
+      <input id="bk-phone" type="tel" placeholder="手机号" maxlength="11">
+    </div>
+    <div style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:12px;padding:14px;margin:16px 0;text-align:center">
+      <div style="font-size:13px;color:var(--dim);margin-bottom:4px">预付定金</div>
+      <div style="font-size:28px;font-weight:900;color:var(--gold)">¥100</div>
+      <div style="font-size:12px;color:var(--dim);margin-top:4px">支付后我们的团建经理将在24h内联系您</div>
+    </div>
+    <button class="submit-btn" onclick="submitBooking()" style="background:linear-gradient(135deg,var(--gold),var(--orange))">支付 ¥100 预约</button>
+    <div class="cancel-link" onclick="closeBooking()">取消</div>
+  </div>
+</div>
+
+<!-- Dummy Payment Page -->
+<div class="modal-mask" id="payment-modal">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:48px;margin:20px 0">💳</div>
+    <h3>支付确认</h3>
+    <div style="font-size:36px;font-weight:900;color:var(--gold);margin:16px 0">¥100.00</div>
+    <div style="color:var(--dim);font-size:13px;margin-bottom:20px">Crayxus 团建预约定金</div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px">
+      <button class="submit-btn" style="width:auto;padding:12px 32px;background:#07c160" onclick="fakePay('wechat')">微信支付</button>
+      <button class="submit-btn" style="width:auto;padding:12px 32px;background:#1677ff" onclick="fakePay('alipay')">支付宝</button>
+    </div>
+    <div class="cancel-link" onclick="closePayment()">取消支付</div>
+  </div>
+</div>
+
+<!-- Payment Success -->
+<div class="modal-mask" id="payment-success-modal">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:64px;margin:20px 0">✅</div>
+    <h3 style="color:var(--accent)">预约成功！</h3>
+    <div style="color:var(--dim);font-size:14px;margin:16px 0;line-height:1.8">
+      定金 ¥100 已收到<br>
+      我们的团建经理将在 <span style="color:var(--gold);font-weight:700">24小时内</span> 联系您<br>
+      确认场地、时间和具体方案
+    </div>
+    <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:14px;margin:16px 0;text-align:left;font-size:13px;color:var(--dim)" id="bk-summary"></div>
+    <button class="submit-btn" onclick="closePaymentSuccess()">返回赛事日历</button>
+  </div>
+</div>
+
+<button class="fullscreen-btn" onclick="document.body.classList.toggle('bigscreen')" id="fs-btn">大屏模式</button>
+<div class="toast" id="toast"></div>
+
+<script>
+const API = window.location.origin;
+let currentEvent = null;
+let monthOffset = 0;
+let allEvents = [];
+let myInfo = JSON.parse(localStorage.getItem('t_myinfo') || 'null') || {};
+
+const WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const TYPE_LABELS = {teambuilding:'企业团建', bounty:'AI Bounty', bounty_team:'AI Team', bounty_solo:'AI Solo', open:'公开赛'};
+const FORMAT_LABELS = {swiss:'瑞士制', 'round-robin':'循环赛', elimination:'淘汰赛'};
+
+function goBack() { window.location.href = '/'; }
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('fs-btn').style.display = id === 'v-detail' ? 'block' : 'none';
+  if (id === 'v-list') loadEvents();
+  if (id === 'v-create') prefillCreate();
+}
+
+function toast(msg) {
+  let t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function esc(s) { let d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function fmtDate(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function isToday(dateStr) { return dateStr === fmtDate(new Date()); }
+
+function changeMonth(dir) { monthOffset += dir; buildCalendar(); }
+
+// ===== Load Events =====
+async function loadEvents() {
+  try {
+    let res = await fetch(API + '/api/tournaments');
+    allEvents = await res.json();
+    buildCalendar();
+  } catch(e) { console.error(e); }
+}
+
+// ===== Build Monthly Calendar Grid =====
+function buildCalendar() {
+  let now = new Date();
+  let today = fmtDate(now);
+  let tYear = now.getFullYear(), tMonth = now.getMonth() + monthOffset;
+  let target = new Date(tYear, tMonth, 1);
+  let yr = target.getFullYear(), mo = target.getMonth();
+
+  document.getElementById('month-label').textContent = yr + '年' + MONTH_NAMES[mo];
+
+  let firstDay = new Date(yr, mo, 1).getDay();
+  let daysInMonth = new Date(yr, mo + 1, 0).getDate();
+  let startOffset = (firstDay + 6) % 7;
+
+  // Event lookup
+  let eventMap = {};
+  allEvents.forEach(t => {
+    let ed = t.eventDate || (t.createdAt || '').split('T')[0];
+    if (!eventMap[ed]) eventMap[ed] = [];
+    eventMap[ed].push(t);
+  });
+
+  let grid = document.getElementById('cal-grid');
+  let html = '';
+
+  for (let i = 0; i < 42; i++) {
+    let dayNum = i - startOffset + 1;
+    let isOther = dayNum < 1 || dayNum > daysInMonth;
+    let d = new Date(yr, mo, dayNum);
+    let ds = fmtDate(d);
+    let dow = d.getDay();
+    let isWeekend = dow === 0 || dow === 6;
+
+    let type = '', tagHtml = '', tagClass = '';
+    let dayEvents = eventMap[ds] || [];
+
+    if (dayEvents.length > 0) {
+      let ev = dayEvents[0];
+      if (ev.eventType === 'bounty_team') {
+        if (ev.status === 'booked' || ev.status === 'finished') {
+          type = 'booked'; tagHtml = '<span class="cell-tag booked">已占</span>';
+        } else {
+          type = 'bounty_team'; tagHtml = '<span class="cell-tag bounty-team">AI Team</span>';
+        }
+      } else if (ev.eventType === 'bounty_solo' || ev.eventType === 'bounty') {
+        if (ev.status === 'finished' || (ev.capacity > 0 && (ev.players||[]).length >= ev.capacity)) {
+          type = 'bounty_full'; tagHtml = '<span class="cell-tag full">已满</span>';
+        } else {
+          type = 'bounty_solo'; tagHtml = '<span class="cell-tag bounty-solo">AI Solo</span>';
+        }
+      } else if (ev.eventType === 'teambuilding') {
+        if (ev.status === 'booked') {
+          type = 'booked'; tagHtml = '<span class="cell-tag booked">已占</span>';
+        } else {
+          type = 'booked'; tagHtml = '<span class="cell-tag avail">可约</span>';
+        }
+      } else {
+        type = 'open'; tagHtml = `<span class="cell-tag open-evt">${esc((ev.name||'').substring(0,4))}</span>`;
+      }
+    } else if (!isOther && isWeekend) {
+      type = 'bounty_solo'; tagHtml = '<span class="cell-tag bounty-solo">AI Solo</span>';
+    } else if (!isOther && !isWeekend) {
+      type = 'bounty_team'; tagHtml = '<span class="cell-tag bounty-team">AI Team</span>';
+    }
+
+    let classes = 'cal-cell';
+    if (isOther) classes += ' other';
+    if (ds === today) classes += ' today';
+    if (type) classes += ' ' + type;
+
+    html += `<div class="${classes}" onclick="onCellTap('${ds}')" data-date="${ds}">
+      <span class="cell-d">${d.getDate()}</span>
+      ${isOther ? '' : tagHtml}
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+  document.getElementById('detail-card').className = 'detail-card';
+}
+
+// ===== Cell Tap → Detail Card =====
+function onCellTap(ds) {
+  let dayEvents = allEvents.filter(t => (t.eventDate || (t.createdAt||'').split('T')[0]) === ds);
+  let card = document.getElementById('detail-card');
+  let d = new Date(ds + 'T12:00:00');
+  let dow = d.getDay();
+  let isWeekend = dow === 0 || dow === 6;
+
+  if (dayEvents.length > 0) {
+    let ev = dayEvents[0];
+    let name = ev.name || (ev.eventType === 'teambuilding' ? '企业团建' : 'AI Bounty');
+    let tagText = '', tagClass = '', btnHtml = '';
+
+    if (ev.eventType === 'bounty_team') {
+      if (ev.status === 'booked' || ev.status === 'finished') {
+        name = (ev.bookedBy || ev.name) + ' · 已占用';
+        tagText = '已占'; tagClass = 'tag-booked';
+      } else {
+        tagText = '付费·组队'; tagClass = 'tag-team';
+        btnHtml = `<span class="dc-btn primary" onclick="openEvent('${ev.code}')">查看详情 · 报名</span>`;
+      }
+    } else if (ev.eventType === 'bounty_solo' || ev.eventType === 'bounty') {
+      if (ev.status === 'finished' || (ev.capacity > 0 && (ev.players||[]).length >= ev.capacity)) {
+        tagText = '已满'; tagClass = 'tag-full';
+      } else {
+        tagText = '免费·个人'; tagClass = 'tag-solo';
+        btnHtml = `<span class="dc-btn primary" onclick="openEvent('${ev.code}')">查看详情 · 报名</span>`;
+      }
+    } else if (ev.eventType === 'teambuilding') {
+      if (ev.status === 'booked') {
+        name = (ev.bookedBy || '企业团建') + ' · 已占用';
+        tagText = '已占'; tagClass = 'tag-booked';
+      } else {
+        tagText = '可预约'; tagClass = 'tag-avail';
+        btnHtml = `<span class="dc-btn gold" onclick="openBooking('${ev.code}')">预约团建 ¥100</span>`;
+      }
+    } else {
+      tagText = TYPE_LABELS[ev.eventType] || '赛事'; tagClass = 'tag-team';
+      btnHtml = `<span class="dc-btn primary" onclick="openEvent('${ev.code}')">查看详情 · 报名</span>`;
+    }
+
+    let count = ev.playerCount || (ev.players||[]).length || 0;
+    card.innerHTML = `
+      <div class="dc-top"><span class="dc-name">${esc(name)}</span><span class="dc-tag ${tagClass}">${tagText}</span></div>
+      ${ev.eventTime ? `<div class="dc-row">🕐 ${ds} ${ev.eventTime}</div>` : ''}
+      ${ev.location ? `<div class="dc-row">📍 ${esc(ev.location)}</div>` : ''}
+      ${ev.capacity ? `<div class="dc-row">👥 ${count}/${ev.capacity}人</div>` : ''}
+      ${ev.description ? `<div class="dc-row">📝 ${esc(ev.description)}</div>` : ''}
+      ${btnHtml ? `<div class="dc-actions">${btnHtml}</div>` : ''}`;
+    card.className = 'detail-card show';
+  } else {
+    // Auto-filled day
+    let label = isWeekend ? 'AI Bounty Solo' : 'AI Bounty Team';
+    let tag = isWeekend ? '<span class="dc-tag tag-solo">免费·个人</span>' : '<span class="dc-tag tag-team">付费·组队</span>';
+    let desc = isWeekend ? '周末免费参赛，击败AI赢奖金！' : '工作日组队挑战，付费参赛。';
+    card.innerHTML = `
+      <div class="dc-top"><span class="dc-name">${label}</span>${tag}</div>
+      <div class="dc-row">📅 ${ds} ${isWeekend ? '13:00' : '14:00'}</div>
+      <div class="dc-row">📍 杭州 · 待定</div>
+      <div class="dc-row">📝 ${desc}</div>
+      <div class="dc-actions"><span class="dc-btn dim">即将开放报名</span></div>`;
+    card.className = 'detail-card show';
+  }
+}
+
+// ===== Create Event =====
+function prefillCreate() {
+  // Default to next Saturday
+  let d = new Date();
+  let daysToSat = (6 - d.getDay() + 7) % 7 || 7;
+  let sat = new Date(d); sat.setDate(d.getDate() + daysToSat);
+  document.getElementById('f-date').value = fmtDate(sat);
+  if (myInfo.name) document.getElementById('f-organizer').value = myInfo.name;
+}
+
+async function createEvent() {
+  let name = document.getElementById('f-name').value.trim();
+  let organizer = document.getElementById('f-organizer').value.trim();
+  if (!name) { toast('请输入赛事名称'); return; }
+  if (!organizer) { toast('请输入组织者名称'); return; }
+
+  let data = {
+    name,
+    eventType: document.getElementById('f-type').value,
+    eventDate: document.getElementById('f-date').value,
+    eventTime: document.getElementById('f-time').value,
+    location: document.getElementById('f-location').value.trim(),
+    capacity: parseInt(document.getElementById('f-capacity').value),
+    fee: parseFloat(document.getElementById('f-fee').value) || 0,
+    format: document.getElementById('f-format').value,
+    totalRounds: parseInt(document.getElementById('f-rounds').value),
+    gamesPerRound: 2,
+    casualMode: 'fixed',
+    organizer,
+    description: document.getElementById('f-desc').value.trim()
+  };
+
+  try {
+    let res = await fetch(API + '/api/tournaments', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
+    });
+    let t = await res.json();
+    if (t.error) { toast(t.error); return; }
+    toast('赛事发布成功！');
+    openEvent(t.code);
+  } catch(e) { toast('发布失败'); }
+}
+
+// ===== Sign Up =====
+let signupCode = '';
+function openSignup(code, name) {
+  signupCode = code;
+  document.getElementById('sm-event-name').textContent = name;
+  if (myInfo.name) document.getElementById('sm-name').value = myInfo.name;
+  if (myInfo.phone) document.getElementById('sm-phone').value = myInfo.phone;
+  if (myInfo.team) document.getElementById('sm-team').value = myInfo.team;
+  document.getElementById('signup-modal').classList.add('show');
+}
+function closeSignup() { document.getElementById('signup-modal').classList.remove('show'); }
+
+async function submitSignup() {
+  let name = document.getElementById('sm-name').value.trim();
+  let phone = document.getElementById('sm-phone').value.trim();
+  let team = document.getElementById('sm-team').value.trim();
+  let note = document.getElementById('sm-note').value.trim();
+
+  if (!name) { toast('请输入姓名'); return; }
+  if (!phone || phone.length < 8) { toast('请输入有效手机号'); return; }
+
+  // Save for next time
+  myInfo = { name, phone, team };
+  localStorage.setItem('t_myinfo', JSON.stringify(myInfo));
+
+  try {
+    let res = await fetch(API + '/api/tournaments/' + signupCode + '/join', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ nickname: name, phone, team, note })
+    });
+    let data = await res.json();
+    if (data.error) { toast(data.error); return; }
+    toast('报名成功！');
+    closeSignup();
+    if (currentEvent === signupCode) refreshEvent(signupCode);
+    else loadEvents();
+  } catch(e) { toast('报名失败'); }
+}
+
+// ===== Event Detail =====
+async function openEvent(code) {
+  currentEvent = code;
+  showView('v-detail');
+  await refreshEvent(code);
+}
+
+async function refreshEvent(code) {
+  try {
+    let res = await fetch(API + '/api/tournaments/' + code);
+    let t = await res.json();
+    if (t.error) { toast(t.error); showView('v-list'); return; }
+    renderDetail(t);
+  } catch(e) {}
+}
+
+function renderDetail(t) {
+  let type = t.eventType || 'open';
+  let fee = t.fee || 0;
+  let cap = t.capacity || 0;
+  let count = t.players.length;
+
+  document.getElementById('d-name').textContent = t.name;
+
+  let meta = `
+    <span>📅 ${t.eventDate || '--'} ${t.eventTime || ''}</span>
+    <span>📍 ${esc(t.location || '待定')}</span>
+    <span>🏷️ ${TYPE_LABELS[type] || type}</span>
+    <span>🎯 ${FORMAT_LABELS[t.format]} · ${t.totalRounds}轮</span>
+    <span>👥 ${count}${cap > 0 ? '/' + cap : ''}人</span>
+  `;
+  document.getElementById('d-meta').innerHTML = meta;
+  document.getElementById('d-desc').textContent = t.description || '暂无说明';
+  document.getElementById('d-desc').style.display = t.description ? 'block' : 'none';
+
+  // Actions
+  let isOrganizer = myInfo.name === t.organizer;
+  let isJoined = t.players.some(p => p.phone === myInfo.phone && p.name === (p.nickname || p.name));
+  let isFull = cap > 0 && count >= cap;
+  let actHtml = '';
+
+  if (t.status === 'open') {
+    if (!isJoined && !isFull) {
+      actHtml += `<button class="evt-btn signup" onclick="openSignup('${t.code}','${esc(t.name)}')">立即报名</button>`;
+    } else if (isJoined) {
+      actHtml += `<button class="evt-btn joined">已报名 ✓</button>`;
+    }
+    if (isOrganizer && count >= 4) {
+      actHtml += `<button class="evt-btn signup" style="background:var(--accent2)" onclick="startEvent('${t.code}')">开始比赛</button>`;
+    }
+  } else if (t.status === 'active' && isOrganizer) {
+    let roundDone = t.rounds[t.currentRound-1] && t.rounds[t.currentRound-1].every(m => m.result);
+    if (roundDone && t.currentRound < t.totalRounds) {
+      actHtml += `<button class="evt-btn signup" onclick="nextRound('${t.code}')">下一轮配对</button>`;
+    } else if (roundDone && t.currentRound >= t.totalRounds) {
+      actHtml += `<button class="evt-btn signup" style="background:var(--gold);color:#000" onclick="finishEvent('${t.code}')">结束赛事</button>`;
+    }
+  }
+  actHtml += `<button class="evt-btn view" onclick="shareEvent('${t.code}')">分享赛事</button>`;
+  document.getElementById('d-actions').innerHTML = actHtml;
+
+  // Players list
+  let plHtml = `<div class="player-list"><h3>报名列表 (${count}人)</h3>`;
+  t.players.forEach((p, i) => {
+    plHtml += `<div class="pl-item">
+      <div class="pl-num">${i+1}</div>
+      <div class="pl-name">${esc(p.nickname || p.name)}${p.nickname === t.organizer ? ' <span style="color:var(--accent);font-size:11px">组织者</span>' : ''}</div>
+      ${p.team ? `<div class="pl-team">${esc(p.team)}</div>` : ''}
+      <div class="pl-time">${p.joinedAt ? new Date(p.joinedAt).toLocaleDateString() : ''}</div>
+    </div>`;
+  });
+  plHtml += '</div>';
+  document.getElementById('dp-players').innerHTML = plHtml;
+
+  // Scoreboard
+  renderScoreboard(t);
+  renderPairings(t, isOrganizer);
+
+  // Show/hide tabs based on status
+  document.getElementById('d-tabs').style.display = t.status !== 'open' ? 'flex' : 'none';
+}
+
+function renderScoreboard(t) {
+  let el = document.getElementById('dp-scoreboard');
+  if (!t.standings || !t.standings.length) { el.innerHTML = '<p style="color:var(--dim);text-align:center;padding:30px">比赛开始后显示</p>'; return; }
+  let html = `<table class="sb"><tr><th>#</th><th>选手</th><th>胜</th><th>负</th><th>得分</th><th>小分</th></tr>`;
+  t.standings.forEach((p, i) => {
+    let rc = i < 3 ? `rank-${i+1}` : '';
+    html += `<tr><td class="rank ${rc}">${i+1}</td><td>${esc(p.nickname)}</td><td>${p.wins}</td><td>${p.losses}</td><td class="score">${p.score}</td><td>${p.tiebreak.toFixed(1)}</td></tr>`;
+  });
+  el.innerHTML = html + '</table>';
+}
+
+function renderPairings(t, isOrg) {
+  let el = document.getElementById('dp-pairings');
+  if (!t.rounds || !t.rounds.length) { el.innerHTML = '<p style="color:var(--dim);text-align:center;padding:30px">比赛开始后显示</p>'; return; }
+  let html = '';
+  for (let r = t.rounds.length - 1; r >= 0; r--) {
+    html += `<h4 style="margin:14px 0 10px;color:var(--accent);font-size:14px">第${r+1}轮</h4>`;
+    t.rounds[r].forEach((m, i) => {
+      let resHtml = '';
+      if (m.result) {
+        resHtml = `<div class="result">${m.result.scores.map((s, si) => {
+          let n = m.teams[si].map(p => esc(p)).join(' & ');
+          return `<span class="${si === m.result.winner ? 'winner' : ''}">${n}: ${s}分${si === m.result.winner ? ' ✓' : ''}</span>`;
+        }).join(' | ')}</div>`;
+      } else if (isOrg) {
+        resHtml = `<div style="text-align:center;margin-top:8px">
+          <button onclick="reportResult('${t.code}',${r},${i},0)" style="padding:5px 14px;border:none;border-radius:6px;background:var(--green);color:#000;cursor:pointer;font-size:12px;margin:0 3px">左队胜</button>
+          <button onclick="reportResult('${t.code}',${r},${i},1)" style="padding:5px 14px;border:none;border-radius:6px;background:var(--red);color:#fff;cursor:pointer;font-size:12px;margin:0 3px">右队胜</button>
+        </div>`;
+      } else {
+        resHtml = `<div class="result">进行中...</div>`;
+      }
+      html += `<div class="pair-card"><div class="table-num">桌${i+1}</div><div class="teams"><div class="team">${m.teams[0].map(p=>esc(p)).join(' & ')}</div><div class="vs">VS</div><div class="team">${m.teams[1].map(p=>esc(p)).join(' & ')}</div></div>${resHtml}</div>`;
+    });
+  }
+  el.innerHTML = html;
+}
+
+function detailTab(tab) {
+  ['players','scoreboard','pairings'].forEach(t => {
+    document.getElementById('dp-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('dt-' + t).className = 'tab-btn' + (t === tab ? ' active' : '');
+  });
+}
+
+// ===== Actions =====
+async function startEvent(code) {
+  if (!confirm('确定开始比赛？开始后不能再报名')) return;
+  try {
+    let res = await fetch(API + '/api/tournaments/' + code + '/start', { method: 'POST' });
+    let d = await res.json();
+    if (d.error) { toast(d.error); return; }
+    toast('比赛开始！');
+    detailTab('pairings');
+    refreshEvent(code);
+  } catch(e) { toast('操作失败'); }
+}
+
+async function nextRound(code) {
+  try {
+    let res = await fetch(API + '/api/tournaments/' + code + '/next-round', { method: 'POST' });
+    let d = await res.json();
+    if (d.error) { toast(d.error); return; }
+    toast(`第${d.currentRound}轮已配对`);
+    detailTab('pairings');
+    refreshEvent(code);
+  } catch(e) { toast('操作失败'); }
+}
+
+async function finishEvent(code) {
+  if (!confirm('确定结束赛事？')) return;
+  try {
+    let res = await fetch(API + '/api/tournaments/' + code + '/finish', { method: 'POST' });
+    let d = await res.json();
+    if (d.error) { toast(d.error); return; }
+    toast('赛事已结束！');
+    detailTab('scoreboard');
+    refreshEvent(code);
+  } catch(e) { toast('操作失败'); }
+}
+
+async function reportResult(code, round, match, winner) {
+  let scores = winner === 0 ? [3, 0] : [0, 3];
+  try {
+    let res = await fetch(API + '/api/tournaments/' + code + '/result', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ round, match, winner, scores })
+    });
+    let d = await res.json();
+    if (d.error) { toast(d.error); return; }
+    toast('成绩已录入');
+    refreshEvent(code);
+  } catch(e) { toast('录入失败'); }
+}
+
+function shareEvent(code) {
+  let url = window.location.origin + '/tournament?code=' + code;
+  navigator.clipboard.writeText(url).then(() => toast('链接已复制')).catch(() => {
+    let i = document.createElement('input'); i.value = url; document.body.appendChild(i); i.select(); document.execCommand('copy'); document.body.removeChild(i);
+    toast('链接已复制');
+  });
+}
+
+// ===== Teambuilding Booking =====
+let bookingCode = '';
+let bookingTier = 20;
+
+function selectTier(el, count) {
+  document.querySelectorAll('.bk-tier').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  bookingTier = count;
+}
+
+function openBooking(code) {
+  bookingCode = code;
+  if (myInfo.name) document.getElementById('bk-contact').value = myInfo.name;
+  if (myInfo.phone) document.getElementById('bk-phone').value = myInfo.phone;
+  document.getElementById('booking-modal').classList.add('show');
+}
+function closeBooking() { document.getElementById('booking-modal').classList.remove('show'); }
+
+function submitBooking() {
+  let company = document.getElementById('bk-company').value.trim();
+  let contact = document.getElementById('bk-contact').value.trim();
+  let phone = document.getElementById('bk-phone').value.trim();
+  if (!company) { toast('请输入公司名称'); return; }
+  if (!contact) { toast('请输入联系人'); return; }
+  if (!phone || phone.length < 8) { toast('请输入联系电话'); return; }
+
+  // Save booking info
+  window._bookingInfo = { company, contact, phone, tier: bookingTier || '定制' };
+  closeBooking();
+  // Show dummy payment
+  document.getElementById('payment-modal').classList.add('show');
+}
+
+function closePayment() { document.getElementById('payment-modal').classList.remove('show'); }
+
+function fakePay(method) {
+  document.getElementById('payment-modal').classList.remove('show');
+  // Show success
+  let info = window._bookingInfo || {};
+  let tierText = info.tier === 0 ? '定制规模' : info.tier + '人';
+  document.getElementById('bk-summary').innerHTML =
+    `公司：${esc(info.company)}<br>联系人：${esc(info.contact)}<br>电话：${info.phone}<br>规模：${tierText}<br>支付方式：${method === 'wechat' ? '微信支付' : '支付宝'}`;
+  document.getElementById('payment-success-modal').classList.add('show');
+  toast('预约成功！');
+}
+
+function closePaymentSuccess() {
+  document.getElementById('payment-success-modal').classList.remove('show');
+  loadEvents();
+}
+
+// ===== Init =====
+loadEvents();
+let params = new URLSearchParams(window.location.search);
+let urlCode = params.get('code');
+if (urlCode) openEvent(urlCode.toUpperCase());
+</script>
+</body>
+</html>
