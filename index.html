@@ -6,7 +6,8 @@
 <title>Crayxus V41.1 - Stable</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.0/dist/ort.min.js"></script>
+<script>if(typeof ort==='undefined'){document.write('<script src="https://unpkg.com/onnxruntime-web@1.17.0/dist/ort.min.js"><\/script>')}</script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
 :root{--bg:#000;--neon:#00ffcc;--gold:#ffc800;--red:#ff3b30;--panel:rgba(20,22,28,0.98);
@@ -4598,7 +4599,7 @@ let dmcMode=false; // true if using DMC dual-input model
 let v5Mode=false;  // true if using V5 714-dim state encoder
 let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool, handType:obj} for history encoding
 const ONNX_MODEL_URL_V5='https://huggingface.co/iluman/guandan-ai/resolve/main/guandan_dmc_v5.onnx';
-const ONNX_MODEL_URL_DMC='onnx_model/guandan_dmc.onnx';
+const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/guandan_dmc_v5.onnx';
 const MCTS_API='http://localhost:8000';
 let mctsAvailable=false; // detected at startup
 
