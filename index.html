@@ -1442,7 +1442,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
 </style>
 </head>
 <body>
-<div id="boot" class="screen">
+<div id="boot" class="screen active">
   <div class="holo-particles" id="boot-particles"></div>
   <div class="holo-grid-floor"></div>
   <div class="holo-scanline"></div>
@@ -1464,7 +1464,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <style>@keyframes flash{0%,100%{opacity:0.3}50%{opacity:1}}</style>
 </div>
 
-<div id="mode-select" class="screen active" onclick="if(!AudioSys.ctx)AudioSys.init()">
+<div id="mode-select" class="screen" onclick="if(!AudioSys.ctx)AudioSys.init()">
   <div class="holo-particles" id="mode-particles"></div>
   <div class="holo-grid-floor"></div>
   <div class="holo-scanline"></div>
@@ -2484,6 +2484,8 @@ function backToLobby(){
 
 function bootSystem(){
   AudioSys.init();
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  let ms=document.getElementById('mode-select');if(ms){ms.classList.add('active');ms.style.display='flex';}
   let le=document.getElementById('lobby-elo');if(le)le.innerText=myElo;
   let lw=document.getElementById('lobby-winrate');if(lw)lw.innerText=totalGames>0?Math.round(totalWins/totalGames*100)+'%':'0%';
   let heloEl=document.getElementById('holo-elo');if(heloEl)heloEl.innerText=myElo;
