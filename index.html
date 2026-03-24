@@ -5858,58 +5858,47 @@ async function loadOnnxModel(){
     if(mbar) mbar.style.width=pct+'%';
     if(mtxt) mtxt.innerText=text||'Loading AI...';
   }
-  async function fetchWithProgress(url){
-    const response=await fetch(url);
-    if(!response.ok) throw new Error('HTTP '+response.status);
-    const total=parseInt(response.headers.get('content-length')||'0');
-    const reader=response.body.getReader();
-    const chunks=[];
-    let loaded=0;
-    while(true){
-      const {done,value}=await reader.read();
-      if(done) break;
-      chunks.push(value);
-      loaded+=value.byteLength;
-      if(total) setProgress(Math.round(loaded/total*90), 'Downloading AI model...');
+  async function fetchWithProgress(url, maxRetries=3){
+    for(let attempt=1;attempt<=maxRetries;attempt++){
+      try{
+        setProgress(0, attempt>1?`Retry ${attempt}/${maxRetries}...`:'Downloading AI model...');
+        const response=await fetch(url);
+        if(!response.ok) throw new Error('HTTP '+response.status);
+        const total=parseInt(response.headers.get('content-length')||'0');
+        const reader=response.body.getReader();
+        const chunks=[];
+        let loaded=0;
+        while(true){
+          const {done,value}=await reader.read();
+          if(done) break;
+          chunks.push(value);
+          loaded+=value.byteLength;
+          if(total) setProgress(Math.round(loaded/total*90), attempt>1?`Retry ${attempt} downloading...`:'Downloading AI model...');
+        }
+        const buf=new Uint8Array(loaded);
+        let off=0;
+        for(const c of chunks){buf.set(c,off);off+=c.byteLength;}
+        return buf.buffer;
+      }catch(e){
+        console.warn(`Download attempt ${attempt}/${maxRetries} failed:`,e.message);
+        if(attempt===maxRetries) throw e;
+        await new Promise(r=>setTimeout(r,2000));
+      }
     }
-    const buf=new Uint8Array(loaded);
-    let off=0;
-    for(const c of chunks){buf.set(c,off);off+=c.byteLength;}
-    return buf.buffer;
   }
   try{
-    setProgress(0,'Downloading V5 AI model...');
-    const buf5=await fetchWithProgress(ONNX_MODEL_URL_V5);
-    setProgress(92,'Initializing V5 AI...');
+    setProgress(0,'Downloading AI model...');
+    const buf5=await fetchWithProgress(ONNX_MODEL_URL_V5, 3);
+    setProgress(92,'Initializing AI engine...');
     onnxSession=await ort.InferenceSession.create(buf5,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;v5Mode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ DMC V5 AI model loaded (714-dim state encoder)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V5 AI模型已加载';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V5 ✓';if(badge)badge.style.color='var(--neon)';
+    console.log('%c✅ V7 AI model loaded (84.6% WR, 714-dim state encoder)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V7 AI模型已加载 (84.6%)';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V7 84.6% ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e5){
-    console.warn('V5 model not available, trying V4 DMC:',e5.message);
-    try{
-      setProgress(0,'Downloading AI model...');
-      const buf=await fetchWithProgress(ONNX_MODEL_URL_DMC);
-      setProgress(92,'Initializing AI...');
-      onnxSession=await ort.InferenceSession.create(buf,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
-      dmcMode=true;v5Mode=false;
-      setProgress(100,'AI Ready ✓');
-      console.log('%c✅ DMC V4 AI model loaded (78MB, V4 78.5% WR, wild card fixed)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-      let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V4 AI模型已加载';
-      let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V4 78.5% ✓';if(badge)badge.style.color='var(--neon)';
-    }catch(e){
-      console.warn('DMC model not available, trying legacy:',e.message);
-      try{
-        setProgress(50,'Loading fallback model...');
-        onnxSession=await ort.InferenceSession.create(ONNX_MODEL_URL_OLD,{executionProviders:['wasm']});
-        dmcMode=false;v5Mode=false;
-        setProgress(100,'AI Ready ✓');
-        let cn=document.getElementById('coach-note');if(cn)cn.innerText='AI模型已加载';
-      }catch(e2){
-        console.warn('No ONNX model available:',e2.message);
-        onnxSession=null;dmcMode=false;v5Mode=false;
+    console.warn('AI model download failed after retries:',e5.message);
+    onnxSession=null;dmcMode=false;v5Mode=false;
         setProgress(100,'AI模型加载失败，5秒后重试...');
         let cn=document.getElementById('coach-note');if(cn)cn.innerText='模型加载失败，5秒后重试...';
         setTimeout(()=>loadOnnxModel(), 5000);
