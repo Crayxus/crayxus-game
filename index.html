@@ -5899,12 +5899,10 @@ async function loadOnnxModel(){
   }catch(e5){
     console.warn('AI model download failed after retries:',e5.message);
     onnxSession=null;dmcMode=false;v5Mode=false;
-        setProgress(100,'AI模型加载失败，5秒后重试...');
-        let cn=document.getElementById('coach-note');if(cn)cn.innerText='模型加载失败，5秒后重试...';
-        setTimeout(()=>loadOnnxModel(), 5000);
-        return;
-      }
-    }
+    setProgress(100,'AI模型加载失败，5秒后重试...');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='模型加载失败，5秒后重试...';
+    setTimeout(()=>loadOnnxModel(), 5000);
+    return;
   }
   // Show start button ONLY after successful model load
   if(!onnxSession){
