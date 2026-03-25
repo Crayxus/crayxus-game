@@ -1569,7 +1569,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
 <div id="match" class="screen">
   <div class="match-loader"></div>
   <div style="font-size:20px;margin-bottom:10px">GAME ROOM</div>
-  <div class="seat-grid" id="seat-grid"></div>
+  <div class="seat-grid" id="seat-grid" style="display:grid!important;grid-template-columns:repeat(4,130px)!important;gap:14px;justify-content:center"></div>
   <script>
   (function(){
     const g=document.getElementById('seat-grid');
@@ -2885,7 +2885,11 @@ socket.on('arena48RoundStart',d=>{
   let ms=document.getElementById('match-timer');
   if(ms)ms.textContent='第 '+d.round+'/'+d.totalRounds+' 轮 · '+d.totalActive+'人在线';
   // Trigger the actual game start for the player's table
-  setTimeout(()=>{ socket.emit('startMatch'); },500);
+  console.log('[Arena48] Emitting startMatch to server...');
+  setTimeout(()=>{
+    console.log('[Arena48] startMatch emitted now');
+    socket.emit('startMatch');
+  },800);
 });
 
 socket.on('arena48RoundResults',d=>{
