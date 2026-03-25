@@ -63,13 +63,12 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 #match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;padding-top:30px}
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;margin-bottom:20px}
 100%{transform:rotate(360deg)}}
-.seat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px auto;max-width:600px;padding:0 16px}
-.table-card{background:rgba(34,139,34,0.08);border:1px solid rgba(34,139,34,0.25);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
-.table-label{font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:2px;font-weight:700;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
-.table-top{display:flex;gap:8px;justify-content:center}
-.table-mid{width:60%;height:1px;background:rgba(255,255,255,0.06);margin:2px 0}
-.table-bot{display:flex;gap:8px;justify-content:center}
-.seat-slot{width:36px;height:36px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:8px;color:#666;transition:0.3s}
+.seat-grid{display:grid;grid-template-columns:repeat(3,160px);grid-template-rows:repeat(4,auto);gap:10px;margin:20px 0;justify-content:center}
+.table-card{background:rgba(34,139,34,0.1);border:1px solid rgba(34,139,34,0.3);border-radius:12px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:2px;width:160px}
+.table-label{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;font-weight:700}
+.table-top,.table-bot{display:flex;gap:10px;justify-content:center}
+.table-vs{font-size:7px;color:rgba(255,255,255,0.15);letter-spacing:2px}
+.seat-slot{width:32px;height:32px;border-radius:50%;border:2px solid #444;display:flex;justify-content:center;align-items:center;font-size:8px;color:#666;transition:0.3s}
 .seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.12);font-weight:700}
 .seat-slot.bot{border-color:#555;color:#888;border-style:dashed}
 @keyframes seatPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
@@ -793,68 +792,38 @@ to{transform:rotate(360deg)}}
 }
 .casual-popup-back:hover{color:rgba(255,255,255,0.6)}
 
-/* === Arena HUD (compact overlay card) === */
+/* === Arena HUD (simple score + rank badge) === */
 #arena-hud{
   position:absolute;
-  top:8px;
-  right:60px;
+  bottom:220px;
+  left:20px;
   z-index:400;
   pointer-events:none;
 }
 .arena-hud-inner{
-  display:flex;flex-direction:row;align-items:center;gap:10px;
-  padding:6px 12px;
-  background:rgba(5,5,15,0.88);
-  border:1px solid rgba(0,255,255,0.12);
-  border-radius:10px;
-  box-shadow:0 0 12px rgba(0,255,255,0.04);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 14px;
+  background:rgba(5,5,15,0.9);
+  border:1px solid rgba(0,255,255,0.15);
+  border-radius:14px;
+  box-shadow:0 0 20px rgba(0,255,255,0.06);
   font-family:'Orbitron','Segoe UI',sans-serif;
+  min-width:80px;
 }
-.arena-hud-top{
-  display:flex;align-items:center;gap:8px;
-}
-.arena-av-ring{width:40px;height:40px}
+.arena-hud-top{display:flex;flex-direction:column;align-items:center;gap:4px}
+.arena-av-ring{width:48px;height:48px}
 .arena-av-ring svg{width:100%;height:100%}
-.arena-av-ring .casual-avatar-img{width:32px;height:32px;margin:4px;font-size:14px}
+.arena-av-ring .casual-avatar-img{width:38px;height:38px;margin:5px;font-size:16px}
 .arena-av-ring .casual-avatar-glow{inset:-8px}
-.arena-hud-info{display:flex;flex-direction:column;gap:2px}
+.arena-hud-info{display:flex;flex-direction:column;align-items:center;gap:1px}
 .arena-big-rank{display:flex;align-items:baseline;line-height:1}
-.arena-big-rank-num{font-size:24px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
-.arena-big-rank-total{font-size:11px;font-weight:700;color:rgba(255,255,255,0.2);margin-left:1px}
-.arena-elo-line{display:flex;align-items:center;gap:4px}
-.arena-elo-icon{font-size:10px;line-height:1}
-.arena-elo-val{font-size:13px;font-weight:900;color:var(--cyan);font-family:'Orbitron','Segoe UI',sans-serif}
-.arena-hud-mid{
-  display:flex;align-items:center;gap:8px;
-  padding-left:8px;
-  border-left:1px solid rgba(0,255,255,0.08);
-}
-.arena-teams{display:flex;align-items:center;gap:6px}
-.arena-team{display:flex;align-items:center;gap:4px}
-.arena-t-label{font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:2px}
-.arena-t-score{font-size:14px;font-weight:900}
-.arena-team.us .arena-t-score{color:var(--neon);}
-.arena-team.them .arena-t-score{color:#ff6b6b;}
-.arena-vs{color:#333;font-size:14px}
-.arena-hud-ranking{
-  display:flex;gap:3px;
-  padding-left:8px;
-  border-left:1px solid rgba(0,255,255,0.08);
-}
-.arena-rank-row{
-  display:flex;align-items:center;gap:2px;
-  padding:2px 5px;border-radius:4px;
-  background:rgba(255,255,255,0.02);
-  font-size:8px;white-space:nowrap;
-}
-.arena-rank-row.me{background:rgba(0,255,255,0.06);border:1px solid rgba(0,255,255,0.12)}
-.arena-rank-row.partner{background:rgba(0,255,204,0.03);border:1px solid rgba(0,255,204,0.06)}
-.arena-rank-row.leading{box-shadow:0 0 8px rgba(255,215,0,0.1)}
-.arena-r-pos{font-weight:900;color:rgba(255,255,255,0.25);width:16px}
-.arena-rank-row.me .arena-r-pos{color:var(--cyan)}
-.arena-r-name{flex:1;color:rgba(255,255,255,0.4);font-weight:700;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.arena-rank-row.me .arena-r-name{color:var(--cyan)}
-.arena-r-pts{font-weight:900;color:#fff;font-size:10px}
+.arena-big-rank-num{font-size:20px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
+.arena-big-rank-total{font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);margin-left:1px}
+.arena-score-line{font-size:16px;font-weight:900;color:var(--neon);font-family:'Orbitron','Segoe UI',sans-serif;text-align:center}
+.arena-score-line.negative{color:var(--red)}
+.arena-score-label{font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase}
+/* Hide unused arena sub-sections */
+.arena-hud-mid,.arena-hud-ranking,.arena-elo-line{display:none}
 
 /* === Holographic Dark Card Style (casual mode) === */
 .casual-mode .grp-col .stack-card .card{
@@ -1616,8 +1585,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
           '<div class="seat-slot" id="slot-'+base+'">空</div>'+
           '<div class="seat-slot" id="slot-'+(base+1)+'">空</div>'+
         '</div>'+
-        '<div class="table-label">'+(t+1)+'</div>'+
-        '<div class="table-mid"></div>'+
+        '<div class="table-vs">TABLE '+(t+1)+'</div>'+
         '<div class="table-bot">'+
           '<div class="seat-slot" id="slot-'+(base+2)+'">空</div>'+
           '<div class="seat-slot" id="slot-'+(base+3)+'">空</div>'+
@@ -1714,10 +1682,9 @@ body.view-table .holo-hex-grid{opacity:0.05}
         </div>
       </div>
     </div>
-    <!-- Arena HUD (compact overlay card) -->
+    <!-- Arena HUD (score + rank only) -->
     <div id="arena-hud" style="display:none">
       <div class="arena-hud-inner">
-        <!-- Row 1: Avatar + Ranking + ELO -->
         <div class="arena-hud-top">
           <div class="casual-avatar-ring arena-av-ring">
             <div class="casual-avatar-glow"></div>
@@ -1725,24 +1692,11 @@ body.view-table .holo-hex-grid{opacity:0.05}
             <div class="casual-avatar-img" id="arena-avatar">P1</div>
           </div>
           <div class="arena-hud-info">
-            <div class="arena-big-rank"><span class="arena-big-rank-num" id="arena-pos">2</span><span class="arena-big-rank-total">/200</span></div>
-            <div class="arena-elo-line"><span class="arena-elo-icon">⚡</span><span class="arena-elo-val" id="disp-elo">1500</span></div>
+            <div class="arena-score-label">RANK</div>
+            <div class="arena-big-rank"><span class="arena-big-rank-num" id="arena-pos">#1</span><span class="arena-big-rank-total">/48</span></div>
+            <div class="arena-score-label">SCORE</div>
+            <div class="arena-score-line" id="arena-score">+0</div>
           </div>
-        </div>
-        <!-- Row 2: Team Scores -->
-        <div class="arena-hud-mid">
-          <div class="arena-teams">
-            <div class="arena-team us"><span class="arena-t-label">US</span><span class="arena-t-score" id="disp-team-my">0</span></div>
-            <span class="arena-vs">·</span>
-            <div class="arena-team them"><span class="arena-t-label">THEM</span><span class="arena-t-score" id="disp-team-op">0</span></div>
-          </div>
-        </div>
-        <!-- Row 3: Live Player Ranking -->
-        <div class="arena-hud-ranking" id="player-scores">
-          <div class="arena-rank-row me" id="ps-0"><span class="arena-r-pos">#1</span><span class="arena-r-name">YOU</span><span class="arena-r-pts ps-pts">0</span></div>
-          <div class="arena-rank-row" id="ps-1"><span class="arena-r-pos">#2</span><span class="arena-r-name ps-name">RIGHT</span><span class="arena-r-pts ps-pts">0</span></div>
-          <div class="arena-rank-row partner" id="ps-2"><span class="arena-r-pos">#3</span><span class="arena-r-name ps-name">PARTNER</span><span class="arena-r-pts ps-pts">0</span></div>
-          <div class="arena-rank-row" id="ps-3"><span class="arena-r-pos">#4</span><span class="arena-r-name ps-name">LEFT</span><span class="arena-r-pts ps-pts">0</span></div>
         </div>
       </div>
     </div>
