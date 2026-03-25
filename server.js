@@ -26,6 +26,9 @@ app.get('/tournament', (req, res) => res.sendFile(path.join(__dirname, 'tourname
 // 蛋力值测评
 app.get('/danli', (req, res) => res.sendFile(path.join(__dirname, 'danli.html')));
 
+// Dashboard大屏
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
+
 // Game event logging
 const LOG_FILE = path.join(__dirname, 'game_log.txt');
 function gameLog(msg) {
@@ -1590,6 +1593,213 @@ function computeStandings(t) {
         .sort((a, b) => b.score - a.score || b.tiebreak - a.tiebreak || b.wins - a.wins);
 }
 
+// ===== 48-Player Standard Tournament (Dashboard API) =====
+
+// Scoring constants per V2.1 rulebook
+const SCORE_48 = { doubleUp: 20, singleUpWin: 12, singleUpLose: 0, doubleDown: -8, timeout: -12 };
+const MMR_48   = { doubleUp: 30, singleUpWin: 15, singleUpLose: -15, doubleDown: -30, timeout: -40 };
+
+// Dashboard data endpoint
+app.get('/api/tournaments/:code/dashboard', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+
+    // Build player list with scores & MMR
+    let playerList = (t.players || []).map((p, i) => ({
+        nickname: p.nickname,
+        score: p.score || 0,
+        mmr: p.mmr || 1000,
+        eliminated: !!p.eliminated,
+        eliminatedRound: p.eliminatedRound || null,
+        rank: 0
+    }));
+
+    // Compute ranks
+    let active = playerList.filter(p => !p.eliminated).sort((a, b) => b.score - a.score);
+    active.forEach((p, i) => p.rank = i + 1);
+    let elim = playerList.filter(p => p.eliminated).sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0) || b.score - a.score);
+    elim.forEach((p, i) => p.rank = active.length + i + 1);
+
+    res.json({
+        code: t.code,
+        name: t.name,
+        status: t.status,
+        currentRound: t.currentRound || 0,
+        totalRounds: t.totalRounds || 20,
+        players: playerList,
+        refereePin: t.refereePin || null
+    });
+});
+
+// Initialize 48-player tournament with MMR fields
+app.post('/api/tournaments/:code/init48', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+
+    // Set referee PIN
+    let pin = req.body.refereePin || String(Math.floor(1000 + Math.random() * 9000));
+    t.refereePin = pin;
+    t.format = 'standard48';
+    t.totalRounds = 20;
+
+    // Initialize each player's score/MMR
+    for (let p of t.players) {
+        if (p.score === undefined) p.score = 0;
+        if (p.mmr === undefined) p.mmr = 1000;
+        if (p.eliminated === undefined) p.eliminated = false;
+        p.eliminatedRound = null;
+        p.roundScores = p.roundScores || [];
+    }
+
+    saveTournament(t);
+    gameLog(`[T48] ${t.code}: Initialized as standard48, PIN=${pin}, ${t.players.length} players`);
+    res.json({ success: true, refereePin: pin });
+});
+
+// Referee: verify PIN
+app.post('/api/tournaments/:code/referee-auth', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    let { pin } = req.body;
+    if (!pin || pin !== t.refereePin) return res.json({ error: '裁判密码错误' });
+    res.json({ success: true, isReferee: true });
+});
+
+// Referee: report table result
+app.post('/api/tournaments/:code/result48', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    let { pin, results } = req.body;
+    // results: [{nickname, outcome}] where outcome is 'doubleUp'|'singleUpWin'|'singleUpLose'|'doubleDown'|'timeout'
+    if (pin !== t.refereePin) return res.json({ error: '裁判密码错误' });
+    if (!results || !Array.isArray(results)) return res.json({ error: '缺少结果数据' });
+
+    let changes = [];
+    for (let r of results) {
+        let p = t.players.find(x => x.nickname === r.nickname);
+        if (!p || p.eliminated) continue;
+        let scoreDelta = SCORE_48[r.outcome] || 0;
+        let mmrDelta = MMR_48[r.outcome] || 0;
+        p.score = (p.score || 0) + scoreDelta;
+        p.mmr = (p.mmr || 1000) + mmrDelta;
+        changes.push({
+            nickname: p.nickname,
+            scoreDelta,
+            newScore: p.score,
+            mmrDelta,
+            newMmr: p.mmr
+        });
+    }
+
+    saveTournament(t);
+    // Broadcast to dashboard
+    io.to('dashboard:' + t.code).emit('scoreUpdate', { round: t.currentRound, changes });
+    gameLog(`[T48] ${t.code}: R${t.currentRound} results reported for ${changes.length} players`);
+    res.json({ success: true, changes });
+});
+
+// Referee: trigger elimination (after round >= 10)
+app.post('/api/tournaments/:code/eliminate48', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    let { pin } = req.body;
+    if (pin !== t.refereePin) return res.json({ error: '裁判密码错误' });
+
+    let active = t.players.filter(p => !p.eliminated).sort((a, b) => (a.score || 0) - (b.score || 0));
+    if (active.length <= 4) return res.json({ error: '人数不足，无法继续淘汰' });
+
+    // Eliminate bottom 4
+    let toElim = active.slice(0, 4);
+    let eliminated = [];
+    for (let p of toElim) {
+        p.eliminated = true;
+        p.eliminatedRound = t.currentRound;
+        eliminated.push({ nickname: p.nickname, finalScore: p.score, finalMmr: p.mmr });
+    }
+
+    saveTournament(t);
+    io.to('dashboard:' + t.code).emit('elimination', { round: t.currentRound, eliminated });
+    gameLog(`[T48] ${t.code}: R${t.currentRound} eliminated: ${eliminated.map(e => e.nickname).join(', ')}`);
+    res.json({ success: true, eliminated });
+});
+
+// Referee: advance to next round
+app.post('/api/tournaments/:code/next-round48', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    let { pin } = req.body;
+    if (pin !== t.refereePin) return res.json({ error: '裁判密码错误' });
+
+    t.currentRound = (t.currentRound || 0) + 1;
+
+    // MMR-based pairing: sort active by MMR, group into tables of 4
+    let active = t.players.filter(p => !p.eliminated).sort((a, b) => (b.mmr || 1000) - (a.mmr || 1000));
+    let tables = [];
+    for (let i = 0; i < active.length - 3; i += 4) {
+        let table = active.slice(i, i + 4);
+        // Within table: 1+2 vs 3+4 (强强对战弱弱)
+        tables.push({
+            team1: [table[0].nickname, table[1].nickname],
+            team2: [table[2].nickname, table[3].nickname],
+            tableNum: tables.length + 1
+        });
+    }
+
+    saveTournament(t);
+
+    let timer = 300; // 5 minutes per round
+    io.to('dashboard:' + t.code).emit('roundStart', { round: t.currentRound, tables, timer });
+    gameLog(`[T48] ${t.code}: Round ${t.currentRound} started, ${tables.length} tables`);
+    res.json({ success: true, round: t.currentRound, tables });
+});
+
+// Referee: manually update a player's score
+app.post('/api/tournaments/:code/adjust48', (req, res) => {
+    let t = tournaments[req.params.code.toUpperCase()];
+    if (!t) return res.json({ error: '赛事不存在' });
+    let { pin, nickname, scoreDelta, mmrDelta } = req.body;
+    if (pin !== t.refereePin) return res.json({ error: '裁判密码错误' });
+
+    let p = t.players.find(x => x.nickname === nickname);
+    if (!p) return res.json({ error: '选手不存在' });
+
+    p.score = (p.score || 0) + (scoreDelta || 0);
+    p.mmr = (p.mmr || 1000) + (mmrDelta || 0);
+    saveTournament(t);
+
+    let changes = [{ nickname: p.nickname, scoreDelta: scoreDelta || 0, newScore: p.score, mmrDelta: mmrDelta || 0, newMmr: p.mmr }];
+    io.to('dashboard:' + t.code).emit('scoreUpdate', { round: t.currentRound, changes });
+    res.json({ success: true, player: { nickname: p.nickname, score: p.score, mmr: p.mmr } });
+});
+
+// Socket: dashboard room
+io.on('connection', (socket) => {
+    socket.on('joinDashboard', (code) => {
+        code = (code || '').toUpperCase();
+        socket.join('dashboard:' + code);
+        gameLog(`[Dashboard] Client joined dashboard:${code}`);
+
+        // Send current state
+        let t = tournaments[code];
+        if (t) {
+            let playerList = (t.players || []).map(p => ({
+                nickname: p.nickname,
+                score: p.score || 0,
+                mmr: p.mmr || 1000,
+                eliminated: !!p.eliminated,
+                eliminatedRound: p.eliminatedRound || null
+            }));
+            socket.emit('dashboardState', {
+                code: t.code,
+                name: t.name,
+                currentRound: t.currentRound || 0,
+                totalRounds: t.totalRounds || 20,
+                players: playerList
+            });
+        }
+    });
+});
+
 http.listen(PORT, () => {
-    gameLog(`Crayxus V43 (Tournament System) Running on port ${PORT}`);
+    gameLog(`Crayxus V43 (Tournament System + Dashboard) Running on port ${PORT}`);
 });
