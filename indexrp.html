@@ -5936,6 +5936,37 @@ async function loadOnnxModel(){
     if(mbar) mbar.style.width=pct+'%';
     if(mtxt) mtxt.innerText=text||'Loading AI...';
   }
+
+  // === IndexedDB Cache for ONNX model ===
+  const DB_NAME='crayxus_ai_cache';
+  const DB_STORE='models';
+  function openCacheDB(){
+    return new Promise((resolve,reject)=>{
+      const req=indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded=()=>req.result.createObjectStore(DB_STORE);
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+  }
+  async function getCachedModel(key){
+    try{
+      const db=await openCacheDB();
+      return new Promise((resolve)=>{
+        const tx=db.transaction(DB_STORE,'readonly');
+        const req=tx.objectStore(DB_STORE).get(key);
+        req.onsuccess=()=>resolve(req.result||null);
+        req.onerror=()=>resolve(null);
+      });
+    }catch(e){return null;}
+  }
+  async function setCachedModel(key,buf){
+    try{
+      const db=await openCacheDB();
+      const tx=db.transaction(DB_STORE,'readwrite');
+      tx.objectStore(DB_STORE).put(buf,key);
+    }catch(e){console.warn('Cache write failed:',e);}
+  }
+
   async function fetchWithProgress(url){
     const response=await fetch(url);
     if(!response.ok) throw new Error('HTTP '+response.status);
@@ -5955,9 +5986,25 @@ async function loadOnnxModel(){
     for(const c of chunks){buf.set(c,off);off+=c.byteLength;}
     return buf.buffer;
   }
+
+  // Try to load from cache first, then download
+  async function loadModelWithCache(url, cacheKey){
+    let cached=await getCachedModel(cacheKey);
+    if(cached){
+      setProgress(80,'Loading cached AI model...');
+      console.log('✅ AI model loaded from IndexedDB cache');
+      return cached;
+    }
+    setProgress(0,'Downloading AI model...');
+    const buf=await fetchWithProgress(url);
+    await setCachedModel(cacheKey, buf);
+    console.log('💾 AI model cached to IndexedDB');
+    return buf;
+  }
+
   try{
-    setProgress(0,'Downloading V5 AI model...');
-    const buf5=await fetchWithProgress(ONNX_MODEL_URL_V5);
+    setProgress(0,'Loading V5 AI model...');
+    const buf5=await loadModelWithCache(ONNX_MODEL_URL_V5, 'dmc_v5');
     setProgress(92,'Initializing V5 AI...');
     onnxSession=await ort.InferenceSession.create(buf5,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;v5Mode=true;
@@ -5968,8 +6015,8 @@ async function loadOnnxModel(){
   }catch(e5){
     console.warn('V5 model not available, trying V4 DMC:',e5.message);
     try{
-      setProgress(0,'Downloading AI model...');
-      const buf=await fetchWithProgress(ONNX_MODEL_URL_DMC);
+      setProgress(0,'Loading AI model...');
+      const buf=await loadModelWithCache(ONNX_MODEL_URL_DMC, 'dmc_v4');
       setProgress(92,'Initializing AI...');
       onnxSession=await ort.InferenceSession.create(buf,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
       dmcMode=true;v5Mode=false;
