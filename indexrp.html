@@ -63,11 +63,13 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 #match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;padding-top:30px}
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;margin-bottom:20px}
 100%{transform:rotate(360deg)}}
-.seat-grid{display:grid;grid-template-columns:repeat(8,56px);gap:6px;margin:16px auto;max-width:520px}
-.seat-slot{width:56px;height:56px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:9px;color:#666;transition:0.3s;flex-direction:column;line-height:1.1}
-.seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.1)}
-.seat-slot.bot{border-color:#666;color:#888;border-style:dashed}
-.seat-slot .seat-num{font-size:7px;opacity:.4}
+.seat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px auto;max-width:720px;padding:0 16px}
+.table-card{background:rgba(255,255,255,0.03);border:1px solid #2a2a3a;border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.table-label{font-size:10px;color:#555;letter-spacing:2px;font-weight:700}
+.table-seats{display:flex;gap:6px;justify-content:center}
+.seat-slot{width:40px;height:40px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:8px;color:#666;transition:0.3s}
+.seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.1);font-weight:700}
+.seat-slot.bot{border-color:#555;color:#888;border-style:dashed}
 @keyframes seatPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 #game-ui{display:none;width:100%;height:100%}
 /* dashboard base overridden by .dash-* styles below */
@@ -792,37 +794,36 @@ to{transform:rotate(360deg)}}
 /* === Arena HUD (compact overlay card) === */
 #arena-hud{
   position:absolute;
-  bottom:30px;
-  left:16px;
+  top:10px;
+  left:10px;
   z-index:400;
   pointer-events:none;
 }
 .arena-hud-inner{
-  display:flex;flex-direction:column;gap:8px;
-  padding:14px 18px;
-  background:rgba(5,5,15,0.95);
+  display:flex;flex-direction:column;gap:6px;
+  padding:10px 14px;
+  background:rgba(5,5,15,0.92);
   border:1px solid rgba(0,255,255,0.15);
-  border-radius:16px;
-  
-  box-shadow:0 0 30px rgba(0,255,255,0.06),inset 0 0 30px rgba(0,255,255,0.02);
-  
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,255,255,0.06);
   font-family:'Orbitron','Segoe UI',sans-serif;
-  min-width:320px;
+  min-width:240px;
+  max-width:280px;
 }
 .arena-hud-top{
   display:flex;align-items:center;gap:14px;
 }
-.arena-av-ring{width:56px;height:56px}
+.arena-av-ring{width:40px;height:40px}
 .arena-av-ring svg{width:100%;height:100%}
-.arena-av-ring .casual-avatar-img{width:46px;height:46px;margin:5px;font-size:18px}
+.arena-av-ring .casual-avatar-img{width:32px;height:32px;margin:4px;font-size:14px}
 .arena-av-ring .casual-avatar-glow{inset:-8px}
 .arena-hud-info{display:flex;flex-direction:column;gap:2px}
 .arena-big-rank{display:flex;align-items:baseline;line-height:1}
-.arena-big-rank-num{font-size:36px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
-.arena-big-rank-total{font-size:14px;font-weight:700;color:rgba(255,255,255,0.2);margin-left:1px}
+.arena-big-rank-num{font-size:24px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
+.arena-big-rank-total{font-size:11px;font-weight:700;color:rgba(255,255,255,0.2);margin-left:1px}
 .arena-elo-line{display:flex;align-items:center;gap:4px}
 .arena-elo-icon{font-size:10px;line-height:1}
-.arena-elo-val{font-size:16px;font-weight:900;color:var(--cyan);font-family:'Orbitron','Segoe UI',sans-serif}
+.arena-elo-val{font-size:13px;font-weight:900;color:var(--cyan);font-family:'Orbitron','Segoe UI',sans-serif}
 .arena-hud-mid{
   display:flex;align-items:center;gap:12px;
   padding-top:6px;
@@ -1605,12 +1606,20 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <script>
   (function(){
     const g=document.getElementById('seat-grid');
-    for(let i=0;i<48;i++){
-      const d=document.createElement('div');
-      d.className='seat-slot';
-      d.id='slot-'+i;
-      d.innerHTML='<span class="seat-num">'+(i+1)+'</span>空位';
-      g.appendChild(d);
+    for(let t=0;t<12;t++){
+      const card=document.createElement('div');
+      card.className='table-card';
+      card.id='table-'+t;
+      card.innerHTML='<div class="table-label">TABLE '+(t+1)+'</div><div class="table-seats" id="tseats-'+t+'"></div>';
+      const seats=card.querySelector('.table-seats');
+      for(let s=0;s<4;s++){
+        const sl=document.createElement('div');
+        sl.className='seat-slot';
+        sl.id='slot-'+(t*4+s);
+        sl.textContent='空';
+        seats.appendChild(sl);
+      }
+      g.appendChild(card);
     }
   })();
   </script>
@@ -2702,7 +2711,7 @@ socket.on('initIdentity',d=>{console.log('[initIdentity] received:', JSON.string
   }
   document.getElementById('match-status').innerText='Players: 1/48';
   let mySlot=document.getElementById('slot-'+d.seat);
-  if(mySlot){mySlot.className='seat-slot taken';mySlot.innerHTML='YOU';}
+  if(mySlot){mySlot.className='seat-slot taken';mySlot.textContent='YOU';}
 });
 
 socket.on('roomUpdate',d=>{
@@ -2721,13 +2730,13 @@ socket.on('roomUpdate',d=>{
     if(!sl) return;
     if(s==='HUMAN'){
       sl.className='seat-slot taken';
-      sl.innerText = (mySeat>=0 && i===mySeat) ? 'YOU' : 'P'+(i+1);
+      sl.textContent = (mySeat>=0 && i===mySeat) ? 'YOU' : 'P'+(i+1);
     } else if(s==='BOT'){
       sl.className='seat-slot bot';
-      sl.innerText='BOT';
+      sl.textContent='BOT';
     } else {
       sl.className='seat-slot';
-      sl.innerText='空位';
+      sl.textContent='空';
     }
   });
   document.getElementById('match-timer').innerText=d.count+'/48 玩家 · 空位将由AI填充';
