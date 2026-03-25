@@ -63,12 +63,14 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 #match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;padding-top:30px}
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;margin-bottom:20px}
 100%{transform:rotate(360deg)}}
-.seat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px auto;max-width:720px;padding:0 16px}
-.table-card{background:rgba(255,255,255,0.03);border:1px solid #2a2a3a;border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px}
-.table-label{font-size:10px;color:#555;letter-spacing:2px;font-weight:700}
-.table-seats{display:flex;gap:6px;justify-content:center}
-.seat-slot{width:40px;height:40px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:8px;color:#666;transition:0.3s}
-.seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.1);font-weight:700}
+.seat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px auto;max-width:600px;padding:0 16px}
+.table-card{background:rgba(34,139,34,0.08);border:1px solid rgba(34,139,34,0.25);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+.table-label{font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:2px;font-weight:700;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.table-top{display:flex;gap:8px;justify-content:center}
+.table-mid{width:60%;height:1px;background:rgba(255,255,255,0.06);margin:2px 0}
+.table-bot{display:flex;gap:8px;justify-content:center}
+.seat-slot{width:36px;height:36px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:8px;color:#666;transition:0.3s}
+.seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.12);font-weight:700}
 .seat-slot.bot{border-color:#555;color:#888;border-style:dashed}
 @keyframes seatPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 #game-ui{display:none;width:100%;height:100%}
@@ -794,24 +796,22 @@ to{transform:rotate(360deg)}}
 /* === Arena HUD (compact overlay card) === */
 #arena-hud{
   position:absolute;
-  top:10px;
-  left:10px;
+  top:8px;
+  right:60px;
   z-index:400;
   pointer-events:none;
 }
 .arena-hud-inner{
-  display:flex;flex-direction:column;gap:6px;
-  padding:10px 14px;
-  background:rgba(5,5,15,0.92);
-  border:1px solid rgba(0,255,255,0.15);
-  border-radius:12px;
-  box-shadow:0 0 20px rgba(0,255,255,0.06);
+  display:flex;flex-direction:row;align-items:center;gap:10px;
+  padding:6px 12px;
+  background:rgba(5,5,15,0.88);
+  border:1px solid rgba(0,255,255,0.12);
+  border-radius:10px;
+  box-shadow:0 0 12px rgba(0,255,255,0.04);
   font-family:'Orbitron','Segoe UI',sans-serif;
-  min-width:240px;
-  max-width:280px;
 }
 .arena-hud-top{
-  display:flex;align-items:center;gap:14px;
+  display:flex;align-items:center;gap:8px;
 }
 .arena-av-ring{width:40px;height:40px}
 .arena-av-ring svg{width:100%;height:100%}
@@ -825,27 +825,27 @@ to{transform:rotate(360deg)}}
 .arena-elo-icon{font-size:10px;line-height:1}
 .arena-elo-val{font-size:13px;font-weight:900;color:var(--cyan);font-family:'Orbitron','Segoe UI',sans-serif}
 .arena-hud-mid{
-  display:flex;align-items:center;gap:12px;
-  padding-top:6px;
-  border-top:1px solid rgba(0,255,255,0.08);
+  display:flex;align-items:center;gap:8px;
+  padding-left:8px;
+  border-left:1px solid rgba(0,255,255,0.08);
 }
 .arena-teams{display:flex;align-items:center;gap:6px}
 .arena-team{display:flex;align-items:center;gap:4px}
 .arena-t-label{font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:2px}
-.arena-t-score{font-size:18px;font-weight:900}
+.arena-t-score{font-size:14px;font-weight:900}
 .arena-team.us .arena-t-score{color:var(--neon);}
 .arena-team.them .arena-t-score{color:#ff6b6b;}
 .arena-vs{color:#333;font-size:14px}
 .arena-hud-ranking{
-  display:flex;gap:4px;
-  padding-top:6px;
-  border-top:1px solid rgba(0,255,255,0.08);
+  display:flex;gap:3px;
+  padding-left:8px;
+  border-left:1px solid rgba(0,255,255,0.08);
 }
 .arena-rank-row{
-  flex:1;display:flex;align-items:center;gap:3px;
-  padding:3px 6px;border-radius:5px;
+  display:flex;align-items:center;gap:2px;
+  padding:2px 5px;border-radius:4px;
   background:rgba(255,255,255,0.02);
-  font-size:9px;
+  font-size:8px;white-space:nowrap;
 }
 .arena-rank-row.me{background:rgba(0,255,255,0.06);border:1px solid rgba(0,255,255,0.12)}
 .arena-rank-row.partner{background:rgba(0,255,204,0.03);border:1px solid rgba(0,255,204,0.06)}
@@ -854,7 +854,7 @@ to{transform:rotate(360deg)}}
 .arena-rank-row.me .arena-r-pos{color:var(--cyan)}
 .arena-r-name{flex:1;color:rgba(255,255,255,0.4);font-weight:700;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .arena-rank-row.me .arena-r-name{color:var(--cyan)}
-.arena-r-pts{font-weight:900;color:#fff;font-size:12px}
+.arena-r-pts{font-weight:900;color:#fff;font-size:10px}
 
 /* === Holographic Dark Card Style (casual mode) === */
 .casual-mode .grp-col .stack-card .card{
@@ -1607,18 +1607,21 @@ body.view-table .holo-hex-grid{opacity:0.05}
   (function(){
     const g=document.getElementById('seat-grid');
     for(let t=0;t<12;t++){
+      const base=t*4;
       const card=document.createElement('div');
       card.className='table-card';
       card.id='table-'+t;
-      card.innerHTML='<div class="table-label">TABLE '+(t+1)+'</div><div class="table-seats" id="tseats-'+t+'"></div>';
-      const seats=card.querySelector('.table-seats');
-      for(let s=0;s<4;s++){
-        const sl=document.createElement('div');
-        sl.className='seat-slot';
-        sl.id='slot-'+(t*4+s);
-        sl.textContent='空';
-        seats.appendChild(sl);
-      }
+      card.innerHTML=
+        '<div class="table-top">'+
+          '<div class="seat-slot" id="slot-'+base+'">空</div>'+
+          '<div class="seat-slot" id="slot-'+(base+1)+'">空</div>'+
+        '</div>'+
+        '<div class="table-label">'+(t+1)+'</div>'+
+        '<div class="table-mid"></div>'+
+        '<div class="table-bot">'+
+          '<div class="seat-slot" id="slot-'+(base+2)+'">空</div>'+
+          '<div class="seat-slot" id="slot-'+(base+3)+'">空</div>'+
+        '</div>';
       g.appendChild(card);
     }
   })();
