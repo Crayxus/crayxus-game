@@ -1772,14 +1772,55 @@ app.post('/api/tournaments/:code/adjust48', (req, res) => {
     res.json({ success: true, player: { nickname: p.nickname, score: p.score, mmr: p.mmr } });
 });
 
-// Socket: dashboard room
+// ===== Arena 48-Player Auto-Tournament Engine =====
+
+const BOT_NAMES_48 = [
+    '小明','大壮','阿花','铁柱','翠花','建国','美丽','志强','秀兰','国庆',
+    '春花','伟民','红梅','胜利','桂兰','永强','淑芬','光明','玉兰','德华',
+    '晓红','文明','丽华','少华','月英','天亮','彩霞','海波','冬梅','卫东',
+    '春燕','大鹏','金花','长江','巧玲','黄河','雪梅','泰山','丹丹','昆仑',
+    '婷婷','天山','晶晶','武当','佳佳','峨眉','圆圆'
+];
+
+// Map finishOrder to V2.1 tournament outcomes for 4 players
+// finishOrder[0]=头游, [1]=二游, [2]=三游, [3]=末游
+// Teams: seat0+seat2 vs seat1+seat3
+function classifyTableResult(finishOrder) {
+    let head = finishOrder[0];
+    let headMate = (head + 2) % 4;
+    let matePos = finishOrder.indexOf(headMate);
+    // Winners = head's team, Losers = other team
+    let winners = [head, headMate];
+    let losers = [0,1,2,3].filter(s => !winners.includes(s));
+    if (matePos === 1) {
+        // 双上游: both teammates 1st+2nd
+        return { winners, losers, winType: 'doubleUp', loseType: 'doubleDown' };
+    } else {
+        // 单边上游: head 1st, mate 3rd or 4th
+        return { winners, losers, winType: 'singleUpWin', loseType: 'singleUpLose' };
+    }
+}
+
+// Simulate a bot-only table, returns random finishOrder
+function simulateBotTable() {
+    let seats = [0,1,2,3];
+    // Shuffle to get random finish order
+    for (let i = seats.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [seats[i], seats[j]] = [seats[j], seats[i]];
+    }
+    return seats;
+}
+
+// Active arena tournaments keyed by socket ID
+let arenaBySocket = {};
+
+// Socket: dashboard room + Arena48 events
 io.on('connection', (socket) => {
     socket.on('joinDashboard', (code) => {
         code = (code || '').toUpperCase();
         socket.join('dashboard:' + code);
         gameLog(`[Dashboard] Client joined dashboard:${code}`);
-
-        // Send current state
         let t = tournaments[code];
         if (t) {
             let playerList = (t.players || []).map(p => ({
@@ -1798,7 +1839,230 @@ io.on('connection', (socket) => {
             });
         }
     });
+
+    // ---- Arena 48 Tournament ----
+
+    socket.on('startArena48', (data) => {
+        let playerNick = (data && data.nickname) || 'YOU';
+
+        // Create tournament code
+        let code = 'A' + Math.random().toString(36).substr(2, 5).toUpperCase();
+        while (tournaments[code]) code = 'A' + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+        // Create 48 players: 1 human + 47 bots
+        let shuffledBots = BOT_NAMES_48.slice().sort(() => Math.random() - 0.5);
+        let players = [{ nickname: playerNick, score: 0, mmr: 1000, eliminated: false, isHuman: true, socketId: socket.id }];
+        for (let i = 0; i < 47; i++) {
+            players.push({ nickname: shuffledBots[i], score: 0, mmr: 1000, eliminated: false, isHuman: false });
+        }
+
+        let tourney = {
+            code, name: 'Crayxus 48人标准赛', players,
+            currentRound: 0, totalRounds: 20,
+            status: 'active', format: 'standard48',
+            refereePin: String(Math.floor(1000 + Math.random() * 9000)),
+            tables: [], playerTableIdx: -1,
+            createdAt: new Date().toISOString()
+        };
+        tournaments[code] = tourney;
+        saveTournament(tourney);
+
+        arenaBySocket[socket.id] = { code, playerNick };
+        gameLog(`[Arena48] Created tournament ${code} for ${playerNick}, 48 players`);
+
+        // Start round 1
+        startArena48Round(socket, tourney);
+    });
+
+    socket.on('arena48GameFinished', (data) => {
+        // Player's table game finished, data = { finishOrder: [seat0..3] }
+        let arena = arenaBySocket[socket.id];
+        if (!arena) return;
+        let t = tournaments[arena.code];
+        if (!t) return;
+
+        let fo = data.finishOrder || [0,1,2,3];
+        processArena48RoundEnd(socket, t, fo);
+    });
+
+    socket.on('arena48NextRound', () => {
+        let arena = arenaBySocket[socket.id];
+        if (!arena) return;
+        let t = tournaments[arena.code];
+        if (!t || t.status !== 'active') return;
+        startArena48Round(socket, t);
+    });
+
+    socket.on('disconnect', () => {
+        delete arenaBySocket[socket.id];
+    });
 });
+
+function startArena48Round(socket, tourney) {
+    tourney.currentRound++;
+
+    let active = tourney.players.filter(p => !p.eliminated);
+    if (active.length < 4) {
+        tourney.status = 'finished';
+        saveTournament(tourney);
+        socket.emit('arena48TournamentEnd', { finalStandings: getArena48Standings(tourney) });
+        return;
+    }
+
+    // MMR-based pairing: sort by MMR, group into tables of 4
+    active.sort((a, b) => (b.mmr || 1000) - (a.mmr || 1000));
+    let tables = [];
+    for (let i = 0; i < active.length - 3; i += 4) {
+        tables.push(active.slice(i, i + 4));
+    }
+
+    // Find player's table
+    let playerTableIdx = tables.findIndex(t => t.some(p => p.isHuman));
+    tourney.tables = tables;
+    tourney.playerTableIdx = playerTableIdx;
+
+    // Build table info for client
+    let tableInfo = tables.map((t, i) => ({
+        tableNum: i + 1,
+        players: t.map(p => ({ nickname: p.nickname, mmr: p.mmr || 1000 }))
+    }));
+
+    let humanPlayer = tourney.players.find(p => p.isHuman);
+    let rank = active.sort((a, b) => (b.score || 0) - (a.score || 0)).indexOf(humanPlayer) + 1;
+
+    socket.emit('arena48RoundStart', {
+        code: tourney.code,
+        round: tourney.currentRound,
+        totalRounds: tourney.totalRounds,
+        playerTable: playerTableIdx,
+        tables: tableInfo,
+        rank: rank,
+        totalActive: active.length,
+        score: humanPlayer.score || 0
+    });
+
+    // Broadcast to dashboard
+    io.to('dashboard:' + tourney.code).emit('roundStart', {
+        round: tourney.currentRound,
+        tables: tableInfo.map(t => ({
+            team1: [t.players[0].nickname, t.players[2] ? t.players[2].nickname : ''],
+            team2: [t.players[1].nickname, t.players[3] ? t.players[3].nickname : ''],
+            tableNum: t.tableNum
+        }))
+    });
+
+    gameLog(`[Arena48] ${tourney.code}: Round ${tourney.currentRound} started, ${tables.length} tables, player at table ${playerTableIdx + 1}`);
+}
+
+function processArena48RoundEnd(socket, tourney, playerFinishOrder) {
+    let tables = tourney.tables;
+    let allResults = [];
+
+    for (let i = 0; i < tables.length; i++) {
+        let table = tables[i];
+        let fo;
+        if (i === tourney.playerTableIdx) {
+            // Player's table — use actual finish order
+            // playerFinishOrder is seat indices [0-3], map to table player indices
+            fo = playerFinishOrder;
+        } else {
+            // Bot table — simulate
+            fo = simulateBotTable();
+        }
+
+        let result = classifyTableResult(fo);
+        // Apply scores
+        for (let w of result.winners) {
+            let p = table[w];
+            let sd = SCORE_48[result.winType] || 0;
+            let md = MMR_48[result.winType] || 0;
+            p.score = (p.score || 0) + sd;
+            p.mmr = (p.mmr || 1000) + md;
+        }
+        for (let l of result.losers) {
+            let p = table[l];
+            let sd = SCORE_48[result.loseType] || 0;
+            let md = MMR_48[result.loseType] || 0;
+            p.score = (p.score || 0) + sd;
+            p.mmr = (p.mmr || 1000) + md;
+        }
+
+        allResults.push({
+            tableNum: i + 1,
+            players: table.map((p, idx) => ({
+                nickname: p.nickname,
+                pos: fo.indexOf(idx) + 1
+            })),
+            winType: result.winType,
+            winners: result.winners.map(w => table[w].nickname),
+            losers: result.losers.map(l => table[l].nickname)
+        });
+    }
+
+    // Elimination: after round 10, eliminate bottom 4
+    let eliminated = [];
+    if (tourney.currentRound >= 10) {
+        let activeP = tourney.players.filter(p => !p.eliminated);
+        if (activeP.length > 8) {
+            activeP.sort((a, b) => (a.score || 0) - (b.score || 0));
+            let toElim = activeP.slice(0, 4);
+            for (let p of toElim) {
+                p.eliminated = true;
+                p.eliminatedRound = tourney.currentRound;
+                eliminated.push({ nickname: p.nickname, score: p.score });
+            }
+        }
+    }
+
+    // Check if tournament is over
+    let remainActive = tourney.players.filter(p => !p.eliminated);
+    if (tourney.currentRound >= tourney.totalRounds || remainActive.length <= 4) {
+        tourney.status = 'finished';
+    }
+
+    saveTournament(tourney);
+
+    // Compute standings
+    let standings = getArena48Standings(tourney);
+    let humanPlayer = tourney.players.find(p => p.isHuman);
+    let humanRank = standings.findIndex(s => s.nickname === humanPlayer.nickname) + 1;
+
+    // Send round results to player
+    socket.emit('arena48RoundResults', {
+        round: tourney.currentRound,
+        totalRounds: tourney.totalRounds,
+        tables: allResults,
+        standings: standings.slice(0, 20), // top 20
+        myRank: humanRank,
+        myScore: humanPlayer.score,
+        eliminated: eliminated,
+        isEliminated: !!humanPlayer.eliminated,
+        tournamentOver: tourney.status === 'finished',
+        totalActive: remainActive.length
+    });
+
+    // Broadcast to dashboard
+    let changes = [];
+    for (let p of tourney.players) {
+        changes.push({ nickname: p.nickname, scoreDelta: 0, newScore: p.score || 0, mmrDelta: 0, newMmr: p.mmr || 1000 });
+    }
+    io.to('dashboard:' + tourney.code).emit('scoreUpdate', { round: tourney.currentRound, changes });
+    if (eliminated.length > 0) {
+        io.to('dashboard:' + tourney.code).emit('elimination', { round: tourney.currentRound, eliminated });
+    }
+
+    gameLog(`[Arena48] ${tourney.code}: Round ${tourney.currentRound} complete, rank=${humanRank}, score=${humanPlayer.score}, eliminated=${eliminated.length}`);
+}
+
+function getArena48Standings(tourney) {
+    let active = tourney.players.filter(p => !p.eliminated)
+        .sort((a, b) => (b.score || 0) - (a.score || 0))
+        .map((p, i) => ({ nickname: p.nickname, score: p.score || 0, mmr: p.mmr || 1000, rank: i + 1, eliminated: false }));
+    let elim = tourney.players.filter(p => p.eliminated)
+        .sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0) || (b.score || 0) - (a.score || 0))
+        .map((p, i) => ({ nickname: p.nickname, score: p.score || 0, mmr: p.mmr || 1000, rank: active.length + i + 1, eliminated: true, eliminatedRound: p.eliminatedRound }));
+    return [...active, ...elim];
+}
 
 http.listen(PORT, () => {
     gameLog(`Crayxus V43 (Tournament System + Dashboard) Running on port ${PORT}`);

@@ -1905,6 +1905,8 @@ function updateAvatarRingColor(r){
 let _pendingGame = null;
 let _autoContinue = false;
 let gameMode='arena'; // 'arena', 'training', or 'casual'
+// Arena48 tournament state
+let arena48Code=null, arena48Round=0, arena48Rank=1, arena48Score=0, arena48Active=48;
 let casualMode='fixed'; // 'fixed' (定蛋) or 'upgrade' (升级)
 let teamLevels=[0,0]; // [myTeam idx, opTeam idx] into LEVEL_ORDER
 const LEVEL_ORDER=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
@@ -2454,7 +2456,12 @@ function continueGame(){
     }
     return;
   }
-  // Casual and Arena: continue via server
+  if(gameMode==='arena' && arena48Code){
+    // Arena48: send finish order to server for round compilation
+    socket.emit('arena48GameFinished',{finishOrder:savedFinishOrder});
+    return;
+  }
+  // Casual: continue via server
   let btn=document.getElementById('btn-continue');
   btn.disabled=true;btn.style.opacity=0.5;btn.innerText='发牌中...';
   _autoContinue=true;
@@ -2703,7 +2710,6 @@ function startMatch(){
     let sl=document.getElementById('slot-'+i);
     if(sl && !sl.classList.contains('taken')) emptySlots.push(sl);
   }
-  // Shuffle for visual variety
   for(let i=emptySlots.length-1;i>0;i--){
     let j=Math.floor(Math.random()*(i+1));
     [emptySlots[i],emptySlots[j]]=[emptySlots[j],emptySlots[i]];
@@ -2716,10 +2722,13 @@ function startMatch(){
       document.getElementById('match-status').innerText='Players: 48/48';
       document.getElementById('match-status').style.color='#0f0';
       document.getElementById('match-timer').innerText='全员就绪 · 即将开始...';
-      setTimeout(()=>{ socket.emit('startMatch'); },800);
+      // Start arena48 tournament instead of single match
+      setTimeout(()=>{
+        let nick=localStorage.getItem('crayxus_nick')||'YOU';
+        socket.emit('startArena48',{nickname:nick});
+      },800);
       return;
     }
-    // Fill 2-3 seats per tick for speed
     let batch=Math.min(3, emptySlots.length-idx);
     for(let b=0;b<batch;b++){
       let sl=emptySlots[idx+b];
@@ -2849,6 +2858,133 @@ socket.on('gameStart',d=>{
     showHighCard(d.highCards,d.startTurn);
   }
 });
+
+// ===== Arena 48 Tournament Handlers =====
+
+socket.on('arena48RoundStart',d=>{
+  console.log('[Arena48] Round start:',d);
+  arena48Code=d.code;
+  arena48Round=d.round;
+  arena48Rank=d.rank;
+  arena48Score=d.score||0;
+  arena48Active=d.totalActive;
+  // Update HUD
+  let ep=document.getElementById('arena-pos');if(ep)ep.textContent='#'+d.rank;
+  let et=document.querySelector('.arena-big-rank-total');if(et)et.textContent='/'+d.totalActive;
+  let es=document.getElementById('arena-score');if(es){es.textContent=(d.score>=0?'+':'')+d.score;es.className='arena-score-line'+(d.score<0?' negative':'');}
+  // Show tournament code on match screen
+  let rc=document.getElementById('match-room-code');
+  if(rc){rc.style.display='block';rc.textContent='房间码: '+d.code+' (点击复制)';rc.onclick=()=>{navigator.clipboard.writeText(d.code);toast('已复制: '+d.code)};}
+  // Show round info
+  let ms=document.getElementById('match-timer');
+  if(ms)ms.textContent='第 '+d.round+'/'+d.totalRounds+' 轮 · '+d.totalActive+'人在线';
+  // Then server will trigger startMatch for the player's table game
+});
+
+socket.on('arena48RoundResults',d=>{
+  console.log('[Arena48] Round results:',d);
+  arena48Round=d.round;
+  arena48Rank=d.myRank;
+  arena48Score=d.myScore;
+  arena48Active=d.totalActive;
+  // Show round results overlay
+  showArena48Results(d);
+});
+
+socket.on('arena48TournamentEnd',d=>{
+  console.log('[Arena48] Tournament ended:',d);
+  let standings=d.finalStandings||[];
+  let myEntry=standings.find(s=>s.rank===1)||standings[0];
+  alert('赛事结束！\n你的最终排名: #'+arena48Rank+'/48\n总积分: '+arena48Score);
+  arena48Code=null;
+  backToLobby();
+});
+
+function showArena48Results(d){
+  // Hide game UI, show results overlay
+  stopAutoContinue();
+  document.getElementById('result-modal').style.display='none';
+
+  let overlay=document.getElementById('arena48-results');
+  if(!overlay){
+    // Create overlay dynamically
+    overlay=document.createElement('div');
+    overlay.id='arena48-results';
+    overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:Orbitron,sans-serif;overflow-y:auto;padding:20px';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display='flex';
+
+  let isOver=d.tournamentOver;
+  let isElim=d.isEliminated;
+
+  let html='<div style="text-align:center;max-width:600px;width:100%">';
+  html+='<div style="font-size:12px;color:#555;letter-spacing:3px">ROUND '+d.round+'/'+d.totalRounds+'</div>';
+  html+='<div style="font-size:28px;font-weight:900;color:var(--gold);margin:8px 0">第 '+d.round+' 轮结果</div>';
+
+  // My stats
+  let scoreColor=d.myScore>=0?'var(--neon)':'var(--red)';
+  html+='<div style="display:flex;justify-content:center;gap:30px;margin:16px 0">';
+  html+='<div><div style="font-size:10px;color:#666;letter-spacing:2px">RANK</div><div style="font-size:36px;font-weight:900;color:var(--gold)">#'+d.myRank+'</div><div style="font-size:12px;color:#888">/'+d.totalActive+'人</div></div>';
+  html+='<div><div style="font-size:10px;color:#666;letter-spacing:2px">SCORE</div><div style="font-size:36px;font-weight:900;color:'+scoreColor+'">'+(d.myScore>=0?'+':'')+d.myScore+'</div></div>';
+  html+='</div>';
+
+  // Table results
+  html+='<div style="margin:16px 0;text-align:left">';
+  html+='<div style="font-size:10px;color:#555;letter-spacing:2px;margin-bottom:8px;text-align:center">ALL TABLES</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+  for(let t of d.tables){
+    let isMyTable=(d.tables.indexOf(t)===0); // player's table is always first in concept
+    let bg=isMyTable?'rgba(0,255,200,0.08)':'rgba(255,255,255,0.03)';
+    let border=isMyTable?'rgba(0,255,200,0.3)':'rgba(255,255,255,0.08)';
+    let wt=t.winType==='doubleUp'?'双上':'单上';
+    html+='<div style="background:'+bg+';border:1px solid '+border+';border-radius:8px;padding:6px 8px;font-size:10px">';
+    html+='<div style="color:#888;font-size:8px;letter-spacing:1px">T'+t.tableNum+' · '+wt+'</div>';
+    for(let p of t.players){
+      let c=p.pos<=2?'var(--neon)':'#666';
+      html+='<div style="color:'+c+'">'+p.pos+'. '+p.nickname+'</div>';
+    }
+    html+='</div>';
+  }
+  html+='</div></div>';
+
+  // Eliminated
+  if(d.eliminated&&d.eliminated.length>0){
+    html+='<div style="margin:10px 0;padding:8px;background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.3);border-radius:8px;font-size:11px">';
+    html+='<div style="color:var(--red);font-weight:700;margin-bottom:4px">本轮淘汰</div>';
+    for(let e of d.eliminated){
+      html+='<span style="color:#888;margin-right:8px">'+e.nickname+' ('+e.score+'分)</span>';
+    }
+    html+='</div>';
+  }
+
+  // Standings top 10
+  html+='<div style="margin:10px 0;font-size:11px">';
+  html+='<div style="color:#555;font-size:9px;letter-spacing:2px;margin-bottom:6px;text-align:center">TOP STANDINGS</div>';
+  let shown=d.standings||[];
+  for(let i=0;i<Math.min(10,shown.length);i++){
+    let s=shown[i];
+    let isMe=s.rank===d.myRank;
+    let bg2=isMe?'rgba(0,255,200,0.1)':'transparent';
+    let c2=isMe?'var(--neon)':s.eliminated?'#444':'#aaa';
+    html+='<div style="display:flex;justify-content:space-between;padding:2px 8px;background:'+bg2+';border-radius:4px;color:'+c2+'">';
+    html+='<span>#'+s.rank+' '+s.nickname+(s.eliminated?' ✕':'')+'</span><span>'+s.score+'分</span>';
+    html+='</div>';
+  }
+  html+='</div>';
+
+  // Action button
+  if(isOver||isElim){
+    let msg=isElim?'你已被淘汰，最终排名 #'+d.myRank:'赛事结束！最终排名 #'+d.myRank;
+    html+='<div style="color:var(--red);font-size:14px;font-weight:700;margin:12px 0">'+msg+'</div>';
+    html+='<button onclick="document.getElementById(\'arena48-results\').style.display=\'none\';backToLobby()" style="padding:12px 40px;border-radius:50px;border:none;background:linear-gradient(90deg,#ff4444,#cc0000);color:#fff;font-size:16px;font-weight:900;cursor:pointer">返回大厅</button>';
+  }else{
+    html+='<button onclick="document.getElementById(\'arena48-results\').style.display=\'none\';socket.emit(\'arena48NextRound\')" style="padding:12px 40px;border-radius:50px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:16px;font-weight:900;cursor:pointer;margin-top:12px">下一轮</button>';
+  }
+
+  html+='</div>';
+  overlay.innerHTML=html;
+}
 
 function showHighCard(cards,winner){
   let overlay=document.getElementById('highcard-overlay');
