@@ -63,8 +63,8 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 #match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;padding-top:20px;text-align:center}
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;margin-bottom:20px}
 100%{transform:rotate(360deg)}}
-.seat-grid{display:flex;flex-wrap:wrap;gap:10px;margin:20px auto;justify-content:center;max-width:700px;padding:0 10px}
-.table-card{background:rgba(34,139,34,0.1);border:1px solid rgba(34,139,34,0.3);border-radius:10px;padding:6px 10px;display:inline-flex;flex-direction:column;align-items:center;gap:2px;width:calc(33.3% - 8px);min-width:140px;max-width:200px}
+.seat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px auto;max-width:680px;padding:0 10px;width:90%}
+.table-card{background:rgba(34,139,34,0.1);border:1px solid rgba(34,139,34,0.3);border-radius:10px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .table-vs{font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:2px;margin:1px 0}
 .table-top,.table-bot{display:flex;gap:8px;justify-content:center}
 .seat-slot{width:30px;height:30px;border-radius:50%;border:2px solid #444;display:flex;justify-content:center;align-items:center;font-size:8px;color:#666;transition:0.3s}
@@ -794,9 +794,8 @@ to{transform:rotate(360deg)}}
 /* === Arena HUD (floating pill: rank + score) === */
 #arena-hud{
   position:absolute;
-  top:6px;
-  left:50%;
-  transform:translateX(-50%);
+  top:8px;
+  left:10px;
   z-index:400;
   pointer-events:none;
 }
