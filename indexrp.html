@@ -3038,11 +3038,38 @@ function showArena48Results(d){
     html+='<div style="color:var(--red);font-size:14px;font-weight:700;margin:12px 0">'+msg+'</div>';
     html+='<button onclick="document.getElementById(\'arena48-results\').style.display=\'none\';backToLobby()" style="padding:12px 40px;border-radius:50px;border:none;background:linear-gradient(90deg,#ff4444,#cc0000);color:#fff;font-size:16px;font-weight:900;cursor:pointer">返回大厅</button>';
   }else{
-    html+='<button onclick="document.getElementById(\'arena48-results\').style.display=\'none\';socket.emit(\'arena48NextRound\')" style="padding:12px 40px;border-radius:50px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:16px;font-weight:900;cursor:pointer;margin-top:12px">下一轮</button>';
+    html+='<div style="margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:6px">';
+    html+='<button id="arena48-next-btn" onclick="arena48GoNext()" style="padding:10px 32px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:14px;font-weight:800;cursor:pointer">下一轮 (30s)</button>';
+    html+='<div id="arena48-cd-bar" style="width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden"><div id="arena48-cd-fill" style="height:100%;width:100%;background:var(--neon);transition:width 1s linear"></div></div>';
+    html+='</div>';
+    // Start 30s auto-continue countdown
+    setTimeout(()=>startArena48Countdown(),100);
   }
 
   html+='</div>';
   overlay.innerHTML=html;
+}
+
+var arena48CdTimer=null;
+function startArena48Countdown(){
+  clearInterval(arena48CdTimer);
+  var left=30;
+  var btn=document.getElementById('arena48-next-btn');
+  var fill=document.getElementById('arena48-cd-fill');
+  if(btn)btn.innerText='下一轮 ('+left+'s)';
+  if(fill)fill.style.width='100%';
+  arena48CdTimer=setInterval(function(){
+    left--;
+    if(btn)btn.innerText='下一轮 ('+(left>0?left+'s':'GO')+')';
+    if(fill)fill.style.width=Math.max(0,left/30*100)+'%';
+    if(left<=0){clearInterval(arena48CdTimer);arena48GoNext();}
+  },1000);
+}
+function arena48GoNext(){
+  clearInterval(arena48CdTimer);
+  var el=document.getElementById('arena48-results');
+  if(el)el.style.display='none';
+  socket.emit('arena48NextRound');
 }
 
 function showHighCard(cards,winner){
@@ -3363,10 +3390,22 @@ function resetWatchdog(keepRetries){
       watchdogRetries=0;
       watchdogLastTurn=turn;
     }
-    // After 3 retries (15 seconds stuck), request full resync from server
+    // After 3 retries (15 seconds stuck), force emergency action
     if(watchdogRetries>=3){
-      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing bot retry');
+      console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing emergency action');
       watchdogRetries=0;
+      if(botSeats.includes(turn)&&isHost){
+        // Force: play smallest card if leading, or pass if following
+        let hand=botCards[turn];
+        if(!lastHand&&hand&&hand.length>0){
+          hand.sort((a,b)=>a.p-b.p);
+          let c=[hand[0]];
+          socket.emit('botAction',{seat:turn,type:'play',cards:c,handType:{type:'1',val:c[0].p}});
+        }else{
+          socket.emit('botAction',{seat:turn,type:'pass',cards:[]});
+        }
+        botRunningForTurn=-1;
+      }
     }else if(botSeats.includes(turn)&&isHost){
       botRunningForTurn=-1; // Allow watchdog retry
       await runBot(turn);

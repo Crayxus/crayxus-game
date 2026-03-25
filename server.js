@@ -1642,7 +1642,7 @@ app.post('/api/tournaments/:code/init48', (req, res) => {
     let pin = req.body.refereePin || String(Math.floor(1000 + Math.random() * 9000));
     t.refereePin = pin;
     t.format = 'standard48';
-    t.totalRounds = 20;
+    t.totalRounds = 18;
 
     // Initialize each player's score/MMR
     for (let p of t.players) {
@@ -1864,7 +1864,7 @@ io.on('connection', (socket) => {
 
         let tourney = {
             code, name: 'Crayxus 48人标准赛', players,
-            currentRound: 0, totalRounds: 20,
+            currentRound: 0, totalRounds: 18,
             status: 'active', format: 'standard48',
             refereePin: String(Math.floor(1000 + Math.random() * 9000)),
             tables: [], playerTableIdx: -1,
@@ -2017,9 +2017,9 @@ function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
         });
     }
 
-    // Elimination: after round 10, eliminate bottom 4
+    // Elimination: after round 6 (warmup), eliminate bottom 4
     let eliminated = [];
-    if (tourney.currentRound >= 10) {
+    if (tourney.currentRound >= 7) { // Elimination starts at round 7 (after 6 warmup rounds)
         let activeP = tourney.players.filter(p => !p.eliminated);
         if (activeP.length > 8) {
             activeP.sort((a, b) => (a.score || 0) - (b.score || 0));
