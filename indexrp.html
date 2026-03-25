@@ -60,7 +60,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .lobby-card{width:400px;padding:40px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;}
 .btn-large{width:100%;padding:15px;border-radius:50px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:18px;font-weight:900;cursor:pointer;margin-top:20px}
 .btn-large:disabled{filter:grayscale(1);opacity:0.5}
-#match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;padding-top:20px;text-align:center}
+#match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;align-items:stretch;padding-top:20px;text-align:center}
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;margin-bottom:20px}
 100%{transform:rotate(360deg)}}
 .seat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 12px;margin:20px auto;max-width:800px;padding:0 20px;width:95%;align-self:stretch}
@@ -795,32 +795,33 @@ to{transform:rotate(360deg)}}
 /* === Arena HUD (floating pill: rank + score) === */
 #arena-hud{
   position:absolute;
-  bottom:10px;
-  left:10px;
+  top:8px;
+  left:8px;
   z-index:400;
   pointer-events:none;
 }
 .arena-hud-inner{
-  display:flex;flex-direction:row;align-items:center;gap:14px;
-  padding:8px 20px;
-  background:rgba(5,5,15,0.88);
-  border:1px solid rgba(0,255,255,0.15);
-  border-radius:24px;
-  box-shadow:0 0 16px rgba(0,255,255,0.08);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:10px 14px;
+  background:rgba(5,5,15,0.92);
+  border:1px solid rgba(0,255,255,0.18);
+  border-radius:16px;
+  box-shadow:0 0 20px rgba(0,255,255,0.1);
   font-family:'Orbitron','Segoe UI',sans-serif;
+  min-width:90px;
 }
-.arena-hud-top{display:flex;align-items:center;gap:12px}
-.arena-av-ring{width:44px;height:44px;flex-shrink:0}
+.arena-hud-top{display:flex;flex-direction:column;align-items:center;gap:6px}
+.arena-av-ring{width:52px;height:52px;flex-shrink:0}
 .arena-av-ring svg{width:100%;height:100%}
-.arena-av-ring .casual-avatar-img{width:34px;height:34px;margin:5px;font-size:14px}
-.arena-av-ring .casual-avatar-glow{inset:-6px}
-.arena-hud-info{display:flex;align-items:center;gap:14px}
+.arena-av-ring .casual-avatar-img{width:40px;height:40px;margin:6px;font-size:16px}
+.arena-av-ring .casual-avatar-glow{inset:-8px}
+.arena-hud-info{display:flex;flex-direction:column;align-items:center;gap:2px}
 .arena-big-rank{display:flex;align-items:baseline;line-height:1}
-.arena-big-rank-num{font-size:24px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
-.arena-big-rank-total{font-size:13px;font-weight:700;color:rgba(255,255,255,0.3);margin-left:2px}
-.arena-score-line{font-size:22px;font-weight:900;color:var(--neon);font-family:'Orbitron','Segoe UI',sans-serif}
+.arena-big-rank-num{font-size:28px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
+.arena-big-rank-total{font-size:14px;font-weight:700;color:rgba(255,255,255,0.3);margin-left:2px}
+.arena-score-line{font-size:24px;font-weight:900;color:var(--neon);font-family:'Orbitron','Segoe UI',sans-serif}
 .arena-score-line.negative{color:var(--red)}
-.arena-score-label{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;margin-right:-6px}
+.arena-score-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase}
 
 /* === Holographic Dark Card Style (casual mode) === */
 .casual-mode .grp-col .stack-card .card{
