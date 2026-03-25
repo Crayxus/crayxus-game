@@ -2419,6 +2419,12 @@ function calcResult(){
   }
   document.getElementById('result-modal').style.display='flex';
   renderScoreboard();
+  // Arena48: auto-send finish order to compile round results
+  if(gameMode==='arena' && arena48Code){
+    setTimeout(()=>{
+      socket.emit('arena48GameFinished',{finishOrder:finishOrder});
+    },2000);
+  }
   // Auto-continue countdown (30 seconds)
   startAutoContinue();
 }
@@ -2458,7 +2464,7 @@ function continueGame(){
   }
   if(gameMode==='arena' && arena48Code){
     // Arena48: send finish order to server for round compilation
-    socket.emit('arena48GameFinished',{finishOrder:savedFinishOrder});
+    socket.emit('arena48GameFinished',{finishOrder:finishOrder});
     return;
   }
   // Casual: continue via server
