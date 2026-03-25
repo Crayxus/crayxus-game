@@ -7,145 +7,183 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0a0e1a;--card:#141926;--accent:#00d4aa;--accent2:#7c4dff;
-  --gold:#ffd700;--silver:#c0c0c0;--bronze:#cd7f32;
-  --red:#ff4757;--green:#2ed573;--blue:#3742fa;
-  --text:#e8e8e8;--dim:#8892a4;--border:#1e2a3a;
-  --orange:#ff9500;--magenta:#ff00ff;
+  --bg:#080c12;--card:#0f1520;--surface:#141d2b;
+  --felt:#0b3d1a;--felt2:#0a2f15;
+  --gold:#d4a530;--gold2:#f0c040;--gold-dim:#8a7230;
+  --silver:#a8b4c0;--bronze:#b87333;
+  --red:#e53e3e;--green:#38a169;--teal:#00d4aa;
+  --text:#e8eaf0;--dim:#6b7a8d;--border:#1a2535;
+  --accent:#00d4aa;--accent2:#7c4dff;
 }
-body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden;user-select:none}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;user-select:none;display:flex;flex-direction:column}
 
-/* === HEADER BAR === */
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 28px;background:linear-gradient(135deg,#0d1220,#141e30);border-bottom:1px solid var(--border);height:56px}
-.top-left{display:flex;align-items:center;gap:14px}
-.logo{font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
-.event-name{font-size:13px;color:var(--dim);font-weight:600}
-.top-center{display:flex;align-items:center;gap:20px}
-.round-badge{font-size:24px;font-weight:900;color:var(--accent);letter-spacing:1px}
-.round-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:2px}
-.phase-tag{font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:1px}
-.phase-tag.warmup{background:rgba(0,212,170,.15);color:var(--accent)}
-.phase-tag.elimination{background:rgba(255,71,87,.15);color:var(--red)}
-.phase-tag.finished{background:rgba(255,215,0,.15);color:var(--gold)}
-.top-right{display:flex;align-items:center;gap:16px}
-.timer{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text);letter-spacing:2px}
-.timer.warning{color:var(--orange);animation:timerPulse 1s ease infinite}
-.timer.danger{color:var(--red);animation:timerPulse .5s ease infinite}
-.alive-count{font-size:13px;color:var(--dim)}
-.alive-count span{color:var(--accent);font-weight:800;font-size:16px}
+/* === TOP BANNER === */
+.top-banner{display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:linear-gradient(180deg,#101820,#0c1218);border-bottom:1px solid var(--border);height:40px;flex-shrink:0}
+.top-left{display:flex;align-items:center;gap:16px}
+.logo{font-size:16px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px}
+.event-name{font-size:11px;color:var(--dim);font-weight:600;letter-spacing:1px}
+.top-right-info{display:flex;align-items:center;gap:16px;font-size:11px;color:var(--dim)}
+.ref-badge{display:none;padding:3px 10px;border-radius:10px;background:rgba(124,77,255,.15);color:var(--accent2);font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(124,77,255,.3)}
+.ref-badge:hover{background:rgba(124,77,255,.25)}
+.ref-badge.active{display:inline-block}
 
-@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.5}}
+/* === TOURNAMENT CLOCK (center hero) === */
+.clock-strip{display:flex;align-items:center;justify-content:center;gap:0;background:linear-gradient(180deg,#0e1520,#0a1018);border-bottom:1px solid var(--border);height:100px;flex-shrink:0;position:relative;overflow:hidden}
+/* Subtle felt texture overlay */
+.clock-strip::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 100% at 50% 0%,rgba(11,61,26,.08),transparent);pointer-events:none}
 
-/* === MAIN LAYOUT: left grid + right leaderboard === */
-.main-wrap{display:flex;height:calc(100vh - 56px - 36px);overflow:hidden}
+.clock-left,.clock-right{flex:1;display:flex;align-items:center;padding:0 28px}
+.clock-right{justify-content:flex-end}
+.clock-center{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:280px}
 
-/* === LEFT: Player Chip Grid === */
-.left-panel{flex:1;padding:16px 20px;overflow-y:auto}
-.left-title{font-size:11px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;font-weight:700}
-.player-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+/* The big timer */
+.timer-display{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:6px;line-height:1;color:var(--text);text-shadow:0 0 30px rgba(255,255,255,.1)}
+.timer-display.warning{color:var(--gold);text-shadow:0 0 30px rgba(212,165,48,.3);animation:timerPulse 1s ease infinite}
+.timer-display.danger{color:var(--red);text-shadow:0 0 30px rgba(229,62,62,.4);animation:timerPulse .5s ease infinite}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* === PLAYER CHIP (small) === */
-.player-chip{position:relative;display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--card);border:1px solid var(--border);border-radius:8px;transition:all .4s ease;min-height:36px}
-.player-chip.empty{opacity:.1;border-style:dashed}
-.player-chip.eliminated{opacity:.3;border-color:rgba(255,71,87,.2)}
-.player-chip.eliminated .chip-name,.player-chip.eliminated .chip-score{opacity:.4}
+/* Phase & Round under timer */
+.clock-meta{display:flex;align-items:center;gap:12px}
+.round-chip{font-size:11px;font-weight:700;padding:2px 10px;border-radius:4px;background:rgba(255,255,255,.06);color:var(--dim);letter-spacing:1px}
+.phase-tag{font-size:11px;font-weight:800;padding:2px 12px;border-radius:4px;letter-spacing:2px}
+.phase-tag.warmup{background:rgba(0,212,170,.1);color:var(--teal)}
+.phase-tag.elimination{background:rgba(229,62,62,.12);color:var(--red);animation:elimGlow 2s ease infinite}
+.phase-tag.finished{background:rgba(212,165,48,.12);color:var(--gold)}
+@keyframes elimGlow{0%,100%{box-shadow:none}50%{box-shadow:0 0 12px rgba(229,62,62,.2)}}
 
-/* Rank circle */
-.chip-rank{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;flex-shrink:0}
-.chip-rank.r1{background:var(--gold);color:#000}
-.chip-rank.r2{background:var(--silver);color:#000}
-.chip-rank.r3{background:var(--bronze);color:#000}
-.chip-rank.rn{background:rgba(255,255,255,.06);color:var(--dim);font-size:8px}
+/* Progress bar */
+.progress-bar{display:flex;gap:2px;align-items:center;margin-top:4px}
+.prog-dot{width:12px;height:3px;border-radius:1.5px;background:rgba(255,255,255,.06);transition:all .3s}
+.prog-dot.done{background:var(--teal);opacity:.7}
+.prog-dot.current{background:var(--teal);box-shadow:0 0 6px var(--teal)}
+.prog-dot.elim{background:rgba(229,62,62,.15)}
+.prog-dot.elim-done{background:var(--red);opacity:.7}
+.prog-dot.elim-current{background:var(--red);box-shadow:0 0 6px var(--red)}
 
-.chip-info{flex:1;min-width:0;overflow:hidden}
-.chip-name{font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
-.chip-score{font-size:12px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
-.chip-score.positive{color:var(--green)}
-.chip-score.negative{color:var(--red)}
-.chip-score.zero{color:var(--dim)}
+/* Left stats block */
+.stats-block{display:flex;flex-direction:column;gap:6px}
+.stat-row{display:flex;align-items:center;gap:8px}
+.stat-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;width:42px;text-align:right}
+.stat-val{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}
+.stat-val.alive{color:var(--teal)}
+.stat-val.out{color:var(--red)}
+.stat-val.tables{color:var(--gold)}
 
-/* Eliminated X */
-.chip-elim{position:absolute;inset:0;border-radius:8px;background:rgba(255,71,87,.08);display:none;align-items:center;justify-content:center}
-.player-chip.eliminated .chip-elim{display:flex}
-.chip-elim-x{font-size:14px;font-weight:900;color:var(--red);opacity:.6;letter-spacing:2px}
+/* Right info block */
+.info-block{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.info-line{font-size:10px;color:var(--dim);letter-spacing:1px}
+.info-line .hl{color:var(--gold);font-weight:800}
 
-/* Score delta badge */
-.chip-delta{position:absolute;top:-4px;right:-4px;font-size:9px;font-weight:800;opacity:0;pointer-events:none;border-radius:8px;padding:1px 5px;z-index:2}
-.chip-delta.up{color:#000;background:var(--green);opacity:1;animation:deltaFade 2.5s ease forwards}
-.chip-delta.down{color:#fff;background:var(--red);opacity:1;animation:deltaFade 2.5s ease forwards}
-@keyframes deltaFade{0%{opacity:0;transform:translateY(4px)}15%{opacity:1;transform:translateY(0)}70%{opacity:1}100%{opacity:0}}
+/* === MAIN LEADERBOARD === */
+.main-area{flex:1;display:flex;flex-direction:column;padding:8px 16px 0;overflow:hidden;min-height:0}
 
-/* Glow effects */
-.player-chip.glow-up{border-color:var(--green);box-shadow:0 0 12px rgba(46,213,115,.3);animation:glowFade 2s ease forwards}
-.player-chip.glow-down{border-color:var(--red);box-shadow:0 0 12px rgba(255,71,87,.3);animation:glowFade 2s ease forwards}
-@keyframes glowFade{0%{box-shadow:0 0 12px rgba(46,213,115,.4)}100%{box-shadow:none;border-color:var(--border)}}
+/* Danger banner */
+.danger-banner{display:none;padding:5px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--red);background:linear-gradient(90deg,transparent,rgba(229,62,62,.06),transparent);border-top:1px solid rgba(229,62,62,.15);border-bottom:1px solid rgba(229,62,62,.15);margin-bottom:6px;flex-shrink:0}
+.danger-banner.show{display:block}
+.danger-banner .names{font-weight:600;font-size:10px;color:var(--dim);letter-spacing:0;margin-left:8px}
 
-.player-chip.elim-anim{animation:elimShake .6s ease}
-@keyframes elimShake{0%,100%{transform:scale(1)}20%{transform:scale(1.06)}40%{transform:scale(.94) rotate(-2deg)}60%{transform:scale(1.03) rotate(1deg)}80%{transform:scale(.98)}}
+/* Column headers */
+.lb-header-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;flex-shrink:0;padding:0 2px}
+.lb-col-title{display:flex;align-items:center;padding:4px 8px;font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--border)}
+.lb-col-title .col-labels{margin-left:auto;display:flex;gap:8px;font-size:8px;letter-spacing:1px}
 
-/* === RIGHT: Leaderboard === */
-.right-panel{width:320px;background:linear-gradient(180deg,#111827,#0d1220);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.lb-header{padding:14px 16px 10px;border-bottom:1px solid var(--border)}
-.lb-title{font-size:14px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.lb-subtitle{font-size:10px;color:var(--dim);margin-top:2px;letter-spacing:1px}
+/* 3-column grid */
+.lb-grid{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;overflow:hidden;min-height:0;padding:0 2px}
+.lb-column{display:flex;flex-direction:column;min-height:0}
 
-.lb-scroll{flex:1;overflow-y:auto;padding:6px 0}
-.lb-row{display:flex;align-items:center;padding:6px 16px;gap:10px;transition:background .2s}
-.lb-row:hover{background:rgba(255,255,255,.02)}
-.lb-row.me{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
-.lb-row.eliminated{opacity:.35}
-.lb-row.top3{background:rgba(255,215,0,.03)}
+/* Player row */
+.lb-row{display:flex;align-items:center;padding:2.5px 8px;gap:5px;border-radius:4px;transition:background .2s;flex-shrink:0;position:relative;height:28px}
+.lb-row:nth-child(odd){background:rgba(255,255,255,.01)}
+.lb-row:hover{background:rgba(255,255,255,.04)}
+.lb-row.top1{background:linear-gradient(90deg,rgba(212,165,48,.08),transparent)}
+.lb-row.top2{background:linear-gradient(90deg,rgba(168,180,192,.06),transparent)}
+.lb-row.top3{background:linear-gradient(90deg,rgba(184,115,51,.06),transparent)}
+.lb-row.me{background:rgba(0,212,170,.06);border-left:2px solid var(--teal)}
+.lb-row.eliminated{opacity:.25}
+.lb-row.danger-zone{border-right:2px solid rgba(229,62,62,.4)}
 
-.lb-rank{width:26px;text-align:center;font-size:12px;font-weight:900;flex-shrink:0}
+/* ITM Top4 */
+.lb-row.itm{background:linear-gradient(90deg,rgba(212,165,48,.1),rgba(212,165,48,.03),transparent);border-left:2px solid var(--gold);position:relative}
+.lb-row.itm::after{content:'ITM';position:absolute;right:2px;top:1px;font-size:7px;font-weight:900;color:var(--gold);letter-spacing:1px;opacity:.6}
+.itm-divider{height:1px;margin:3px 0;background:linear-gradient(90deg,var(--gold),rgba(212,165,48,.3),transparent);flex-shrink:0;position:relative}
+.itm-divider::after{content:'ITM LINE';position:absolute;right:0;top:-7px;font-size:7px;font-weight:800;color:var(--gold);letter-spacing:1px;opacity:.5}
+
+/* Top1 crown glow */
+.lb-row.top1{animation:crownGlow 3s ease infinite}
+@keyframes crownGlow{0%,100%{box-shadow:inset 0 0 0 rgba(212,165,48,0)}50%{box-shadow:inset 0 0 20px rgba(212,165,48,.08)}}
+
+/* Rank */
+.lb-rank{width:20px;text-align:center;font-size:10px;font-weight:900;flex-shrink:0}
 .lb-rank.r1{color:var(--gold)}
 .lb-rank.r2{color:var(--silver)}
 .lb-rank.r3{color:var(--bronze)}
-.lb-rank.rn{color:var(--dim)}
+.lb-rank.rn{color:var(--dim);font-size:9px}
 
-.lb-name{flex:1;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lb-mmr{font-size:9px;color:var(--dim);width:36px;text-align:right;flex-shrink:0}
-.lb-pts{font-size:13px;font-weight:900;font-variant-numeric:tabular-nums;width:50px;text-align:right;flex-shrink:0}
+/* Name */
+.lb-name{flex:1;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-elim-tag{font-size:7px;color:var(--red);font-weight:700;margin-left:3px;opacity:.7}
+
+/* MMR */
+.lb-mmr{font-size:8px;color:var(--dim);width:28px;text-align:right;flex-shrink:0;opacity:.6}
+
+/* Score (chip-style) */
+.lb-pts{font-size:11px;font-weight:900;font-variant-numeric:tabular-nums;width:42px;text-align:right;flex-shrink:0}
 .lb-pts.positive{color:var(--green)}
 .lb-pts.negative{color:var(--red)}
 .lb-pts.zero{color:var(--dim)}
 
-.lb-elim-tag{font-size:8px;color:var(--red);font-weight:700;margin-left:4px}
+/* Score bar (mini visual) */
+.lb-bar{width:32px;height:4px;border-radius:2px;background:rgba(255,255,255,.04);flex-shrink:0;overflow:hidden;position:relative}
+.lb-bar-fill{height:100%;border-radius:2px;transition:width .5s ease}
+.lb-bar-fill.pos{background:linear-gradient(90deg,var(--green),var(--teal))}
+.lb-bar-fill.neg{background:var(--red)}
 
-/* Danger zone separator */
-.lb-danger-sep{padding:4px 16px;font-size:9px;color:var(--red);letter-spacing:2px;font-weight:700;background:rgba(255,71,87,.05);border-top:1px dashed rgba(255,71,87,.2);border-bottom:1px dashed rgba(255,71,87,.2);text-align:center}
+/* Eliminated separator */
+.lb-sep{padding:2px 8px;font-size:7px;color:var(--dim);letter-spacing:2px;font-weight:700;text-align:center;opacity:.4;flex-shrink:0;border-top:1px dashed rgba(255,255,255,.06);margin:2px 0}
+
+/* === TABLE STATUS BAR === */
+.table-status-bar{display:flex;align-items:center;gap:6px;padding:4px 16px;background:rgba(8,12,18,.8);border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto;min-height:28px}
+.table-status-bar .ts-label{font-size:8px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;font-weight:700;flex-shrink:0;margin-right:4px}
+.table-chip{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;flex-shrink:0;transition:all .3s}
+.table-chip.waiting{background:rgba(255,255,255,.04);color:var(--dim)}
+.table-chip.playing{background:rgba(0,212,170,.1);color:var(--teal);animation:tablePlay 1.5s ease infinite}
+.table-chip.finished{background:rgba(56,161,105,.1);color:var(--green)}
+.table-chip.human{background:rgba(212,165,48,.12);color:var(--gold);border:1px solid rgba(212,165,48,.3)}
+@keyframes tablePlay{0%,100%{opacity:1}50%{opacity:.5}}
+.table-chip .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.table-chip.waiting .dot{background:var(--dim)}
+.table-chip.playing .dot{background:var(--teal)}
+.table-chip.finished .dot{background:var(--green)}
+.table-chip.human .dot{background:var(--gold)}
 
 /* === BOTTOM BAR === */
-.bottom-bar{display:flex;align-items:center;justify-content:space-between;padding:6px 28px;background:rgba(13,18,32,.9);border-top:1px solid var(--border);font-size:11px;color:var(--dim);height:36px}
-.bottom-bar .tables-info{display:flex;gap:12px}
-.table-chip{padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.04);font-size:10px;font-weight:600}
-.table-chip.active{background:rgba(0,212,170,.1);color:var(--accent)}
-.elim-next{color:var(--red);font-weight:700;font-size:10px}
+.bottom-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 24px;background:#080c12;border-top:1px solid var(--border);font-size:10px;color:var(--dim);height:24px;flex-shrink:0}
 
 /* === SETUP OVERLAY === */
-.setup-overlay{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:100;display:flex;align-items:center;justify-content:center}
+.setup-overlay{position:fixed;inset:0;background:rgba(8,12,18,.97);z-index:100;display:flex;align-items:center;justify-content:center}
 .setup-overlay.hidden{display:none}
-.setup-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;width:420px;max-width:90vw;text-align:center}
-.setup-box h2{font-size:22px;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.setup-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:420px;max-width:90vw;text-align:center}
+.setup-box h2{font-size:22px;margin-bottom:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .setup-box p{color:var(--dim);font-size:14px;margin-bottom:24px}
 .setup-input{width:100%;padding:14px 20px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;text-align:center;letter-spacing:4px;font-weight:800;margin-bottom:16px;outline:none}
-.setup-input:focus{border-color:var(--accent)}
+.setup-input:focus{border-color:var(--gold)}
 .setup-input::placeholder{letter-spacing:1px;font-weight:400;color:var(--dim)}
-.setup-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:16px;font-weight:700;cursor:pointer}
+.setup-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-size:16px;font-weight:700;cursor:pointer}
 .setup-btn:hover{opacity:.9}
 .setup-btn:disabled{opacity:.4;cursor:not-allowed}
 .setup-err{color:var(--red);font-size:13px;margin-top:10px;min-height:20px}
 .demo-link{color:var(--dim);font-size:13px;margin-top:16px;cursor:pointer;display:inline-block}
-.demo-link:hover{color:var(--accent)}
+.demo-link:hover{color:var(--gold)}
 .ref-link{color:var(--accent2);font-size:13px;margin-top:8px;cursor:pointer;display:inline-block;font-weight:600}
-.ref-link:hover{color:var(--magenta)}
+.ref-link:hover{color:#a855f7}
 .ref-row{display:none;margin-top:12px;gap:8px;align-items:center}
 .ref-row.show{display:flex}
 .ref-pin{flex:1;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:15px;text-align:center;letter-spacing:3px;font-weight:700;outline:none}
 .ref-pin:focus{border-color:var(--accent2)}
-.ref-btn{padding:12px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent2),var(--magenta));color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.ref-btn{padding:12px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent2),#a855f7);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 
 /* === REFEREE PANEL === */
-.ref-panel{display:none;position:fixed;bottom:50px;right:20px;width:340px;max-height:70vh;background:var(--card);border:1px solid var(--accent2);border-radius:16px;z-index:80;overflow:hidden;box-shadow:0 8px 40px rgba(124,77,255,.2)}
+.ref-panel{display:none;position:fixed;bottom:40px;right:20px;width:340px;max-height:70vh;background:var(--surface);border:1px solid var(--accent2);border-radius:16px;z-index:80;overflow:hidden;box-shadow:0 8px 40px rgba(124,77,255,.2)}
 .ref-panel.open{display:flex;flex-direction:column}
 .ref-panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(124,77,255,.1);border-bottom:1px solid var(--border)}
 .ref-panel-header h3{font-size:14px;color:var(--accent2);font-weight:800}
@@ -156,28 +194,17 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
 .ref-section h4{font-size:12px;color:var(--dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
 .ref-action-btn{width:100%;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;transition:opacity .2s}
 .ref-action-btn:hover{opacity:.85}
-.ref-action-btn.green{background:var(--green);color:#000}
+.ref-action-btn.green{background:var(--green);color:#fff}
 .ref-action-btn.red{background:var(--red);color:#fff}
-.ref-action-btn.blue{background:var(--accent);color:#000}
+.ref-action-btn.blue{background:var(--teal);color:#000}
 .ref-action-btn.purple{background:var(--accent2);color:#fff}
 .ref-action-btn:disabled{opacity:.3;cursor:not-allowed}
 .ref-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .ref-select{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none;margin-bottom:6px}
-.ref-msg{font-size:12px;color:var(--accent);margin-top:6px;min-height:16px}
-.ref-badge{display:none;padding:4px 12px;border-radius:12px;background:rgba(124,77,255,.15);color:var(--accent2);font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(124,77,255,.3)}
-.ref-badge:hover{background:rgba(124,77,255,.25)}
-.ref-badge.active{display:inline-block}
+.ref-msg{font-size:12px;color:var(--teal);margin-top:6px;min-height:16px}
 
-/* === RESPONSIVE === */
-@media(max-width:1100px){
-  .player-grid{grid-template-columns:repeat(6,1fr)}
-  .right-panel{width:260px}
-}
-@media(max-width:800px){
-  .main-wrap{flex-direction:column}
-  .right-panel{width:100%;height:40vh;border-left:none;border-top:1px solid var(--border)}
-  .player-grid{grid-template-columns:repeat(4,1fr)}
-}
+@media(max-width:1100px){.lb-grid,.lb-header-row{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.lb-grid,.lb-header-row{grid-template-columns:1fr}.main-area{overflow-y:auto}}
 </style>
 </head>
 <body>
@@ -185,37 +212,55 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
 <!-- SETUP -->
 <div class="setup-overlay" id="setup">
   <div class="setup-box">
-    <h2>CRAYXUS 大屏</h2>
+    <h2>CRAYXUS TOURNAMENT</h2>
     <p>输入赛事代码连接大屏</p>
     <input class="setup-input" id="codeInput" placeholder="赛事代码" maxlength="8" autocomplete="off">
-    <button class="setup-btn" id="connectBtn" onclick="connectTournament()">观众入口</button>
-    <div class="ref-link" onclick="toggleRefRow()">Enter as Referee</div>
+    <button class="setup-btn" id="connectBtn" onclick="connectTournament()">进入大厅</button>
+    <div class="ref-link" onclick="toggleRefRow()">Referee Login</div>
     <div class="ref-row" id="refRow">
       <input class="ref-pin" id="refPinInput" placeholder="裁判PIN" maxlength="6" type="password">
       <button class="ref-btn" onclick="connectAsReferee()">验证</button>
     </div>
     <div class="setup-err" id="setupErr"></div>
-    <div class="demo-link" onclick="startDemo()">演示模式（无需赛事）</div>
+    <div class="demo-link" onclick="startDemo()">Demo Mode</div>
   </div>
 </div>
 
-<!-- TOP BAR -->
-<div class="top-bar">
+<!-- TOP BANNER -->
+<div class="top-banner">
   <div class="top-left">
     <div class="logo">CRAYXUS</div>
     <div class="event-name" id="eventName">48人标准赛</div>
   </div>
-  <div class="top-center">
-    <div>
-      <div class="round-label">ROUND</div>
-      <div class="round-badge" id="roundNum">0 / 20</div>
-    </div>
-    <div class="phase-tag warmup" id="phaseTag">热身期</div>
-  </div>
-  <div class="top-right">
-    <div class="timer" id="timer">05:00</div>
-    <div class="alive-count">在场 <span id="aliveCount">48</span> 人</div>
+  <div class="top-right-info">
+    <span id="eventMeta">掼蛋积分赛 | 20轮 | 4人/桌</span>
     <div class="ref-badge" id="refBadge" onclick="toggleRefPanel()">REFEREE</div>
+  </div>
+</div>
+
+<!-- TOURNAMENT CLOCK -->
+<div class="clock-strip">
+  <div class="clock-left">
+    <div class="stats-block">
+      <div class="stat-row"><span class="stat-label">在场</span><span class="stat-val alive" id="aliveCount">48</span></div>
+      <div class="stat-row"><span class="stat-label">淘汰</span><span class="stat-val out" id="elimCount">0</span></div>
+      <div class="stat-row"><span class="stat-label">桌数</span><span class="stat-val tables" id="tableCount">12</span></div>
+    </div>
+  </div>
+  <div class="clock-center">
+    <div class="timer-display" id="timer">05:00</div>
+    <div class="clock-meta">
+      <span class="round-chip" id="roundChip">ROUND 0 / 20</span>
+      <span class="phase-tag warmup" id="phaseTag">热身期</span>
+    </div>
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="clock-right">
+    <div class="info-block">
+      <div class="info-line">下一淘汰: <span class="hl" id="nextElimInfo">R11</span></div>
+      <div class="info-line">末位 <span class="hl">4人</span> 每轮淘汰</div>
+      <div class="info-line" id="prizeInfo">冠军桌: 前4名</div>
+    </div>
   </div>
 </div>
 
@@ -256,438 +301,355 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="main-wrap">
-  <!-- LEFT: Player Chip Grid -->
-  <div class="left-panel">
-    <div class="left-title">PLAYERS</div>
-    <div class="player-grid" id="playerGrid"></div>
+<!-- MAIN LEADERBOARD -->
+<div class="main-area">
+  <div class="danger-banner" id="dangerBanner">
+    ELIMINATION ZONE <span class="names" id="dangerNames"></span>
   </div>
-  <!-- RIGHT: Leaderboard -->
-  <div class="right-panel">
-    <div class="lb-header">
-      <div class="lb-title">LEADERBOARD</div>
-      <div class="lb-subtitle" id="lbSubtitle">48 PLAYERS</div>
-    </div>
-    <div class="lb-scroll" id="leaderboard"></div>
+  <div class="lb-header-row">
+    <div class="lb-col-title"><span>RANK</span><div class="col-labels"><span>MMR</span><span>PTS</span></div></div>
+    <div class="lb-col-title"><span>RANK</span><div class="col-labels"><span>MMR</span><span>PTS</span></div></div>
+    <div class="lb-col-title"><span>RANK</span><div class="col-labels"><span>MMR</span><span>PTS</span></div></div>
   </div>
+  <div class="lb-grid" id="lbGrid"></div>
+</div>
+
+<!-- TABLE STATUS BAR -->
+<div class="table-status-bar" id="tableStatusBar">
+  <span class="ts-label">TABLES</span>
 </div>
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
-  <div class="tables-info" id="tablesInfo"></div>
-  <div class="elim-next" id="elimNext"></div>
-  <div id="bottomRight" style="color:var(--dim)">CRAYXUS AI 掼蛋一体机</div>
+  <div id="bottomLeft"></div>
+  <div id="elimNext"></div>
+  <div>CRAYXUS AI Tournament System</div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-let socket = null;
-let tournamentCode = null;
-let players = [];
-let currentRound = 0;
-let totalRounds = 20;
-let timerInterval = null;
-let timerSeconds = 0;
-let isDemo = false;
-let isReferee = false;
-let refereePin = '';
-let currentTables = [];
+let socket=null,tournamentCode=null,players=[],currentRound=0,totalRounds=20;
+let timerInterval=null,timerSeconds=0,isDemo=false,isReferee=false,refereePin='',currentTables=[];
+let tableStatus={}; // {tableNum: 'waiting'|'playing'|'finished'|'human-done'}
 
-const MMR_TIERS = [
-  { min: 1350, name: '王', cls: 't-king' },
-  { min: 1250, name: '宗', cls: 't-gm' },
-  { min: 1150, name: '师', cls: 't-master' },
-  { min: 1050, name: '精', cls: 't-elite' },
-  { min: 900,  name: '进', cls: 't-adv' },
-  { min: 0,    name: '初', cls: 't-entry' }
-];
-
-function getTier(mmr) {
-  for (let t of MMR_TIERS) if (mmr >= t.min) return t;
-  return MMR_TIERS[MMR_TIERS.length - 1];
+function recalcRanks(){
+  let active=players.filter(p=>!p.eliminated).sort((a,b)=>b.score-a.score);
+  active.forEach((p,i)=>p.rank=i+1);
+  let elim=players.filter(p=>p.eliminated).sort((a,b)=>(b.eliminatedRound||0)-(a.eliminatedRound||0)||b.score-a.score);
+  elim.forEach((p,i)=>p.rank=active.length+i+1);
 }
 
-function recalcRanks() {
-  let active = players.filter(p => !p.eliminated).sort((a, b) => b.score - a.score);
-  active.forEach((p, i) => p.rank = i + 1);
-  let elim = players.filter(p => p.eliminated).sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0) || b.score - a.score);
-  elim.forEach((p, i) => p.rank = active.length + i + 1);
-}
-
-/* ---- URL param auto-connect ---- */
+// URL auto-connect
 (function(){
-  const p = new URLSearchParams(window.location.search);
-  const code = p.get('code');
-  if (code) {
-    document.getElementById('codeInput').value = code.toUpperCase();
-    setTimeout(() => connectTournament(), 300);
-  }
+  const p=new URLSearchParams(location.search),code=p.get('code');
+  if(code){document.getElementById('codeInput').value=code.toUpperCase();setTimeout(()=>connectTournament(),300)}
 })();
 
-/* ---- Connect ---- */
-async function connectTournament() {
-  const code = document.getElementById('codeInput').value.trim().toUpperCase();
-  if (!code) return;
-  document.getElementById('setupErr').textContent = '';
-  document.getElementById('connectBtn').disabled = true;
-  try {
-    const res = await fetch(`/api/tournaments/${code}/dashboard`);
-    const data = await res.json();
-    if (data.error) { showSetupErr(data.error); return; }
-    tournamentCode = code;
-    players = data.players;
-    currentRound = data.currentRound;
-    totalRounds = data.totalRounds || 20;
-    document.getElementById('eventName').textContent = data.name || '48人标准赛';
+async function connectTournament(){
+  const code=document.getElementById('codeInput').value.trim().toUpperCase();
+  if(!code)return;
+  document.getElementById('setupErr').textContent='';
+  document.getElementById('connectBtn').disabled=true;
+  try{
+    const res=await fetch(`/api/tournaments/${code}/dashboard`);
+    const data=await res.json();
+    if(data.error){showSetupErr(data.error);return}
+    tournamentCode=code;players=data.players;currentRound=data.currentRound;totalRounds=data.totalRounds||20;
+    document.getElementById('eventName').textContent=data.name||'48人标准赛';
     document.getElementById('setup').classList.add('hidden');
-    renderAll();
-    connectSocket();
-  } catch(e) {
-    showSetupErr('连接失败: ' + e.message);
-  } finally {
-    document.getElementById('connectBtn').disabled = false;
-  }
+    renderAll();connectSocket();
+  }catch(e){showSetupErr('连接失败: '+e.message)}
+  finally{document.getElementById('connectBtn').disabled=false}
 }
 
-function showSetupErr(msg) {
-  document.getElementById('setupErr').textContent = msg;
-  document.getElementById('connectBtn').disabled = false;
-}
+function showSetupErr(msg){document.getElementById('setupErr').textContent=msg;document.getElementById('connectBtn').disabled=false}
 
-/* ---- Socket.io ---- */
-function connectSocket() {
-  if (!tournamentCode) return;
-  socket = io();
-  socket.on('connect', () => { socket.emit('joinDashboard', tournamentCode); });
-  socket.on('dashboardState', (data) => { players = data.players; currentRound = data.currentRound; renderAll(); });
-  socket.on('scoreUpdate', (data) => {
-    currentRound = data.round;
-    for (let c of data.changes) {
-      let p = players.find(x => x.nickname === c.nickname);
-      if (!p) continue;
-      p.prevScore = p.score;
-      p.score = c.newScore;
-      p.mmr = c.newMmr;
-    }
-    recalcRanks();
-    renderAll();
-    for (let c of data.changes) {
-      let delta = c.newScore - (c.newScore - (c.scoreDelta || 0));
-      if (c.scoreDelta) animateDelta(c.nickname, c.scoreDelta);
-    }
+function connectSocket(){
+  if(!tournamentCode)return;
+  socket=io();
+  socket.on('connect',()=>{socket.emit('joinDashboard',tournamentCode)});
+  socket.on('dashboardState',d=>{players=d.players;currentRound=d.currentRound;renderAll()});
+  socket.on('scoreUpdate',d=>{
+    currentRound=d.round;let deltas={};
+    for(let c of d.changes){let p=players.find(x=>x.nickname===c.nickname);if(!p)continue;p.prevScore=p.score;p.score=c.newScore;p.mmr=c.newMmr;if(c.scoreDelta)deltas[c.nickname]=c.scoreDelta}
+    recalcRanks();renderAll();
+    for(let[nick,delta]of Object.entries(deltas))animateDelta(nick,delta);
   });
-  socket.on('elimination', (data) => {
-    currentRound = data.round;
-    for (let e of data.eliminated) {
-      let p = players.find(x => x.nickname === e.nickname);
-      if (p) { p.eliminated = true; p.eliminatedRound = data.round; }
-    }
-    recalcRanks();
-    renderAll();
-    for (let e of data.eliminated) animateElimination(e.nickname);
+  socket.on('elimination',d=>{
+    currentRound=d.round;
+    for(let e of d.eliminated){let p=players.find(x=>x.nickname===e.nickname);if(p){p.eliminated=true;p.eliminatedRound=d.round}}
+    recalcRanks();renderAll();
   });
-  socket.on('roundStart', (data) => {
-    currentRound = data.round;
-    currentTables = data.tables || [];
-    renderAll();
-    if (data.timer) startTimer(data.timer);
+  socket.on('roundStart',d=>{
+    currentRound=d.round;currentTables=d.tables||[];
+    // Init table status tracking
+    tableStatus={};
+    for(let t of currentTables){tableStatus[t.tableNum]='playing'}
+    renderAll();renderTableStatus();
+    if(d.timer)startTimer(d.timer);
+  });
+  socket.on('botTableUpdate',d=>{
+    if(!tableStatus)tableStatus={};
+    tableStatus[d.tableNum]=d.status;
+    if(d.isHumanTable)tableStatus[d.tableNum]='human-done';
+    renderTableStatus();
+    // If a table finished, update remaining count in bottom
+    if(d.status==='finished'&&d.remaining!==undefined){
+      document.getElementById('elimNext').textContent=d.remaining>0?d.remaining+' tables still playing...':'All tables finished';
+    }
   });
 }
 
 /* ---- Render ---- */
-function renderAll() {
-  recalcRanks();
-  renderHeader();
-  renderGrid();
-  renderLeaderboard();
-  renderBottom();
-}
+function renderAll(){recalcRanks();renderClock();renderLeaderboard();renderBottom()}
 
-function renderHeader() {
-  document.getElementById('roundNum').textContent = `${currentRound} / ${totalRounds}`;
-  let tag = document.getElementById('phaseTag');
-  let alive = players.filter(p => !p.eliminated).length;
-  document.getElementById('aliveCount').textContent = alive;
+function renderClock(){
+  let alive=players.filter(p=>!p.eliminated).length;
+  let elimN=players.filter(p=>p.eliminated).length;
+  document.getElementById('aliveCount').textContent=alive;
+  document.getElementById('elimCount').textContent=elimN;
+  document.getElementById('tableCount').textContent=Math.floor(alive/4);
+  document.getElementById('roundChip').textContent=`ROUND ${currentRound} / ${totalRounds}`;
 
-  if (currentRound <= 10) { tag.className = 'phase-tag warmup'; tag.textContent = '热身期'; }
-  else if (alive <= 4) { tag.className = 'phase-tag finished'; tag.textContent = '决赛'; }
-  else { tag.className = 'phase-tag elimination'; tag.textContent = '淘汰期'; }
+  let tag=document.getElementById('phaseTag');
+  if(currentRound<=10){tag.className='phase-tag warmup';tag.textContent='热身期'}
+  else if(alive<=4){tag.className='phase-tag finished';tag.textContent='FINAL TABLE'}
+  else{tag.className='phase-tag elimination';tag.textContent='淘汰期'}
 
-  let elimNext = document.getElementById('elimNext');
-  if (currentRound >= 10 && alive > 4) {
-    let sorted = players.filter(p => !p.eliminated).sort((a, b) => a.score - b.score);
-    elimNext.textContent = '淘汰区: ' + sorted.slice(0, 4).map(p => p.nickname).join(', ');
-  } else if (currentRound < 10) {
-    elimNext.textContent = '第10轮后开始淘汰';
-  } else { elimNext.textContent = ''; }
-}
+  // Next elim info
+  let nei=document.getElementById('nextElimInfo');
+  if(currentRound<10)nei.textContent='R11';
+  else if(alive>4)nei.textContent='本轮结束后';
+  else nei.textContent='--';
 
-function renderGrid() {
-  const grid = document.getElementById('playerGrid');
-  let active = players.filter(p => !p.eliminated).sort((a, b) => a.rank - b.rank);
-  let elim = players.filter(p => p.eliminated).sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0));
-  let ordered = [...active, ...elim];
-  while (ordered.length < 48) ordered.push(null);
-
-  grid.innerHTML = '';
-  for (let i = 0; i < ordered.length; i++) {
-    grid.appendChild(createChip(ordered[i], i));
-  }
-}
-
-function createChip(p, idx) {
-  let div = document.createElement('div');
-  if (!p) {
-    div.className = 'player-chip empty';
-    div.innerHTML = '<span class="chip-name" style="opacity:.3">' + (idx + 1) + '</span>';
-    return div;
-  }
-
-  div.className = 'player-chip' + (p.eliminated ? ' eliminated' : '');
-  div.id = 'cell-' + p.nickname;
-
-  let rankCls = p.rank <= 3 ? 'r' + p.rank : 'rn';
-  let scoreCls = p.score > 0 ? 'positive' : (p.score < 0 ? 'negative' : 'zero');
-  let scoreText = p.score > 0 ? '+' + p.score : (p.score === 0 ? '0' : '' + p.score);
-
-  div.innerHTML =
-    '<div class="chip-rank ' + rankCls + '">' + p.rank + '</div>' +
-    '<div class="chip-info">' +
-      '<div class="chip-name">' + escHtml(p.nickname) + '</div>' +
-      '<div class="chip-score ' + scoreCls + '">' + scoreText + '</div>' +
-    '</div>' +
-    '<div class="chip-delta" id="delta-' + p.nickname + '"></div>' +
-    '<div class="chip-elim"><span class="chip-elim-x">XX</span></div>';
-  return div;
-}
-
-function renderLeaderboard() {
-  const lb = document.getElementById('leaderboard');
-  let active = players.filter(p => !p.eliminated).sort((a, b) => a.rank - b.rank);
-  let elim = players.filter(p => p.eliminated).sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0) || b.score - a.score);
-
-  let aliveCount = active.length;
-  document.getElementById('lbSubtitle').textContent = aliveCount + ' ACTIVE / ' + players.length + ' TOTAL';
-
-  let html = '';
-  // Active players
-  let dangerIdx = aliveCount - 4; // bottom 4 danger zone
-  for (let i = 0; i < active.length; i++) {
-    let p = active[i];
-    let rankCls = p.rank <= 3 ? 'r' + p.rank : 'rn';
-    let scoreCls = p.score > 0 ? 'positive' : (p.score < 0 ? 'negative' : 'zero');
-    let scoreText = p.score > 0 ? '+' + p.score : (p.score === 0 ? '0' : '' + p.score);
-    let rowCls = 'lb-row' + (p.rank <= 3 ? ' top3' : '') + (p.isHuman ? ' me' : '');
-
-    // Insert danger zone separator
-    if (currentRound >= 10 && i === dangerIdx && dangerIdx > 0) {
-      html += '<div class="lb-danger-sep">DANGER ZONE</div>';
+  // Progress bar
+  let pb=document.getElementById('progressBar');
+  let dots='';
+  for(let i=1;i<=totalRounds;i++){
+    let cls='prog-dot';
+    if(i<=10){
+      if(i<currentRound)cls+=' done';else if(i===currentRound)cls+=' current';
+    }else{
+      cls+=' elim';
+      if(i<currentRound)cls+=' elim-done';else if(i===currentRound)cls+=' elim-current';
     }
-
-    html += '<div class="' + rowCls + '">' +
-      '<div class="lb-rank ' + rankCls + '">' + p.rank + '</div>' +
-      '<div class="lb-name">' + escHtml(p.nickname) + '</div>' +
-      '<div class="lb-mmr">' + (p.mmr || 1000) + '</div>' +
-      '<div class="lb-pts ' + scoreCls + '">' + scoreText + '</div>' +
-    '</div>';
+    dots+=`<div class="${cls}"></div>`;
   }
+  pb.innerHTML=dots;
 
-  // Eliminated section
-  if (elim.length > 0) {
-    html += '<div class="lb-danger-sep" style="color:var(--dim);border-color:var(--border);background:rgba(255,255,255,.02)">ELIMINATED</div>';
-    for (let p of elim) {
-      let scoreText = p.score > 0 ? '+' + p.score : (p.score === 0 ? '0' : '' + p.score);
-      html += '<div class="lb-row eliminated">' +
-        '<div class="lb-rank rn">' + p.rank + '</div>' +
-        '<div class="lb-name">' + escHtml(p.nickname) + '<span class="lb-elim-tag">R' + (p.eliminatedRound || '?') + '</span></div>' +
-        '<div class="lb-mmr">' + (p.mmr || 1000) + '</div>' +
-        '<div class="lb-pts">' + scoreText + '</div>' +
+  // Danger banner
+  let banner=document.getElementById('dangerBanner');
+  if(currentRound>=10&&alive>4){
+    let sorted=players.filter(p=>!p.eliminated).sort((a,b)=>a.score-b.score);
+    document.getElementById('dangerNames').textContent=sorted.slice(0,4).map(p=>p.nickname+'('+p.score+')').join('  |  ');
+    banner.classList.add('show');
+  }else{banner.classList.remove('show')}
+}
+
+function renderLeaderboard(){
+  let active=players.filter(p=>!p.eliminated).sort((a,b)=>a.rank-b.rank);
+  let elim=players.filter(p=>p.eliminated).sort((a,b)=>(b.eliminatedRound||0)-(a.eliminatedRound||0)||b.score-a.score);
+  let all=[...active,...elim];
+
+  let aliveCount=active.length;
+  let dangerStart=aliveCount-4;
+
+  // Find max absolute score for bar scaling
+  let maxAbs=Math.max(1,...players.map(p=>Math.abs(p.score)));
+
+  // Split into 3 columns
+  let colSize=Math.ceil(all.length/3);
+  let cols=[all.slice(0,colSize),all.slice(colSize,colSize*2),all.slice(colSize*2)];
+
+  let grid=document.getElementById('lbGrid');
+  let html='';
+
+  for(let c=0;c<3;c++){
+    html+='<div class="lb-column">';
+    let prevActive=true;
+    for(let p of cols[c]){
+      if(!p)continue;
+      if(prevActive&&p.eliminated){
+        html+='<div class="lb-sep">ELIMINATED</div>';prevActive=false;
+      }
+      if(!p.eliminated)prevActive=true;
+
+      let rankCls=p.rank===1?'r1':p.rank===2?'r2':p.rank===3?'r3':'rn';
+      let scoreCls=p.score>0?'positive':(p.score<0?'negative':'zero');
+      let scoreText=p.score>0?'+'+p.score:(p.score===0?'0':''+p.score);
+
+      // ITM divider: insert between rank 4 and 5 in this column
+      if(!p.eliminated&&p.rank===5){html+='<div class="itm-divider"></div>'}
+
+      let rowCls='lb-row';
+      if(p.eliminated)rowCls+=' eliminated';
+      else if(p.rank<=4)rowCls+=' itm';
+      if(p.rank===1)rowCls+=' top1';
+      else if(p.rank===2)rowCls+=' top2';
+      else if(p.rank===3)rowCls+=' top3';
+      if(p.isHuman)rowCls+=' me';
+      if(!p.eliminated&&currentRound>=10&&p.rank>dangerStart&&dangerStart>0)rowCls+=' danger-zone';
+
+      let elimTag=p.eliminated?`<span class="lb-elim-tag">R${p.eliminatedRound||'?'}</span>`:'';
+
+      // Score bar
+      let barW=Math.min(100,Math.abs(p.score)/maxAbs*100);
+      let barCls=p.score>=0?'pos':'neg';
+
+      html+=`<div class="${rowCls}" id="row-${escHtml(p.nickname)}">`+
+        `<div class="lb-rank ${rankCls}">${p.rank}</div>`+
+        `<div class="lb-name">${escHtml(p.nickname)}${elimTag}</div>`+
+        `<div class="lb-bar"><div class="lb-bar-fill ${barCls}" style="width:${barW}%"></div></div>`+
+        `<div class="lb-mmr">${p.mmr||1000}</div>`+
+        `<div class="lb-pts ${scoreCls}">${scoreText}</div>`+
       '</div>';
     }
+    html+='</div>';
   }
-
-  lb.innerHTML = html;
+  grid.innerHTML=html;
 }
 
-function renderBottom() {
-  let alive = players.filter(p => !p.eliminated).length;
-  let tables = Math.floor(alive / 4);
-  document.getElementById('tablesInfo').innerHTML =
-    '<span class="table-chip active">' + tables + ' 桌</span>' +
-    '<span class="table-chip">' + alive + ' 人在场</span>' +
-    '<span class="table-chip">' + players.filter(p => p.eliminated).length + ' 人淘汰</span>';
+function renderBottom(){
+  let alive=players.filter(p=>!p.eliminated).length;
+  document.getElementById('bottomLeft').innerHTML=`<span>${players.length} Players | ${Math.floor(alive/4)} Tables Active</span>`;
+  let en=document.getElementById('elimNext');
+  if(currentRound<10){en.textContent='Elimination starts at Round 11';en.style.color='var(--dim)'}
+  else if(alive>4){en.textContent='Bottom 4 eliminated each round';en.style.color='var(--red)'}
+  else en.textContent='';
 }
 
-/* ---- Animations ---- */
-function animateDelta(nickname, delta) {
-  let el = document.getElementById('delta-' + nickname);
-  if (!el) return;
-  el.className = 'chip-delta';
-  el.offsetHeight;
-  if (delta > 0) { el.textContent = '+' + delta; el.classList.add('up'); }
-  else if (delta < 0) { el.textContent = '' + delta; el.classList.add('down'); }
-
-  let cell = document.getElementById('cell-' + nickname);
-  if (cell) {
-    cell.classList.remove('glow-up', 'glow-down');
-    cell.offsetHeight;
-    cell.classList.add(delta > 0 ? 'glow-up' : 'glow-down');
-    setTimeout(() => cell.classList.remove('glow-up', 'glow-down'), 2500);
+function renderTableStatus(){
+  let bar=document.getElementById('tableStatusBar');
+  if(!currentTables||currentTables.length===0){bar.innerHTML='<span class="ts-label">TABLES</span>';return}
+  let html='<span class="ts-label">TABLES</span>';
+  let finished=0,total=currentTables.length;
+  for(let t of currentTables){
+    let st=tableStatus[t.tableNum]||'waiting';
+    let cls='table-chip';
+    if(st==='finished'||st==='human-done'){cls+=' finished';finished++}
+    else if(st==='playing')cls+=' playing';
+    else cls+=' waiting';
+    // Mark human table
+    let isHuman=t.players&&t.players.some&&t.players.some(p=>p.nickname==='YOU');
+    if(isHuman)cls+=' human';
+    html+=`<div class="${cls}"><span class="dot"></span>T${t.tableNum}</div>`;
   }
+  html+=`<span style="margin-left:auto;font-size:9px;color:var(--dim)">${finished}/${total} done</span>`;
+  bar.innerHTML=html;
 }
 
-function animateElimination(nickname) {
-  let cell = document.getElementById('cell-' + nickname);
-  if (cell) { cell.classList.add('elim-anim'); setTimeout(() => cell.classList.remove('elim-anim'), 800); }
+function animateDelta(nickname,delta){
+  let row=document.getElementById('row-'+nickname);
+  if(!row)return;
+  let bg=delta>0?'rgba(56,161,105,.15)':'rgba(229,62,62,.15)';
+  row.style.background=bg;row.style.transition='background .3s';
+  setTimeout(()=>{row.style.background='';row.style.transition='background 1.5s'},1500);
 }
 
 /* ---- Timer ---- */
-function startTimer(seconds) {
-  timerSeconds = seconds;
-  clearInterval(timerInterval);
-  renderTimer();
-  timerInterval = setInterval(() => {
-    timerSeconds--;
-    if (timerSeconds < 0) timerSeconds = 0;
-    renderTimer();
-    if (timerSeconds <= 0) clearInterval(timerInterval);
-  }, 1000);
+function startTimer(seconds){
+  timerSeconds=seconds;clearInterval(timerInterval);renderTimer();
+  timerInterval=setInterval(()=>{timerSeconds--;if(timerSeconds<0)timerSeconds=0;renderTimer();if(timerSeconds<=0)clearInterval(timerInterval)},1000);
+}
+function renderTimer(){
+  let el=document.getElementById('timer');
+  let m=Math.floor(timerSeconds/60),s=timerSeconds%60;
+  el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  el.className='timer-display'+(timerSeconds<=30?' danger':(timerSeconds<=60?' warning':''));
+}
+function escHtml(s){let d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+
+/* ---- DEMO ---- */
+function startDemo(){
+  isDemo=true;document.getElementById('setup').classList.add('hidden');
+  const names=['卫东','小明','晶晶','光明','婷婷','武当','长江','大鹏','金花','丽华','湛芬','志强','秀兰','翠花','桂兰','文明','峨眉','巧玲','春燕','阿花','昆仑','国庆','月英','海波','大壮','天浩','少华','建国','德华','泰山','国鼎','月圆','YOU','美丽','春花','王兰','彩霞','永强','天山','铁柱','胜利','雪梅','冬梅','红梅','伟民','佳佳','联红','黄河'];
+  players=[];
+  for(let i=0;i<48;i++)players.push({nickname:names[i]||('P'+(i+1)),score:0,mmr:1000,eliminated:false,eliminatedRound:null,rank:i+1});
+  currentRound=0;totalRounds=20;
+  document.getElementById('eventName').textContent='Crayxus 48人标准赛';
+  renderAll();startTimer(300);setTimeout(demoNextRound,2000);
 }
 
-function renderTimer() {
-  let el = document.getElementById('timer');
-  let m = Math.floor(timerSeconds / 60);
-  let s = timerSeconds % 60;
-  el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-  el.className = 'timer' + (timerSeconds <= 30 ? ' danger' : (timerSeconds <= 60 ? ' warning' : ''));
-}
-
-function escHtml(s) { let d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-
-/* ---- DEMO MODE ---- */
-function startDemo() {
-  isDemo = true;
-  document.getElementById('setup').classList.add('hidden');
-  const surnames = ['张','李','王','刘','陈','杨','赵','黄','周','吴','徐','孙','胡','朱','高','林','何','郭','马','罗','梁','宋','郑','谢','韩','唐','冯','于','董','萧','程','曹','袁','邓','许','傅','沈','曾','彭','吕','苏','卢','蒋','蔡','贾','丁','魏','薛','叶','阎'];
-  const names = ['伟','芳','娜','秀英','敏','静','丽','强','磊','军','洋','勇','艳','杰','娟','涛','明','超','秀兰','霞','平','刚','桂英'];
-  players = [];
-  for (let i = 0; i < 48; i++) {
-    players.push({ nickname: surnames[i % surnames.length] + names[Math.floor(Math.random() * names.length)], score: 0, mmr: 1000, eliminated: false, eliminatedRound: null, rank: i + 1 });
-  }
-  currentRound = 0; totalRounds = 20;
-  document.getElementById('eventName').textContent = '演示赛 · 48人标准赛';
-  renderAll(); startTimer(300);
-  setTimeout(demoNextRound, 2000);
-}
-
-function demoNextRound() {
-  if (!isDemo) return;
-  currentRound++;
-  if (currentRound > 20) { renderAll(); return; }
-  renderHeader(); startTimer(180);
-  setTimeout(() => {
-    let active = players.filter(p => !p.eliminated);
-    let shuffled = [...active].sort(() => Math.random() - 0.5);
-    let tables = [];
-    for (let i = 0; i < shuffled.length - 3; i += 4) tables.push(shuffled.slice(i, i + 4));
-    let changes = [];
-    for (let table of tables) {
-      let r = Math.random();
-      if (r < 0.3) {
-        [table[0], table[1]].forEach(p => { p.score += 20; p.mmr += 30; changes.push({ nickname: p.nickname, scoreDelta: 20 }); });
-        [table[2], table[3]].forEach(p => { p.score -= 8; p.mmr -= 30; changes.push({ nickname: p.nickname, scoreDelta: -8 }); });
-      } else if (r < 0.7) {
-        [table[0], table[1]].forEach(p => { p.score += 12; p.mmr += 15; changes.push({ nickname: p.nickname, scoreDelta: 12 }); });
-        [table[2], table[3]].forEach(p => { p.score += 0; p.mmr -= 15; changes.push({ nickname: p.nickname, scoreDelta: 0 }); });
-      } else {
-        [table[0], table[1]].forEach(p => { p.score -= 8; p.mmr -= 30; changes.push({ nickname: p.nickname, scoreDelta: -8 }); });
-        [table[2], table[3]].forEach(p => { p.score += 20; p.mmr += 30; changes.push({ nickname: p.nickname, scoreDelta: 20 }); });
+function demoNextRound(){
+  if(!isDemo)return;currentRound++;if(currentRound>20){renderAll();return}
+  renderClock();startTimer(180);
+  setTimeout(()=>{
+    let active=players.filter(p=>!p.eliminated);
+    let shuffled=[...active].sort(()=>Math.random()-.5);
+    let tables=[];for(let i=0;i<shuffled.length-3;i+=4)tables.push(shuffled.slice(i,i+4));
+    let deltas={};
+    for(let t of tables){
+      // Simulate: MMR-weighted random outcome
+      // Higher MMR players more likely to be in winning team
+      let avgMMR=t.reduce((a,p)=>a+(p.mmr||1000),0)/4;
+      // Team0+2 vs Team1+3, weighted by relative MMR
+      let team02mmr=(t[0].mmr||1000)+(t[2]?t[2].mmr||1000:1000);
+      let team13mmr=(t[1].mmr||1000)+(t[3]?t[3].mmr||1000:1000);
+      let team02prob=team02mmr/(team02mmr+team13mmr);
+      let r=Math.random();
+      let winners,losers;
+      if(r<team02prob){winners=[t[0],t[2]];losers=[t[1],t[3]]}
+      else{winners=[t[1],t[3]];losers=[t[0],t[2]]}
+      // Outcome type
+      let ot=Math.random();
+      if(ot<.35){
+        // Double up
+        winners.forEach(p=>{if(p){p.score+=20;p.mmr+=30;deltas[p.nickname]=20}});
+        losers.forEach(p=>{if(p){p.score-=8;p.mmr-=30;deltas[p.nickname]=-8}});
+      }else{
+        // Single up
+        winners.forEach(p=>{if(p){p.score+=12;p.mmr+=15;deltas[p.nickname]=12}});
+        losers.forEach(p=>{if(p){p.mmr-=15;deltas[p.nickname]=0}});
       }
     }
-    recalcRanks(); renderAll();
-    for (let c of changes) { if (c.scoreDelta !== 0) animateDelta(c.nickname, c.scoreDelta); }
-    if (currentRound >= 10) {
-      setTimeout(() => {
-        let activeNow = players.filter(p => !p.eliminated).sort((a, b) => a.score - b.score);
-        if (activeNow.length > 4) {
-          let toElim = activeNow.slice(0, 4);
-          for (let p of toElim) { p.eliminated = true; p.eliminatedRound = currentRound; }
-          recalcRanks(); renderAll();
-          for (let p of toElim) animateElimination(p.nickname);
-        }
-        setTimeout(demoNextRound, 3000);
-      }, 2000);
-    } else { setTimeout(demoNextRound, 3000); }
-  }, 2000);
+    recalcRanks();renderAll();
+    for(let[n,d]of Object.entries(deltas))if(d)animateDelta(n,d);
+    if(currentRound>=10){
+      setTimeout(()=>{
+        let an=players.filter(p=>!p.eliminated).sort((a,b)=>a.score-b.score);
+        if(an.length>4){for(let p of an.slice(0,4)){p.eliminated=true;p.eliminatedRound=currentRound}recalcRanks();renderAll()}
+        setTimeout(demoNextRound,3000);
+      },2000);
+    }else setTimeout(demoNextRound,3000);
+  },2000);
 }
 
 /* ---- REFEREE ---- */
-function toggleRefRow() { document.getElementById('refRow').classList.toggle('show'); }
-function toggleRefPanel() { document.getElementById('refPanel').classList.toggle('open'); }
+function toggleRefRow(){document.getElementById('refRow').classList.toggle('show')}
+function toggleRefPanel(){document.getElementById('refPanel').classList.toggle('open')}
 
-async function connectAsReferee() {
-  const code = document.getElementById('codeInput').value.trim().toUpperCase();
-  const pin = document.getElementById('refPinInput').value.trim();
-  if (!code || !pin) { showSetupErr('请输入赛事代码和裁判PIN'); return; }
-  try {
-    const res = await fetch('/api/tournaments/' + code + '/referee-auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin }) });
-    const data = await res.json();
-    if (data.error) { showSetupErr(data.error); return; }
-    isReferee = true; refereePin = pin;
-    document.getElementById('refBadge').classList.add('active');
-    await connectTournament();
-  } catch(e) { showSetupErr('验证失败'); }
+async function connectAsReferee(){
+  const code=document.getElementById('codeInput').value.trim().toUpperCase();
+  const pin=document.getElementById('refPinInput').value.trim();
+  if(!code||!pin){showSetupErr('请输入赛事代码和裁判PIN');return}
+  try{
+    const res=await fetch('/api/tournaments/'+code+'/referee-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
+    const data=await res.json();if(data.error){showSetupErr(data.error);return}
+    isReferee=true;refereePin=pin;document.getElementById('refBadge').classList.add('active');await connectTournament();
+  }catch(e){showSetupErr('验证失败')}
 }
-
-async function refNextRound() {
-  if (!tournamentCode || !refereePin) return;
-  try {
-    let res = await fetch('/api/tournaments/' + tournamentCode + '/next-round48', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: refereePin }) });
-    let d = await res.json();
-    document.getElementById('refMsg').textContent = d.error || ('第' + d.round + '轮已开始');
-  } catch(e) { document.getElementById('refMsg').textContent = '操作失败'; }
+async function refNextRound(){
+  if(!tournamentCode||!refereePin)return;
+  try{let r=await fetch('/api/tournaments/'+tournamentCode+'/next-round48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:refereePin})});let d=await r.json();document.getElementById('refMsg').textContent=d.error||('第'+d.round+'轮已开始')}catch(e){document.getElementById('refMsg').textContent='操作失败'}
 }
-
-async function refEliminate() {
-  if (!tournamentCode || !refereePin) return;
-  try {
-    let res = await fetch('/api/tournaments/' + tournamentCode + '/eliminate48', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: refereePin }) });
-    let d = await res.json();
-    if (d.error) { document.getElementById('refMsg').textContent = d.error; return; }
-    document.getElementById('refMsg').textContent = '已淘汰: ' + d.eliminated.map(e => e.nickname).join(', ');
-  } catch(e) { document.getElementById('refMsg').textContent = '操作失败'; }
+async function refEliminate(){
+  if(!tournamentCode||!refereePin)return;
+  try{let r=await fetch('/api/tournaments/'+tournamentCode+'/eliminate48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:refereePin})});let d=await r.json();if(d.error){document.getElementById('refMsg').textContent=d.error;return}document.getElementById('refMsg').textContent='已淘汰: '+d.eliminated.map(e=>e.nickname).join(', ')}catch(e){document.getElementById('refMsg').textContent='操作失败'}
 }
-
-async function refReportResult(outcome) {
-  if (!tournamentCode || !refereePin) return;
-  let tableNum = document.getElementById('refTable').value;
-  if (!tableNum) { document.getElementById('refMsg').textContent = '请选择桌号'; return; }
-  // Report same outcome for all 4 players at table
-  let table = currentTables.find(t => t.tableNum == tableNum);
-  if (!table) { document.getElementById('refMsg').textContent = '桌号无效'; return; }
-  let results = [];
-  let winners = [...(table.team1 || [])];
-  let losers = [...(table.team2 || [])];
-  if (outcome === 'doubleUp') { winners.forEach(n => results.push({ nickname: n, outcome: 'doubleUp' })); losers.forEach(n => results.push({ nickname: n, outcome: 'doubleDown' })); }
-  else if (outcome === 'singleUpWin') { winners.forEach(n => results.push({ nickname: n, outcome: 'singleUpWin' })); losers.forEach(n => results.push({ nickname: n, outcome: 'singleUpLose' })); }
-  else { let allP = [...winners, ...losers]; allP.forEach(n => results.push({ nickname: n, outcome })); }
-  try {
-    let res = await fetch('/api/tournaments/' + tournamentCode + '/result48', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: refereePin, results }) });
-    let d = await res.json();
-    document.getElementById('refMsg').textContent = d.error || '已录入';
-  } catch(e) { document.getElementById('refMsg').textContent = '操作失败'; }
+async function refReportResult(outcome){
+  if(!tournamentCode||!refereePin)return;
+  let tn=document.getElementById('refTable').value;if(!tn){document.getElementById('refMsg').textContent='请选择桌号';return}
+  let table=currentTables.find(t=>t.tableNum==tn);if(!table){document.getElementById('refMsg').textContent='桌号无效';return}
+  let results=[],w=[...(table.team1||[])],l=[...(table.team2||[])];
+  if(outcome==='doubleUp'){w.forEach(n=>results.push({nickname:n,outcome:'doubleUp'}));l.forEach(n=>results.push({nickname:n,outcome:'doubleDown'}))}
+  else if(outcome==='singleUpWin'){w.forEach(n=>results.push({nickname:n,outcome:'singleUpWin'}));l.forEach(n=>results.push({nickname:n,outcome:'singleUpLose'}))}
+  else{[...w,...l].forEach(n=>results.push({nickname:n,outcome}))}
+  try{let r=await fetch('/api/tournaments/'+tournamentCode+'/result48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:refereePin,results})});let d=await r.json();document.getElementById('refMsg').textContent=d.error||'已录入'}catch(e){document.getElementById('refMsg').textContent='操作失败'}
 }
-
-async function refAdjust(scoreDelta, mmrDelta) {
-  if (!tournamentCode || !refereePin) return;
-  let nickname = document.getElementById('refPlayer').value;
-  if (!nickname) { document.getElementById('refMsg').textContent = '请选择选手'; return; }
-  try {
-    let res = await fetch('/api/tournaments/' + tournamentCode + '/adjust48', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: refereePin, nickname, scoreDelta, mmrDelta }) });
-    let d = await res.json();
-    document.getElementById('refMsg').textContent = d.error || (nickname + ': ' + d.player.score + '分');
-  } catch(e) { document.getElementById('refMsg').textContent = '操作失败'; }
+async function refAdjust(sd,md){
+  if(!tournamentCode||!refereePin)return;
+  let nn=document.getElementById('refPlayer').value;if(!nn){document.getElementById('refMsg').textContent='请选择选手';return}
+  try{let r=await fetch('/api/tournaments/'+tournamentCode+'/adjust48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:refereePin,nickname:nn,scoreDelta:sd,mmrDelta:md})});let d=await r.json();document.getElementById('refMsg').textContent=d.error||(nn+': '+d.player.score+'分')}catch(e){document.getElementById('refMsg').textContent='操作失败'}
 }
 </script>
 </body>
