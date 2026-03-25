@@ -63,7 +63,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 #match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;align-items:stretch;padding-top:20px;text-align:center}
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;margin-bottom:20px}
 100%{transform:rotate(360deg)}}
-.seat-grid{display:grid;grid-template-columns:repeat(4,130px);gap:14px;margin:20px auto;justify-content:center}
+.seat-grid{display:grid!important;grid-template-columns:repeat(4,130px)!important;gap:14px;margin:20px auto;justify-content:center;width:auto!important}
 .table-card{display:grid;grid-template-areas:". top ." "left mid right" ". bot .";grid-template-columns:28px 60px 28px;grid-template-rows:28px 46px 28px;align-items:center;justify-items:center;gap:3px;justify-content:center}
 .table-mid{grid-area:mid;width:60px;height:46px;background:rgba(34,139,34,0.2);border:1.5px solid rgba(34,139,34,0.5);border-radius:6px;display:flex;align-items:center;justify-content:center}
 .table-mid-label{font-size:8px;color:rgba(255,255,255,0.25);letter-spacing:1px;font-weight:700}
@@ -2671,7 +2671,7 @@ socket.on('initIdentity',d=>{console.log('[initIdentity] received:', JSON.string
   }
   document.getElementById('match-status').innerText='Players: 1/48';
   let mySlot=document.getElementById('slot-'+d.seat);
-  if(mySlot){mySlot.className='seat-slot taken';mySlot.textContent='YOU';}
+  if(mySlot){mySlot.classList.remove('bot');mySlot.classList.add('taken');mySlot.textContent='YOU';}
 });
 
 socket.on('roomUpdate',d=>{
@@ -2689,13 +2689,13 @@ socket.on('roomUpdate',d=>{
     let sl=document.getElementById('slot-'+i);
     if(!sl) return;
     if(s==='HUMAN'){
-      sl.className='seat-slot taken';
+      sl.classList.remove('bot');sl.classList.add('taken');
       sl.textContent = (mySeat>=0 && i===mySeat) ? 'YOU' : 'P'+(i+1);
     } else if(s==='BOT'){
-      sl.className='seat-slot bot';
+      sl.classList.remove('taken');sl.classList.add('bot');
       sl.textContent='BOT';
     } else {
-      sl.className='seat-slot';
+      sl.classList.remove('taken','bot');
       sl.textContent='空';
     }
   });
@@ -2738,7 +2738,7 @@ function startMatch(){
     let batch=Math.min(3, emptySlots.length-idx);
     for(let b=0;b<batch;b++){
       let sl=emptySlots[idx+b];
-      sl.className='seat-slot bot';
+      sl.classList.add('bot');
       sl.innerHTML='BOT';
       sl.style.animation='seatPop 0.3s ease';
     }
