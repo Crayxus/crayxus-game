@@ -60,13 +60,15 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .lobby-card{width:400px;padding:40px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;}
 .btn-large{width:100%;padding:15px;border-radius:50px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:18px;font-weight:900;cursor:pointer;margin-top:20px}
 .btn-large:disabled{filter:grayscale(1);opacity:0.5}
-#match{background:rgba(0,0,0,0.95)}
+#match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;padding-top:30px}
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;margin-bottom:20px}
 100%{transform:rotate(360deg)}}
-.seat-grid{display:grid;grid-template-columns:repeat(4,80px);gap:10px;margin:20px 0}
-.seat-slot{width:80px;height:80px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:11px;color:#666;transition:0.3s}
+.seat-grid{display:grid;grid-template-columns:repeat(8,56px);gap:6px;margin:16px auto;max-width:520px}
+.seat-slot{width:56px;height:56px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:9px;color:#666;transition:0.3s;flex-direction:column;line-height:1.1}
 .seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.1)}
 .seat-slot.bot{border-color:#666;color:#888;border-style:dashed}
+.seat-slot .seat-num{font-size:7px;opacity:.4}
+@keyframes seatPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 #game-ui{display:none;width:100%;height:100%}
 /* dashboard base overridden by .dash-* styles below */
 .rank-val{font-size:50px;font-weight:900}
@@ -1501,23 +1503,23 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
     <!-- Holographic mode buttons -->
     <div class="holo-btns" id="holo-btns">
-      <div class="holo-btn" onclick="selectMode('casual')" data-mode="casual" onmouseenter="showModeInfo('casual')" onmouseleave="showModeInfo(null)">
+      <div class="holo-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9654;</div>
-        <div class="h-name">CASUAL</div>
-        <div class="h-desc">PLAY FOR FUN<br>AI HINTS FOR VIP</div>
-        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">FREE PLAY</div>
-      </div>
-      <div class="holo-btn training-btn" onclick="selectMode('training')" data-mode="training" onmouseenter="showModeInfo('training')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#9672;</div>
-        <div class="h-name">TRAINING</div>
-        <div class="h-desc">AI COACH MODE<br>VOICE INTERACTIVE</div>
-        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">LEVEL UP</div>
-      </div>
-      <div class="holo-btn arena-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#9733;</div>
         <div class="h-name">ARENA</div>
-        <div class="h-desc">WEEKLY PRIZE POOL<br>ELO RANKING</div>
-        <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">COMING SOON</div>
+        <div class="h-desc">ONLINE 2V2<br>ELO RANKING</div>
+        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">PLAY NOW</div>
+      </div>
+      <div class="holo-btn" onclick="window.location.href='/replay'" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
+        <div class="h-icon" style="font-style:normal">&#128269;</div>
+        <div class="h-name">AI REVIEW</div>
+        <div class="h-desc">GAME REPLAY<br>AI ANALYSIS</div>
+        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">REVIEW</div>
+      </div>
+      <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
+        <div class="h-icon" style="font-style:normal">&#9733;</div>
+        <div class="h-name">TOURNAMENT</div>
+        <div class="h-desc">SCOREBOARD · PAIRINGS<br>LIVE RESULTS</div>
+        <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">EVENTS</div>
       </div>
       <div class="holo-btn training-btn" onclick="window.location.href='/dashboard'" data-mode="dashboard" onmouseenter="showModeInfo('dashboard')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9632;</div>
@@ -1599,12 +1601,19 @@ body.view-table .holo-hex-grid{opacity:0.05}
 <div id="match" class="screen">
   <div class="match-loader"></div>
   <div style="font-size:20px;margin-bottom:10px">GAME ROOM</div>
-  <div class="seat-grid" id="seat-grid">
-    <div class="seat-slot" id="slot-0">空位</div>
-    <div class="seat-slot" id="slot-1">空位</div>
-    <div class="seat-slot" id="slot-2">空位</div>
-    <div class="seat-slot" id="slot-3">空位</div>
-  </div>
+  <div class="seat-grid" id="seat-grid"></div>
+  <script>
+  (function(){
+    const g=document.getElementById('seat-grid');
+    for(let i=0;i<48;i++){
+      const d=document.createElement('div');
+      d.className='seat-slot';
+      d.id='slot-'+i;
+      d.innerHTML='<span class="seat-num">'+(i+1)+'</span>空位';
+      g.appendChild(d);
+    }
+  })();
+  </script>
   <div style="color:var(--neon)" id="match-status">Waiting for players...</div>
   <div id="match-room-code" style="display:none;font-size:13px;color:#555;margin-top:4px;letter-spacing:2px;cursor:pointer"
     onclick="if(this.dataset.code){navigator.clipboard&&navigator.clipboard.writeText(this.dataset.code);this.innerText='✓ 已复制: '+this.dataset.code;}"
@@ -2691,17 +2700,17 @@ socket.on('initIdentity',d=>{console.log('[initIdentity] received:', JSON.string
     document.getElementById('btn-start-match').style.display='none';
     document.getElementById('match-wait-msg').style.display='block';
   }
-  document.getElementById('match-status').innerText='Players: 1/4';
+  document.getElementById('match-status').innerText='Players: 1/48';
   let mySlot=document.getElementById('slot-'+d.seat);
-  if(mySlot){mySlot.className='seat-slot taken';mySlot.innerText='YOU';}
+  if(mySlot){mySlot.className='seat-slot taken';mySlot.innerHTML='YOU';}
 });
 
 socket.on('roomUpdate',d=>{
   roomPlayerCount=d.count;
   if(d.playersInfo) roomPlayersInfo=d.playersInfo;
   let m=document.getElementById('match-status');
-  m.innerText='Players: '+d.count+'/4';
-  m.style.color=d.count>=4?"#0f0":"var(--neon)";
+  m.innerText='Players: '+d.count+'/48';
+  m.style.color=d.count>=48?"#0f0":"var(--neon)";
   if(d.roomId||d.roomCode){
     const mc=document.getElementById('match-room-code');
     const code=d.roomId||d.roomCode;
@@ -2721,7 +2730,7 @@ socket.on('roomUpdate',d=>{
       sl.innerText='空位';
     }
   });
-  document.getElementById('match-timer').innerText=d.count+'/4 玩家 · 空位将由AI填充';
+  document.getElementById('match-timer').innerText=d.count+'/48 玩家 · 空位将由AI填充';
 });
 socket.on('matchCountdown',d=>{});
 socket.on('hostStatus',d=>{
@@ -2730,8 +2739,42 @@ socket.on('hostStatus',d=>{
 });
 function startMatch(){
   let btn=document.getElementById('btn-start-match');
-  btn.disabled=true;btn.style.opacity=0.5;btn.innerText='正在启动...';
-  socket.emit('startMatch');
+  btn.disabled=true;btn.style.opacity=0.5;btn.innerText='正在匹配...';
+
+  // Rapid-fill empty seats with BOT animation
+  let emptySlots=[];
+  for(let i=0;i<48;i++){
+    let sl=document.getElementById('slot-'+i);
+    if(sl && !sl.classList.contains('taken')) emptySlots.push(sl);
+  }
+  // Shuffle for visual variety
+  for(let i=emptySlots.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [emptySlots[i],emptySlots[j]]=[emptySlots[j],emptySlots[i]];
+  }
+
+  let idx=0;
+  let fillInterval=setInterval(()=>{
+    if(idx>=emptySlots.length){
+      clearInterval(fillInterval);
+      document.getElementById('match-status').innerText='Players: 48/48';
+      document.getElementById('match-status').style.color='#0f0';
+      document.getElementById('match-timer').innerText='全员就绪 · 即将开始...';
+      setTimeout(()=>{ socket.emit('startMatch'); },800);
+      return;
+    }
+    // Fill 2-3 seats per tick for speed
+    let batch=Math.min(3, emptySlots.length-idx);
+    for(let b=0;b<batch;b++){
+      let sl=emptySlots[idx+b];
+      sl.className='seat-slot bot';
+      sl.innerHTML='BOT';
+      sl.style.animation='seatPop 0.3s ease';
+    }
+    idx+=batch;
+    let filled=48-emptySlots.length+idx;
+    document.getElementById('match-status').innerText='Players: '+filled+'/48';
+  },60);
 }
 socket.on('seatLayout',d=>{isHost=d.isHost;botSeats=d.botSeats||[]});
 socket.on('playerLeft',d=>{
