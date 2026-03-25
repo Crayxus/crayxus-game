@@ -60,15 +60,14 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .lobby-card{width:400px;padding:40px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;}
 .btn-large{width:100%;padding:15px;border-radius:50px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:18px;font-weight:900;cursor:pointer;margin-top:20px}
 .btn-large:disabled{filter:grayscale(1);opacity:0.5}
-#match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;padding-top:30px}
+#match{background:rgba(0,0,0,0.95);overflow-y:auto;justify-content:flex-start;padding-top:20px;text-align:center}
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;margin-bottom:20px}
 100%{transform:rotate(360deg)}}
-.seat-grid{display:grid;grid-template-columns:repeat(3,160px);grid-template-rows:repeat(4,auto);gap:10px;margin:20px 0;justify-content:center}
-.table-card{background:rgba(34,139,34,0.1);border:1px solid rgba(34,139,34,0.3);border-radius:12px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:2px;width:160px}
-.table-label{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;font-weight:700}
-.table-top,.table-bot{display:flex;gap:10px;justify-content:center}
-.table-vs{font-size:7px;color:rgba(255,255,255,0.15);letter-spacing:2px}
-.seat-slot{width:32px;height:32px;border-radius:50%;border:2px solid #444;display:flex;justify-content:center;align-items:center;font-size:8px;color:#666;transition:0.3s}
+.seat-grid{display:flex;flex-wrap:wrap;gap:10px;margin:20px auto;justify-content:center;max-width:700px;padding:0 10px}
+.table-card{background:rgba(34,139,34,0.1);border:1px solid rgba(34,139,34,0.3);border-radius:10px;padding:6px 10px;display:inline-flex;flex-direction:column;align-items:center;gap:2px;width:calc(33.3% - 8px);min-width:140px;max-width:200px}
+.table-vs{font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:2px;margin:1px 0}
+.table-top,.table-bot{display:flex;gap:8px;justify-content:center}
+.seat-slot{width:30px;height:30px;border-radius:50%;border:2px solid #444;display:flex;justify-content:center;align-items:center;font-size:8px;color:#666;transition:0.3s}
 .seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.12);font-weight:700}
 .seat-slot.bot{border-color:#555;color:#888;border-style:dashed}
 @keyframes seatPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
@@ -792,38 +791,36 @@ to{transform:rotate(360deg)}}
 }
 .casual-popup-back:hover{color:rgba(255,255,255,0.6)}
 
-/* === Arena HUD (simple score + rank badge) === */
+/* === Arena HUD (floating pill: rank + score) === */
 #arena-hud{
   position:absolute;
-  bottom:220px;
-  left:20px;
+  top:6px;
+  left:50%;
+  transform:translateX(-50%);
   z-index:400;
   pointer-events:none;
 }
 .arena-hud-inner{
-  display:flex;flex-direction:column;align-items:center;gap:4px;
-  padding:10px 14px;
-  background:rgba(5,5,15,0.9);
-  border:1px solid rgba(0,255,255,0.15);
-  border-radius:14px;
-  box-shadow:0 0 20px rgba(0,255,255,0.06);
+  display:flex;flex-direction:row;align-items:center;gap:12px;
+  padding:5px 16px;
+  background:rgba(5,5,15,0.85);
+  border:1px solid rgba(0,255,255,0.12);
+  border-radius:20px;
+  box-shadow:0 0 12px rgba(0,255,255,0.05);
   font-family:'Orbitron','Segoe UI',sans-serif;
-  min-width:80px;
 }
-.arena-hud-top{display:flex;flex-direction:column;align-items:center;gap:4px}
-.arena-av-ring{width:48px;height:48px}
+.arena-hud-top{display:flex;align-items:center;gap:10px}
+.arena-av-ring{width:30px;height:30px;flex-shrink:0}
 .arena-av-ring svg{width:100%;height:100%}
-.arena-av-ring .casual-avatar-img{width:38px;height:38px;margin:5px;font-size:16px}
-.arena-av-ring .casual-avatar-glow{inset:-8px}
-.arena-hud-info{display:flex;flex-direction:column;align-items:center;gap:1px}
+.arena-av-ring .casual-avatar-img{width:24px;height:24px;margin:3px;font-size:10px}
+.arena-av-ring .casual-avatar-glow{inset:-4px}
+.arena-hud-info{display:flex;align-items:center;gap:12px}
 .arena-big-rank{display:flex;align-items:baseline;line-height:1}
-.arena-big-rank-num{font-size:20px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
+.arena-big-rank-num{font-size:16px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
 .arena-big-rank-total{font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);margin-left:1px}
-.arena-score-line{font-size:16px;font-weight:900;color:var(--neon);font-family:'Orbitron','Segoe UI',sans-serif;text-align:center}
+.arena-score-line{font-size:16px;font-weight:900;color:var(--neon);font-family:'Orbitron','Segoe UI',sans-serif}
 .arena-score-line.negative{color:var(--red)}
-.arena-score-label{font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase}
-/* Hide unused arena sub-sections */
-.arena-hud-mid,.arena-hud-ranking,.arena-elo-line{display:none}
+.arena-score-label{font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-right:-8px}
 
 /* === Holographic Dark Card Style (casual mode) === */
 .casual-mode .grp-col .stack-card .card{
@@ -1682,22 +1679,18 @@ body.view-table .holo-hex-grid{opacity:0.05}
         </div>
       </div>
     </div>
-    <!-- Arena HUD (score + rank only) -->
+    <!-- Arena HUD (floating pill: rank + score) -->
     <div id="arena-hud" style="display:none">
       <div class="arena-hud-inner">
-        <div class="arena-hud-top">
-          <div class="casual-avatar-ring arena-av-ring">
-            <div class="casual-avatar-glow"></div>
-            <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#dashGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="dashGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
-            <div class="casual-avatar-img" id="arena-avatar">P1</div>
-          </div>
-          <div class="arena-hud-info">
-            <div class="arena-score-label">RANK</div>
-            <div class="arena-big-rank"><span class="arena-big-rank-num" id="arena-pos">#1</span><span class="arena-big-rank-total">/48</span></div>
-            <div class="arena-score-label">SCORE</div>
-            <div class="arena-score-line" id="arena-score">+0</div>
-          </div>
+        <div class="casual-avatar-ring arena-av-ring">
+          <div class="casual-avatar-glow"></div>
+          <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#dashGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="dashGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
+          <div class="casual-avatar-img" id="arena-avatar">P1</div>
         </div>
+        <div class="arena-score-label">RANK</div>
+        <div class="arena-big-rank"><span class="arena-big-rank-num" id="arena-pos">#1</span><span class="arena-big-rank-total">/48</span></div>
+        <div class="arena-score-label">SCORE</div>
+        <div class="arena-score-line" id="arena-score">+0</div>
       </div>
     </div>
     <div id="hand"></div>
