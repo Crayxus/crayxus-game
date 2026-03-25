@@ -3080,6 +3080,42 @@ function showArena48Results(d){
   overlay.innerHTML=html;
 }
 
+// === MTT Break Overlay ===
+socket.on('arena48Break',function(d){
+  var overlay=document.getElementById('arena48-results');
+  if(!overlay){overlay=document.createElement('div');overlay.id='arena48-results';overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:900;display:flex;align-items:center;justify-content:center';document.body.appendChild(overlay)}
+  overlay.style.display='flex';
+  var mins=Math.floor(d.breakSeconds/60);
+  var elM=Math.floor((d.elapsedSeconds||0)/60),elS=(d.elapsedSeconds||0)%60;
+  var html='<div style="text-align:center;max-width:400px">';
+  html+='<div style="font-size:10px;color:#555;letter-spacing:3px;margin-bottom:8px">TOURNAMENT TIME: '+elM+'m '+elS+'s</div>';
+  html+='<div style="font-size:12px;color:#888;letter-spacing:2px;margin-bottom:4px">BREAK</div>';
+  html+='<div id="break-timer" style="font-size:64px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:4px;margin:16px 0">'+String(mins).padStart(2,'0')+':00</div>';
+  html+='<div style="width:240px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin:0 auto 16px;overflow:hidden"><div id="break-bar" style="height:100%;width:100%;background:#00ffcc;transition:width 1s linear"></div></div>';
+  html+='<div style="font-size:14px;color:#00ffcc;font-weight:700;letter-spacing:2px">NEXT: '+d.nextPhase+'</div>';
+  html+='<div style="font-size:11px;color:#555;margin-top:6px">R'+d.completedRounds+'/'+d.totalRounds+' completed</div>';
+  html+='<div id="break-skip" style="margin-top:24px;font-size:11px;color:#333;cursor:pointer" onclick="skipBreak()">skip</div>';
+  html+='</div>';
+  overlay.innerHTML=html;
+  // Countdown
+  var left=d.breakSeconds;
+  clearInterval(arena48CdTimer);
+  arena48CdTimer=setInterval(function(){
+    left--;
+    if(left<=0){clearInterval(arena48CdTimer);skipBreak();return}
+    var m=Math.floor(left/60),s=left%60;
+    var el=document.getElementById('break-timer');if(el)el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    var bar=document.getElementById('break-bar');if(bar)bar.style.width=(left/d.breakSeconds*100)+'%';
+    if(left<=10){if(el)el.style.color='#ff4444'}
+    else if(left<=30){if(el)el.style.color='#ff9500'}
+  },1000);
+});
+function skipBreak(){
+  clearInterval(arena48CdTimer);
+  var el=document.getElementById('arena48-results');if(el)el.style.display='none';
+  socket.emit('arena48BreakOver');
+}
+
 var arena48CdTimer=null;
 function startArena48Countdown(){
   clearInterval(arena48CdTimer);

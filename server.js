@@ -1863,11 +1863,12 @@ io.on('connection', (socket) => {
         }
 
         let tourney = {
-            code, name: 'Crayxus 48人标准赛', players,
-            currentRound: 0, totalRounds: 18,
+            code, name: 'Crayxus MTT 锦标赛', players,
+            currentRound: 0, totalRounds: 21,
             status: 'active', format: 'standard48',
             refereePin: String(Math.floor(1000 + Math.random() * 9000)),
             tables: [], playerTableIdx: -1,
+            startedAt: Date.now(),
             createdAt: new Date().toISOString()
         };
         tournaments[code] = tourney;
@@ -1902,14 +1903,62 @@ io.on('connection', (socket) => {
         startArena48Round(socket, t);
     });
 
+    socket.on('arena48BreakOver', () => {
+        let arena = arenaBySocket[socket.id];
+        if (!arena) return;
+        let t = tournaments[arena.code];
+        if (!t || t.status !== 'active') return;
+        t._breakDone = true;
+        t._breakPending = null;
+        startArena48Round(socket, t);
+    });
+
     socket.on('disconnect', () => {
         delete arenaBySocket[socket.id];
     });
 });
 
+// Phase structure: R1-3 Practice (no score), R4-9 Warmup, R10-21 Elimination
+// Breaks: after R3 (5min), after R9 (10min)
+const PHASE_BREAKS = { 3: 300, 9: 600 }; // roundNum: breakSeconds
+function getPhase(round) {
+    if (round <= 3) return { name: '熟悉赛', nameEn: 'PRACTICE', scored: false, elimination: false };
+    if (round <= 9) return { name: '热身赛', nameEn: 'WARMUP', scored: true, elimination: false };
+    return { name: '淘汰赛', nameEn: 'ELIMINATION', scored: true, elimination: true };
+}
+
 function startArena48Round(socket, tourney) {
     tourney.currentRound++;
 
+    // Check if a break is needed (after Practice R3, after Warmup R9)
+    let prevRound = tourney.currentRound - 1;
+    if (PHASE_BREAKS[prevRound] && !tourney._breakDone) {
+        let breakSec = PHASE_BREAKS[prevRound];
+        let nextPhase = getPhase(tourney.currentRound);
+        tourney.currentRound--; // Don't advance yet
+        tourney._breakPending = prevRound;
+
+        let elapsed = tourney.startedAt ? Math.floor((Date.now() - tourney.startedAt) / 1000) : 0;
+
+        socket.emit('arena48Break', {
+            breakSeconds: breakSec,
+            nextPhase: nextPhase.name,
+            nextPhaseEn: nextPhase.nameEn,
+            completedRounds: prevRound,
+            totalRounds: tourney.totalRounds,
+            elapsedSeconds: elapsed
+        });
+        io.to('dashboard:' + tourney.code).emit('tournamentBreak', {
+            breakSeconds: breakSec,
+            nextPhase: nextPhase.name,
+            completedRounds: prevRound
+        });
+        gameLog(`[Arena48] ${tourney.code}: Break ${breakSec}s after R${prevRound}, next phase: ${nextPhase.name}`);
+        return;
+    }
+    tourney._breakDone = false;
+
+    let phase = getPhase(tourney.currentRound);
     let active = tourney.players.filter(p => !p.eliminated);
     if (active.length < 4) {
         tourney.status = 'finished';
@@ -1925,12 +1974,10 @@ function startArena48Round(socket, tourney) {
         tables.push(active.slice(i, i + 4));
     }
 
-    // Find player's table
     let playerTableIdx = tables.findIndex(t => t.some(p => p.isHuman));
     tourney.tables = tables;
     tourney.playerTableIdx = playerTableIdx;
 
-    // Build table info for client
     let tableInfo = tables.map((t, i) => ({
         tableNum: i + 1,
         players: t.map(p => ({ nickname: p.nickname, mmr: p.mmr || 1000 }))
@@ -1938,6 +1985,7 @@ function startArena48Round(socket, tourney) {
 
     let humanPlayer = tourney.players.find(p => p.isHuman);
     let rank = active.sort((a, b) => (b.score || 0) - (a.score || 0)).indexOf(humanPlayer) + 1;
+    let elapsed = tourney.startedAt ? Math.floor((Date.now() - tourney.startedAt) / 1000) : 0;
 
     socket.emit('arena48RoundStart', {
         code: tourney.code,
@@ -1947,13 +1995,17 @@ function startArena48Round(socket, tourney) {
         tables: tableInfo,
         rank: rank,
         totalActive: active.length,
-        score: humanPlayer.score || 0
+        score: humanPlayer.score || 0,
+        phase: phase.name,
+        phaseEn: phase.nameEn,
+        scored: phase.scored,
+        elapsedSeconds: elapsed
     });
 
-    // Broadcast to dashboard
     io.to('dashboard:' + tourney.code).emit('roundStart', {
         round: tourney.currentRound,
         timer: 300,
+        phase: phase.name,
         tables: tableInfo.map(t => ({
             team1: [t.players[0].nickname, t.players[2] ? t.players[2].nickname : ''],
             team2: [t.players[1].nickname, t.players[3] ? t.players[3].nickname : ''],
@@ -1961,7 +2013,7 @@ function startArena48Round(socket, tourney) {
         }))
     });
 
-    gameLog(`[Arena48] ${tourney.code}: Round ${tourney.currentRound} started, ${tables.length} tables, player at table ${playerTableIdx + 1}`);
+    gameLog(`[Arena48] ${tourney.code}: R${tourney.currentRound} [${phase.name}] started, ${tables.length} tables`);
 }
 
 
@@ -1976,6 +2028,7 @@ function processArena48RoundEnd(socket, tourney, playerFinishOrder) {
  */
 function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
     let tables = tourney.tables;
+    let phase = getPhase(tourney.currentRound);
     let allResults = [];
 
     for (let i = 0; i < tables.length; i++) {
@@ -1984,25 +2037,28 @@ function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
         if (i === tourney.playerTableIdx) {
             fo = playerFinishOrder;
         } else {
-            // Bot table: play real guandan game instantly
             let mmrs = table.map(p => p.mmr || 1000);
             fo = simulateBotTable(mmrs);
         }
 
         let result = classifyTableResult(fo);
-        for (let w of result.winners) {
-            let p = table[w];
-            let sd = SCORE_48[result.winType] || 0;
-            let md = MMR_48[result.winType] || 0;
-            p.score = (p.score || 0) + sd;
-            p.mmr = (p.mmr || 1000) + md;
-        }
-        for (let l of result.losers) {
-            let p = table[l];
-            let sd = SCORE_48[result.loseType] || 0;
-            let md = MMR_48[result.loseType] || 0;
-            p.score = (p.score || 0) + sd;
-            p.mmr = (p.mmr || 1000) + md;
+
+        // Only apply scores if phase is scored (not practice rounds R1-3)
+        if (phase.scored) {
+            for (let w of result.winners) {
+                let p = table[w];
+                let sd = SCORE_48[result.winType] || 0;
+                let md = MMR_48[result.winType] || 0;
+                p.score = (p.score || 0) + sd;
+                p.mmr = (p.mmr || 1000) + md;
+            }
+            for (let l of result.losers) {
+                let p = table[l];
+                let sd = SCORE_48[result.loseType] || 0;
+                let md = MMR_48[result.loseType] || 0;
+                p.score = (p.score || 0) + sd;
+                p.mmr = (p.mmr || 1000) + md;
+            }
         }
 
         allResults.push({
@@ -2017,9 +2073,9 @@ function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
         });
     }
 
-    // Elimination: after round 6 (warmup), eliminate bottom 4
+    // Elimination: only in elimination phase (R10+)
     let eliminated = [];
-    if (tourney.currentRound >= 7) { // Elimination starts at round 7 (after 6 warmup rounds)
+    if (phase.elimination) {
         let activeP = tourney.players.filter(p => !p.eliminated);
         if (activeP.length > 8) {
             activeP.sort((a, b) => (a.score || 0) - (b.score || 0));
@@ -2045,18 +2101,23 @@ function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
     let humanPlayer = tourney.players.find(p => p.isHuman);
     let humanRank = standings.findIndex(s => s.nickname === humanPlayer.nickname) + 1;
 
+    let elapsed = tourney.startedAt ? Math.floor((Date.now() - tourney.startedAt) / 1000) : 0;
+
     // Send round results to player
     socket.emit('arena48RoundResults', {
         round: tourney.currentRound,
         totalRounds: tourney.totalRounds,
         tables: allResults,
-        standings: standings.slice(0, 20), // top 20
+        standings: standings.slice(0, 20),
         myRank: humanRank,
         myScore: humanPlayer.score,
         eliminated: eliminated,
         isEliminated: !!humanPlayer.eliminated,
         tournamentOver: tourney.status === 'finished',
-        totalActive: remainActive.length
+        totalActive: remainActive.length,
+        phase: phase.name,
+        scored: phase.scored,
+        elapsedSeconds: elapsed
     });
 
     // Broadcast to dashboard
@@ -2070,6 +2131,113 @@ function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
     }
 
     gameLog(`[Arena48] ${tourney.code}: Round ${tourney.currentRound} complete, rank=${humanRank}, score=${humanPlayer.score}, eliminated=${eliminated.length}`);
+
+    // Auto-continue if human is eliminated — run remaining rounds with bots only
+    if (humanPlayer.eliminated && tourney.status === 'active') {
+        setTimeout(() => autoRunBotRound(socket, tourney), 3000);
+    }
+}
+
+/**
+ * Auto-run a bot-only round after human is eliminated.
+ * Simulates all tables instantly, broadcasts to dashboard, repeats until finished.
+ */
+function autoRunBotRound(socket, tourney) {
+    if (tourney.status !== 'active') return;
+
+    tourney.currentRound++;
+    let phase = getPhase(tourney.currentRound);
+    let active = tourney.players.filter(p => !p.eliminated);
+
+    if (active.length < 4 || tourney.currentRound > tourney.totalRounds) {
+        tourney.status = 'finished';
+        saveTournament(tourney);
+        let standings = getArena48Standings(tourney);
+        socket.emit('arena48TournamentEnd', { finalStandings: standings });
+        io.to('dashboard:' + tourney.code).emit('tournamentEnd', { standings });
+        gameLog(`[Arena48] ${tourney.code}: Tournament finished!`);
+        return;
+    }
+
+    // Pair and simulate all tables
+    active.sort((a, b) => (b.mmr || 1000) - (a.mmr || 1000));
+    let tables = [];
+    for (let i = 0; i < active.length - 3; i += 4) tables.push(active.slice(i, i + 4));
+
+    let changes = [];
+    for (let table of tables) {
+        let mmrs = table.map(p => p.mmr || 1000);
+        let fo = simulateBotTable(mmrs);
+        let result = classifyTableResult(fo);
+        if (phase.scored) {
+            for (let w of result.winners) {
+                let p = table[w];
+                p.score = (p.score || 0) + (SCORE_48[result.winType] || 0);
+                p.mmr = (p.mmr || 1000) + (MMR_48[result.winType] || 0);
+            }
+            for (let l of result.losers) {
+                let p = table[l];
+                p.score = (p.score || 0) + (SCORE_48[result.loseType] || 0);
+                p.mmr = (p.mmr || 1000) + (MMR_48[result.loseType] || 0);
+            }
+        }
+    }
+
+    // Elimination
+    let eliminated = [];
+    if (phase.elimination) {
+        let activeP = tourney.players.filter(p => !p.eliminated);
+        if (activeP.length > 8) {
+            activeP.sort((a, b) => (a.score || 0) - (b.score || 0));
+            let toElim = activeP.slice(0, 4);
+            for (let p of toElim) {
+                p.eliminated = true;
+                p.eliminatedRound = tourney.currentRound;
+                eliminated.push({ nickname: p.nickname, score: p.score });
+            }
+        }
+    }
+
+    let remainActive = tourney.players.filter(p => !p.eliminated);
+    if (tourney.currentRound >= tourney.totalRounds || remainActive.length <= 4) {
+        tourney.status = 'finished';
+    }
+    saveTournament(tourney);
+
+    // Broadcast to dashboard
+    for (let p of tourney.players) {
+        changes.push({ nickname: p.nickname, scoreDelta: 0, newScore: p.score || 0, mmrDelta: 0, newMmr: p.mmr || 1000 });
+    }
+    io.to('dashboard:' + tourney.code).emit('scoreUpdate', { round: tourney.currentRound, changes });
+    io.to('dashboard:' + tourney.code).emit('roundStart', { round: tourney.currentRound, timer: 15, phase: phase.name, tables: [] });
+    if (eliminated.length > 0) {
+        io.to('dashboard:' + tourney.code).emit('elimination', { round: tourney.currentRound, eliminated });
+    }
+
+    // Send update to eliminated human watching
+    let standings = getArena48Standings(tourney);
+    let humanPlayer = tourney.players.find(p => p.isHuman);
+    let humanRank = standings.findIndex(s => s.nickname === humanPlayer.nickname) + 1;
+    let elapsed = tourney.startedAt ? Math.floor((Date.now() - tourney.startedAt) / 1000) : 0;
+    socket.emit('arena48RoundResults', {
+        round: tourney.currentRound, totalRounds: tourney.totalRounds,
+        tables: [], standings: standings.slice(0, 20),
+        myRank: humanRank, myScore: humanPlayer.score,
+        eliminated, isEliminated: true,
+        tournamentOver: tourney.status === 'finished',
+        totalActive: remainActive.length,
+        phase: phase.name, scored: phase.scored, elapsedSeconds: elapsed,
+        autoRound: true
+    });
+
+    gameLog(`[Arena48] ${tourney.code}: Auto R${tourney.currentRound} [${phase.name}], ${remainActive.length} active, ${eliminated.length} eliminated`);
+
+    // Continue after delay (3s per round for spectating feel)
+    if (tourney.status === 'active') {
+        setTimeout(() => autoRunBotRound(socket, tourney), 3000);
+    } else {
+        socket.emit('arena48TournamentEnd', { finalStandings: standings });
+    }
 }
 
 function getArena48Standings(tourney) {

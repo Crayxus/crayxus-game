@@ -233,7 +233,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
     <div class="event-name" id="eventName">48人标准赛</div>
   </div>
   <div class="top-right-info">
-    <span id="eventMeta">MTT 锦标赛 | 48人 | 18轮 | 热身6轮+淘汰12轮</span>
+    <span id="eventMeta">MTT 锦标赛 | 48人 | 21轮 | 熟悉3轮+热身6轮+淘汰12轮</span>
     <div class="ref-badge" id="refBadge" onclick="toggleRefPanel()">REFEREE</div>
   </div>
 </div>
@@ -328,7 +328,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-let socket=null,tournamentCode=null,players=[],currentRound=0,totalRounds=18;
+let socket=null,tournamentCode=null,players=[],currentRound=0,totalRounds=21;
 let timerInterval=null,timerSeconds=0,isDemo=false,isReferee=false,refereePin='',currentTables=[];
 let tableStatus={}; // {tableNum: 'waiting'|'playing'|'finished'|'human-done'}
 
@@ -354,7 +354,7 @@ async function connectTournament(){
     const res=await fetch(`/api/tournaments/${code}/dashboard`);
     const data=await res.json();
     if(data.error){showSetupErr(data.error);return}
-    tournamentCode=code;players=data.players;currentRound=data.currentRound;totalRounds=data.totalRounds||18;
+    tournamentCode=code;players=data.players;currentRound=data.currentRound;totalRounds=data.totalRounds||21;
     document.getElementById('eventName').textContent=data.name||'48人标准赛';
     document.getElementById('setup').classList.add('hidden');
     renderAll();connectSocket();
@@ -382,11 +382,20 @@ function connectSocket(){
   });
   socket.on('roundStart',d=>{
     currentRound=d.round;currentTables=d.tables||[];
-    // Init table status tracking
     tableStatus={};
     for(let t of currentTables){tableStatus[t.tableNum]='playing'}
     renderAll();renderTableStatus();
     if(d.timer)startTimer(d.timer);
+  });
+  socket.on('tournamentBreak',d=>{
+    // Show break on dashboard timer
+    if(d.breakSeconds)startTimer(d.breakSeconds);
+    var tag=document.getElementById('phaseTag');
+    if(tag){tag.className='phase-tag finished';tag.textContent='BREAK '+Math.floor(d.breakSeconds/60)+'min'}
+  });
+  socket.on('tournamentEnd',d=>{
+    var tag=document.getElementById('phaseTag');
+    if(tag){tag.className='phase-tag finished';tag.textContent='FINISHED'}
   });
   socket.on('botTableUpdate',d=>{
     if(!tableStatus)tableStatus={};
@@ -412,13 +421,15 @@ function renderClock(){
   document.getElementById('roundChip').textContent=`ROUND ${currentRound} / ${totalRounds}`;
 
   let tag=document.getElementById('phaseTag');
-  if(currentRound<=6){tag.className='phase-tag warmup';tag.textContent='热身期'}
+  if(currentRound<=3){tag.className='phase-tag warmup';tag.textContent='熟悉赛'}
+  else if(currentRound<=9){tag.className='phase-tag warmup';tag.textContent='热身赛';tag.style.color='var(--teal)'}
   else if(alive<=4){tag.className='phase-tag finished';tag.textContent='FINAL TABLE'}
-  else{tag.className='phase-tag elimination';tag.textContent='淘汰期'}
+  else{tag.className='phase-tag elimination';tag.textContent='淘汰赛'}
 
   // Next elim info
   let nei=document.getElementById('nextElimInfo');
-  if(currentRound<7)nei.textContent='R7';
+  if(currentRound<=3)nei.textContent='R4 (热身赛)';
+  else if(currentRound<10)nei.textContent='R10 (淘汰赛)';
   else if(alive>4)nei.textContent='本轮结束后';
   else nei.textContent='--';
 
@@ -427,7 +438,7 @@ function renderClock(){
   let dots='';
   for(let i=1;i<=totalRounds;i++){
     let cls='prog-dot';
-    if(i<=6){
+    if(i<=9){
       if(i<currentRound)cls+=' done';else if(i===currentRound)cls+=' current';
     }else{
       cls+=' elim';
@@ -439,7 +450,7 @@ function renderClock(){
 
   // Danger banner
   let banner=document.getElementById('dangerBanner');
-  if(currentRound>=7&&alive>4){
+  if(currentRound>=10&&alive>4){
     let sorted=players.filter(p=>!p.eliminated).sort((a,b)=>a.score-b.score);
     document.getElementById('dangerNames').textContent=sorted.slice(0,4).map(p=>p.nickname+'('+p.score+')').join('  |  ');
     banner.classList.add('show');
@@ -488,7 +499,7 @@ function renderLeaderboard(){
       else if(p.rank===2)rowCls+=' top2';
       else if(p.rank===3)rowCls+=' top3';
       if(p.isHuman)rowCls+=' me';
-      if(!p.eliminated&&currentRound>=7&&p.rank>dangerStart&&dangerStart>0)rowCls+=' danger-zone';
+      if(!p.eliminated&&currentRound>=10&&p.rank>dangerStart&&dangerStart>0)rowCls+=' danger-zone';
 
       let elimTag=p.eliminated?`<span class="lb-elim-tag">R${p.eliminatedRound||'?'}</span>`:'';
 
@@ -513,7 +524,7 @@ function renderBottom(){
   let alive=players.filter(p=>!p.eliminated).length;
   document.getElementById('bottomLeft').innerHTML=`<span>${players.length} Players | ${Math.floor(alive/4)} Tables Active</span>`;
   let en=document.getElementById('elimNext');
-  if(currentRound<7){en.textContent='Elimination starts at Round 7';en.style.color='var(--dim)'}
+  if(currentRound<10){en.textContent='Elimination starts at Round 7';en.style.color='var(--dim)'}
   else if(alive>4){en.textContent='Bottom 4 eliminated each round';en.style.color='var(--red)'}
   else en.textContent='';
 }
@@ -565,7 +576,7 @@ function startDemo(){
   const names=['卫东','小明','晶晶','光明','婷婷','武当','长江','大鹏','金花','丽华','湛芬','志强','秀兰','翠花','桂兰','文明','峨眉','巧玲','春燕','阿花','昆仑','国庆','月英','海波','大壮','天浩','少华','建国','德华','泰山','国鼎','月圆','YOU','美丽','春花','王兰','彩霞','永强','天山','铁柱','胜利','雪梅','冬梅','红梅','伟民','佳佳','联红','黄河'];
   players=[];
   for(let i=0;i<48;i++)players.push({nickname:names[i]||('P'+(i+1)),score:0,mmr:1000,eliminated:false,eliminatedRound:null,rank:i+1});
-  currentRound=0;totalRounds=18;
+  currentRound=0;totalRounds=21;
   document.getElementById('eventName').textContent='Crayxus 48人标准赛';
   renderAll();startTimer(300);setTimeout(demoNextRound,2000);
 }
@@ -604,7 +615,7 @@ function demoNextRound(){
     }
     recalcRanks();renderAll();
     for(let[n,d]of Object.entries(deltas))if(d)animateDelta(n,d);
-    if(currentRound>=7){
+    if(currentRound>=10){
       setTimeout(()=>{
         let an=players.filter(p=>!p.eliminated).sort((a,b)=>a.score-b.score);
         if(an.length>4){for(let p of an.slice(0,4)){p.eliminated=true;p.eliminatedRound=currentRound}recalcRanks();renderAll()}
