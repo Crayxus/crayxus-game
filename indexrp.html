@@ -2878,7 +2878,8 @@ socket.on('arena48RoundStart',d=>{
   // Show round info
   let ms=document.getElementById('match-timer');
   if(ms)ms.textContent='第 '+d.round+'/'+d.totalRounds+' 轮 · '+d.totalActive+'人在线';
-  // Then server will trigger startMatch for the player's table game
+  // Trigger the actual game start for the player's table
+  setTimeout(()=>{ socket.emit('startMatch'); },500);
 });
 
 socket.on('arena48RoundResults',d=>{
