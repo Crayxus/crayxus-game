@@ -1905,16 +1905,16 @@ io.on('connection', (socket) => {
             round: t.currentRound
         });
 
-        // Check if all bot games already done
-        if (botGames[code] && botGames[code].pending <= 0) {
-            // All bots already finished — process immediately
+        // Check if all bot games already done (or no bot games exist — e.g. after server restart)
+        let bg = botGames[code];
+        if (!bg || bg.pending <= 0) {
+            // All bots finished or no bot games — process immediately
             processArena48RoundEndReal(socket, t, fo);
             t._humanFinished = false;
         } else {
-            // Tell client we're waiting for other tables
-            let remaining = botGames[code] ? botGames[code].pending : 0;
-            socket.emit('arena48WaitingForTables', { remaining });
-            gameLog(`[Arena48] ${code}: Human finished, waiting for ${remaining} bot tables`);
+            // Still waiting for bot tables
+            socket.emit('arena48WaitingForTables', { remaining: bg.pending });
+            gameLog(`[Arena48] ${code}: Human finished, waiting for ${bg.pending} bot tables`);
         }
     });
 
@@ -2101,13 +2101,8 @@ function checkRoundComplete(tourney) {
 
 // Legacy fallback (kept for referee-mode tournaments)
 function processArena48RoundEnd(socket, tourney, playerFinishOrder) {
-    tourney._humanFinished = true;
-    tourney._humanSocket = socket;
-    tourney._humanFinishOrder = playerFinishOrder;
-    // If no bot games running, use instant simulation
-    if (!botGames[tourney.code] || botGames[tourney.code].total === 0) {
-        processArena48RoundEndReal(socket, tourney, playerFinishOrder);
-    }
+    // Always process immediately in legacy mode
+    processArena48RoundEndReal(socket, tourney, playerFinishOrder);
 }
 
 /**
