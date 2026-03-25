@@ -1820,8 +1820,6 @@ function simulateBotTable(mmrs) {
 // Active arena tournaments keyed by socket ID
 let arenaBySocket = {};
 
-// Background bot games: key = tournamentCode, value = { results: {tableIdx: finishOrder}, pending: count }
-let botGames = {};
 
 // Socket: dashboard room + Arena48 events
 io.on('connection', (socket) => {
@@ -1892,30 +1890,8 @@ io.on('connection', (socket) => {
         let fo = data.finishOrder || [0,1,2,3];
         let code = t.code;
 
-        // Mark human as finished
-        t._humanFinished = true;
-        t._humanSocket = socket;
-        t._humanFinishOrder = fo;
-
-        // Emit human table complete to dashboard
-        io.to('dashboard:' + code).emit('botTableUpdate', {
-            tableNum: (t.playerTableIdx || 0) + 1,
-            status: 'finished',
-            isHumanTable: true,
-            round: t.currentRound
-        });
-
-        // Check if all bot games already done (or no bot games exist — e.g. after server restart)
-        let bg = botGames[code];
-        if (!bg || bg.pending <= 0) {
-            // All bots finished or no bot games — process immediately
-            processArena48RoundEndReal(socket, t, fo);
-            t._humanFinished = false;
-        } else {
-            // Still waiting for bot tables
-            socket.emit('arena48WaitingForTables', { remaining: bg.pending });
-            gameLog(`[Arena48] ${code}: Human finished, waiting for ${bg.pending} bot tables`);
-        }
+        // Process round end immediately (bot tables use instant real-game simulation)
+        processArena48RoundEndReal(socket, t, fo);
     });
 
     socket.on('arena48NextRound', () => {
@@ -1985,119 +1961,8 @@ function startArena48Round(socket, tourney) {
     });
 
     gameLog(`[Arena48] ${tourney.code}: Round ${tourney.currentRound} started, ${tables.length} tables, player at table ${playerTableIdx + 1}`);
-
-    // Launch background bot games for all non-human tables
-    launchBotGames(tourney);
 }
 
-/**
- * Launch real guandan games in background for bot tables.
- * Each game runs async with staggered delays to simulate real play time.
- * Results are stored in botGames[code] and emitted to dashboard as they finish.
- */
-function launchBotGames(tourney) {
-    let code = tourney.code;
-    let tables = tourney.tables;
-    let playerTableIdx = tourney.playerTableIdx;
-
-    botGames[code] = { results: {}, pending: 0, total: 0 };
-
-    for (let i = 0; i < tables.length; i++) {
-        if (i === playerTableIdx) continue; // skip human table
-
-        botGames[code].pending++;
-        botGames[code].total++;
-
-        // Stagger start: each table starts 0.5-3s apart to feel natural
-        let delay = Math.floor(Math.random() * 2500) + 500;
-
-        setTimeout(() => {
-            runBotGame(tourney, i, tables[i]);
-        }, delay);
-    }
-
-    gameLog(`[BotGames] ${code}: Launched ${botGames[code].total} background games`);
-}
-
-/**
- * Run a single bot table game asynchronously.
- * Uses game-simulator for real card play.
- * Emits progress to dashboard.
- */
-function runBotGame(tourney, tableIdx, tablePlayers) {
-    let code = tourney.code;
-    let mmrs = tablePlayers.map(p => p.mmr || 1000);
-
-    // Emit game started event
-    io.to('dashboard:' + code).emit('botTableUpdate', {
-        tableNum: tableIdx + 1,
-        status: 'playing',
-        players: tablePlayers.map(p => p.nickname),
-        round: tourney.currentRound
-    });
-
-    // Run the real game (this plays actual cards with actual rules)
-    let finishOrder;
-    try {
-        finishOrder = simulateGameWithMMR(mmrs);
-    } catch(e) {
-        gameLog(`[BotGames] ${code} table ${tableIdx + 1}: Error: ${e.message}`);
-        finishOrder = [0, 1, 2, 3]; // fallback
-    }
-
-    // Classify result
-    let result = classifyTableResult(finishOrder);
-    let winType = result.winType;
-
-    // Random finish delay: 30-90 seconds feels realistic for a guandan game
-    // But we compress to 8-25 seconds for pacing
-    let gameTime = Math.floor(Math.random() * 17000) + 8000;
-
-    setTimeout(() => {
-        if (!botGames[code]) return; // tournament might have ended
-
-        // Store result
-        botGames[code].results[tableIdx] = finishOrder;
-        botGames[code].pending--;
-
-        // Emit completion to dashboard
-        io.to('dashboard:' + code).emit('botTableUpdate', {
-            tableNum: tableIdx + 1,
-            status: 'finished',
-            players: tablePlayers.map((p, idx) => ({
-                nickname: p.nickname,
-                position: finishOrder.indexOf(idx) + 1
-            })),
-            winType: winType,
-            winners: result.winners.map(w => tablePlayers[w].nickname),
-            losers: result.losers.map(l => tablePlayers[l].nickname),
-            round: tourney.currentRound,
-            remaining: botGames[code].pending
-        });
-
-        gameLog(`[BotGames] ${code} table ${tableIdx + 1}: Finished (${winType}), ${botGames[code].pending} games remaining`);
-
-        // Check if human already finished and all bots done
-        checkRoundComplete(tourney);
-    }, gameTime);
-}
-
-/**
- * Check if round is complete (human + all bots finished).
- * If so, process the round end.
- */
-function checkRoundComplete(tourney) {
-    let code = tourney.code;
-    if (!botGames[code]) return;
-    if (botGames[code].pending > 0) return;
-    if (!tourney._humanFinished) return;
-
-    // All done — process round end
-    processArena48RoundEndReal(tourney._humanSocket, tourney, tourney._humanFinishOrder);
-    tourney._humanFinished = false;
-    tourney._humanSocket = null;
-    tourney._humanFinishOrder = null;
-}
 
 // Legacy fallback (kept for referee-mode tournaments)
 function processArena48RoundEnd(socket, tourney, playerFinishOrder) {
@@ -2110,8 +1975,6 @@ function processArena48RoundEnd(socket, tourney, playerFinishOrder) {
  */
 function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
     let tables = tourney.tables;
-    let code = tourney.code;
-    let bgResults = (botGames[code] && botGames[code].results) || {};
     let allResults = [];
 
     for (let i = 0; i < tables.length; i++) {
@@ -2119,11 +1982,8 @@ function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
         let fo;
         if (i === tourney.playerTableIdx) {
             fo = playerFinishOrder;
-        } else if (bgResults[i]) {
-            // Use real background game result
-            fo = bgResults[i];
         } else {
-            // Fallback: instant simulation
+            // Bot table: play real guandan game instantly
             let mmrs = table.map(p => p.mmr || 1000);
             fo = simulateBotTable(mmrs);
         }
@@ -2155,9 +2015,6 @@ function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
             losers: result.losers.map(l => table[l].nickname)
         });
     }
-
-    // Clean up background games
-    delete botGames[code];
 
     // Elimination: after round 10, eliminate bottom 4
     let eliminated = [];
