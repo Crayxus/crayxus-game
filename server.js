@@ -1953,6 +1953,7 @@ function startArena48Round(socket, tourney) {
     // Broadcast to dashboard
     io.to('dashboard:' + tourney.code).emit('roundStart', {
         round: tourney.currentRound,
+        timer: 300,
         tables: tableInfo.map(t => ({
             team1: [t.players[0].nickname, t.players[2] ? t.players[2].nickname : ''],
             team2: [t.players[1].nickname, t.players[3] ? t.players[3].nickname : ''],
