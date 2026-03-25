@@ -1391,6 +1391,21 @@ body.view-table .hc-pos-right{top:38%;left:calc(50% + 110px)}
 /* Hide default table decorations — replaced by zone grid */
 body.view-table .holo-table-circle{opacity:0.3}
 body.view-table .holo-hex-grid{opacity:0.05}
+
+/* === AI Battle Schedule === */
+.ai-schedule{width:100%;max-width:580px;margin:16px auto 12px;padding:12px 16px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)}
+.ai-schedule-title{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:rgba(0,255,255,0.6);margin-bottom:10px;text-align:center}
+.ai-week{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.ai-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);min-width:68px;transition:all .3s;cursor:default}
+.ai-day.today{background:rgba(0,255,255,0.08);border-color:rgba(0,255,255,0.3);box-shadow:0 0 12px rgba(0,255,255,0.15)}
+.ai-day .day-label{font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase}
+.ai-day.today .day-label{color:#00ffcc}
+.ai-day .ai-name{font-size:12px;font-weight:900;color:#fff;letter-spacing:1px}
+.ai-day .ai-logo{font-size:18px;line-height:1}
+.ai-day.today .ai-name{color:#00ffcc;text-shadow:0 0 10px rgba(0,255,255,0.5)}
+.ai-day .vs-tag{font-size:7px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1px}
+.ai-day.today .vs-tag{color:rgba(0,255,255,0.6)}
+@media(max-width:500px){.ai-day{min-width:56px;padding:5px 6px}.ai-day .ai-name{font-size:10px}.ai-day .ai-logo{font-size:14px}}
 </style>
 </head>
 <body>
@@ -1403,8 +1418,8 @@ body.view-table .holo-hex-grid{opacity:0.05}
   
   
   <div class="logo">CRAYXUS</div>
-  <div class="boot-subtitle">A I &nbsp; A R E N A</div>
-  <div style="color:var(--gold);margin-top:10px;font-size:28px;font-weight:bold;position:relative;z-index:10">V41.1</div>
+  <div class="boot-subtitle">A I &nbsp; 掼 蛋 &nbsp; 大 乱 斗</div>
+  <div style="color:var(--gold);margin-top:10px;font-size:20px;font-weight:bold;position:relative;z-index:10;letter-spacing:2px">人 机 混 战 &nbsp; 每 日 挑 战</div>
   <div id="boot-loading" style="margin-top:28px;width:260px;text-align:center">
     <div id="boot-load-text" style="color:#888;font-size:13px;margin-bottom:10px">Loading AI model...</div>
     <div style="width:100%;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden">
@@ -1439,7 +1454,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
   <div class="mode-select-wrap">
     <div class="mode-select-title">GUANDAN</div>
-    <div class="mode-select-sub">A I &nbsp; A R E N A</div>
+    <div class="mode-select-sub">A I &nbsp; 大 乱 斗 &nbsp; · &nbsp; 人 机 混 战</div>
 
     <!-- Avatar section like holo_main -->
     <div class="holo-avatar-section">
@@ -1469,12 +1484,45 @@ body.view-table .holo-hex-grid{opacity:0.05}
       </div>
     </div>
 
+    <!-- AI Battle Schedule -->
+    <div class="ai-schedule" id="aiSchedule">
+      <div class="ai-schedule-title">WEEKLY AI BATTLE SCHEDULE</div>
+      <div class="ai-week" id="aiWeek"></div>
+    </div>
+    <script>
+    (function(){
+      var schedule=[
+        {day:'MON',label:'周一',ai:'豆包',logo:'🫘',color:'#4fc3f7'},
+        {day:'TUE',label:'周二',ai:'元宝',logo:'💰',color:'#ab47bc'},
+        {day:'WED',label:'周三',ai:'千问',logo:'🔮',color:'#ff7043'},
+        {day:'THU',label:'周四',ai:'DeepSeek',logo:'🔍',color:'#26a69a'},
+        {day:'FRI',label:'周五',ai:'Crayxus',logo:'🃏',color:'#ffd700'},
+        {day:'SAT',label:'周六',ai:'OPEN',logo:'🎲',color:'#ef5350'},
+        {day:'SUN',label:'周日',ai:'休息',logo:'☕',color:'#78909c'}
+      ];
+      var today=new Date().getDay();
+      var todayIdx=today===0?6:today-1;
+      var html='';
+      for(var i=0;i<schedule.length;i++){
+        var s=schedule[i];
+        var isCurrent=i===todayIdx;
+        html+='<div class="ai-day'+(isCurrent?' today':'')+'">';
+        html+='<div class="day-label">'+s.day+'</div>';
+        html+='<div class="ai-logo">'+s.logo+'</div>';
+        html+='<div class="vs-tag">VS</div>';
+        html+='<div class="ai-name" style="'+(isCurrent?'':'color:'+s.color)+'">'+s.ai+'</div>';
+        html+='</div>';
+      }
+      document.getElementById('aiWeek').innerHTML=html;
+    })();
+    </script>
+
     <!-- Holographic mode buttons -->
     <div class="holo-btns" id="holo-btns">
       <div class="holo-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9654;</div>
         <div class="h-name">ARENA</div>
-        <div class="h-desc">ONLINE 2V2<br>ELO RANKING</div>
+        <div class="h-desc">人机混战 2V2<br>ELO RANKING</div>
         <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">PLAY NOW</div>
       </div>
       <div class="holo-btn" onclick="window.location.href='/replay'" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
@@ -1486,13 +1534,13 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9733;</div>
         <div class="h-name">TOURNAMENT</div>
-        <div class="h-desc">SCOREBOARD · PAIRINGS<br>LIVE RESULTS</div>
+        <div class="h-desc">48人赛 · AI大乱斗<br>每日不同AI对手</div>
         <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">EVENTS</div>
       </div>
       <div class="holo-btn training-btn" onclick="window.location.href='/dashboard'" data-mode="dashboard" onmouseenter="showModeInfo('dashboard')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9632;</div>
         <div class="h-name">DASHBOARD</div>
-        <div class="h-desc">48 PLAYERS · LIVE SCORES<br>REFEREE CONTROL</div>
+        <div class="h-desc">实时大屏 · 排行榜<br>REFEREE CONTROL</div>
         <div class="h-tag" style="background:rgba(46,213,115,0.1);color:#2ed573;border:1px solid rgba(46,213,115,0.3)">BIG SCREEN</div>
       </div>
     </div>

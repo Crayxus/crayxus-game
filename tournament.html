@@ -188,7 +188,7 @@ body.bigscreen table.sb td{font-size:18px;padding:14px 20px}
 
 <div class="header">
   <span class="back" onclick="goBack()">← 返回</span>
-  <h1>掼蛋赛事中心</h1>
+  <h1>AI 掼蛋大乱斗</h1>
   <span class="create-link" onclick="showView('v-create')">+ 发布赛事</span>
 </div>
 
@@ -211,6 +211,43 @@ body.bigscreen table.sb td{font-size:18px;padding:14px 20px}
     <div class="legend-item"><div class="legend-dot bk"></div><span>已占（已预约）</span></div>
     <div class="legend-item"><div class="legend-dot av"></div><span>可约（可预约）</span></div>
   </div>
+  <!-- AI Weekly Schedule -->
+  <div style="margin:20px 0;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:14px">
+    <div style="font-size:13px;font-weight:800;letter-spacing:2px;color:var(--accent);margin-bottom:12px;text-align:center">WEEKLY AI OPPONENT SCHEDULE</div>
+    <div id="ai-schedule-row" style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap"></div>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--dim)">每天对战不同大模型 AI · 人机混战 48人赛</div>
+  </div>
+  <script>
+  (function(){
+    var sched=[
+      {day:'周一',ai:'豆包',logo:'🫘',color:'#4fc3f7',desc:'字节跳动'},
+      {day:'周二',ai:'元宝',logo:'💰',color:'#ab47bc',desc:'腾讯'},
+      {day:'周三',ai:'千问',logo:'🔮',color:'#ff7043',desc:'阿里巴巴'},
+      {day:'周四',ai:'DeepSeek',logo:'🔍',color:'#26a69a',desc:'深度求索'},
+      {day:'周五',ai:'Crayxus',logo:'🃏',color:'#ffd700',desc:'自研大模型'},
+      {day:'周六',ai:'OPEN',logo:'🎲',color:'#ef5350',desc:'轮换/投票'},
+      {day:'周日',ai:'休息日',logo:'☕',color:'#78909c',desc:''}
+    ];
+    var dow=new Date().getDay();
+    var todayIdx=dow===0?6:dow-1;
+    var h='';
+    for(var i=0;i<sched.length;i++){
+      var s=sched[i],cur=i===todayIdx;
+      h+='<div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;border-radius:10px;min-width:64px;'
+        +(cur?'background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);box-shadow:0 0 10px rgba(0,212,170,.15)':'background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06)')
+        +'">';
+      h+='<div style="font-size:9px;font-weight:700;color:'+(cur?'var(--accent)':'var(--dim)')+';letter-spacing:1px">'+s.day+'</div>';
+      h+='<div style="font-size:18px">'+s.logo+'</div>';
+      h+='<div style="font-size:7px;color:rgba(255,255,255,.3)">VS</div>';
+      h+='<div style="font-size:11px;font-weight:900;color:'+(cur?'var(--accent)':s.color)+'">'+s.ai+'</div>';
+      if(s.desc)h+='<div style="font-size:8px;color:var(--dim)">'+s.desc+'</div>';
+      if(cur)h+='<div style="font-size:8px;font-weight:800;color:var(--accent);margin-top:2px;letter-spacing:1px">TODAY</div>';
+      h+='</div>';
+    }
+    document.getElementById('ai-schedule-row').innerHTML=h;
+  })();
+  </script>
+
   <div class="detail-card" id="detail-card"></div>
 </div>
 
