@@ -16,123 +16,110 @@
 body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden;user-select:none}
 
 /* === HEADER BAR === */
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 32px;background:linear-gradient(135deg,#141926,#1a2332);border-bottom:1px solid var(--border)}
-.top-left{display:flex;align-items:center;gap:16px}
-.logo{font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
-.event-name{font-size:15px;color:var(--dim);font-weight:600}
-.top-center{display:flex;align-items:center;gap:24px}
-.round-badge{font-size:28px;font-weight:900;color:var(--accent);letter-spacing:1px}
-.round-label{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:2px}
-.phase-tag{font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:1px}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 28px;background:linear-gradient(135deg,#0d1220,#141e30);border-bottom:1px solid var(--border);height:56px}
+.top-left{display:flex;align-items:center;gap:14px}
+.logo{font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.event-name{font-size:13px;color:var(--dim);font-weight:600}
+.top-center{display:flex;align-items:center;gap:20px}
+.round-badge{font-size:24px;font-weight:900;color:var(--accent);letter-spacing:1px}
+.round-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:2px}
+.phase-tag{font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:1px}
 .phase-tag.warmup{background:rgba(0,212,170,.15);color:var(--accent)}
 .phase-tag.elimination{background:rgba(255,71,87,.15);color:var(--red)}
 .phase-tag.finished{background:rgba(255,215,0,.15);color:var(--gold)}
-.top-right{display:flex;align-items:center;gap:20px}
-.timer{font-size:32px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text);letter-spacing:2px}
+.top-right{display:flex;align-items:center;gap:16px}
+.timer{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text);letter-spacing:2px}
 .timer.warning{color:var(--orange);animation:timerPulse 1s ease infinite}
 .timer.danger{color:var(--red);animation:timerPulse .5s ease infinite}
-.alive-count{font-size:14px;color:var(--dim)}
-.alive-count span{color:var(--accent);font-weight:800;font-size:18px}
+.alive-count{font-size:13px;color:var(--dim)}
+.alive-count span{color:var(--accent);font-weight:800;font-size:16px}
 
 @keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.5}}
 
-/* === PLAYER GRID === */
-.grid-wrap{padding:20px 28px;height:calc(100vh - 70px);display:flex;flex-direction:column}
-.player-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px;flex:1;align-content:start}
+/* === MAIN LAYOUT: left grid + right leaderboard === */
+.main-wrap{display:flex;height:calc(100vh - 56px - 36px);overflow:hidden}
 
-/* === PLAYER CIRCLE === */
-.player-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1;border-radius:50%;background:var(--card);border:3px solid var(--border);transition:all .4s ease;cursor:default;overflow:visible}
-.player-cell.empty{opacity:.15;border-style:dashed}
+/* === LEFT: Player Chip Grid === */
+.left-panel{flex:1;padding:16px 20px;overflow-y:auto}
+.left-title{font-size:11px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;font-weight:700}
+.player-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
 
-/* Name */
-.p-name{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80%;text-align:center;line-height:1.2;margin-bottom:2px}
+/* === PLAYER CHIP (small) === */
+.player-chip{position:relative;display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--card);border:1px solid var(--border);border-radius:8px;transition:all .4s ease;min-height:36px}
+.player-chip.empty{opacity:.1;border-style:dashed}
+.player-chip.eliminated{opacity:.3;border-color:rgba(255,71,87,.2)}
+.player-chip.eliminated .chip-name,.player-chip.eliminated .chip-score{opacity:.4}
 
-/* Score */
-.p-score{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text);line-height:1;transition:color .3s}
-.p-score.positive{color:var(--green)}
-.p-score.negative{color:var(--red)}
+/* Rank circle */
+.chip-rank{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;flex-shrink:0}
+.chip-rank.r1{background:var(--gold);color:#000}
+.chip-rank.r2{background:var(--silver);color:#000}
+.chip-rank.r3{background:var(--bronze);color:#000}
+.chip-rank.rn{background:rgba(255,255,255,.06);color:var(--dim);font-size:8px}
 
-/* Score delta arrow — inside the circle */
-.p-delta{position:absolute;top:8px;right:8px;font-size:11px;font-weight:800;opacity:0;transition:opacity .3s;pointer-events:none;display:flex;align-items:center;gap:2px;border-radius:10px;padding:2px 6px}
-.p-delta.up{color:#000;background:var(--green);opacity:1;animation:deltaFadeUp 2.5s ease forwards}
-.p-delta.down{color:#fff;background:var(--red);opacity:1;animation:deltaFadeDown 2.5s ease forwards}
+.chip-info{flex:1;min-width:0;overflow:hidden}
+.chip-name{font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.chip-score{font-size:12px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.chip-score.positive{color:var(--green)}
+.chip-score.negative{color:var(--red)}
+.chip-score.zero{color:var(--dim)}
 
-@keyframes deltaFadeUp{
-  0%{opacity:0;transform:translateY(6px)}
-  15%{opacity:1;transform:translateY(0)}
-  70%{opacity:1}
-  100%{opacity:0;transform:translateY(-8px)}
-}
-@keyframes deltaFadeDown{
-  0%{opacity:0;transform:translateY(-6px)}
-  15%{opacity:1;transform:translateY(0)}
-  70%{opacity:1}
-  100%{opacity:0;transform:translateY(8px)}
-}
+/* Eliminated X */
+.chip-elim{position:absolute;inset:0;border-radius:8px;background:rgba(255,71,87,.08);display:none;align-items:center;justify-content:center}
+.player-chip.eliminated .chip-elim{display:flex}
+.chip-elim-x{font-size:14px;font-weight:900;color:var(--red);opacity:.6;letter-spacing:2px}
 
-/* MMR tier dot */
-.p-tier{font-size:10px;font-weight:700;margin-top:2px;letter-spacing:1px;opacity:.7}
-.p-tier.t-entry{color:#888}
-.p-tier.t-advance{color:var(--blue)}
-.p-tier.t-elite{color:var(--green)}
-.p-tier.t-master{color:var(--gold)}
-.p-tier.t-grandmaster{color:var(--accent2)}
-.p-tier.t-king{color:var(--red)}
+/* Score delta badge */
+.chip-delta{position:absolute;top:-4px;right:-4px;font-size:9px;font-weight:800;opacity:0;pointer-events:none;border-radius:8px;padding:1px 5px;z-index:2}
+.chip-delta.up{color:#000;background:var(--green);opacity:1;animation:deltaFade 2.5s ease forwards}
+.chip-delta.down{color:#fff;background:var(--red);opacity:1;animation:deltaFade 2.5s ease forwards}
+@keyframes deltaFade{0%{opacity:0;transform:translateY(4px)}15%{opacity:1;transform:translateY(0)}70%{opacity:1}100%{opacity:0}}
 
-/* Rank badge */
-.p-rank{position:absolute;top:-4px;left:-4px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#000;z-index:2}
-.p-rank.r1{background:var(--gold)}
-.p-rank.r2{background:var(--silver)}
-.p-rank.r3{background:var(--bronze)}
-.p-rank.rn{background:var(--border);color:var(--dim);font-size:10px}
+/* Glow effects */
+.player-chip.glow-up{border-color:var(--green);box-shadow:0 0 12px rgba(46,213,115,.3);animation:glowFade 2s ease forwards}
+.player-chip.glow-down{border-color:var(--red);box-shadow:0 0 12px rgba(255,71,87,.3);animation:glowFade 2s ease forwards}
+@keyframes glowFade{0%{box-shadow:0 0 12px rgba(46,213,115,.4)}100%{box-shadow:none;border-color:var(--border)}}
 
-/* Score UP glow */
-.player-cell.glow-up{border-color:var(--green);box-shadow:0 0 20px rgba(46,213,115,.4),inset 0 0 15px rgba(46,213,115,.1);animation:glowUpPulse 2s ease forwards}
-@keyframes glowUpPulse{
-  0%{box-shadow:0 0 20px rgba(46,213,115,.6),inset 0 0 15px rgba(46,213,115,.15)}
-  100%{box-shadow:none;border-color:var(--border)}
-}
+.player-chip.elim-anim{animation:elimShake .6s ease}
+@keyframes elimShake{0%,100%{transform:scale(1)}20%{transform:scale(1.06)}40%{transform:scale(.94) rotate(-2deg)}60%{transform:scale(1.03) rotate(1deg)}80%{transform:scale(.98)}}
 
-/* Score DOWN glow */
-.player-cell.glow-down{border-color:var(--red);box-shadow:0 0 20px rgba(255,71,87,.4),inset 0 0 15px rgba(255,71,87,.1);animation:glowDownPulse 2s ease forwards}
-@keyframes glowDownPulse{
-  0%{box-shadow:0 0 20px rgba(255,71,87,.6),inset 0 0 15px rgba(255,71,87,.15)}
-  100%{box-shadow:none;border-color:var(--border)}
-}
+/* === RIGHT: Leaderboard === */
+.right-panel{width:320px;background:linear-gradient(180deg,#111827,#0d1220);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.lb-header{padding:14px 16px 10px;border-bottom:1px solid var(--border)}
+.lb-title{font-size:14px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lb-subtitle{font-size:10px;color:var(--dim);margin-top:2px;letter-spacing:1px}
 
-/* === ELIMINATED STATE === */
-.player-cell.eliminated{opacity:.25;border-color:rgba(255,71,87,.3);animation:none !important;box-shadow:none !important}
-.player-cell.eliminated .p-name,.player-cell.eliminated .p-score,.player-cell.eliminated .p-tier{opacity:.3}
-.elim-overlay{display:none;position:absolute;inset:0;border-radius:50%;background:rgba(255,71,87,.12);z-index:5;align-items:center;justify-content:center}
-.player-cell.eliminated .elim-overlay{display:flex}
-.elim-x{font-size:36px;font-weight:900;color:var(--red);opacity:.7;letter-spacing:4px;text-shadow:0 0 10px rgba(255,71,87,.5)}
+.lb-scroll{flex:1;overflow-y:auto;padding:6px 0}
+.lb-row{display:flex;align-items:center;padding:6px 16px;gap:10px;transition:background .2s}
+.lb-row:hover{background:rgba(255,255,255,.02)}
+.lb-row.me{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.lb-row.eliminated{opacity:.35}
+.lb-row.top3{background:rgba(255,215,0,.03)}
 
-/* Elimination entrance animation */
-.player-cell.elim-anim{animation:elimShake .6s ease}
-@keyframes elimShake{
-  0%,100%{transform:scale(1)}
-  20%{transform:scale(1.08)}
-  40%{transform:scale(.92) rotate(-3deg)}
-  60%{transform:scale(1.04) rotate(2deg)}
-  80%{transform:scale(.98)}
-}
+.lb-rank{width:26px;text-align:center;font-size:12px;font-weight:900;flex-shrink:0}
+.lb-rank.r1{color:var(--gold)}
+.lb-rank.r2{color:var(--silver)}
+.lb-rank.r3{color:var(--bronze)}
+.lb-rank.rn{color:var(--dim)}
 
-/* === BOTTOM INFO BAR === */
-.bottom-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 32px;background:rgba(20,25,38,.8);border-top:1px solid var(--border);font-size:12px;color:var(--dim)}
-.bottom-bar .tables-info{display:flex;gap:16px}
-.table-chip{padding:3px 10px;border-radius:8px;background:rgba(255,255,255,.04);font-size:11px;font-weight:600}
+.lb-name{flex:1;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-mmr{font-size:9px;color:var(--dim);width:36px;text-align:right;flex-shrink:0}
+.lb-pts{font-size:13px;font-weight:900;font-variant-numeric:tabular-nums;width:50px;text-align:right;flex-shrink:0}
+.lb-pts.positive{color:var(--green)}
+.lb-pts.negative{color:var(--red)}
+.lb-pts.zero{color:var(--dim)}
+
+.lb-elim-tag{font-size:8px;color:var(--red);font-weight:700;margin-left:4px}
+
+/* Danger zone separator */
+.lb-danger-sep{padding:4px 16px;font-size:9px;color:var(--red);letter-spacing:2px;font-weight:700;background:rgba(255,71,87,.05);border-top:1px dashed rgba(255,71,87,.2);border-bottom:1px dashed rgba(255,71,87,.2);text-align:center}
+
+/* === BOTTOM BAR === */
+.bottom-bar{display:flex;align-items:center;justify-content:space-between;padding:6px 28px;background:rgba(13,18,32,.9);border-top:1px solid var(--border);font-size:11px;color:var(--dim);height:36px}
+.bottom-bar .tables-info{display:flex;gap:12px}
+.table-chip{padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.04);font-size:10px;font-weight:600}
 .table-chip.active{background:rgba(0,212,170,.1);color:var(--accent)}
-.elim-next{color:var(--red);font-weight:700}
-
-/* === RESPONSIVE === */
-@media(max-width:1200px){
-  .player-grid{grid-template-columns:repeat(6,1fr);gap:10px}
-}
-@media(max-width:900px){
-  .player-grid{grid-template-columns:repeat(4,1fr);gap:8px}
-  .p-score{font-size:18px}
-  .p-name{font-size:11px}
-}
+.elim-next{color:var(--red);font-weight:700;font-size:10px}
 
 /* === SETUP OVERLAY === */
 .setup-overlay{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:100;display:flex;align-items:center;justify-content:center}
@@ -147,12 +134,8 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
 .setup-btn:hover{opacity:.9}
 .setup-btn:disabled{opacity:.4;cursor:not-allowed}
 .setup-err{color:var(--red);font-size:13px;margin-top:10px;min-height:20px}
-
-/* Demo button */
 .demo-link{color:var(--dim);font-size:13px;margin-top:16px;cursor:pointer;display:inline-block}
 .demo-link:hover{color:var(--accent)}
-
-/* Referee entry */
 .ref-link{color:var(--accent2);font-size:13px;margin-top:8px;cursor:pointer;display:inline-block;font-weight:600}
 .ref-link:hover{color:var(--magenta)}
 .ref-row{display:none;margin-top:12px;gap:8px;align-items:center}
@@ -161,7 +144,7 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
 .ref-pin:focus{border-color:var(--accent2)}
 .ref-btn{padding:12px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent2),var(--magenta));color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 
-/* === REFEREE PANEL (bottom-right floating) === */
+/* === REFEREE PANEL === */
 .ref-panel{display:none;position:fixed;bottom:50px;right:20px;width:340px;max-height:70vh;background:var(--card);border:1px solid var(--accent2);border-radius:16px;z-index:80;overflow:hidden;box-shadow:0 8px 40px rgba(124,77,255,.2)}
 .ref-panel.open{display:flex;flex-direction:column}
 .ref-panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(124,77,255,.1);border-bottom:1px solid var(--border)}
@@ -181,16 +164,25 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
 .ref-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .ref-select{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none;margin-bottom:6px}
 .ref-msg{font-size:12px;color:var(--accent);margin-top:6px;min-height:16px}
-
-/* Referee badge in top bar */
 .ref-badge{display:none;padding:4px 12px;border-radius:12px;background:rgba(124,77,255,.15);color:var(--accent2);font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(124,77,255,.3)}
 .ref-badge:hover{background:rgba(124,77,255,.25)}
 .ref-badge.active{display:inline-block}
+
+/* === RESPONSIVE === */
+@media(max-width:1100px){
+  .player-grid{grid-template-columns:repeat(6,1fr)}
+  .right-panel{width:260px}
+}
+@media(max-width:800px){
+  .main-wrap{flex-direction:column}
+  .right-panel{width:100%;height:40vh;border-left:none;border-top:1px solid var(--border)}
+  .player-grid{grid-template-columns:repeat(4,1fr)}
+}
 </style>
 </head>
 <body>
 
-<!-- SETUP: enter tournament code -->
+<!-- SETUP -->
 <div class="setup-overlay" id="setup">
   <div class="setup-box">
     <h2>CRAYXUS 大屏</h2>
@@ -227,7 +219,7 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
   </div>
 </div>
 
-<!-- REFEREE CONTROL PANEL -->
+<!-- REFEREE PANEL -->
 <div class="ref-panel" id="refPanel">
   <div class="ref-panel-header">
     <h3>REFEREE CONTROL</h3>
@@ -241,9 +233,7 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
     </div>
     <div class="ref-section">
       <h4>录入本桌结果</h4>
-      <select class="ref-select" id="refTable">
-        <option value="">选择桌号...</option>
-      </select>
+      <select class="ref-select" id="refTable"><option value="">选择桌号...</option></select>
       <div class="ref-result-grid">
         <button class="ref-action-btn green" onclick="refReportResult('doubleUp')">双上游 +20</button>
         <button class="ref-action-btn blue" onclick="refReportResult('singleUpWin')">单边上游 +12</button>
@@ -254,9 +244,7 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
     </div>
     <div class="ref-section">
       <h4>手动调整</h4>
-      <select class="ref-select" id="refPlayer">
-        <option value="">选择选手...</option>
-      </select>
+      <select class="ref-select" id="refPlayer"><option value="">选择选手...</option></select>
       <div class="ref-result-grid">
         <button class="ref-action-btn green" onclick="refAdjust(5,0)">+5分</button>
         <button class="ref-action-btn red" onclick="refAdjust(-5,0)">-5分</button>
@@ -268,27 +256,35 @@ body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--
   </div>
 </div>
 
-<!-- PLAYER GRID -->
-<div class="grid-wrap">
-  <div class="player-grid" id="playerGrid"></div>
+<!-- MAIN CONTENT -->
+<div class="main-wrap">
+  <!-- LEFT: Player Chip Grid -->
+  <div class="left-panel">
+    <div class="left-title">PLAYERS</div>
+    <div class="player-grid" id="playerGrid"></div>
+  </div>
+  <!-- RIGHT: Leaderboard -->
+  <div class="right-panel">
+    <div class="lb-header">
+      <div class="lb-title">LEADERBOARD</div>
+      <div class="lb-subtitle" id="lbSubtitle">48 PLAYERS</div>
+    </div>
+    <div class="lb-scroll" id="leaderboard"></div>
+  </div>
 </div>
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <div class="tables-info" id="tablesInfo"></div>
   <div class="elim-next" id="elimNext"></div>
-  <div id="bottomRight" style="color:var(--dim)">CRAYXUS 掼蛋 AI 一体机</div>
+  <div id="bottomRight" style="color:var(--dim)">CRAYXUS AI 掼蛋一体机</div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-/* ============================================================
-   CRAYXUS 48-Player Dashboard
-   ============================================================ */
-
 let socket = null;
 let tournamentCode = null;
-let players = [];       // [{id, nickname, score, mmr, eliminated, eliminatedRound, rank}]
+let players = [];
 let currentRound = 0;
 let totalRounds = 20;
 let timerInterval = null;
@@ -296,21 +292,27 @@ let timerSeconds = 0;
 let isDemo = false;
 let isReferee = false;
 let refereePin = '';
-let currentTables = []; // [{team1:[], team2:[], tableNum}]
+let currentTables = [];
 
-// MMR tier definitions
 const MMR_TIERS = [
-  { min: 1350, name: '掼蛋王', cls: 't-king' },
-  { min: 1250, name: '宗师',   cls: 't-grandmaster' },
-  { min: 1150, name: '大师',   cls: 't-master' },
-  { min: 1050, name: '精英',   cls: 't-elite' },
-  { min: 900,  name: '进阶',   cls: 't-advance' },
-  { min: 0,    name: '入门',   cls: 't-entry' }
+  { min: 1350, name: '王', cls: 't-king' },
+  { min: 1250, name: '宗', cls: 't-gm' },
+  { min: 1150, name: '师', cls: 't-master' },
+  { min: 1050, name: '精', cls: 't-elite' },
+  { min: 900,  name: '进', cls: 't-adv' },
+  { min: 0,    name: '初', cls: 't-entry' }
 ];
 
 function getTier(mmr) {
   for (let t of MMR_TIERS) if (mmr >= t.min) return t;
   return MMR_TIERS[MMR_TIERS.length - 1];
+}
+
+function recalcRanks() {
+  let active = players.filter(p => !p.eliminated).sort((a, b) => b.score - a.score);
+  active.forEach((p, i) => p.rank = i + 1);
+  let elim = players.filter(p => p.eliminated).sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0) || b.score - a.score);
+  elim.forEach((p, i) => p.rank = active.length + i + 1);
 }
 
 /* ---- URL param auto-connect ---- */
@@ -323,24 +325,21 @@ function getTier(mmr) {
   }
 })();
 
-/* ---- Connect to tournament ---- */
+/* ---- Connect ---- */
 async function connectTournament() {
   const code = document.getElementById('codeInput').value.trim().toUpperCase();
   if (!code) return;
   document.getElementById('setupErr').textContent = '';
   document.getElementById('connectBtn').disabled = true;
-
   try {
     const res = await fetch(`/api/tournaments/${code}/dashboard`);
     const data = await res.json();
     if (data.error) { showSetupErr(data.error); return; }
-
     tournamentCode = code;
     players = data.players;
     currentRound = data.currentRound;
     totalRounds = data.totalRounds || 20;
     document.getElementById('eventName').textContent = data.name || '48人标准赛';
-
     document.getElementById('setup').classList.add('hidden');
     renderAll();
     connectSocket();
@@ -360,18 +359,9 @@ function showSetupErr(msg) {
 function connectSocket() {
   if (!tournamentCode) return;
   socket = io();
-  socket.on('connect', () => {
-    socket.emit('joinDashboard', tournamentCode);
-  });
-
-  socket.on('dashboardState', (data) => {
-    players = data.players;
-    currentRound = data.currentRound;
-    renderAll();
-  });
-
+  socket.on('connect', () => { socket.emit('joinDashboard', tournamentCode); });
+  socket.on('dashboardState', (data) => { players = data.players; currentRound = data.currentRound; renderAll(); });
   socket.on('scoreUpdate', (data) => {
-    // data: { round, changes: [{nickname, scoreDelta, newScore, mmrDelta, newMmr}] }
     currentRound = data.round;
     for (let c of data.changes) {
       let p = players.find(x => x.nickname === c.nickname);
@@ -379,51 +369,30 @@ function connectSocket() {
       p.prevScore = p.score;
       p.score = c.newScore;
       p.mmr = c.newMmr;
-      p.lastDelta = c.scoreDelta;
     }
     recalcRanks();
     renderAll();
-    // Animate deltas
     for (let c of data.changes) {
-      animateDelta(c.nickname, c.scoreDelta);
+      let delta = c.newScore - (c.newScore - (c.scoreDelta || 0));
+      if (c.scoreDelta) animateDelta(c.nickname, c.scoreDelta);
     }
   });
-
   socket.on('elimination', (data) => {
-    // data: { round, eliminated: [{nickname, finalScore, finalMmr, finalRank}] }
+    currentRound = data.round;
     for (let e of data.eliminated) {
       let p = players.find(x => x.nickname === e.nickname);
-      if (p) {
-        p.eliminated = true;
-        p.eliminatedRound = data.round;
-      }
+      if (p) { p.eliminated = true; p.eliminatedRound = data.round; }
     }
     recalcRanks();
     renderAll();
-    // Animate elimination
-    for (let e of data.eliminated) {
-      animateElimination(e.nickname);
-    }
+    for (let e of data.eliminated) animateElimination(e.nickname);
   });
-
   socket.on('roundStart', (data) => {
     currentRound = data.round;
-    renderHeader();
+    currentTables = data.tables || [];
+    renderAll();
     if (data.timer) startTimer(data.timer);
   });
-
-  socket.on('timerSync', (data) => {
-    timerSeconds = data.seconds;
-    renderTimer();
-  });
-}
-
-/* ---- Rank calculation ---- */
-function recalcRanks() {
-  let active = players.filter(p => !p.eliminated).sort((a, b) => b.score - a.score);
-  active.forEach((p, i) => p.rank = i + 1);
-  let elim = players.filter(p => p.eliminated).sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0) || b.score - a.score);
-  elim.forEach((p, i) => p.rank = active.length + i + 1);
 }
 
 /* ---- Render ---- */
@@ -431,6 +400,7 @@ function renderAll() {
   recalcRanks();
   renderHeader();
   renderGrid();
+  renderLeaderboard();
   renderBottom();
 }
 
@@ -440,130 +410,125 @@ function renderHeader() {
   let alive = players.filter(p => !p.eliminated).length;
   document.getElementById('aliveCount').textContent = alive;
 
-  if (currentRound <= 10) {
-    tag.className = 'phase-tag warmup';
-    tag.textContent = '热身期';
-  } else if (alive <= 4) {
-    tag.className = 'phase-tag finished';
-    tag.textContent = '已结束';
-  } else {
-    tag.className = 'phase-tag elimination';
-    tag.textContent = '淘汰期';
-  }
+  if (currentRound <= 10) { tag.className = 'phase-tag warmup'; tag.textContent = '热身期'; }
+  else if (alive <= 4) { tag.className = 'phase-tag finished'; tag.textContent = '决赛'; }
+  else { tag.className = 'phase-tag elimination'; tag.textContent = '淘汰期'; }
 
-  // Elim next info
   let elimNext = document.getElementById('elimNext');
   if (currentRound >= 10 && alive > 4) {
     let sorted = players.filter(p => !p.eliminated).sort((a, b) => a.score - b.score);
-    let dangerZone = sorted.slice(0, 4).map(p => p.nickname).join(', ');
-    elimNext.textContent = `淘汰区: ${dangerZone}`;
+    elimNext.textContent = '淘汰区: ' + sorted.slice(0, 4).map(p => p.nickname).join(', ');
   } else if (currentRound < 10) {
-    elimNext.textContent = `第10局后开始淘汰`;
-  } else {
-    elimNext.textContent = '';
-  }
+    elimNext.textContent = '第10轮后开始淘汰';
+  } else { elimNext.textContent = ''; }
 }
 
 function renderGrid() {
   const grid = document.getElementById('playerGrid');
-  // Sort: active by rank, then eliminated by elimination round (most recent first)
   let active = players.filter(p => !p.eliminated).sort((a, b) => a.rank - b.rank);
   let elim = players.filter(p => p.eliminated).sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0));
   let ordered = [...active, ...elim];
-
-  // Pad to 48
   while (ordered.length < 48) ordered.push(null);
 
-  // Only re-render if structure changed, otherwise update in-place
-  if (grid.children.length !== ordered.length) {
-    grid.innerHTML = '';
-    for (let i = 0; i < ordered.length; i++) {
-      grid.appendChild(createCell(ordered[i], i));
-    }
-  } else {
-    for (let i = 0; i < ordered.length; i++) {
-      updateCell(grid.children[i], ordered[i], i);
-    }
+  grid.innerHTML = '';
+  for (let i = 0; i < ordered.length; i++) {
+    grid.appendChild(createChip(ordered[i], i));
   }
 }
 
-function createCell(p, idx) {
+function createChip(p, idx) {
   let div = document.createElement('div');
-  div.className = 'player-cell' + (p ? '' : ' empty') + (p && p.eliminated ? ' eliminated' : '');
-  div.id = p ? `cell-${p.nickname}` : `cell-empty-${idx}`;
-
   if (!p) {
-    div.innerHTML = `<span class="p-name" style="opacity:.3">${idx + 1}</span>`;
+    div.className = 'player-chip empty';
+    div.innerHTML = '<span class="chip-name" style="opacity:.3">' + (idx + 1) + '</span>';
     return div;
   }
 
-  let tier = getTier(p.mmr || 1000);
-  let scoreClass = p.score > 0 ? 'positive' : (p.score < 0 ? 'negative' : '');
+  div.className = 'player-chip' + (p.eliminated ? ' eliminated' : '');
+  div.id = 'cell-' + p.nickname;
 
-  div.innerHTML = `
-    ${p.rank <= 3 ? `<div class="p-rank r${p.rank}">${p.rank}</div>` : (p.rank <= 48 && !p.eliminated ? `<div class="p-rank rn">${p.rank}</div>` : '')}
-    <div class="p-delta" id="delta-${p.nickname}"></div>
-    <div class="p-name">${escHtml(p.nickname)}</div>
-    <div class="p-score ${scoreClass}" id="score-${p.nickname}">${p.score >= 0 ? '+' + p.score : p.score}</div>
-    <div class="p-tier ${tier.cls}">${tier.name}</div>
-    <div class="elim-overlay"><span class="elim-x">XX</span></div>
-  `;
+  let rankCls = p.rank <= 3 ? 'r' + p.rank : 'rn';
+  let scoreCls = p.score > 0 ? 'positive' : (p.score < 0 ? 'negative' : 'zero');
+  let scoreText = p.score > 0 ? '+' + p.score : (p.score === 0 ? '0' : '' + p.score);
+
+  div.innerHTML =
+    '<div class="chip-rank ' + rankCls + '">' + p.rank + '</div>' +
+    '<div class="chip-info">' +
+      '<div class="chip-name">' + escHtml(p.nickname) + '</div>' +
+      '<div class="chip-score ' + scoreCls + '">' + scoreText + '</div>' +
+    '</div>' +
+    '<div class="chip-delta" id="delta-' + p.nickname + '"></div>' +
+    '<div class="chip-elim"><span class="chip-elim-x">XX</span></div>';
   return div;
 }
 
-function updateCell(div, p, idx) {
-  if (!p) {
-    div.className = 'player-cell empty';
-    div.id = `cell-empty-${idx}`;
-    div.innerHTML = `<span class="p-name" style="opacity:.3">${idx + 1}</span>`;
-    return;
+function renderLeaderboard() {
+  const lb = document.getElementById('leaderboard');
+  let active = players.filter(p => !p.eliminated).sort((a, b) => a.rank - b.rank);
+  let elim = players.filter(p => p.eliminated).sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0) || b.score - a.score);
+
+  let aliveCount = active.length;
+  document.getElementById('lbSubtitle').textContent = aliveCount + ' ACTIVE / ' + players.length + ' TOTAL';
+
+  let html = '';
+  // Active players
+  let dangerIdx = aliveCount - 4; // bottom 4 danger zone
+  for (let i = 0; i < active.length; i++) {
+    let p = active[i];
+    let rankCls = p.rank <= 3 ? 'r' + p.rank : 'rn';
+    let scoreCls = p.score > 0 ? 'positive' : (p.score < 0 ? 'negative' : 'zero');
+    let scoreText = p.score > 0 ? '+' + p.score : (p.score === 0 ? '0' : '' + p.score);
+    let rowCls = 'lb-row' + (p.rank <= 3 ? ' top3' : '') + (p.isHuman ? ' me' : '');
+
+    // Insert danger zone separator
+    if (currentRound >= 10 && i === dangerIdx && dangerIdx > 0) {
+      html += '<div class="lb-danger-sep">DANGER ZONE</div>';
+    }
+
+    html += '<div class="' + rowCls + '">' +
+      '<div class="lb-rank ' + rankCls + '">' + p.rank + '</div>' +
+      '<div class="lb-name">' + escHtml(p.nickname) + '</div>' +
+      '<div class="lb-mmr">' + (p.mmr || 1000) + '</div>' +
+      '<div class="lb-pts ' + scoreCls + '">' + scoreText + '</div>' +
+    '</div>';
   }
 
-  let wasElim = div.classList.contains('eliminated');
-  div.className = 'player-cell' + (p.eliminated ? ' eliminated' : '');
-  div.id = `cell-${p.nickname}`;
+  // Eliminated section
+  if (elim.length > 0) {
+    html += '<div class="lb-danger-sep" style="color:var(--dim);border-color:var(--border);background:rgba(255,255,255,.02)">ELIMINATED</div>';
+    for (let p of elim) {
+      let scoreText = p.score > 0 ? '+' + p.score : (p.score === 0 ? '0' : '' + p.score);
+      html += '<div class="lb-row eliminated">' +
+        '<div class="lb-rank rn">' + p.rank + '</div>' +
+        '<div class="lb-name">' + escHtml(p.nickname) + '<span class="lb-elim-tag">R' + (p.eliminatedRound || '?') + '</span></div>' +
+        '<div class="lb-mmr">' + (p.mmr || 1000) + '</div>' +
+        '<div class="lb-pts">' + scoreText + '</div>' +
+      '</div>';
+    }
+  }
 
-  let tier = getTier(p.mmr || 1000);
-  let scoreClass = p.score > 0 ? 'positive' : (p.score < 0 ? 'negative' : '');
-
-  div.innerHTML = `
-    ${p.rank <= 3 ? `<div class="p-rank r${p.rank}">${p.rank}</div>` : (p.rank <= 48 && !p.eliminated ? `<div class="p-rank rn">${p.rank}</div>` : '')}
-    <div class="p-delta" id="delta-${p.nickname}"></div>
-    <div class="p-name">${escHtml(p.nickname)}</div>
-    <div class="p-score ${scoreClass}" id="score-${p.nickname}">${p.score >= 0 ? '+' + p.score : p.score}</div>
-    <div class="p-tier ${tier.cls}">${tier.name}</div>
-    <div class="elim-overlay"><span class="elim-x">XX</span></div>
-  `;
+  lb.innerHTML = html;
 }
 
 function renderBottom() {
   let alive = players.filter(p => !p.eliminated).length;
   let tables = Math.floor(alive / 4);
-  let info = document.getElementById('tablesInfo');
-  info.innerHTML = `<span class="table-chip active">${tables} 桌进行中</span>` +
-    `<span class="table-chip">${alive} 人在场</span>` +
-    `<span class="table-chip">${players.filter(p => p.eliminated).length} 人已淘汰</span>`;
+  document.getElementById('tablesInfo').innerHTML =
+    '<span class="table-chip active">' + tables + ' 桌</span>' +
+    '<span class="table-chip">' + alive + ' 人在场</span>' +
+    '<span class="table-chip">' + players.filter(p => p.eliminated).length + ' 人淘汰</span>';
 }
 
 /* ---- Animations ---- */
 function animateDelta(nickname, delta) {
-  let el = document.getElementById(`delta-${nickname}`);
+  let el = document.getElementById('delta-' + nickname);
   if (!el) return;
+  el.className = 'chip-delta';
+  el.offsetHeight;
+  if (delta > 0) { el.textContent = '+' + delta; el.classList.add('up'); }
+  else if (delta < 0) { el.textContent = '' + delta; el.classList.add('down'); }
 
-  // Remove old animation classes
-  el.className = 'p-delta';
-  el.offsetHeight; // force reflow
-
-  if (delta > 0) {
-    el.textContent = `+${delta}`;
-    el.classList.add('up');
-  } else if (delta < 0) {
-    el.textContent = `${delta}`;
-    el.classList.add('down');
-  }
-
-  // Also glow the cell
-  let cell = document.getElementById(`cell-${nickname}`);
+  let cell = document.getElementById('cell-' + nickname);
   if (cell) {
     cell.classList.remove('glow-up', 'glow-down');
     cell.offsetHeight;
@@ -573,10 +538,8 @@ function animateDelta(nickname, delta) {
 }
 
 function animateElimination(nickname) {
-  let cell = document.getElementById(`cell-${nickname}`);
-  if (!cell) return;
-  cell.classList.add('elim-anim');
-  setTimeout(() => cell.classList.remove('elim-anim'), 800);
+  let cell = document.getElementById('cell-' + nickname);
+  if (cell) { cell.classList.add('elim-anim'); setTimeout(() => cell.classList.remove('elim-anim'), 800); }
 }
 
 /* ---- Timer ---- */
@@ -596,325 +559,136 @@ function renderTimer() {
   let el = document.getElementById('timer');
   let m = Math.floor(timerSeconds / 60);
   let s = timerSeconds % 60;
-  el.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
   el.className = 'timer' + (timerSeconds <= 30 ? ' danger' : (timerSeconds <= 60 ? ' warning' : ''));
 }
 
-/* ---- Utilities ---- */
-function escHtml(s) {
-  let d = document.createElement('div');
-  d.textContent = s || '';
-  return d.innerHTML;
-}
+function escHtml(s) { let d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
-/* ============================================================
-   DEMO MODE — simulates a 48-player tournament
-   ============================================================ */
+/* ---- DEMO MODE ---- */
 function startDemo() {
   isDemo = true;
   document.getElementById('setup').classList.add('hidden');
-
-  // Generate 48 fake players
   const surnames = ['张','李','王','刘','陈','杨','赵','黄','周','吴','徐','孙','胡','朱','高','林','何','郭','马','罗','梁','宋','郑','谢','韩','唐','冯','于','董','萧','程','曹','袁','邓','许','傅','沈','曾','彭','吕','苏','卢','蒋','蔡','贾','丁','魏','薛','叶','阎'];
   const names = ['伟','芳','娜','秀英','敏','静','丽','强','磊','军','洋','勇','艳','杰','娟','涛','明','超','秀兰','霞','平','刚','桂英'];
-
   players = [];
   for (let i = 0; i < 48; i++) {
-    let nick = surnames[i % surnames.length] + names[Math.floor(Math.random() * names.length)];
-    players.push({
-      nickname: nick,
-      score: 0,
-      mmr: 1000,
-      eliminated: false,
-      eliminatedRound: null,
-      rank: i + 1,
-      lastDelta: 0
-    });
+    players.push({ nickname: surnames[i % surnames.length] + names[Math.floor(Math.random() * names.length)], score: 0, mmr: 1000, eliminated: false, eliminatedRound: null, rank: i + 1 });
   }
-
-  currentRound = 0;
-  totalRounds = 20;
+  currentRound = 0; totalRounds = 20;
   document.getElementById('eventName').textContent = '演示赛 · 48人标准赛';
-  renderAll();
-  startTimer(300);
-
-  // Auto-play simulation
+  renderAll(); startTimer(300);
   setTimeout(demoNextRound, 2000);
 }
 
 function demoNextRound() {
   if (!isDemo) return;
   currentRound++;
-  if (currentRound > 20) {
-    let tag = document.getElementById('phaseTag');
-    tag.className = 'phase-tag finished';
-    tag.textContent = '已结束';
-    renderAll();
-    return;
-  }
-
-  renderHeader();
-  startTimer(180);
-
-  // Simulate results after 2s
+  if (currentRound > 20) { renderAll(); return; }
+  renderHeader(); startTimer(180);
   setTimeout(() => {
     let active = players.filter(p => !p.eliminated);
-    // Pair into tables of 4
     let shuffled = [...active].sort(() => Math.random() - 0.5);
     let tables = [];
-    for (let i = 0; i < shuffled.length - 3; i += 4) {
-      tables.push(shuffled.slice(i, i + 4));
-    }
-
-    // Score results
-    const outcomes = [
-      { score: 20, mmr: 30 },   // 双上游 winner
-      { score: 12, mmr: 15 },   // 单边上游 winner side
-      { score: 0, mmr: -15 },   // 单边上游 loser side
-      { score: -8, mmr: -30 }   // 双下游
-    ];
-
+    for (let i = 0; i < shuffled.length - 3; i += 4) tables.push(shuffled.slice(i, i + 4));
     let changes = [];
     for (let table of tables) {
-      // Random outcome type
       let r = Math.random();
       if (r < 0.3) {
-        // 双上游: team1 wins big
         [table[0], table[1]].forEach(p => { p.score += 20; p.mmr += 30; changes.push({ nickname: p.nickname, scoreDelta: 20 }); });
         [table[2], table[3]].forEach(p => { p.score -= 8; p.mmr -= 30; changes.push({ nickname: p.nickname, scoreDelta: -8 }); });
       } else if (r < 0.7) {
-        // 单边上游
-        table[0].score += 12; table[0].mmr += 15; changes.push({ nickname: table[0].nickname, scoreDelta: 12 });
-        table[1].score += 12; table[1].mmr += 15; changes.push({ nickname: table[1].nickname, scoreDelta: 12 });
-        table[2].score += 0; table[2].mmr -= 15; changes.push({ nickname: table[2].nickname, scoreDelta: 0 });
-        table[3].score += 0; table[3].mmr -= 15; changes.push({ nickname: table[3].nickname, scoreDelta: 0 });
+        [table[0], table[1]].forEach(p => { p.score += 12; p.mmr += 15; changes.push({ nickname: p.nickname, scoreDelta: 12 }); });
+        [table[2], table[3]].forEach(p => { p.score += 0; p.mmr -= 15; changes.push({ nickname: p.nickname, scoreDelta: 0 }); });
       } else {
-        // 对方双上游
         [table[0], table[1]].forEach(p => { p.score -= 8; p.mmr -= 30; changes.push({ nickname: p.nickname, scoreDelta: -8 }); });
         [table[2], table[3]].forEach(p => { p.score += 20; p.mmr += 30; changes.push({ nickname: p.nickname, scoreDelta: 20 }); });
       }
     }
-
-    recalcRanks();
-    renderAll();
-    // Animate
-    for (let c of changes) {
-      if (c.scoreDelta !== 0) animateDelta(c.nickname, c.scoreDelta);
-    }
-
-    // Elimination after round 10
+    recalcRanks(); renderAll();
+    for (let c of changes) { if (c.scoreDelta !== 0) animateDelta(c.nickname, c.scoreDelta); }
     if (currentRound >= 10) {
       setTimeout(() => {
         let activeNow = players.filter(p => !p.eliminated).sort((a, b) => a.score - b.score);
         if (activeNow.length > 4) {
           let toElim = activeNow.slice(0, 4);
-          for (let p of toElim) {
-            p.eliminated = true;
-            p.eliminatedRound = currentRound;
-          }
-          recalcRanks();
-          renderAll();
-          for (let p of toElim) {
-            animateElimination(p.nickname);
-          }
+          for (let p of toElim) { p.eliminated = true; p.eliminatedRound = currentRound; }
+          recalcRanks(); renderAll();
+          for (let p of toElim) animateElimination(p.nickname);
         }
-        // Next round
         setTimeout(demoNextRound, 3000);
       }, 2000);
-    } else {
-      setTimeout(demoNextRound, 3000);
-    }
+    } else { setTimeout(demoNextRound, 3000); }
   }, 2000);
 }
 
-/* ============================================================
-   REFEREE SYSTEM
-   ============================================================ */
-
-function toggleRefRow() {
-  document.getElementById('refRow').classList.toggle('show');
-}
+/* ---- REFEREE ---- */
+function toggleRefRow() { document.getElementById('refRow').classList.toggle('show'); }
+function toggleRefPanel() { document.getElementById('refPanel').classList.toggle('open'); }
 
 async function connectAsReferee() {
   const code = document.getElementById('codeInput').value.trim().toUpperCase();
   const pin = document.getElementById('refPinInput').value.trim();
   if (!code || !pin) { showSetupErr('请输入赛事代码和裁判PIN'); return; }
-
   try {
-    const res = await fetch(`/api/tournaments/${code}/referee-auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin })
-    });
+    const res = await fetch('/api/tournaments/' + code + '/referee-auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin }) });
     const data = await res.json();
     if (data.error) { showSetupErr(data.error); return; }
-
-    isReferee = true;
-    refereePin = pin;
-
-    // Now connect normally
-    const dRes = await fetch(`/api/tournaments/${code}/dashboard`);
-    const dData = await dRes.json();
-    if (dData.error) { showSetupErr(dData.error); return; }
-
-    tournamentCode = code;
-    players = dData.players;
-    currentRound = dData.currentRound;
-    totalRounds = dData.totalRounds || 20;
-    document.getElementById('eventName').textContent = dData.name || '48人标准赛';
-    document.getElementById('setup').classList.add('hidden');
-
-    // Show referee badge
+    isReferee = true; refereePin = pin;
     document.getElementById('refBadge').classList.add('active');
-
-    renderAll();
-    updateRefSelects();
-    connectSocket();
-  } catch(e) {
-    showSetupErr('连接失败: ' + e.message);
-  }
-}
-
-function toggleRefPanel() {
-  if (!isReferee) return;
-  document.getElementById('refPanel').classList.toggle('open');
-  updateRefSelects();
-}
-
-function updateRefSelects() {
-  // Update player select
-  let ps = document.getElementById('refPlayer');
-  let active = players.filter(p => !p.eliminated).sort((a, b) => a.rank - b.rank);
-  ps.innerHTML = '<option value="">选择选手...</option>' +
-    active.map(p => `<option value="${escHtml(p.nickname)}">#${p.rank} ${escHtml(p.nickname)} (${p.score >= 0 ? '+' : ''}${p.score})</option>`).join('');
-
-  // Update table select
-  let ts = document.getElementById('refTable');
-  if (currentTables.length > 0) {
-    ts.innerHTML = '<option value="">选择桌号...</option>' +
-      currentTables.map((t, i) => `<option value="${i}">桌${t.tableNum}: ${t.team1.join('+')} vs ${t.team2.join('+')}</option>`).join('');
-  } else {
-    ts.innerHTML = '<option value="">无桌局数据（请先开始下一轮）</option>';
-  }
-
-  // Enable/disable elimination button
-  document.getElementById('elimBtn').disabled = currentRound < 10;
-}
-
-function showRefMsg(msg, isErr) {
-  let el = document.getElementById('refMsg');
-  el.textContent = msg;
-  el.style.color = isErr ? 'var(--red)' : 'var(--accent)';
-  setTimeout(() => el.textContent = '', 4000);
+    await connectTournament();
+  } catch(e) { showSetupErr('验证失败'); }
 }
 
 async function refNextRound() {
+  if (!tournamentCode || !refereePin) return;
   try {
-    const res = await fetch(`/api/tournaments/${tournamentCode}/next-round48`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin: refereePin })
-    });
-    const data = await res.json();
-    if (data.error) { showRefMsg(data.error, true); return; }
-    currentRound = data.round;
-    currentTables = data.tables || [];
-    showRefMsg(`第 ${data.round} 轮已开始，${currentTables.length} 桌`);
-    updateRefSelects();
-    renderHeader();
-    startTimer(300);
-  } catch(e) { showRefMsg(e.message, true); }
+    let res = await fetch('/api/tournaments/' + tournamentCode + '/next-round48', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: refereePin }) });
+    let d = await res.json();
+    document.getElementById('refMsg').textContent = d.error || ('第' + d.round + '轮已开始');
+  } catch(e) { document.getElementById('refMsg').textContent = '操作失败'; }
 }
 
 async function refEliminate() {
-  if (currentRound < 10) { showRefMsg('第10局后才能淘汰', true); return; }
-  if (!confirm('确认淘汰当前积分最低的4名选手？')) return;
-
+  if (!tournamentCode || !refereePin) return;
   try {
-    const res = await fetch(`/api/tournaments/${tournamentCode}/eliminate48`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin: refereePin })
-    });
-    const data = await res.json();
-    if (data.error) { showRefMsg(data.error, true); return; }
-    showRefMsg(`已淘汰: ${data.eliminated.map(e => e.nickname).join(', ')}`);
-    updateRefSelects();
-  } catch(e) { showRefMsg(e.message, true); }
+    let res = await fetch('/api/tournaments/' + tournamentCode + '/eliminate48', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: refereePin }) });
+    let d = await res.json();
+    if (d.error) { document.getElementById('refMsg').textContent = d.error; return; }
+    document.getElementById('refMsg').textContent = '已淘汰: ' + d.eliminated.map(e => e.nickname).join(', ');
+  } catch(e) { document.getElementById('refMsg').textContent = '操作失败'; }
 }
 
 async function refReportResult(outcome) {
-  let tableIdx = document.getElementById('refTable').value;
-  if (tableIdx === '') { showRefMsg('请先选择桌号', true); return; }
-  let table = currentTables[parseInt(tableIdx)];
-  if (!table) { showRefMsg('桌号无效', true); return; }
-
-  // Determine which players get which outcome based on the selected result
+  if (!tournamentCode || !refereePin) return;
+  let tableNum = document.getElementById('refTable').value;
+  if (!tableNum) { document.getElementById('refMsg').textContent = '请选择桌号'; return; }
+  // Report same outcome for all 4 players at table
+  let table = currentTables.find(t => t.tableNum == tableNum);
+  if (!table) { document.getElementById('refMsg').textContent = '桌号无效'; return; }
   let results = [];
-  if (outcome === 'doubleUp') {
-    // Team 1 双上游
-    table.team1.forEach(n => results.push({ nickname: n, outcome: 'doubleUp' }));
-    table.team2.forEach(n => results.push({ nickname: n, outcome: 'doubleDown' }));
-  } else if (outcome === 'singleUpWin') {
-    // Team 1 单边上游 (赢)
-    table.team1.forEach(n => results.push({ nickname: n, outcome: 'singleUpWin' }));
-    table.team2.forEach(n => results.push({ nickname: n, outcome: 'singleUpLose' }));
-  } else if (outcome === 'singleUpLose') {
-    // Team 2 单边上游 (赢) — team1 is the loser side
-    table.team1.forEach(n => results.push({ nickname: n, outcome: 'singleUpLose' }));
-    table.team2.forEach(n => results.push({ nickname: n, outcome: 'singleUpWin' }));
-  } else if (outcome === 'doubleDown') {
-    // Team 1 双下游
-    table.team1.forEach(n => results.push({ nickname: n, outcome: 'doubleDown' }));
-    table.team2.forEach(n => results.push({ nickname: n, outcome: 'doubleUp' }));
-  } else if (outcome === 'timeout') {
-    // Both teams timeout (edge case)
-    table.team1.concat(table.team2).forEach(n => results.push({ nickname: n, outcome: 'timeout' }));
-  }
-
+  let winners = [...(table.team1 || [])];
+  let losers = [...(table.team2 || [])];
+  if (outcome === 'doubleUp') { winners.forEach(n => results.push({ nickname: n, outcome: 'doubleUp' })); losers.forEach(n => results.push({ nickname: n, outcome: 'doubleDown' })); }
+  else if (outcome === 'singleUpWin') { winners.forEach(n => results.push({ nickname: n, outcome: 'singleUpWin' })); losers.forEach(n => results.push({ nickname: n, outcome: 'singleUpLose' })); }
+  else { let allP = [...winners, ...losers]; allP.forEach(n => results.push({ nickname: n, outcome })); }
   try {
-    const res = await fetch(`/api/tournaments/${tournamentCode}/result48`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin: refereePin, results })
-    });
-    const data = await res.json();
-    if (data.error) { showRefMsg(data.error, true); return; }
-    showRefMsg(`桌${table.tableNum} 结果已录入`);
-  } catch(e) { showRefMsg(e.message, true); }
+    let res = await fetch('/api/tournaments/' + tournamentCode + '/result48', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: refereePin, results }) });
+    let d = await res.json();
+    document.getElementById('refMsg').textContent = d.error || '已录入';
+  } catch(e) { document.getElementById('refMsg').textContent = '操作失败'; }
 }
 
 async function refAdjust(scoreDelta, mmrDelta) {
+  if (!tournamentCode || !refereePin) return;
   let nickname = document.getElementById('refPlayer').value;
-  if (!nickname) { showRefMsg('请先选择选手', true); return; }
-
+  if (!nickname) { document.getElementById('refMsg').textContent = '请选择选手'; return; }
   try {
-    const res = await fetch(`/api/tournaments/${tournamentCode}/adjust48`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin: refereePin, nickname, scoreDelta, mmrDelta })
-    });
-    const data = await res.json();
-    if (data.error) { showRefMsg(data.error, true); return; }
-    showRefMsg(`${nickname} 调整 ${scoreDelta >= 0 ? '+' : ''}${scoreDelta}分`);
-    updateRefSelects();
-  } catch(e) { showRefMsg(e.message, true); }
+    let res = await fetch('/api/tournaments/' + tournamentCode + '/adjust48', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: refereePin, nickname, scoreDelta, mmrDelta }) });
+    let d = await res.json();
+    document.getElementById('refMsg').textContent = d.error || (nickname + ': ' + d.player.score + '分');
+  } catch(e) { document.getElementById('refMsg').textContent = '操作失败'; }
 }
-
-// Listen for roundStart to update tables in referee panel
-let origRoundStartHandler = null;
-(function patchSocket() {
-  let origConnect = connectSocket;
-  connectSocket = function() {
-    origConnect();
-    if (socket && isReferee) {
-      socket.on('roundStart', (data) => {
-        currentTables = data.tables || [];
-        updateRefSelects();
-      });
-    }
-  };
-})();
 </script>
 </body>
 </html>
