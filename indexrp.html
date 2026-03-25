@@ -1392,19 +1392,49 @@ body.view-table .hc-pos-right{top:38%;left:calc(50% + 110px)}
 body.view-table .holo-table-circle{opacity:0.3}
 body.view-table .holo-hex-grid{opacity:0.05}
 
+/* === MINIMAL MODE SELECT === */
+#mode-select{background:#000!important}
+#mode-select::before{display:none!important}
+.mode-select-wrap{gap:16px!important;margin-top:0!important;padding:20px 0}
+.mode-select-title{font-size:32px!important;letter-spacing:4px!important;margin-bottom:0!important;
+  background:linear-gradient(90deg,#fff,#ccc)!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;
+  filter:none!important;animation:none!important}
+.mode-select-sub{font-size:11px!important;letter-spacing:6px!important;color:rgba(255,255,255,.3)!important;
+  text-shadow:none!important;margin-top:-4px!important}
+.holo-elo-display{display:none!important}
+.holo-member-badge{display:none!important}
+.holo-avatar-section{display:none!important}
+.holo-btns{gap:12px!important}
+.holo-btn{width:150px!important;padding:16px 12px!important;border-radius:12px!important;
+  border:1px solid rgba(255,255,255,.06)!important;background:rgba(255,255,255,.02)!important}
+.holo-btn::before,.holo-btn::after{display:none!important}
+.holo-btn:hover{transform:translateY(-3px)!important;
+  box-shadow:0 4px 20px rgba(255,255,255,.05)!important;
+  border-color:rgba(255,255,255,.15)!important}
+.holo-btn .h-icon{font-size:28px!important;margin-bottom:4px!important;filter:none!important;animation:none!important}
+.holo-btn .h-name{font-size:13px!important;letter-spacing:2px!important;text-shadow:none!important}
+.holo-btn .h-desc{font-size:9px!important;line-height:1.4!important;opacity:.5}
+.holo-btn .h-tag{font-size:8px!important;padding:2px 8px!important;margin-top:6px!important;opacity:.6}
+.holo-btn.training-btn:hover,.holo-btn.arena-btn:hover{box-shadow:0 4px 20px rgba(255,255,255,.05)!important}
+#theme-toggle{padding:4px 10px!important;border-radius:8px!important}
+#theme-toggle #theme-icon{font-size:14px!important}
+#theme-toggle #theme-label{font-size:9px!important}
+#qr-login-section{opacity:.3!important;bottom:16px!important}
+#qr-login-section .qr-dock{padding:8px 12px!important;border-radius:10px!important}
+
 /* === AI Battle Schedule === */
-.ai-schedule{width:100%;max-width:580px;margin:16px auto 12px;padding:12px 16px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)}
-.ai-schedule-title{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:rgba(0,255,255,0.6);margin-bottom:10px;text-align:center}
+.ai-schedule{width:100%;max-width:520px;margin:8px auto 4px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05)}
+.ai-schedule-title{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:8px;text-align:center}
 .ai-week{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
-.ai-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);min-width:68px;transition:all .3s;cursor:default}
-.ai-day.today{background:rgba(0,255,255,0.08);border-color:rgba(0,255,255,0.3);box-shadow:0 0 12px rgba(0,255,255,0.15)}
-.ai-day .day-label{font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.4);text-transform:uppercase}
-.ai-day.today .day-label{color:#00ffcc}
-.ai-day .ai-name{font-size:12px;font-weight:900;color:#fff;letter-spacing:1px}
-.ai-day .ai-logo{font-size:18px;line-height:1}
-.ai-day.today .ai-name{color:#00ffcc;text-shadow:0 0 10px rgba(0,255,255,0.5)}
-.ai-day .vs-tag{font-size:7px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1px}
-.ai-day.today .vs-tag{color:rgba(0,255,255,0.6)}
+.ai-day{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 6px;border-radius:8px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);min-width:58px;transition:all .3s;cursor:default}
+.ai-day.today{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15)}
+.ai-day .day-label{font-size:8px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.3);text-transform:uppercase}
+.ai-day.today .day-label{color:rgba(255,255,255,.7)}
+.ai-day .ai-name{font-size:10px;font-weight:800;color:rgba(255,255,255,.6);letter-spacing:1px}
+.ai-day .ai-logo{font-size:14px;line-height:1}
+.ai-day.today .ai-name{color:#fff}
+.ai-day .vs-tag{font-size:6px;font-weight:700;color:rgba(255,255,255,0.15);letter-spacing:1px}
+.ai-day.today .vs-tag{color:rgba(255,255,255,0.4)}
 @media(max-width:500px){.ai-day{min-width:56px;padding:5px 6px}.ai-day .ai-name{font-size:10px}.ai-day .ai-logo{font-size:14px}}
 </style>
 </head>
