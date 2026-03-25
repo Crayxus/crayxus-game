@@ -488,11 +488,12 @@ function simulateGame(wildValue) {
  * mmrs = [mmr0, mmr1, mmr2, mmr3]
  */
 function simulateGameWithMMR(mmrs, wildValue) {
+    if (!mmrs || !Array.isArray(mmrs)) mmrs = [1000, 1000, 1000, 1000];
+
     // Run actual game simulation
     let fo = simulateGame(wildValue);
 
     // MMR influence: with some probability, swap results to favor higher MMR
-    // This models skill difference - better players win more often
     let avgMmr = mmrs.reduce((a, b) => a + b, 0) / 4;
     for (let i = 0; i < fo.length - 1; i++) {
         for (let j = i + 1; j < fo.length; j++) {
