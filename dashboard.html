@@ -421,10 +421,10 @@ function renderClock(){
   document.getElementById('roundChip').textContent=`ROUND ${currentRound} / ${totalRounds}`;
 
   let tag=document.getElementById('phaseTag');
-  if(currentRound<=3){tag.className='phase-tag warmup';tag.textContent='熟悉赛'}
-  else if(currentRound<=9){tag.className='phase-tag warmup';tag.textContent='热身赛';tag.style.color='var(--teal)'}
+  if(currentRound<=3){tag.className='phase-tag warmup';tag.textContent='热身赛'}
+  else if(currentRound<=9){tag.className='phase-tag warmup';tag.textContent='预赛';tag.style.color='var(--teal)'}
   else if(alive<=4){tag.className='phase-tag finished';tag.textContent='FINAL TABLE'}
-  else{tag.className='phase-tag elimination';tag.textContent='淘汰赛'}
+  else{tag.className='phase-tag elimination';tag.textContent='决赛'}
 
   // Next elim info
   let nei=document.getElementById('nextElimInfo');

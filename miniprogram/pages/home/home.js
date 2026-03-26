@@ -4,8 +4,10 @@ Page({
   data: {
     statusBarHeight: 44,
     danli: { score: 0, rank: '' },
-    quiz: { totalQuestions: 0, correctRate: 0, streak: 0, bestStreak: 0 },
-    dims: []
+    mtt: { totalEvents: 0, bestRank: '--', itm: 0, totalScore: 0 },
+    dims: [],
+    aiSchedule: [],
+    recentEvents: []
   },
 
   onLoad() {
@@ -21,7 +23,7 @@ Page({
 
   loadData() {
     const danli = app.globalData.danli || {}
-    const quiz = wx.getStorageSync('crayxus_quiz') || {}
+    const mtt = wx.getStorageSync('crayxus_mtt') || { totalEvents: 0, bestRank: '--', itm: 0, totalScore: 0 }
 
     const dimConfig = [
       { key: 'timing', name: '出牌', icon: '🎯', color: '#ff6b6b' },
@@ -38,17 +40,48 @@ Page({
       pct: ((danli[d.key] || 0) / 10).toFixed(0)
     }))
 
-    this.setData({ danli, quiz, dims })
+    // AI weekly schedule
+    const schedule = [
+      { day: '周一', ai: '豆包', logo: '🫘', color: '#4fc3f7' },
+      { day: '周二', ai: '元宝', logo: '💰', color: '#ab47bc' },
+      { day: '周三', ai: '千问', logo: '🔮', color: '#ff7043' },
+      { day: '周四', ai: 'DeepSeek', logo: '🔍', color: '#26a69a' },
+      { day: '周五', ai: 'Crayxus', logo: '🃏', color: '#ffd700' },
+      { day: '周六', ai: 'OPEN', logo: '🎲', color: '#ef5350' },
+      { day: '周日', ai: '休息', logo: '☕', color: '#78909c' }
+    ]
+    const dow = new Date().getDay()
+    const todayIdx = dow === 0 ? 6 : dow - 1
+    const aiSchedule = schedule.map((s, i) => ({ ...s, isToday: i === todayIdx }))
+
+    this.setData({ danli, mtt, dims, aiSchedule })
+
+    // Load recent events
+    this.loadRecentEvents()
+  },
+
+  loadRecentEvents() {
+    wx.request({
+      url: app.globalData.serverUrl + '/api/tournaments',
+      success: (res) => {
+        const events = (res.data || [])
+          .filter(t => t.status === 'finished' || t.status === 'active')
+          .slice(0, 5)
+          .map(t => ({
+            code: t.code,
+            name: t.name || 'MTT',
+            eventDate: t.eventDate || (t.createdAt || '').split('T')[0],
+            rank: null,
+            score: 0
+          }))
+        this.setData({ recentEvents: events })
+      }
+    })
   },
 
   // 蛋力值测评 — 跳转原生测评页
   goDanli() {
     wx.navigateTo({ url: '/pages/quiz/quiz?mode=danli' })
-  },
-
-  // 每日做题
-  goDailyQuiz() {
-    wx.navigateTo({ url: '/pages/quiz/quiz?mode=daily' })
   },
 
   // 赛事报名

@@ -1850,32 +1850,43 @@ io.on('connection', (socket) => {
 
     socket.on('startArena48', (data) => {
         let playerNick = (data && data.nickname) || 'YOU';
+        let requestedCount = (data && data.playerCount) || 48;
+
+        // Calculate tournament structure
+        let structure = calcTournamentStructure(requestedCount);
+        let pc = structure.playerCount;
 
         // Create tournament code
         let code = 'A' + Math.random().toString(36).substr(2, 5).toUpperCase();
         while (tournaments[code]) code = 'A' + Math.random().toString(36).substr(2, 5).toUpperCase();
 
-        // Create 48 players: 1 human + 47 bots
-        let shuffledBots = BOT_NAMES_48.slice().sort(() => Math.random() - 0.5);
+        // Create players: 1 human + (pc-1) bots
+        let botPool = [...BOT_NAMES_48];
+        // Extend bot pool if needed for larger tournaments
+        while (botPool.length < pc - 1) {
+            botPool.push('Bot_' + (botPool.length + 1));
+        }
+        let shuffledBots = botPool.sort(() => Math.random() - 0.5);
         let players = [{ nickname: playerNick, score: 0, mmr: 1000, eliminated: false, isHuman: true, socketId: socket.id }];
-        for (let i = 0; i < 47; i++) {
+        for (let i = 0; i < pc - 1; i++) {
             players.push({ nickname: shuffledBots[i], score: 0, mmr: 1000, eliminated: false, isHuman: false });
         }
 
         let tourney = {
-            code, name: 'Crayxus MTT 锦标赛', players,
-            currentRound: 0, totalRounds: 21,
-            status: 'active', format: 'standard48',
+            code, name: 'Crayxus MTT ' + pc + '人锦标赛', players,
+            currentRound: 0, totalRounds: structure.totalRounds,
+            status: 'active', format: 'mtt',
             refereePin: String(Math.floor(1000 + Math.random() * 9000)),
             tables: [], playerTableIdx: -1,
             startedAt: Date.now(),
+            structure: structure,
             createdAt: new Date().toISOString()
         };
         tournaments[code] = tourney;
         saveTournament(tourney);
 
         arenaBySocket[socket.id] = { code, playerNick };
-        gameLog(`[Arena48] Created tournament ${code} for ${playerNick}, 48 players`);
+        gameLog(`[Arena48] Created ${pc}-player tournament ${code} for ${playerNick} (${structure.totalRounds} rounds: ${structure.practiceRounds}P+${structure.qualifierRounds}Q+${structure.eliminationRounds}E)`);
 
         // Start round 1
         startArena48Round(socket, tourney);
@@ -1918,23 +1929,51 @@ io.on('connection', (socket) => {
     });
 });
 
-// Phase structure: R1-3 Practice (no score), R4-9 Warmup, R10-21 Elimination
-// Breaks: after R3 (5min), after R9 (10min)
-const PHASE_BREAKS = { 3: 300, 9: 600 }; // roundNum: breakSeconds
-function getPhase(round) {
-    if (round <= 3) return { name: '熟悉赛', nameEn: 'PRACTICE', scored: false, elimination: false };
-    if (round <= 9) return { name: '热身赛', nameEn: 'WARMUP', scored: true, elimination: false };
-    return { name: '淘汰赛', nameEn: 'ELIMINATION', scored: true, elimination: true };
+/**
+ * Auto-calculate tournament structure from player count.
+ * Returns { practiceRounds, qualifierRounds, eliminationRounds, totalRounds, breaks }
+ */
+function calcTournamentStructure(playerCount) {
+    let pc = Math.max(8, Math.floor(playerCount / 4) * 4); // round down to multiple of 4, min 8
+    let practice = 3;
+    let qualifier = Math.max(3, Math.ceil(pc / 16));
+    let elimination = (pc - 4) / 4;
+    let total = practice + qualifier + elimination;
+    let breakAfterPractice = practice; // break after round N
+    let breakAfterQualifier = practice + qualifier;
+    return {
+        playerCount: pc,
+        practiceRounds: practice,
+        qualifierRounds: qualifier,
+        eliminationRounds: elimination,
+        totalRounds: total,
+        breaks: { [breakAfterPractice]: 300, [breakAfterQualifier]: 600 }, // roundNum: seconds
+        elimStartRound: practice + qualifier + 1
+    };
+}
+
+function getPhase(round, structure) {
+    if (!structure) {
+        // Legacy fallback
+        if (round <= 3) return { name: '热身赛', nameEn: 'WARMUP', scored: false, elimination: false };
+        if (round <= 9) return { name: '预赛', nameEn: 'QUALIFIER', scored: true, elimination: false };
+        return { name: '决赛', nameEn: 'FINALS', scored: true, elimination: true };
+    }
+    let { practiceRounds, qualifierRounds } = structure;
+    if (round <= practiceRounds) return { name: '热身赛', nameEn: 'WARMUP', scored: false, elimination: false };
+    if (round <= practiceRounds + qualifierRounds) return { name: '预赛', nameEn: 'QUALIFIER', scored: true, elimination: false };
+    return { name: '决赛', nameEn: 'FINALS', scored: true, elimination: true };
 }
 
 function startArena48Round(socket, tourney) {
     tourney.currentRound++;
 
-    // Check if a break is needed (after Practice R3, after Warmup R9)
+    // Check if a break is needed (dynamic based on tournament structure)
     let prevRound = tourney.currentRound - 1;
-    if (PHASE_BREAKS[prevRound] && !tourney._breakDone) {
-        let breakSec = PHASE_BREAKS[prevRound];
-        let nextPhase = getPhase(tourney.currentRound);
+    let breaks = (tourney.structure && tourney.structure.breaks) || { 3: 300, 9: 600 };
+    if (breaks[prevRound] && !tourney._breakDone) {
+        let breakSec = breaks[prevRound];
+        let nextPhase = getPhase(tourney.currentRound, tourney.structure);
         tourney.currentRound--; // Don't advance yet
         tourney._breakPending = prevRound;
 
@@ -1958,7 +1997,7 @@ function startArena48Round(socket, tourney) {
     }
     tourney._breakDone = false;
 
-    let phase = getPhase(tourney.currentRound);
+    let phase = getPhase(tourney.currentRound, tourney.structure);
     let active = tourney.players.filter(p => !p.eliminated);
     if (active.length < 4) {
         tourney.status = 'finished';
@@ -1995,11 +2034,13 @@ function startArena48Round(socket, tourney) {
         tables: tableInfo,
         rank: rank,
         totalActive: active.length,
+        totalPlayers: tourney.players.length,
         score: humanPlayer.score || 0,
         phase: phase.name,
         phaseEn: phase.nameEn,
         scored: phase.scored,
-        elapsedSeconds: elapsed
+        elapsedSeconds: elapsed,
+        structure: tourney.structure
     });
 
     io.to('dashboard:' + tourney.code).emit('roundStart', {
@@ -2028,7 +2069,7 @@ function processArena48RoundEnd(socket, tourney, playerFinishOrder) {
  */
 function processArena48RoundEndReal(socket, tourney, playerFinishOrder) {
     let tables = tourney.tables;
-    let phase = getPhase(tourney.currentRound);
+    let phase = getPhase(tourney.currentRound, tourney.structure);
     let allResults = [];
 
     for (let i = 0; i < tables.length; i++) {
@@ -2146,7 +2187,7 @@ function autoRunBotRound(socket, tourney) {
     if (tourney.status !== 'active') return;
 
     tourney.currentRound++;
-    let phase = getPhase(tourney.currentRound);
+    let phase = getPhase(tourney.currentRound, tourney.structure);
     let active = tourney.players.filter(p => !p.eliminated);
 
     if (active.length < 4 || tourney.currentRound > tourney.totalRounds) {

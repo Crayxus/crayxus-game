@@ -29,22 +29,22 @@
     </view>
   </view>
 
-  <!-- 功能入口 (3个: 蛋力测评 / 每日做题 / 赛事报名) -->
+  <!-- 功能入口 (3个: 蛋力测评 / 赛事记录 / 赛事报名) -->
   <view class="entry-grid three-col">
     <view class="entry-card entry-danli" bindtap="goDanli">
       <text class="entry-icon">🎯</text>
       <text class="entry-name">蛋力测评</text>
       <text class="entry-desc">18题测出实力</text>
     </view>
-    <view class="entry-card entry-daily" bindtap="goDailyQuiz">
-      <text class="entry-icon">📝</text>
-      <text class="entry-name">每日做题</text>
-      <text class="entry-desc">每天进步一点</text>
+    <view class="entry-card entry-daily" bindtap="goTournament">
+      <text class="entry-icon">📊</text>
+      <text class="entry-name">赛事记录</text>
+      <text class="entry-desc">MTT 战绩追踪</text>
     </view>
     <view class="entry-card entry-tournament" bindtap="goTournament">
       <text class="entry-icon">🏆</text>
       <text class="entry-name">赛事报名</text>
-      <text class="entry-desc">团建 · 公益赛</text>
+      <text class="entry-desc">MTT · AI大乱斗</text>
     </view>
   </view>
 
@@ -63,25 +63,54 @@
     </view>
   </view>
 
-  <!-- 做题统计 -->
+  <!-- MTT 赛事战绩 -->
   <view class="section">
-    <view class="section-title">做题记录</view>
+    <view class="section-title">MTT 赛事战绩</view>
     <view class="stat-grid">
       <view class="stat-item">
-        <text class="stat-val">{{quiz.totalQuestions || 0}}</text>
-        <text class="stat-label">总做题数</text>
+        <text class="stat-val">{{mtt.totalEvents || 0}}</text>
+        <text class="stat-label">参赛场次</text>
       </view>
       <view class="stat-item">
-        <text class="stat-val">{{quiz.correctRate || '--'}}%</text>
-        <text class="stat-label">正确率</text>
+        <text class="stat-val">{{mtt.bestRank || '--'}}</text>
+        <text class="stat-label">最佳名次</text>
       </view>
       <view class="stat-item">
-        <text class="stat-val">{{quiz.streak || 0}}</text>
-        <text class="stat-label">连续天数</text>
+        <text class="stat-val">{{mtt.itm || 0}}</text>
+        <text class="stat-label">ITM次数</text>
       </view>
       <view class="stat-item">
-        <text class="stat-val">{{quiz.bestStreak || 0}}</text>
-        <text class="stat-label">最佳连续</text>
+        <text class="stat-val">{{mtt.totalScore || 0}}</text>
+        <text class="stat-label">累计积分</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 每周 AI 对战日程 -->
+  <view class="section">
+    <view class="section-title">本周 AI 对手</view>
+    <view class="ai-week-row">
+      <view class="ai-day-mini {{item.isToday ? 'today' : ''}}" wx:for="{{aiSchedule}}" wx:key="day">
+        <text class="ai-day-label">{{item.day}}</text>
+        <text class="ai-day-logo">{{item.logo}}</text>
+        <text class="ai-day-name" style="color:{{item.isToday ? '#00d4aa' : item.color}}">{{item.ai}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近赛事 -->
+  <view class="section" wx:if="{{recentEvents.length > 0}}">
+    <view class="section-title">最近赛事</view>
+    <view class="recent-list">
+      <view class="recent-item" wx:for="{{recentEvents}}" wx:key="code" bindtap="goTournament">
+        <view class="recent-left">
+          <text class="recent-name">{{item.name}}</text>
+          <text class="recent-date">{{item.eventDate}}</text>
+        </view>
+        <view class="recent-right">
+          <text class="recent-rank">#{{item.rank || '--'}}</text>
+          <text class="recent-score">{{item.score > 0 ? '+' : ''}}{{item.score || 0}}</text>
+        </view>
       </view>
     </view>
   </view>

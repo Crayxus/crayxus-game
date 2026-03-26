@@ -1670,8 +1670,18 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <div id="match-room-code" style="display:none;font-size:13px;color:#555;margin-top:4px;letter-spacing:2px;cursor:pointer"
     onclick="if(this.dataset.code){navigator.clipboard&&navigator.clipboard.writeText(this.dataset.code);this.innerText='✓ 已复制: '+this.dataset.code;}"
     title="点击复制房间码"></div>
-  <div style="color:#888;margin-top:10px;font-size:12px" id="match-timer">空位将由AI填充</div>
-  <button id="btn-start-match" onclick="startMatch()" style="display:none;margin-top:14px;padding:9px 30px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:1px">开始游戏</button>
+  <!-- Player count selector -->
+  <div id="player-count-select" style="display:none;margin-top:12px;display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap">
+    <span style="font-size:11px;color:#666;margin-right:4px">参赛人数:</span>
+    <div class="pc-opt" data-pc="16" onclick="selectPlayerCount(16)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">16人</div>
+    <div class="pc-opt" data-pc="24" onclick="selectPlayerCount(24)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">24人</div>
+    <div class="pc-opt" data-pc="32" onclick="selectPlayerCount(32)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">32人</div>
+    <div class="pc-opt selected" data-pc="48" onclick="selectPlayerCount(48)" style="padding:5px 12px;border-radius:8px;border:1px solid var(--neon);background:rgba(0,255,200,.08);color:var(--neon);font-size:12px;font-weight:700;cursor:pointer">48人</div>
+    <div class="pc-opt" data-pc="64" onclick="selectPlayerCount(64)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">64人</div>
+  </div>
+  <div id="pc-info" style="font-size:10px;color:#555;margin-top:6px;text-align:center">12桌 · 17轮 (热身3+预赛3+决赛11) · 约90分钟</div>
+  <div style="color:#888;margin-top:8px;font-size:12px" id="match-timer">空位将由AI填充</div>
+  <button id="btn-start-match" onclick="startMatch()" style="display:none;margin-top:10px;padding:9px 30px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:1px">开始游戏</button>
   <div id="match-wait-msg" style="display:none;margin-top:20px;color:#888;font-size:14px">等待房主开始游戏...</div>
 </div>
 
@@ -2784,13 +2794,36 @@ socket.on('hostStatus',d=>{
   if(d.isHost){isHost=true;document.getElementById('btn-start-match').style.display='block';document.getElementById('match-wait-msg').style.display='none'}
   else{isHost=false;document.getElementById('btn-start-match').style.display='none';document.getElementById('match-wait-msg').style.display='block'}
 });
+var selectedPlayerCount=48;
+function selectPlayerCount(n){
+  selectedPlayerCount=n;
+  document.querySelectorAll('.pc-opt').forEach(el=>{
+    if(parseInt(el.dataset.pc)===n){
+      el.style.borderColor='var(--neon)';el.style.background='rgba(0,255,200,.08)';el.style.color='var(--neon)';
+    }else{
+      el.style.borderColor='#333';el.style.background='rgba(255,255,255,.03)';el.style.color='#888';
+    }
+  });
+  // Update info
+  var tables=Math.floor(n/4);
+  var practice=3,qualifier=Math.max(3,Math.ceil(n/16)),elim=Math.floor((n-4)/4);
+  var total=practice+qualifier+elim;
+  var mins=Math.round(total*5);
+  var info=document.getElementById('pc-info');
+  if(info)info.textContent=tables+'桌 · '+total+'轮 (热身'+practice+'+预赛'+qualifier+'+决赛'+elim+') · 约'+mins+'分钟';
+}
+
 function startMatch(){
   let btn=document.getElementById('btn-start-match');
   btn.disabled=true;btn.style.opacity=0.5;btn.innerText='正在匹配...';
+  let pc=selectedPlayerCount||48;
+
+  // Hide player count selector
+  let pcs=document.getElementById('player-count-select');if(pcs)pcs.style.display='none';
 
   // Rapid-fill empty seats with BOT animation
   let emptySlots=[];
-  for(let i=0;i<48;i++){
+  for(let i=0;i<pc;i++){
     let sl=document.getElementById('slot-'+i);
     if(sl && !sl.classList.contains('taken')) emptySlots.push(sl);
   }
@@ -2803,13 +2836,13 @@ function startMatch(){
   let fillInterval=setInterval(()=>{
     if(idx>=emptySlots.length){
       clearInterval(fillInterval);
-      document.getElementById('match-status').innerText='Players: 48/48';
+      document.getElementById('match-status').innerText='Players: '+pc+'/'+pc;
       document.getElementById('match-status').style.color='#0f0';
       document.getElementById('match-timer').innerText='全员就绪 · 即将开始...';
-      // Start arena48 tournament instead of single match
+      // Start arena tournament with selected player count
       setTimeout(()=>{
         let nick=localStorage.getItem('crayxus_nick')||'YOU';
-        socket.emit('startArena48',{nickname:nick});
+        socket.emit('startArena48',{nickname:nick,playerCount:pc});
       },800);
       return;
     }
@@ -2821,8 +2854,8 @@ function startMatch(){
       sl.style.animation='seatPop 0.3s ease';
     }
     idx+=batch;
-    let filled=48-emptySlots.length+idx;
-    document.getElementById('match-status').innerText='Players: '+filled+'/48';
+    let filled=pc-emptySlots.length+idx;
+    document.getElementById('match-status').innerText='Players: '+filled+'/'+pc;
   },60);
 }
 socket.on('seatLayout',d=>{isHost=d.isHost;botSeats=d.botSeats||[]});
