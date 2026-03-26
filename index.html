@@ -1649,6 +1649,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <div class="hc-title" id="hc-title">翻牌定先手</div>
     </div>
     <button id="afk-btn" onclick="toggleAFK()">🤖 代打</button>
+    <button onclick="exportTrainingData()" style="position:absolute;top:10px;right:120px;z-index:501;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#f87171;font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;backdrop-filter:blur(6px)">📊 导出训练数据</button>
     <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;top:10px;right:10px;z-index:501;background:rgba(20,20,30,0.6);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙</button>
     <div id="afk-badge">代打</div>
     <div class="mobile-score" id="mobile-score">
@@ -2735,6 +2736,7 @@ function _doEnterGame(d){
   tPlayedCards={};for(let s=0;s<4;s++)tPlayedCards[s]=new Float32Array(54);
   tBombCounts=[0,0,0,0];tPassCount=0;
   tMoveHistory=[];
+  if(typeof _onNewGame==='function') _onNewGame();
   if(!onnxSession) loadOnnxModel();
   if(d.botSeats)botSeats=d.botSeats;
   document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
@@ -3194,6 +3196,8 @@ function sendPlay(){
   if(!type)return toast("无效牌型 ("+sel.length+"张)");
   if(lastHand&&!canBeat(sel,type,lastHand))return toast("压不过");
   let cs=sel.map(c=>({s:c.s,v:c.v,p:c.p,seq:c.seq,id:c.id}));
+  // Record human decision for training data
+  _recordHumanDecision('play', sel);
   socket.emit('action',{seat:mySeat,type:'play',cards:cs,handType:type});
   window._pendingPlay={ids:sel.map(c=>c.id)};
 }
@@ -3201,6 +3205,8 @@ function sendPlay(){
 function sendPass(){
   if(!isMyTurn){return toast("还没轮到你");}
   hintOptions=[];hintIndex=0;
+  // Record human decision for training data
+  _recordHumanDecision('pass', []);
   socket.emit('action',{seat:mySeat,type:'pass'});
 }
 
@@ -5850,6 +5856,109 @@ function encodeHistoryTensor(observerSeat){
   }
   return buf;
 }
+// ===== HUMAN vs AI TRAINING DATA COLLECTION =====
+// Records state tensors for behavior cloning training
+let _trainingData = [];  // array of {stateVec, historyArr, humanAction, aiAction, allMoves, qValues}
+let _trainingGameId = 0;
+
+async function _recordHumanDecision(actionType, selectedCards) {
+  if (!onnxSession || !v5Mode) return;  // need model for AI comparison
+  try {
+    const seat = mySeat;
+    const hand = myCards;
+    if (!hand || !tPlayedCards[seat]) return;
+
+    // Encode current state (same as model uses)
+    const lo=(seat+1)%4, pa=(seat+2)%4, ro=(seat+3)%4;
+    const sv = encodeStateV5(hand, tPlayedCards[seat], tPlayedCards[lo],
+      tPlayedCards[pa], tPlayedCards[ro], lastHand, [...counts], seat,
+      finishOrder, [...tBombCounts], lastHand?.owner??-1, tMoveHistory);
+    const histArr = encodeHistoryTensor(seat);
+
+    // Encode human's chosen action as 54-dim vector
+    const humanVec = cardsToVec54(selectedCards);
+
+    // Get AI's choice + all Q-values
+    let aiChoice = null, allQValues = null, allMoveVecs = null;
+    const aiPick = await modelPickMove(seat, hand);
+
+    // Get all legal moves and their Q-values for training
+    const g = analyzeHand(hand);
+    let moves = [];
+    if (!lastHand) {
+      g.singles.forEach(s=>moves.push(s)); g.pairs.forEach(p=>moves.push(p));
+      g.triples.forEach(t=>moves.push(t)); g.fullhouses.forEach(f=>moves.push(f));
+      g.straights.forEach(s=>moves.push(s)); g.straight_flushes.forEach(s=>moves.push(s));
+      g.plates.forEach(p=>moves.push(p)); g.tubes.forEach(t=>moves.push(t));
+      if(hand.length<=15) g.bombs.forEach(b=>moves.push(b));
+    } else {
+      const isTeam = lastHand.owner===(seat+2)%4;
+      if (!isTeam) {
+        if(lastHand.type==='1')g.singles.filter(s=>s[0].p>lastHand.val).forEach(s=>moves.push(s));
+        if(lastHand.type==='2')g.pairs.filter(p=>p[0].p>lastHand.val).forEach(p=>moves.push(p));
+        g.bombs.forEach(b=>{let bt={type:'bomb',val:b[0].p,count:b.length,score:b.length*100};if(canBeat(b,bt,lastHand))moves.push(b)});
+      }
+      moves.push([]); // pass
+    }
+
+    const mvVecs = moves.map(m => cardsToVec54(m));
+    const res = await runModelBatch(sv, mvVecs, seat);
+    if (res) {
+      allQValues = res.map(r => r.ms);
+      allMoveVecs = mvVecs.map(v => Array.from(v));
+    }
+
+    const aiVec = aiPick ? cardsToVec54(aiPick) : cardsToVec54([]);
+    const humanMatchesAI = actionType === 'pass' ?
+      (aiPick === null || (aiPick && aiPick.length === 0)) :
+      (JSON.stringify(Array.from(humanVec)) === JSON.stringify(Array.from(aiVec)));
+
+    const entry = {
+      gameId: _trainingGameId,
+      ts: Date.now(),
+      seat: seat,
+      cardsLeft: hand.length,
+      stateVec: Array.from(sv),           // 714-dim float array
+      historyArr: Array.from(histArr),     // 15*62=930 float array
+      humanAction: Array.from(humanVec),   // 54-dim (human's choice)
+      aiAction: Array.from(aiVec),         // 54-dim (AI's choice)
+      humanType: actionType,
+      matchesAI: humanMatchesAI,
+      qValues: allQValues,                 // Q-values for all legal moves
+      legalMoves: allMoveVecs,             // all legal move vectors
+      counts: [...counts],
+      finishOrder: finishOrder.slice(),
+    };
+
+    _trainingData.push(entry);
+    const agree = _trainingData.filter(d=>d.matchesAI).length;
+    const total = _trainingData.length;
+    console.log(`[Train] Decision #${total}: human ${actionType} ${humanMatchesAI?'= AI':'≠ AI'} | Agreement: ${agree}/${total} (${Math.round(agree/total*100)}%)`);
+
+  } catch(e) { console.warn('Training data record failed:', e); }
+}
+
+function exportTrainingData() {
+  if (!_trainingData.length) { alert('No training data yet. Play some games first!'); return; }
+  const agree = _trainingData.filter(d=>d.matchesAI).length;
+  const blob = new Blob([JSON.stringify({
+    version: 'v7_behavior_cloning_v1',
+    totalDecisions: _trainingData.length,
+    agreementRate: agree / _trainingData.length,
+    data: _trainingData
+  })], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `training_data_${_trainingData.length}decisions_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  alert(`Exported ${_trainingData.length} decisions (${Math.round(agree/_trainingData.length*100)}% agreement with AI)`);
+}
+
+// Track new games
+function _onNewGame() { _trainingGameId++; }
+
 async function loadOnnxModel(){
   // Try DMC model first with progress tracking, fall back to legacy
   function setProgress(pct, text){
