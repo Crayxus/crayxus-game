@@ -148,6 +148,8 @@ Page({
           type = 'open'
           shortName = ev.name ? ev.name.substring(0, 4) : '赛事'
         }
+      } else if (!isOtherMonth && dayOfWeek === 1) {
+        type = 'dayoff'
       } else if (!isOtherMonth && isWeekend) {
         type = 'bounty_solo'
       } else if (!isOtherMonth && !isWeekend) {
@@ -188,10 +190,14 @@ Page({
       return ed === date
     })
 
+    // Day off - Monday
+    if (type === 'dayoff') return
+
     // Auto-filled date (no API event)
     if (dayEvents.length === 0) {
       const d = new Date(date + 'T12:00:00')
       const dow = d.getDay()
+      if (dow === 1) return // Monday is day off
       const isWeekend = dow === 0 || dow === 6
 
       if (isWeekend) {

@@ -78,18 +78,22 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px}
 .val-hl{color:var(--gold);font-weight:bold}
 /* old p-score-row removed — replaced by .dash-p-row */
-#view{flex:1;position:relative;background:radial-gradient(circle,#153c20 0%,#020f04 100%);overflow:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
+#view{flex:1;position:relative;background:radial-gradient(ellipse 130% 110% at 50% 45%,#2a5c3a 0%,#1a3d24 25%,#0f2816 50%,#0a1c10 75%,#061208 100%);overflow:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
+/* Hearthstone-style felt texture overlay */
+#view::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:0}
+#view::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(255,200,60,0.04),transparent 70%);pointer-events:none;z-index:0}
 .deck-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100px;height:140px;background:linear-gradient(135deg,#1a2980,#26d0ce);border-radius:8px;border:2px solid #fff;box-shadow:0 0 30px rgba(0,255,200,0.5);display:none;z-index:999}
 .p-zone{position:absolute;display:flex;flex-direction:column;align-items:center}
 .p-top{top:20px;left:50%;transform:translateX(-50%)}
 .p-left{top:40%;left:20px;transform:translateY(-50%)}
 .p-right{top:40%;right:calc(20px + env(safe-area-inset-right,0px));transform:translateY(-50%)}
 .timer-ring{width:84px;height:84px;border-radius:50%;display:flex;justify-content:center;align-items:center}
-.av{width:76px;height:76px;border-radius:50%;background:#111;border:3px solid #444;display:flex;justify-content:center;align-items:center;font-size:12px;font-weight:bold;color:#aaa}
-.av.active{border-color:#fff;color:#fff;box-shadow:0 0 20px var(--neon)}
-.av.finished{border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 15px var(--gold)!important}
-.av.human-player{background:#1a1a2e}
+.av{width:76px;height:76px;border-radius:50%;background:linear-gradient(145deg,#1e1a14,#0e0c08);border:3px solid #6b5a3a;display:flex;justify-content:center;align-items:center;font-size:12px;font-weight:bold;color:#c0a878;box-shadow:0 4px 12px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,220,120,0.06)}
+.av.active{border-color:#c8a84e;color:#f0d888;box-shadow:0 0 16px rgba(200,168,78,0.4),0 4px 12px rgba(0,0,0,0.6)}
+.av.finished{border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 15px var(--gold),0 4px 12px rgba(0,0,0,0.6)!important}
+.av.human-player{background:linear-gradient(145deg,#201a10,#140e06)}
 .badge-n{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:none;justify-content:center;align-items:center;border:2px solid #fff;font-size:12px;font-weight:bold;z-index:10}
+.badge-n.big-count{width:32px;height:32px;font-size:16px;font-weight:900;top:-8px;right:-8px;border-width:2px;box-shadow:0 2px 6px rgba(0,0,0,0.4)}
 .badge-finish{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:1px 8px;border-radius:8px;font-size:10px;font-weight:bold;display:none;z-index:10;white-space:nowrap}
 .badge-type{position:absolute;top:-8px;left:50%;transform:translateX(-50%);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:bold;display:none;z-index:10;white-space:nowrap}
 .badge-type.bot-badge{background:#555;color:#ccc}
@@ -207,19 +211,21 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 50%{transform:translateX(-50%) scale(1.05)}100%{transform:translateX(-50%) scale(1);opacity:1}}
 #evo-bar.anim{bottom:75px;right:16px;z-index:501;background:var(--cyan);color:#000;font-size:10px;font-weight:900;padding:3px 10px;border-radius:10px;display:none;pointer-events:none;font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:1px}
 .p-me{position:absolute;bottom:320px;left:20px;z-index:290;transition:bottom 0.2s ease}
-.btn{padding:12px 40px;border-radius:40px;border:none;font-weight:bold;font-size:16px;cursor:pointer;letter-spacing:1px}
-.b-pass{background:rgba(0,0,0,0.6);color:#fff;border:1px solid #666}
-.b-hint{background:var(--neon);color:#000}
-.b-play{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000}
+.btn{padding:12px 40px;border-radius:8px;border:none;font-weight:bold;font-size:16px;cursor:pointer;letter-spacing:1px;transition:transform 0.1s,box-shadow 0.1s}
+.btn:active{transform:scale(0.96)}
+.b-pass{background:linear-gradient(180deg,#3a3528,#2a2518,#1e1a12);color:#c0b090;border:1px solid rgba(180,150,80,0.2);box-shadow:0 2px 8px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,220,120,0.08)}
+.b-pass:hover{border-color:rgba(180,150,80,0.4);color:#e0d0a0}
+.b-hint{background:linear-gradient(180deg,#4a8060,#2a5838,#1e4028);color:#d0f0d8;border:1px solid rgba(100,180,120,0.3);box-shadow:0 2px 12px rgba(40,120,60,0.3),inset 0 1px 0 rgba(255,255,255,0.08)}
+.b-play{background:linear-gradient(180deg,#d4a530,#b8891a,#9a7010);color:#1a1400;border:1px solid rgba(255,220,120,0.3);box-shadow:0 2px 12px rgba(200,160,30,0.4),inset 0 1px 0 rgba(255,240,180,0.3);text-shadow:0 1px 0 rgba(255,255,255,0.2)}
 .timer-txt{position:absolute;top:-40px;width:100%;text-align:center;color:var(--gold);font-size:16px;font-weight:bold;display:none}
-.toast{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);padding:10px 30px;border-radius:30px;border:1px solid #fff;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(180deg,rgba(30,26,18,0.96),rgba(14,10,4,0.98));padding:10px 30px;border-radius:8px;border:1px solid rgba(180,150,80,0.3);z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;color:#e0d0a0;box-shadow:0 4px 16px rgba(0,0,0,0.6)}
 .mobile-score{display:none;position:absolute;top:0;left:0;right:0;height:28px;background:rgba(0,0,0,0.7);z-index:450;padding:0 10px;align-items:center;justify-content:space-between;font-size:11px;color:#aaa;border-bottom:1px solid #333}
 .mobile-score .ms-val{color:var(--gold);font-weight:bold}
 .modal{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:1000;display:none;flex-direction:column;justify-content:center;align-items:center}
-.res-box{width:500px;padding:40px;border-radius:20px;background:#1a1a20;border:2px solid var(--gold);text-align:center}
+.res-box{width:500px;padding:40px;border-radius:12px;background:linear-gradient(180deg,#241e14,#1a1408,#120e06);border:2px solid rgba(200,168,78,0.4);text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,220,120,0.08)}
 .res-type{font-size:50px;font-weight:900;margin-bottom:10px}
 .res-score{font-size:80px;font-weight:bold;color:var(--gold);margin-bottom:30px}
-.res-btn{background:var(--neon);color:#000;padding:15px 50px;font-size:20px;font-weight:bold;border:none;border-radius:40px;cursor:pointer}
+.res-btn{background:linear-gradient(180deg,#d4a530,#b8891a,#9a7010);color:#1a1400;padding:15px 50px;font-size:20px;font-weight:bold;border:1px solid rgba(255,220,120,0.3);border-radius:8px;cursor:pointer;box-shadow:0 2px 12px rgba(200,160,30,0.3);text-shadow:0 1px 0 rgba(255,255,255,0.2)}
 
 /* Responsive Styles */
 @media(max-width:1366px){.dashboard{width:200px;padding:10px}.rank-val{font-size:28px}.card{width:72px;height:100px}.val-txt{font-size:16px;padding:3px}.center-icon{font-size:30px}.c-mini{width:50px!important;height:70px!important;margin-right:-25px}.c-mini .val-txt{font-size:11px}.c-mini .center-icon{font-size:18px}.o-m{bottom:260px}.ctrls{bottom:250px}.p-me{bottom:auto}}
@@ -795,8 +801,8 @@ to{transform:rotate(360deg)}}
 /* === Arena HUD (floating pill: rank + score) === */
 #arena-hud{
   position:absolute;
-  bottom:240px;
-  left:10px;
+  bottom:260px;
+  left:16px;
   z-index:400;
   pointer-events:none;
 }
@@ -817,17 +823,18 @@ to{transform:rotate(360deg)}}
 .arena-av-ring .casual-avatar-glow{inset:-8px}
 .arena-hud-info{display:flex;flex-direction:column;align-items:center;gap:2px}
 .arena-big-rank{display:flex;align-items:baseline;line-height:1}
-.arena-big-rank-num{font-size:28px;font-weight:900;color:var(--gold);font-family:'Orbitron','Segoe UI',sans-serif}
+.arena-big-rank-num{font-size:28px;font-weight:900;color:#d4a530;font-family:'Segoe UI',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
 .arena-big-rank-total{font-size:14px;font-weight:700;color:rgba(255,255,255,0.3);margin-left:2px}
-.arena-score-line{font-size:24px;font-weight:900;color:var(--neon);font-family:'Orbitron','Segoe UI',sans-serif}
-.arena-score-line.negative{color:var(--red)}
+.arena-score-line{font-size:24px;font-weight:900;color:#78c888;font-family:'Segoe UI',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
+.arena-score-line.negative{color:#d05050}
 .arena-score-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase}
 
-/* === Holographic Dark Card Style (casual mode) === */
+/* === Hearthstone Card Style (casual mode) === */
 .casual-mode .grp-col .stack-card .card{
-  background:#0a0a14 !important;
-  border:1.5px solid rgba(255,255,255,0.12) !important;
-  box-shadow:0 2px 10px rgba(0,0,0,0.6);
+  background:linear-gradient(170deg,#1c1a14 0%,#141210 50%,#0e0c08 100%) !important;
+  border:1.5px solid rgba(180,150,80,0.25) !important;
+  box-shadow:0 3px 12px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,220,120,0.06);
+  border-radius:6px;
 }
 .casual-mode .grp-col .stack-card .card .peek-val,
 .casual-mode .grp-col .stack-card .card .peek-suit{
@@ -841,35 +848,35 @@ to{transform:rotate(360deg)}}
   color:rgba(255,255,255,0.85);
 }
 .casual-mode .grp-col .stack-card:hover .card{
-  border-color:rgba(0,255,255,0.4) !important;
-  box-shadow:0 0 15px rgba(0,255,255,0.2),0 4px 15px rgba(0,0,0,0.5) !important;
+  border-color:rgba(220,180,80,0.5) !important;
+  box-shadow:0 0 12px rgba(220,180,60,0.2),0 4px 15px rgba(0,0,0,0.5) !important;
   filter:none;
 }
 .casual-mode .grp-col .stack-card.sel .card{
-  background:#0a0a14 !important;
-  border-color:var(--gold) !important;
-  box-shadow:0 0 20px rgba(255,215,0,0.4),0 0 40px rgba(255,215,0,0.1) !important;
+  background:linear-gradient(170deg,#1c1a14,#0e0c08) !important;
+  border-color:#c8a84e !important;
+  box-shadow:0 0 16px rgba(200,168,78,0.5),0 0 32px rgba(200,168,78,0.15) !important;
 }
 .casual-mode .grp-col .stack-card .card.c-wild{
-  border:2px solid var(--gold) !important;
-  background:rgba(20,18,5,0.95) !important;
-  box-shadow:0 0 12px rgba(255,215,0,0.3) !important;
+  border:2px solid #c8a84e !important;
+  background:linear-gradient(170deg,#201a0a,#140f05) !important;
+  box-shadow:0 0 12px rgba(200,168,78,0.35) !important;
 }
-/* Out zone cards also dark */
+/* Out zone cards */
 .casual-mode .out .card{
-  background:#0a0a14 !important;
-  border-color:rgba(0,255,255,0.25) !important;
-  box-shadow:0 0 10px rgba(0,255,255,0.15) !important;
+  background:linear-gradient(170deg,#1c1a14,#0e0c08) !important;
+  border-color:rgba(180,150,80,0.3) !important;
+  box-shadow:0 0 8px rgba(180,150,60,0.15) !important;
 }
-.casual-mode .out .card.c-red{color:#ff3b3b}
-.casual-mode .out .card.c-blk{color:rgba(255,255,255,0.85)}
+.casual-mode .out .card.c-red{color:#e84040}
+.casual-mode .out .card.c-blk{color:rgba(240,230,210,0.9)}
 /* Action buttons holo style in casual */
 .casual-mode .b-pass{
-  background:transparent;border:1.5px solid rgba(255,255,255,0.2);
-  color:rgba(255,255,255,0.5);border-radius:30px;
-  font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:2px;
+  background:linear-gradient(180deg,#3a3528,#2a2518);border:1.5px solid rgba(180,150,80,0.2);
+  color:#b0a080;border-radius:8px;
+  letter-spacing:2px;
 }
-.casual-mode .b-pass:hover{border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.7)}
+.casual-mode .b-pass:hover{border-color:rgba(180,150,80,0.4);color:#d0c0a0}
 .casual-mode .b-hint{
   background:transparent;border:1.5px solid var(--neon);color:var(--neon);
   border-radius:30px;font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:2px;
@@ -1470,84 +1477,38 @@ body.view-table .holo-hex-grid{opacity:0.05}
   
   
 
-  <!-- ELO display -->
-  <div class="holo-elo-display">
-    <div class="holo-elo-label">ELO RATING</div>
-    <div class="holo-elo-value" id="holo-elo">1500</div>
-  </div>
-
-  <!-- VIP badge -->
-  <div class="holo-member-badge">
-    <span style="font-style:normal">&#9733;</span>
-    <span class="holo-member-text">LIFETIME VIP</span>
-  </div>
-
   <div class="mode-select-wrap">
-    <div class="mode-select-title">GUANDAN</div>
-    <div class="mode-select-sub">A I &nbsp; M T T &nbsp; · &nbsp; 人 机 大 乱 斗</div>
+    <!-- Title -->
+    <div style="text-align:center;margin-bottom:20px">
+      <div class="mode-select-title" style="font-size:48px;letter-spacing:8px;margin-bottom:8px">CRAYXUS</div>
+      <div style="font-size:14px;color:#c8a84e;letter-spacing:4px;font-weight:600">A I &nbsp; G U A N D A N</div>
+    </div>
 
-    <!-- Avatar section like holo_main -->
-    <div class="holo-avatar-section">
-      <div class="holo-avatar-ring">
-        <div class="holo-avatar-glow"></div>
-        <svg viewBox="0 0 152 152" fill="none">
-          <circle cx="76" cy="76" r="74" stroke="url(#msGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/>
-          <defs><linearGradient id="msGrad" x1="0" y1="0" x2="152" y2="152">
-            <stop offset="0%" stop-color="#00ffff"/>
-            <stop offset="50%" stop-color="#ffd700"/>
-            <stop offset="100%" stop-color="#ff00ff"/>
-          </linearGradient></defs>
-        </svg>
-        <div class="holo-avatar-img" style="font-size:48px;line-height:120px">P1</div>
-      </div>
-      <div class="holo-player-info">
-        <div class="holo-player-name" id="holo-player-name">PLAYER_ONE</div>
-        <div class="holo-player-rank">
-          <span class="holo-rank-badge">BRONZE V</span>
-          <div class="holo-rank-stars"></div>
+    <!-- Player: QR login or Avatar+Logout -->
+    <div id="home-player" style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:24px">
+      <!-- Not logged in: show QR -->
+      <div id="home-qr-section" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="width:80px;height:80px;border-radius:12px;overflow:hidden;border:2px solid rgba(180,150,80,0.2);box-shadow:0 3px 10px rgba(0,0,0,0.5)">
+          <canvas id="home-qr-canvas" width="80" height="80" style="background:#fff;image-rendering:pixelated;width:100%;height:100%"></canvas>
         </div>
-        <div class="holo-player-stats">
-          <div class="holo-stat"><span class="holo-stat-val" id="holo-wr">0%</span><span class="holo-stat-label">WIN RATE</span></div>
-          <div class="holo-stat"><span class="holo-stat-val holo-gold" id="holo-games">0</span><span class="holo-stat-label">GAMES</span></div>
-          <div class="holo-stat"><span class="holo-stat-val" id="holo-weekly">#--</span><span class="holo-stat-label">WEEKLY</span></div>
+        <div style="font-size:10px;color:rgba(200,180,140,0.4);letter-spacing:1px">微信扫码登录</div>
+      </div>
+      <!-- Logged in: show avatar -->
+      <div id="home-profile-section" style="display:none;align-items:center;gap:16px">
+        <div style="position:relative">
+          <div id="home-avatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(145deg,#1e1a14,#0e0c08);border:2px solid #6b5a3a;display:flex;align-items:center;justify-content:center;font-size:24px;color:#c8a84e;box-shadow:0 3px 10px rgba(0,0,0,0.5);overflow:hidden">P1</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div id="home-nickname" style="font-size:16px;font-weight:800;color:#e0d0a0;letter-spacing:1px">PLAYER</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span id="home-elo" style="font-size:11px;color:#c8a84e;font-weight:700">ELO 1500</span>
+            <span onclick="logoutPlayer()" style="font-size:10px;color:rgba(200,180,140,0.3);cursor:pointer;border:1px solid rgba(200,180,140,0.15);padding:2px 8px;border-radius:4px">登出</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- AI Battle Schedule -->
-    <div class="ai-schedule" id="aiSchedule">
-      <div class="ai-schedule-title">MTT WEEKLY AI BATTLE</div>
-      <div class="ai-week" id="aiWeek"></div>
-    </div>
-    <script>
-    (function(){
-      var schedule=[
-        {day:'MON',label:'周一',ai:'豆包',logo:'🫘',color:'#4fc3f7'},
-        {day:'TUE',label:'周二',ai:'元宝',logo:'💰',color:'#ab47bc'},
-        {day:'WED',label:'周三',ai:'千问',logo:'🔮',color:'#ff7043'},
-        {day:'THU',label:'周四',ai:'DeepSeek',logo:'🔍',color:'#26a69a'},
-        {day:'FRI',label:'周五',ai:'Crayxus',logo:'🃏',color:'#ffd700'},
-        {day:'SAT',label:'周六',ai:'OPEN',logo:'🎲',color:'#ef5350'},
-        {day:'SUN',label:'周日',ai:'休息',logo:'☕',color:'#78909c'}
-      ];
-      var today=new Date().getDay();
-      var todayIdx=today===0?6:today-1;
-      var html='';
-      for(var i=0;i<schedule.length;i++){
-        var s=schedule[i];
-        var isCurrent=i===todayIdx;
-        html+='<div class="ai-day'+(isCurrent?' today':'')+'">';
-        html+='<div class="day-label">'+s.day+'</div>';
-        html+='<div class="ai-logo">'+s.logo+'</div>';
-        html+='<div class="vs-tag">VS</div>';
-        html+='<div class="ai-name" style="'+(isCurrent?'':'color:'+s.color)+'">'+s.ai+'</div>';
-        html+='</div>';
-      }
-      document.getElementById('aiWeek').innerHTML=html;
-    })();
-    </script>
-
-    <!-- Holographic mode buttons -->
+    <!-- Mode buttons -->
     <div class="holo-btns" id="holo-btns">
       <div class="holo-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9654;</div>
@@ -1582,16 +1543,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <span id="theme-label" style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:1px;font-family:'Orbitron','Segoe UI',sans-serif">DARK</span>
   </div>
 
-  <!-- QR Login — breathing dock -->
-  <div id="qr-login-section">
-    <div class="qr-dock">
-      <div class="qr-label">WECHAT SCAN</div>
-      <div class="qr-canvas-wrap">
-        <canvas id="qr-canvas" width="120" height="120" style="border-radius:6px;background:#fff;image-rendering:pixelated"></canvas>
-      </div>
-      <div class="qr-hint" id="qr-session-id"></div>
-    </div>
-  </div>
+  <!-- QR section removed -->
 
   <div id="mode-loading" style="position:absolute;bottom:80px;width:300px;text-align:center"><div id="mode-load-text" style="color:#555;font-size:11px;margin-bottom:6px">Loading AI...</div><div style="width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden"><div id="mode-load-bar" style="height:100%;width:0%;background:var(--neon);border-radius:2px;transition:width 0.3s"></div></div></div>
 
@@ -1766,16 +1718,14 @@ body.view-table .holo-hex-grid{opacity:0.05}
     </div>
     <!-- Arena HUD (floating pill: rank + score) -->
     <div id="arena-hud" style="display:none">
-      <div class="arena-hud-inner">
-        <div class="casual-avatar-ring arena-av-ring">
-          <div class="casual-avatar-glow"></div>
-          <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#dashGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="dashGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
-          <div class="casual-avatar-img" id="arena-avatar">P1</div>
+      <div class="arena-hud-inner" style="padding:14px 18px;min-width:100px;gap:5px;background:linear-gradient(180deg,rgba(30,26,18,0.96),rgba(16,12,6,0.98));border:1px solid rgba(180,150,80,0.2);border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,220,120,0.06)"
+        <div id="arena-round-info" style="font-size:10px;letter-spacing:1px;text-align:center;line-height:1;font-weight:700"></div>
+        <div style="display:flex;align-items:baseline;justify-content:center;gap:2px;line-height:1">
+          <span class="arena-big-rank-num" id="arena-pos" style="font-size:36px">#1</span>
+          <span class="arena-big-rank-total" style="font-size:14px">/16</span>
         </div>
-        <div class="arena-score-label">RANK</div>
-        <div class="arena-big-rank"><span class="arena-big-rank-num" id="arena-pos">#1</span><span class="arena-big-rank-total">/48</span></div>
-        <div class="arena-score-label">SCORE</div>
-        <div class="arena-score-line" id="arena-score">+0</div>
+        <div class="arena-score-line" id="arena-score" style="font-size:22px;line-height:1;font-weight:900">+0</div>
+        <div id="arena-m-value" style="display:none"></div>
       </div>
     </div>
     <div id="hand"></div>
@@ -1833,7 +1783,7 @@ const _urlParams = new URLSearchParams(window.location.search);
 const _viewMode = null;
 let _autoJoined = false;
 
-const socket=io('https://crayxus-game.onrender.com',{autoConnect:false,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
+const socket=io(location.origin,{autoConnect:false,reconnection:true,reconnectionAttempts:Infinity,reconnectionDelay:1000,reconnectionDelayMax:5000});
 let mySeat=-1,myCards=[],botCards={},turn=-1,lastHand=null,counts=[27,27,27,27];
 let isHost=false,timerInterval=null,timeLeft=60,dealCardsTimeout=null,gameOver=false;
 let roomPlayerCount=1;
@@ -2308,6 +2258,7 @@ function renderUI(){
       let cnt=seat===mySeat?myCards.length:counts[seat];
       nb.innerText=cnt;
       nb.style.display=(cnt>0&&cnt<=10)?'flex':'none';
+      nb.classList.toggle('big-count',cnt>0&&cnt<=10);
     }
     let av=document.getElementById('av-'+v);
     if(av){
@@ -2811,6 +2762,36 @@ function selectPlayerCount(n){
   var mins=Math.round(total*5);
   var info=document.getElementById('pc-info');
   if(info)info.textContent=tables+'桌 · '+total+'轮 (热身'+practice+'+预赛'+qualifier+'+决赛'+elim+') · 约'+mins+'分钟';
+
+  // Rebuild table grid to match player count
+  var g=document.getElementById('seat-grid');
+  if(g){
+    g.innerHTML='';
+    for(var t=0;t<tables;t++){
+      var base=t*4;
+      var card=document.createElement('div');
+      card.className='table-card';
+      card.id='table-'+t;
+      card.innerHTML=
+        '<div class="seat-slot table-seat-top" id="slot-'+base+'">空</div>'+
+        '<div class="seat-slot table-seat-left" id="slot-'+(base+1)+'">空</div>'+
+        '<div class="table-mid"><span class="table-mid-label">T'+(t+1)+'</span></div>'+
+        '<div class="seat-slot table-seat-right" id="slot-'+(base+2)+'">空</div>'+
+        '<div class="seat-slot table-seat-bot" id="slot-'+(base+3)+'">空</div>';
+      g.appendChild(card);
+    }
+    // Update grid columns: 4 cols for <=48, else adapt
+    var cols=Math.min(4,tables);
+    g.style.gridTemplateColumns='repeat('+cols+',130px)';
+  }
+  // Update player count display
+  var ms=document.getElementById('match-status');
+  if(ms)ms.textContent='Players: 1/'+n;
+  var mt=document.getElementById('match-timer');
+  if(mt)mt.textContent='1/'+n+' 玩家 · 空位将由AI填充';
+  // Place YOU in slot-0
+  var s0=document.getElementById('slot-0');
+  if(s0){s0.innerHTML='<span style="color:var(--neon);font-weight:800;font-size:11px">YOU</span>';s0.style.borderColor='var(--neon)';s0.style.background='rgba(0,255,200,.1)';}
 }
 
 function startMatch(){
@@ -2989,6 +2970,13 @@ socket.on('arena48RoundStart',d=>{
   let ep=document.getElementById('arena-pos');if(ep)ep.textContent='#'+d.rank;
   let et=document.querySelector('.arena-big-rank-total');if(et)et.textContent='/'+d.totalActive;
   let es=document.getElementById('arena-score');if(es){es.textContent=(d.score>=0?'+':'')+d.score;es.className='arena-score-line'+(d.score<0?' negative':'');}
+  let ri=document.getElementById('arena-round-info');
+  if(ri){
+    let phase=d.phase||'';let phaseColor='#38a169';
+    if(phase==='预赛')phaseColor='#d4a530';
+    else if(phase==='决赛'||phase==='FINALS')phaseColor='#e53e3e';
+    ri.innerHTML='<span style="color:'+phaseColor+'">'+phase+'</span> <span style="color:rgba(255,255,255,0.35)">'+d.round+'/'+d.totalRounds+'</span>';
+  }
   // Show tournament code on match screen
   let rc=document.getElementById('match-room-code');
   if(rc){rc.style.display='block';rc.textContent='房间码: '+d.code+' (点击复制)';rc.onclick=()=>{navigator.clipboard.writeText(d.code);toast('已复制: '+d.code)};}
@@ -3250,6 +3238,8 @@ socket.on('dealCards',d=>{
     },40);
     // Show EVO after deal animation (not in arena)
     if(gameMode!=='arena') setTimeout(()=>showEVO(myCards),cards.length*40+200);
+    // Calculate M value
+    updateMValue();
   },500);
 });
 
@@ -3493,7 +3483,11 @@ function resetWatchdog(keepRetries){
     if(watchdogRetries>=3){
       console.warn('[Watchdog] Stuck on turn',turn,'for',watchdogRetries,'retries, forcing emergency action');
       watchdogRetries=0;
-      if(botSeats.includes(turn)&&isHost){
+      if(turn===mySeat&&afkEnabled){
+        // Human seat stuck with AFK on - force AFK play
+        isMyTurn=true;
+        doAFKPlay();
+      }else if(botSeats.includes(turn)&&isHost){
         // Force: play smallest card if leading, or pass if following
         let hand=botCards[turn];
         if(!lastHand&&hand&&hand.length>0){
@@ -3523,7 +3517,7 @@ function checkTurn(){
     repositionButtons();
     let c=document.getElementById('ctrls');
     c.style.display='flex';
-    if(afkEnabled) scheduleAFK();
+    if(afkEnabled){ scheduleAFK(); setTimeout(()=>{ if(isMyTurn&&afkEnabled&&!gameOver) doAFKPlay(); }, 3000); }
     let bp=document.getElementById('btn-pass');
     if(!lastHand){bp.disabled=true;bp.style.opacity=0.3}
     else{bp.disabled=false;bp.style.opacity=1}
@@ -6605,18 +6599,20 @@ socket.on('wx-login-success',function(data){
 
   // Apply avatar directly to all avatar elements
   if(data.avatarUrl){
-    ['holo-avatar','casual-avatar','arena-avatar','av-0'].forEach(function(id){
+    ['home-avatar','casual-avatar','arena-avatar','av-0'].forEach(function(id){
       var el=document.getElementById(id);
       if(el)el.innerHTML='<img src="'+data.avatarUrl+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
     });
   }
   // Apply nickname directly to all name elements
   if(data.nickname){
-    ['holo-player-name','casual-name','arena-name'].forEach(function(id){
+    ['home-nickname','casual-name','arena-name'].forEach(function(id){
       var el=document.getElementById(id);
       if(el)el.innerText=data.nickname;
     });
   }
+  // Switch home to profile mode
+  updateHomeLoginState();
 
   // Also call legacy apply
   if(window._applyWeChatProfile)window._applyWeChatProfile();
@@ -6729,7 +6725,7 @@ function drawQRFallback(ctx,text,size){
   // Apply avatar to all avatar elements
   function applyAvatar(){
     const avatarEls=[
-      document.querySelector('.holo-avatar-img'),
+      document.getElementById('home-avatar'),
       document.getElementById('casual-avatar'),
       document.getElementById('arena-avatar'),
       document.getElementById('av-0')
@@ -6749,7 +6745,7 @@ function drawQRFallback(ctx,text,size){
   function applyNickname(){
     if(!nickname)return;
     const nameEls=[
-      document.getElementById('holo-player-name'),
+      document.getElementById('home-nickname'),
       document.getElementById('casual-name'),
       document.getElementById('arena-name')
     ];
@@ -6817,6 +6813,71 @@ const _origHandleSync=handleSync;
 handleSync=function(d){_origHandleSync(d);broadcastViewState();};
 setInterval(()=>{if(timerInterval)broadcastViewState();},1000);
 
+</script>
+<script>
+function updateHomeLoginState(){
+  let avatar=localStorage.getItem('crayxus_wx_avatar');
+  let nick=localStorage.getItem('crayxus_wx_nickname');
+  let qrSec=document.getElementById('home-qr-section');
+  let profSec=document.getElementById('home-profile-section');
+  if(avatar||nick){
+    // Logged in
+    if(qrSec)qrSec.style.display='none';
+    if(profSec)profSec.style.display='flex';
+    if(avatar){let av=document.getElementById('home-avatar');if(av)av.innerHTML='<img src="'+avatar+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.innerHTML=\'P1\'">';}
+    if(nick){let nn=document.getElementById('home-nickname');if(nn)nn.innerText=nick;}
+  }else{
+    // Not logged in: show QR
+    if(qrSec)qrSec.style.display='flex';
+    if(profSec)profSec.style.display='none';
+    // Generate QR on home canvas
+    setTimeout(()=>{
+      try{
+        let c=document.getElementById('home-qr-canvas');
+        if(c&&!c._drawn&&window.drawQR&&_wxSessionId){
+          let url='https://crayxus-game.onrender.com/wxlogin?session='+_wxSessionId;
+          drawQR(c,url);c._drawn=true;
+        }
+      }catch(e){}
+    },2500);
+  }
+}
+function logoutPlayer(){
+  localStorage.removeItem('crayxus_wx_avatar');
+  localStorage.removeItem('crayxus_wx_nickname');
+  localStorage.removeItem('crayxus_nick');
+  updateHomeLoginState();
+  toast('已登出');
+}
+// Init home state after DOM ready
+setTimeout(updateHomeLoginState,1000);
+</script>
+<script src="/js/m-algorithm.js"></script>
+<script>
+// M Algorithm integration
+function updateMValue(){
+  if(!window.MAlgorithm || !myCards || !myCards.length) return;
+  let wv = (typeof currentWildValue !== 'undefined') ? currentWildValue : '2';
+  let m = MAlgorithm.quickM(myCards, wv);
+  let el = document.getElementById('arena-m-value');
+  if(el){
+    el.textContent = 'M=' + m;
+    // Color code: green=good(<=6), yellow=ok(7-9), red=bad(10+)
+    if(m <= 6) el.style.color = '#38a169';
+    else if(m <= 9) el.style.color = '#d4a530';
+    else el.style.color = '#e53e3e';
+  }
+}
+// Hook into card changes — update M after each action
+(function(){
+  let origRenderHand = window.renderHand;
+  if(origRenderHand){
+    window.renderHand = function(){
+      origRenderHand.apply(this, arguments);
+      setTimeout(updateMValue, 100);
+    };
+  }
+})();
 </script>
 </body>
 </html>

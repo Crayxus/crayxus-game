@@ -42,13 +42,13 @@ Page({
 
     // AI weekly schedule
     const schedule = [
-      { day: '周一', ai: '豆包', logo: '🫘', color: '#4fc3f7' },
-      { day: '周二', ai: '元宝', logo: '💰', color: '#ab47bc' },
-      { day: '周三', ai: '千问', logo: '🔮', color: '#ff7043' },
-      { day: '周四', ai: 'DeepSeek', logo: '🔍', color: '#26a69a' },
-      { day: '周五', ai: 'Crayxus', logo: '🃏', color: '#ffd700' },
-      { day: '周六', ai: 'OPEN', logo: '🎲', color: '#ef5350' },
-      { day: '周日', ai: '休息', logo: '☕', color: '#78909c' }
+      { day: '周一', ai: '休息', logo: '☕', color: '#78909c' },
+      { day: '周二', ai: '豆包', logo: '🫘', color: '#4fc3f7' },
+      { day: '周三', ai: '元宝', logo: '💰', color: '#ab47bc' },
+      { day: '周四', ai: '千问', logo: '🔮', color: '#ff7043' },
+      { day: '周五', ai: 'DeepSeek', logo: '🔍', color: '#26a69a' },
+      { day: '周六', ai: 'Crayxus', logo: '🃏', color: '#ffd700' },
+      { day: '周日', ai: 'OPEN', logo: '🎲', color: '#ef5350' }
     ]
     const dow = new Date().getDay()
     const todayIdx = dow === 0 ? 6 : dow - 1

@@ -44,6 +44,7 @@
       <view class="cell-tag booked-tag" wx:if="{{item.type === 'booked'}}">已占</view>
       <view class="cell-tag avail-tag" wx:if="{{item.type === 'available'}}">可约</view>
       <view class="cell-tag open-tag" wx:if="{{item.type === 'open'}}">{{item.shortName || '赛事'}}</view>
+      <view class="cell-tag" style="color:#666;font-size:9px" wx:if="{{item.type === 'dayoff'}}">休</view>
       <!-- 空白天 -->
       <view class="cell-dot" wx:if="{{!item.type && !item.isOtherMonth && item.isWeekday}}"></view>
     </view>

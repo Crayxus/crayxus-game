@@ -1108,7 +1108,17 @@ try {
         let t = JSON.parse(fs.readFileSync(path.join(TOURNAMENT_DIR, f)));
         tournaments[t.code] = t;
     });
-    gameLog(`[Tournament] Loaded ${Object.keys(tournaments).length} tournaments from disk`);
+    // Clean up stale active/playing tournaments (no live socket after restart)
+    let cleaned = 0;
+    for (let code in tournaments) {
+        let t = tournaments[code];
+        if ((t.status === 'active' || t.status === 'playing' || t.status === 'started') && t.format === 'mtt') {
+            t.status = 'finished';
+            saveTournament(t);
+            cleaned++;
+        }
+    }
+    gameLog(`[Tournament] Loaded ${Object.keys(tournaments).length} tournaments from disk` + (cleaned ? `, cleaned ${cleaned} stale active` : ''));
 } catch(e) { gameLog(`[Tournament] Load error: ${e.message}`); }
 
 // Seed demo tournaments if none exist
@@ -1229,7 +1239,7 @@ if (Object.keys(tournaments).length === 0) {
             status: 'booked', players: [],
             rounds: [], currentRound: 0,
             createdAt: '2026-03-25T10:00:00Z',
-            eventType: 'bounty_team', eventDate: '2026-03-31', eventTime: '14:00',
+            eventType: 'bounty_team', eventDate: '2026-04-01', eventTime: '14:00',
             location: '杭州·西湖区黄龙体育中心', capacity: 40, fee: 0,
             description: '', bookedBy: '字节跳动杭州', bookedCount: 40
         }
@@ -1242,7 +1252,31 @@ if (Object.keys(tournaments).length === 0) {
 }
 
 function saveTournament(t) {
-    fs.writeFile(path.join(TOURNAMENT_DIR, t.code + '.json'), JSON.stringify(t, null, 2), () => {});
+    try {
+        // Build a clean copy to avoid circular refs from tables→player objects
+        let clean = {
+            code: t.code, name: t.name, status: t.status, format: t.format,
+            currentRound: t.currentRound, totalRounds: t.totalRounds,
+            createdAt: t.createdAt, startedAt: t.startedAt,
+            refereePin: t.refereePin, structure: t.structure,
+            isDemo: t.isDemo,
+            eventType: t.eventType, eventDate: t.eventDate, eventTime: t.eventTime,
+            location: t.location, capacity: t.capacity, organizer: t.organizer,
+            bookedBy: t.bookedBy, bookedCount: t.bookedCount,
+            players: (t.players || []).map(p => ({
+                nickname: p.nickname, score: p.score||0, mmr: p.mmr||1000,
+                eliminated: !!p.eliminated, eliminatedRound: p.eliminatedRound||null,
+                isHuman: !!p.isHuman, joinedAt: p.joinedAt,
+                phone: p.phone, team: p.team
+            }))
+        };
+        let data = JSON.stringify(clean, null, 2);
+        fs.writeFile(path.join(TOURNAMENT_DIR, t.code + '.json'), data, (err) => {
+            if (err) gameLog('[Save] Error saving ' + t.code + ': ' + err.message);
+        });
+    } catch(e) {
+        gameLog('[Save] JSON error for ' + t.code + ': ' + e.message);
+    }
 }
 
 function genTournamentCode() {
@@ -2289,6 +2323,134 @@ function getArena48Standings(tourney) {
         .sort((a, b) => (b.eliminatedRound || 0) - (a.eliminatedRound || 0) || (b.score || 0) - (a.score || 0))
         .map((p, i) => ({ nickname: p.nickname, score: p.score || 0, mmr: p.mmr || 1000, rank: active.length + i + 1, eliminated: true, eliminatedRound: p.eliminatedRound }));
     return [...active, ...elim];
+}
+
+// ===== Demo: All-Bot Tournament =====
+app.post('/api/demo/start', (req, res) => {
+    let requestedCount = (req.body && req.body.playerCount) || 48;
+    let structure = calcTournamentStructure(requestedCount);
+    let pc = structure.playerCount;
+
+    let code = 'D' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    while (tournaments[code]) code = 'D' + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+    let botPool = [...BOT_NAMES_48];
+    while (botPool.length < pc) botPool.push('Bot_' + (botPool.length + 1));
+    let shuffled = botPool.sort(() => Math.random() - 0.5).slice(0, pc);
+
+    let players = shuffled.map(name => ({ nickname: name, score: 0, mmr: 1000, eliminated: false, isHuman: false }));
+
+    let tourney = {
+        code, name: 'Demo ' + pc + '人锦标赛', players,
+        currentRound: 0, totalRounds: structure.totalRounds,
+        status: 'active', format: 'mtt', isDemo: true,
+        refereePin: '0000',
+        tables: [], startedAt: Date.now(),
+        structure: structure,
+        createdAt: new Date().toISOString()
+    };
+    tournaments[code] = tourney;
+    saveTournament(tourney);
+    gameLog(`[Demo] Created ${pc}-player demo tournament ${code}`);
+
+    // Auto-run rounds with delay
+    setTimeout(() => runDemoRound(tourney), 2000);
+
+    res.json({ code, name: tourney.name, playerCount: pc, totalRounds: structure.totalRounds });
+});
+
+function runDemoRound(tourney) {
+    if (tourney.status !== 'active') return;
+
+    tourney.currentRound++;
+    let phase = getPhase(tourney.currentRound, tourney.structure);
+    let active = tourney.players.filter(p => !p.eliminated);
+
+    if (active.length < 4 || tourney.currentRound > tourney.totalRounds) {
+        tourney.status = 'finished';
+        saveTournament(tourney);
+        let standings = getArena48Standings(tourney);
+        io.to('dashboard:' + tourney.code).emit('tournamentEnd', { standings });
+        gameLog(`[Demo] ${tourney.code}: Tournament finished!`);
+        return;
+    }
+
+    // MMR-based pairing
+    active.sort((a, b) => (b.mmr || 1000) - (a.mmr || 1000));
+    let tables = [];
+    for (let i = 0; i < active.length - 3; i += 4) tables.push(active.slice(i, i + 4));
+
+    let tableInfo = tables.map((t, i) => ({
+        tableNum: i + 1,
+        team1: [t[0].nickname, t[2] ? t[2].nickname : ''],
+        team2: [t[1].nickname, t[3] ? t[3].nickname : ''],
+        players: t.map(p => ({ nickname: p.nickname, mmr: p.mmr || 1000 }))
+    }));
+
+    // Broadcast round start
+    io.to('dashboard:' + tourney.code).emit('roundStart', {
+        round: tourney.currentRound, timer: 10, phase: phase.name, tables: tableInfo
+    });
+
+    // Simulate all tables
+    for (let table of tables) {
+        let mmrs = table.map(p => p.mmr || 1000);
+        let fo = simulateBotTable(mmrs);
+        let result = classifyTableResult(fo);
+        if (phase.scored) {
+            for (let w of result.winners) {
+                let p = table[w];
+                p.score = (p.score || 0) + (SCORE_48[result.winType] || 0);
+                p.mmr = (p.mmr || 1000) + (MMR_48[result.winType] || 0);
+            }
+            for (let l of result.losers) {
+                let p = table[l];
+                p.score = (p.score || 0) + (SCORE_48[result.loseType] || 0);
+                p.mmr = (p.mmr || 1000) + (MMR_48[result.loseType] || 0);
+            }
+        }
+    }
+
+    // Elimination
+    let eliminated = [];
+    if (phase.elimination) {
+        let activeP = tourney.players.filter(p => !p.eliminated);
+        if (activeP.length > 8) {
+            activeP.sort((a, b) => (a.score || 0) - (b.score || 0));
+            let toElim = activeP.slice(0, 4);
+            for (let p of toElim) {
+                p.eliminated = true;
+                p.eliminatedRound = tourney.currentRound;
+                eliminated.push({ nickname: p.nickname, score: p.score });
+            }
+        }
+    }
+
+    let remainActive = tourney.players.filter(p => !p.eliminated);
+    if (tourney.currentRound >= tourney.totalRounds || remainActive.length <= 4) {
+        tourney.status = 'finished';
+    }
+    saveTournament(tourney);
+
+    // Broadcast scores
+    let changes = tourney.players.map(p => ({
+        nickname: p.nickname, scoreDelta: 0, newScore: p.score || 0, mmrDelta: 0, newMmr: p.mmr || 1000
+    }));
+    io.to('dashboard:' + tourney.code).emit('scoreUpdate', { round: tourney.currentRound, changes });
+    if (eliminated.length > 0) {
+        io.to('dashboard:' + tourney.code).emit('elimination', { round: tourney.currentRound, eliminated });
+    }
+
+    gameLog(`[Demo] ${tourney.code}: R${tourney.currentRound} [${phase.name}], ${remainActive.length} active, ${eliminated.length} elim`);
+
+    // Continue or finish
+    if (tourney.status === 'active') {
+        setTimeout(() => runDemoRound(tourney), 3000);
+    } else {
+        let standings = getArena48Standings(tourney);
+        io.to('dashboard:' + tourney.code).emit('tournamentEnd', { standings });
+        gameLog(`[Demo] ${tourney.code}: Tournament finished!`);
+    }
 }
 
 http.listen(PORT, () => {

@@ -7,18 +7,18 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#080c12;--card:#0f1520;--surface:#141d2b;
+  --bg:#0a0c08;--card:#141210;--surface:#1a1610;
   --felt:#0b3d1a;--felt2:#0a2f15;
   --gold:#d4a530;--gold2:#f0c040;--gold-dim:#8a7230;
   --silver:#a8b4c0;--bronze:#b87333;
-  --red:#e53e3e;--green:#38a169;--teal:#00d4aa;
-  --text:#e8eaf0;--dim:#6b7a8d;--border:#1a2535;
-  --accent:#00d4aa;--accent2:#7c4dff;
+  --red:#d05050;--green:#68b878;--teal:#88c898;
+  --text:#e8e0d0;--dim:#8a7a60;--border:#2a2218;
+  --accent:#88c898;--accent2:#c8a84e;
 }
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;user-select:none;display:flex;flex-direction:column}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#0c0a06 0%,#080604 50%,#0a0806 100%);color:var(--text);height:100vh;overflow:hidden;user-select:none;display:flex;flex-direction:column}
 
 /* === TOP BANNER === */
-.top-banner{display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:linear-gradient(180deg,#101820,#0c1218);border-bottom:1px solid var(--border);height:40px;flex-shrink:0}
+.top-banner{display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:linear-gradient(180deg,#1a1610,#12100a);border-bottom:1px solid rgba(180,150,80,0.1);height:44px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.4)}
 .top-left{display:flex;align-items:center;gap:16px}
 .logo{font-size:16px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px}
 .event-name{font-size:11px;color:var(--dim);font-weight:600;letter-spacing:1px}
@@ -28,7 +28,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .ref-badge.active{display:inline-block}
 
 /* === TOURNAMENT CLOCK (center hero) === */
-.clock-strip{display:flex;align-items:center;justify-content:center;gap:0;background:linear-gradient(180deg,#0e1520,#0a1018);border-bottom:1px solid var(--border);height:100px;flex-shrink:0;position:relative;overflow:hidden}
+.clock-strip{display:flex;align-items:center;justify-content:center;gap:0;background:linear-gradient(180deg,#14120c,#0e0c08,#0a0806);border-bottom:1px solid rgba(180,150,80,0.08);height:110px;flex-shrink:0;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
 /* Subtle felt texture overlay */
 .clock-strip::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 100% at 50% 0%,rgba(11,61,26,.08),transparent);pointer-events:none}
 
@@ -37,7 +37,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .clock-center{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:280px}
 
 /* The big timer */
-.timer-display{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:6px;line-height:1;color:var(--text);text-shadow:0 0 30px rgba(255,255,255,.1)}
+.timer-display{font-size:60px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:8px;line-height:1;color:var(--text);text-shadow:0 0 40px rgba(255,255,255,.1),0 2px 4px rgba(0,0,0,.5)}
 .timer-display.warning{color:var(--gold);text-shadow:0 0 30px rgba(212,165,48,.3);animation:timerPulse 1s ease infinite}
 .timer-display.danger{color:var(--red);text-shadow:0 0 30px rgba(229,62,62,.4);animation:timerPulse .5s ease infinite}
 @keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -54,8 +54,14 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 /* Progress bar */
 .progress-bar{display:flex;gap:2px;align-items:center;margin-top:4px}
 .prog-dot{width:12px;height:3px;border-radius:1.5px;background:rgba(255,255,255,.06);transition:all .3s}
-.prog-dot.done{background:var(--teal);opacity:.7}
-.prog-dot.current{background:var(--teal);box-shadow:0 0 6px var(--teal)}
+/* Warmup: green */
+.prog-dot.warmup-done{background:#38a169;opacity:.7}
+.prog-dot.warmup-current{background:#38a169;box-shadow:0 0 6px #38a169}
+/* Qualifier: yellow/gold */
+.prog-dot.qual{background:rgba(212,165,48,.15)}
+.prog-dot.qual-done{background:#d4a530;opacity:.7}
+.prog-dot.qual-current{background:#d4a530;box-shadow:0 0 6px #d4a530}
+/* Finals: red */
 .prog-dot.elim{background:rgba(229,62,62,.15)}
 .prog-dot.elim-done{background:var(--red);opacity:.7}
 .prog-dot.elim-current{background:var(--red);box-shadow:0 0 6px var(--red)}
@@ -64,7 +70,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .stats-block{display:flex;flex-direction:column;gap:6px}
 .stat-row{display:flex;align-items:center;gap:8px}
 .stat-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;width:42px;text-align:right}
-.stat-val{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums}
+.stat-val{font-size:20px;font-weight:900;font-variant-numeric:tabular-nums;text-shadow:0 1px 3px rgba(0,0,0,.4)}
 .stat-val.alive{color:var(--teal)}
 .stat-val.out{color:var(--red)}
 .stat-val.tables{color:var(--gold)}
@@ -75,7 +81,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .info-line .hl{color:var(--gold);font-weight:800}
 
 /* === MAIN LEADERBOARD === */
-.main-area{flex:1;display:flex;flex-direction:column;padding:8px 16px 0;overflow:hidden;min-height:0}
+.main-area{flex:1;display:flex;flex-direction:column;padding:10px 20px 0;overflow:hidden;min-height:0}
 
 /* Danger banner */
 .danger-banner{display:none;padding:5px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--red);background:linear-gradient(90deg,transparent,rgba(229,62,62,.06),transparent);border-top:1px solid rgba(229,62,62,.15);border-bottom:1px solid rgba(229,62,62,.15);margin-bottom:6px;flex-shrink:0}
@@ -84,7 +90,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 
 /* Column headers */
 .lb-header-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;flex-shrink:0;padding:0 2px}
-.lb-col-title{display:flex;align-items:center;padding:4px 8px;font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--border)}
+.lb-col-title{display:flex;align-items:center;padding:6px 10px;font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06)}
 .lb-col-title .col-labels{margin-left:auto;display:flex;gap:8px;font-size:8px;letter-spacing:1px}
 
 /* 3-column grid */
@@ -92,15 +98,15 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .lb-column{display:flex;flex-direction:column;min-height:0}
 
 /* Player row */
-.lb-row{display:flex;align-items:center;padding:2.5px 8px;gap:5px;border-radius:4px;transition:background .2s;flex-shrink:0;position:relative;height:28px}
-.lb-row:nth-child(odd){background:rgba(255,255,255,.01)}
-.lb-row:hover{background:rgba(255,255,255,.04)}
-.lb-row.top1{background:linear-gradient(90deg,rgba(212,165,48,.08),transparent)}
-.lb-row.top2{background:linear-gradient(90deg,rgba(168,180,192,.06),transparent)}
-.lb-row.top3{background:linear-gradient(90deg,rgba(184,115,51,.06),transparent)}
-.lb-row.me{background:rgba(0,212,170,.06);border-left:2px solid var(--teal)}
-.lb-row.eliminated{opacity:.25}
-.lb-row.danger-zone{border-right:2px solid rgba(229,62,62,.4)}
+.lb-row{display:flex;align-items:center;padding:3px 10px;gap:6px;border-radius:6px;transition:background .2s;flex-shrink:0;position:relative;height:28px}
+.lb-row:nth-child(odd){background:rgba(255,255,255,.015)}
+.lb-row:hover{background:rgba(255,255,255,.05)}
+.lb-row.top1{background:linear-gradient(90deg,rgba(212,165,48,.12),rgba(212,165,48,.02),transparent);border-left:3px solid var(--gold)}
+.lb-row.top2{background:linear-gradient(90deg,rgba(168,180,192,.08),transparent);border-left:3px solid var(--silver)}
+.lb-row.top3{background:linear-gradient(90deg,rgba(184,115,51,.08),transparent);border-left:3px solid var(--bronze)}
+.lb-row.me{background:rgba(0,212,170,.08);border-left:3px solid var(--teal)}
+.lb-row.eliminated{opacity:.3}
+.lb-row.danger-zone{border-right:3px solid rgba(229,62,62,.5);background:rgba(229,62,62,.04)}
 
 /* ITM Top4 */
 .lb-row.itm{background:linear-gradient(90deg,rgba(212,165,48,.1),rgba(212,165,48,.03),transparent);border-left:2px solid var(--gold);position:relative}
@@ -131,6 +137,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .lb-pts.positive{color:var(--green)}
 .lb-pts.negative{color:var(--red)}
 .lb-pts.zero{color:var(--dim)}
+.lb-pts .blur{filter:blur(4px);-webkit-filter:blur(4px);user-select:none}
 
 /* Score bar (mini visual) */
 .lb-bar{width:32px;height:4px;border-radius:2px;background:rgba(255,255,255,.04);flex-shrink:0;overflow:hidden;position:relative}
@@ -160,9 +167,9 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .bottom-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 24px;background:#080c12;border-top:1px solid var(--border);font-size:10px;color:var(--dim);height:24px;flex-shrink:0}
 
 /* === SETUP OVERLAY === */
-.setup-overlay{position:fixed;inset:0;background:rgba(8,12,18,.97);z-index:100;display:flex;align-items:center;justify-content:center}
+.setup-overlay{position:fixed;inset:0;background:rgba(8,6,4,.97);z-index:100;display:flex;align-items:center;justify-content:center}
 .setup-overlay.hidden{display:none}
-.setup-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:420px;max-width:90vw;text-align:center}
+.setup-box{background:linear-gradient(180deg,#1e1a12,#14100a);border:1px solid rgba(180,150,80,0.15);border-radius:12px;padding:40px;width:420px;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
 .setup-box h2{font-size:22px;margin-bottom:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .setup-box p{color:var(--dim);font-size:14px;margin-bottom:24px}
 .setup-input{width:100%;padding:14px 20px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;text-align:center;letter-spacing:4px;font-weight:800;margin-bottom:16px;outline:none}
@@ -174,6 +181,34 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .setup-err{color:var(--red);font-size:13px;margin-top:10px;min-height:20px}
 .demo-link{color:var(--dim);font-size:13px;margin-top:16px;cursor:pointer;display:inline-block}
 .demo-link:hover{color:var(--gold)}
+/* === FINISH OVERLAY === */
+.finish-overlay{position:fixed;inset:0;background:rgba(8,12,18,.95);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;padding:40px 20px}
+.finish-overlay.show{display:flex}
+.finish-title{font-size:28px;font-weight:900;letter-spacing:6px;margin-bottom:32px;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.finish-podium{display:flex;gap:24px;margin-bottom:32px}
+.finish-place{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:24px 32px;text-align:center;min-width:140px}
+.finish-medal{font-size:40px;margin-bottom:8px}
+.finish-name{font-size:18px;font-weight:800;margin-bottom:4px}
+.finish-score{font-size:22px;font-weight:900}
+.finish-mmr{font-size:11px;color:var(--dim);margin-top:4px}
+.finish-full{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 24px;margin-bottom:24px;min-width:360px}
+.finish-row{display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.finish-row.top{font-weight:800}
+.finish-rank{width:28px;text-align:center;color:var(--dim);font-weight:700}
+.finish-rname{flex:1}
+.finish-rscore{font-weight:800;font-variant-numeric:tabular-nums}
+.finish-btn{padding:12px 40px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-size:16px;font-weight:700;cursor:pointer}
+.finish-btn:hover{opacity:.9}
+
+.active-list{margin-top:20px;text-align:left;max-height:200px;overflow-y:auto}
+.active-list-title{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;text-align:center}
+.active-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all .2s}
+.active-item:hover{border-color:var(--gold);background:rgba(212,165,48,.06)}
+.active-item-left{display:flex;flex-direction:column;gap:2px}
+.active-item-name{font-size:13px;font-weight:700;color:var(--text)}
+.active-item-meta{font-size:11px;color:var(--dim)}
+.active-item-code{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:2px}
+.active-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px var(--teal);display:inline-block;margin-right:6px}
 .ref-link{color:var(--accent2);font-size:13px;margin-top:8px;cursor:pointer;display:inline-block;font-weight:600}
 .ref-link:hover{color:#a855f7}
 .ref-row{display:none;margin-top:12px;gap:8px;align-items:center}
@@ -223,8 +258,12 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
     </div>
     <div class="setup-err" id="setupErr"></div>
     <div class="demo-link" onclick="startDemo()">Demo Mode</div>
+    <div class="active-list" id="activeList"></div>
   </div>
 </div>
+
+<!-- FINISH OVERLAY -->
+<div class="finish-overlay" id="finishOverlay"></div>
 
 <!-- TOP BANNER -->
 <div class="top-banner">
@@ -330,6 +369,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 <script>
 let socket=null,tournamentCode=null,players=[],currentRound=0,totalRounds=21;
 let timerInterval=null,timerSeconds=0,isDemo=false,isReferee=false,refereePin='',currentTables=[];
+let demoStructure=null;
 let tableStatus={}; // {tableNum: 'waiting'|'playing'|'finished'|'human-done'}
 
 function recalcRanks(){
@@ -343,7 +383,41 @@ function recalcRanks(){
 (function(){
   const p=new URLSearchParams(location.search),code=p.get('code');
   if(code){document.getElementById('codeInput').value=code.toUpperCase();setTimeout(()=>connectTournament(),300)}
+  else{loadActiveTournaments();setInterval(()=>{if(!tournamentCode)loadActiveTournaments()},5000)}
 })();
+
+async function loadActiveTournaments(){
+  try{
+    const res=await fetch('/api/tournaments');
+    const list=await res.json();
+    // Split into active (playing) and upcoming (open/booked)
+    const playing=list.filter(t=>t.status==='active'||t.status==='playing'||t.status==='started');
+    const upcoming=list.filter(t=>t.status==='open'||t.status==='booked');
+    const el=document.getElementById('activeList');
+    if(!playing.length&&!upcoming.length){el.innerHTML='';return}
+    const statusMap={active:'进行中',playing:'进行中',started:'进行中',open:'报名中',booked:'已预约',finished:'已结束'};
+    let html='';
+    if(playing.length){
+      html+='<div class="active-list-title">正在进行</div>';
+      html+=playing.map(t=>{
+        const round=t.currentRound?`第${t.currentRound}/${t.totalRounds}轮`:'';
+        return `<div class="active-item" onclick="document.getElementById('codeInput').value='${t.code}';connectTournament()">
+          <div class="active-item-left"><div class="active-item-name"><span class="active-dot"></span>${t.name}</div>
+          <div class="active-item-meta">${t.playerCount}人 ${round} ${statusMap[t.status]||t.status}</div></div>
+          <div class="active-item-code">${t.code}</div></div>`}).join('');
+    }
+    if(upcoming.length){
+      html+='<div class="active-list-title" style="margin-top:12px">即将开始</div>';
+      html+=upcoming.slice(0,3).map(t=>{
+        const date=t.eventDate||'';const time=t.eventTime||'';
+        return `<div class="active-item" style="opacity:.7" onclick="document.getElementById('codeInput').value='${t.code}';connectTournament()">
+          <div class="active-item-left"><div class="active-item-name">${t.name}</div>
+          <div class="active-item-meta">${date} ${time} · ${t.location||''}</div></div>
+          <div class="active-item-code">${t.code}</div></div>`}).join('');
+    }
+    el.innerHTML=html;
+  }catch(e){console.log('loadActiveTournaments error',e)}
+}
 
 async function connectTournament(){
   const code=document.getElementById('codeInput').value.trim().toUpperCase();
@@ -355,7 +429,11 @@ async function connectTournament(){
     const data=await res.json();
     if(data.error){showSetupErr(data.error);return}
     tournamentCode=code;players=data.players;currentRound=data.currentRound;totalRounds=data.totalRounds||21;
-    document.getElementById('eventName').textContent=data.name||'48人标准赛';
+    window._serverPhase='';
+    document.getElementById('eventName').textContent=data.name||'赛事';
+    // Update meta info dynamically
+    let pc=players.length;let pr=3;let qr=Math.max(3,Math.ceil(pc/16));let er=Math.floor((pc-4)/4);
+    document.getElementById('eventMeta').textContent=`MTT 锦标赛 | ${pc}人 | ${totalRounds}轮 | 热身${pr}轮+预赛${qr}轮+决赛${totalRounds-pr-qr}轮`;
     document.getElementById('setup').classList.add('hidden');
     renderAll();connectSocket();
   }catch(e){showSetupErr('连接失败: '+e.message)}
@@ -384,6 +462,7 @@ function connectSocket(){
     currentRound=d.round;currentTables=d.tables||[];
     tableStatus={};
     for(let t of currentTables){tableStatus[t.tableNum]='playing'}
+    if(d.phase) window._serverPhase=d.phase;
     renderAll();renderTableStatus();
     if(d.timer)startTimer(d.timer);
   });
@@ -396,6 +475,7 @@ function connectSocket(){
   socket.on('tournamentEnd',d=>{
     var tag=document.getElementById('phaseTag');
     if(tag){tag.className='phase-tag finished';tag.textContent='FINISHED'}
+    if(d&&d.standings)showFinishOverlay(d.standings);
   });
   socket.on('botTableUpdate',d=>{
     if(!tableStatus)tableStatus={};
@@ -421,15 +501,20 @@ function renderClock(){
   document.getElementById('roundChip').textContent=`ROUND ${currentRound} / ${totalRounds}`;
 
   let tag=document.getElementById('phaseTag');
-  if(currentRound<=3){tag.className='phase-tag warmup';tag.textContent='热身赛'}
-  else if(currentRound<=9){tag.className='phase-tag warmup';tag.textContent='预赛';tag.style.color='var(--teal)'}
-  else if(alive<=4){tag.className='phase-tag finished';tag.textContent='FINAL TABLE'}
-  else{tag.className='phase-tag elimination';tag.textContent='决赛'}
+  let pRounds=demoStructure?demoStructure.practiceRounds:3;
+  let qRounds=demoStructure?demoStructure.qualifierRounds:Math.max(3,Math.ceil(players.length/16));
+  let elimStart=pRounds+qRounds+1;
+  tag.style.color='';tag.style.background='';
+  // Use server phase if available
+  let phase=window._serverPhase||'';
+  if(currentRound>=totalRounds&&alive<=8){tag.className='phase-tag finished';tag.textContent='FINISHED'}
+  else if(phase==='决赛'||currentRound>=elimStart){tag.className='phase-tag elimination';tag.textContent=alive<=4?'FINAL TABLE':'决赛'}
+  else if(phase==='预赛'||currentRound>pRounds){tag.className='phase-tag';tag.textContent='预赛';tag.style.color='var(--gold)';tag.style.background='rgba(212,165,48,.1)'}
+  else{tag.className='phase-tag warmup';tag.textContent='热身赛'}
 
   // Next elim info
   let nei=document.getElementById('nextElimInfo');
-  if(currentRound<=3)nei.textContent='R4 (热身赛)';
-  else if(currentRound<10)nei.textContent='R10 (淘汰赛)';
+  if(currentRound<elimStart)nei.textContent='R'+elimStart+' (淘汰赛)';
   else if(alive>4)nei.textContent='本轮结束后';
   else nei.textContent='--';
 
@@ -438,9 +523,15 @@ function renderClock(){
   let dots='';
   for(let i=1;i<=totalRounds;i++){
     let cls='prog-dot';
-    if(i<=9){
-      if(i<currentRound)cls+=' done';else if(i===currentRound)cls+=' current';
+    if(i<=pRounds){
+      // Warmup phase: green
+      if(i<currentRound)cls+=' warmup-done';else if(i===currentRound)cls+=' warmup-current';
+    }else if(i<=pRounds+qRounds){
+      // Qualifier phase: yellow
+      cls+=' qual';
+      if(i<currentRound)cls+=' qual-done';else if(i===currentRound)cls+=' qual-current';
     }else{
+      // Finals phase: red
       cls+=' elim';
       if(i<currentRound)cls+=' elim-done';else if(i===currentRound)cls+=' elim-current';
     }
@@ -468,14 +559,23 @@ function renderLeaderboard(){
   // Find max absolute score for bar scaling
   let maxAbs=Math.max(1,...players.map(p=>Math.abs(p.score)));
 
-  // Split into 3 columns
-  let colSize=Math.ceil(all.length/3);
-  let cols=[all.slice(0,colSize),all.slice(colSize,colSize*2),all.slice(colSize*2)];
-
   let grid=document.getElementById('lbGrid');
   let html='';
 
-  for(let c=0;c<3;c++){
+  // Adaptive columns: 1 col for <=8, 2 for <=20, 3 for more
+  let numCols=all.length<=8?1:all.length<=20?2:3;
+  let colSize=Math.ceil(all.length/numCols);
+  let cols=[];
+  for(let i=0;i<numCols;i++) cols.push(all.slice(i*colSize,(i+1)*colSize));
+  grid.style.gridTemplateColumns='repeat('+numCols+',1fr)';
+
+  // Scale row size for fewer players
+  let rowH=all.length<=16?38:all.length<=24?32:28;
+  let nameSize=all.length<=16?14:all.length<=24?12:11;
+  let rankSize=all.length<=16?13:all.length<=24?11:10;
+  let ptsSize=all.length<=16?14:all.length<=24?12:11;
+
+  for(let c=0;c<numCols;c++){
     html+='<div class="lb-column">';
     let prevActive=true;
     for(let p of cols[c]){
@@ -487,7 +587,10 @@ function renderLeaderboard(){
 
       let rankCls=p.rank===1?'r1':p.rank===2?'r2':p.rank===3?'r3':'rn';
       let scoreCls=p.score>0?'positive':(p.score<0?'negative':'zero');
-      let scoreText=p.score>0?'+'+p.score:(p.score===0?'0':''+p.score);
+      let rawText=p.score>0?'+'+p.score:(p.score===0?'0':''+p.score);
+      let scoreText;
+      if(p.eliminated||rawText.replace(/[^0-9]/g,'').length<=1){scoreText=rawText}
+      else{let sign=p.score>0?'+':'';let abs=''+Math.abs(p.score);scoreText=sign+abs[0]+'<span class="blur">'+abs.slice(1)+'</span>'}
 
       // ITM divider: insert between rank 4 and 5 in this column
       if(!p.eliminated&&p.rank===5){html+='<div class="itm-divider"></div>'}
@@ -507,12 +610,12 @@ function renderLeaderboard(){
       let barW=Math.min(100,Math.abs(p.score)/maxAbs*100);
       let barCls=p.score>=0?'pos':'neg';
 
-      html+=`<div class="${rowCls}" id="row-${escHtml(p.nickname)}">`+
-        `<div class="lb-rank ${rankCls}">${p.rank}</div>`+
-        `<div class="lb-name">${escHtml(p.nickname)}${elimTag}</div>`+
+      html+=`<div class="${rowCls}" id="row-${escHtml(p.nickname)}" style="height:${rowH}px">`+
+        `<div class="lb-rank ${rankCls}" style="font-size:${rankSize}px">${p.rank}</div>`+
+        `<div class="lb-name" style="font-size:${nameSize}px">${escHtml(p.nickname)}${elimTag}</div>`+
         `<div class="lb-bar"><div class="lb-bar-fill ${barCls}" style="width:${barW}%"></div></div>`+
         `<div class="lb-mmr">${p.mmr||1000}</div>`+
-        `<div class="lb-pts ${scoreCls}">${scoreText}</div>`+
+        `<div class="lb-pts ${scoreCls}" style="font-size:${ptsSize}px">${scoreText}</div>`+
       '</div>';
     }
     html+='</div>';
@@ -570,59 +673,61 @@ function renderTimer(){
 }
 function escHtml(s){let d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
-/* ---- DEMO ---- */
-function startDemo(){
-  isDemo=true;document.getElementById('setup').classList.add('hidden');
-  const names=['卫东','小明','晶晶','光明','婷婷','武当','长江','大鹏','金花','丽华','湛芬','志强','秀兰','翠花','桂兰','文明','峨眉','巧玲','春燕','阿花','昆仑','国庆','月英','海波','大壮','天浩','少华','建国','德华','泰山','国鼎','月圆','YOU','美丽','春花','王兰','彩霞','永强','天山','铁柱','胜利','雪梅','冬梅','红梅','伟民','佳佳','联红','黄河'];
-  players=[];
-  for(let i=0;i<48;i++)players.push({nickname:names[i]||('P'+(i+1)),score:0,mmr:1000,eliminated:false,eliminatedRound:null,rank:i+1});
-  currentRound=0;totalRounds=21;
-  document.getElementById('eventName').textContent='Crayxus 48人标准赛';
-  renderAll();startTimer(300);setTimeout(demoNextRound,2000);
+/* ---- DEMO (server-backed) ---- */
+async function startDemo(){
+  isDemo=true;
+  document.getElementById('setupErr').textContent='Starting demo...';
+  try{
+    const res=await fetch('/api/demo/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({playerCount:48})});
+    const data=await res.json();
+    if(data.error){showSetupErr(data.error);return}
+    tournamentCode=data.code;totalRounds=data.totalRounds;currentRound=0;
+    document.getElementById('eventName').textContent=data.name;
+    document.getElementById('setup').classList.add('hidden');
+    // Fetch initial player list then connect socket
+    const r2=await fetch(`/api/tournaments/${data.code}/dashboard`);
+    const d2=await r2.json();
+    players=d2.players;
+    renderAll();connectSocket();
+  }catch(e){showSetupErr('Demo启动失败: '+e.message)}
 }
 
-function demoNextRound(){
-  if(!isDemo)return;currentRound++;if(currentRound>20){renderAll();return}
-  renderClock();startTimer(180);
-  setTimeout(()=>{
-    let active=players.filter(p=>!p.eliminated);
-    let shuffled=[...active].sort(()=>Math.random()-.5);
-    let tables=[];for(let i=0;i<shuffled.length-3;i+=4)tables.push(shuffled.slice(i,i+4));
-    let deltas={};
-    for(let t of tables){
-      // Simulate: MMR-weighted random outcome
-      // Higher MMR players more likely to be in winning team
-      let avgMMR=t.reduce((a,p)=>a+(p.mmr||1000),0)/4;
-      // Team0+2 vs Team1+3, weighted by relative MMR
-      let team02mmr=(t[0].mmr||1000)+(t[2]?t[2].mmr||1000:1000);
-      let team13mmr=(t[1].mmr||1000)+(t[3]?t[3].mmr||1000:1000);
-      let team02prob=team02mmr/(team02mmr+team13mmr);
-      let r=Math.random();
-      let winners,losers;
-      if(r<team02prob){winners=[t[0],t[2]];losers=[t[1],t[3]]}
-      else{winners=[t[1],t[3]];losers=[t[0],t[2]]}
-      // Outcome type
-      let ot=Math.random();
-      if(ot<.35){
-        // Double up
-        winners.forEach(p=>{if(p){p.score+=20;p.mmr+=30;deltas[p.nickname]=20}});
-        losers.forEach(p=>{if(p){p.score-=8;p.mmr-=30;deltas[p.nickname]=-8}});
-      }else{
-        // Single up
-        winners.forEach(p=>{if(p){p.score+=12;p.mmr+=15;deltas[p.nickname]=12}});
-        losers.forEach(p=>{if(p){p.mmr-=15;deltas[p.nickname]=0}});
-      }
-    }
-    recalcRanks();renderAll();
-    for(let[n,d]of Object.entries(deltas))if(d)animateDelta(n,d);
-    if(currentRound>=10){
-      setTimeout(()=>{
-        let an=players.filter(p=>!p.eliminated).sort((a,b)=>a.score-b.score);
-        if(an.length>4){for(let p of an.slice(0,4)){p.eliminated=true;p.eliminatedRound=currentRound}recalcRanks();renderAll()}
-        setTimeout(demoNextRound,3000);
-      },2000);
-    }else setTimeout(demoNextRound,3000);
-  },2000);
+function showFinishOverlay(standings){
+  let el=document.getElementById('finishOverlay');
+  if(!el)return;
+  let all=standings||[];
+  // ITM: 10-25% of total, floor to multiple of 4, min 4
+  let totalP=players.length||all.length;
+  let itm=Math.max(4,Math.floor(totalP*0.1/4)*4);
+  if(totalP>=32)itm=8;
+  if(totalP<20)itm=4;
+
+  let medals=['&#x1F3C6;','&#x1F948;','&#x1F949;','&#x1F3C5;'];
+  let colors=['var(--gold)','var(--silver)','var(--bronze)','var(--teal)'];
+  let html='<div class="finish-title">TOURNAMENT FINISHED</div><div class="finish-podium">';
+  for(let i=0;i<Math.min(itm,all.length);i++){
+    let s=all[i];
+    let color=colors[Math.min(i,3)];
+    let medal=i<4?medals[i]:(i+1);
+    html+=`<div class="finish-place" style="border-color:${color}">
+      <div class="finish-medal">${medal}</div>
+      <div class="finish-name">${escHtml(s.nickname)}</div>
+      <div class="finish-score" style="color:${color}">${s.score>0?'+':''}${s.score}</div>
+      <div class="finish-mmr">MMR ${s.mmr}</div>
+    </div>`;
+  }
+  html+='</div>';
+  // Full top 10
+  html+='<div class="finish-full">';
+  for(let i=0;i<Math.min(10,all.length);i++){
+    let s=all[i];
+    let cls=i<itm?'finish-row top':'finish-row';
+    html+=`<div class="${cls}"><span class="finish-rank">${i+1}</span><span class="finish-rname">${escHtml(s.nickname)}</span><span class="finish-rscore">${s.score>0?'+':''}${s.score}</span></div>`;
+  }
+  html+='</div>';
+  html+='<button class="finish-btn" onclick="document.getElementById(\'finishOverlay\').classList.remove(\'show\')">关闭</button>';
+  el.innerHTML=html;
+  el.classList.add('show');
 }
 
 /* ---- REFEREE ---- */

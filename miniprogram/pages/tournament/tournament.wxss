@@ -199,6 +199,13 @@ page { background: #0a0e1a; }
 .cal-cell.open {
   background: rgba(124,77,255,.03);
 }
+.cal-cell.dayoff {
+  background: rgba(255,255,255,.01);
+  opacity: .35;
+}
+.cal-cell.dayoff .cell-d {
+  text-decoration: line-through;
+}
 
 /* ===== Legend ===== */
 .legend {
