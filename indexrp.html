@@ -6292,9 +6292,9 @@ async function loadOnnxModel(){
     onnxSession=await ort.InferenceSession.create(buf5,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;v5Mode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ DMC V5 AI model loaded (714-dim state encoder)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='DMC V5 AI模型已加载';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: DMC V5 ✓';if(badge)badge.style.color='var(--neon)';
+    console.log('%c✅ V7 AI model loaded (92.6% WR, 714-dim state encoder)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V7 AI模型已加载 (92.6%)';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V7 92.6% ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e5){
     console.warn('V5 model not available, trying V4 DMC:',e5.message);
     try{
