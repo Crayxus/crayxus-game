@@ -5868,6 +5868,22 @@ async function _recordHumanDecision(actionType, selectedCards) {
     const hand = myCards;
     if (!hand || !tPlayedCards[seat]) return;
 
+    // Skip forced pass (no legal plays available — not a real decision)
+    if (actionType === 'pass' && lastHand) {
+      const g = analyzeHand(hand);
+      let hasPlay = false;
+      if(lastHand.type==='1') hasPlay = g.singles.some(s=>s[0].p>lastHand.val);
+      else if(lastHand.type==='2') hasPlay = g.pairs.some(p=>p[0].p>lastHand.val);
+      else if(lastHand.type==='3') hasPlay = g.triples.some(t=>t[0].p>lastHand.val);
+      // Check bombs (can always beat non-bombs)
+      if(!hasPlay && g.bombs.length > 0) hasPlay = true;
+      if(!hasPlay && g.straight_flushes && g.straight_flushes.length > 0) hasPlay = true;
+      if (!hasPlay) {
+        // Forced pass — no choice, don't record
+        return;
+      }
+    }
+
     // Encode current state (same as model uses)
     const lo=(seat+1)%4, pa=(seat+2)%4, ro=(seat+3)%4;
     const sv = encodeStateV5(hand, tPlayedCards[seat], tPlayedCards[lo],
