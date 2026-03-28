@@ -1656,7 +1656,6 @@ body.view-table .holo-hex-grid{opacity:0.05}
     </div>
     <div class="training-badge" id="training-badge">🎓 TRAINING</div>
     <button id="afk-btn" onclick="toggleAFK()">🤖 代打</button>
-    <button id="pause-btn" onclick="togglePause()" style="position:absolute;top:10px;right:60px;z-index:501;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#f87171;font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;">⏸ 暂停</button>
     <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;top:10px;right:10px;z-index:501;background:rgba(20,20,30,0.6);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;">🌙</button>
     <div id="afk-badge">代打</div>
     <div class="mobile-score" id="mobile-score">
@@ -3810,8 +3809,6 @@ async function beamPickMove(seat,hand){
 }
 
 async function runBot(seat){
-  // Wait if paused
-  while(gamePaused){ await new Promise(r=>setTimeout(r,200)); }
   try{
     let hand=botCards[seat];
     if(!hand||hand.length===0){socket.emit('botAction',{seat,type:'pass',cards:[]});return}
@@ -4434,47 +4431,6 @@ window.addEventListener('resize', ()=>{
 let afkEnabled = false;
 let afkTimer = null;
 const AFK_DELAY = 1200;
-
-// ===== PAUSE SYSTEM =====
-let gamePaused = false;
-
-function togglePause(){
-  gamePaused = !gamePaused;
-  const btn = document.getElementById('pause-btn');
-  if(gamePaused){
-    stopTimer();
-    btn.style.background = 'rgba(239,68,68,0.4)';
-    btn.style.color = '#fff';
-    btn.innerHTML = '▶ 继续';
-    toast('游戏已暂停');
-    // Show pause overlay
-    let overlay = document.getElementById('pause-overlay');
-    if(!overlay){
-      overlay = document.createElement('div');
-      overlay.id = 'pause-overlay';
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:998;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;';
-      overlay.innerHTML = '<div style="color:#fff;font-size:48px;font-weight:bold;text-shadow:0 0 20px rgba(239,68,68,0.5)">⏸ PAUSED</div>';
-      overlay.onclick = function(){ togglePause(); };
-      document.body.appendChild(overlay);
-    } else {
-      overlay.style.display = 'flex';
-    }
-  } else {
-    btn.style.background = 'rgba(239,68,68,0.15)';
-    btn.style.color = '#f87171';
-    btn.innerHTML = '⏸ 暂停';
-    toast('游戏继续');
-    // Remove overlay
-    let overlay = document.getElementById('pause-overlay');
-    if(overlay) overlay.style.display = 'none';
-    // Resume: restart timer if it's player's turn
-    if(isMyTurn && !gameOver) startTimer();
-    // Resume bot if it's bot's turn
-    if(!isMyTurn && !gameOver && botSeats.includes(turn)){
-      setTimeout(()=>{ if(!gamePaused) runBot(turn); }, 500);
-    }
-  }
-}
 
 function toggleAFK(){
   afkEnabled = !afkEnabled;
