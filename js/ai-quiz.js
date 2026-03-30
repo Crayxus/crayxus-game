@@ -85,31 +85,43 @@ const AIQuiz = {
     sortGroup(groups.pair);
     sortGroup(groups.single);
 
-    // Render — arena style: same value stacked vertically, groups side by side
-    // Each "column" = cards of the same value, stacked with only top part visible
-    const allGroups = [];
-    if (jokers.length > 0) allGroups.push(...jokers.map(c => [c])); // each joker separate
-    // Sort: bomb > triple > pair > single, within each by value desc
+    // Arena style: cards sorted by value (high→low), same value overlapped horizontally
+    // Like a fan of cards in your hand - same value cards stack behind each other with slight offset
+
+    // Flatten all cards, sort by value descending (big on left)
+    const allCards = [];
+    if (jokers.length > 0) jokers.sort((a,b) => b.v - a.v).forEach(c => allCards.push(c));
     [...groups.bomb, ...groups.triple, ...groups.pair, ...groups.single].forEach(g => {
-      allGroups.push(g.cards);
+      g.cards.forEach(c => allCards.push(c));
     });
 
-    const renderStack = (cards) => {
-      if (cards.length === 1) {
-        return `<div style="position:relative;width:42px;height:58px">${this.cardHtml(cards[0])}</div>`;
+    // Group consecutive same-value cards
+    const columns = [];
+    let currentCol = [];
+    allCards.forEach((c, i) => {
+      if (currentCol.length === 0 || currentCol[0].v === c.v) {
+        currentCol.push(c);
+      } else {
+        columns.push([...currentCol]);
+        currentCol = [c];
       }
-      // Stack: each card offset down by 16px
-      let html = `<div style="position:relative;width:42px;height:${58 + (cards.length - 1) * 16}px">`;
+    });
+    if (currentCol.length > 0) columns.push(currentCol);
+
+    // Render each column: cards overlap horizontally, each offset 14px to the right
+    const renderCol = (cards) => {
+      const w = 42 + (cards.length - 1) * 14;
+      let html = `<div style="position:relative;width:${w}px;height:58px;margin-right:4px">`;
       cards.forEach((c, i) => {
-        html += `<div style="position:absolute;top:${i * 16}px;left:0">${this.cardHtml(c)}</div>`;
+        html += `<div style="position:absolute;left:${i * 14}px;top:0;z-index:${i}">${this.cardHtml(c)}</div>`;
       });
       html += '</div>';
       return html;
     };
 
-    return `<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:flex-start;
+    return `<div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:flex-end;
       margin:12px 0;padding:12px 8px;background:#0a1218;border-radius:12px">
-      ${allGroups.map(g => renderStack(g)).join('')}
+      ${columns.map(col => renderCol(col)).join('')}
     </div>`;
   },
 
