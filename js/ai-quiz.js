@@ -85,43 +85,43 @@ const AIQuiz = {
     sortGroup(groups.pair);
     sortGroup(groups.single);
 
-    // Arena style: cards sorted by value (high→low), same value overlapped horizontally
-    // Like a fan of cards in your hand - same value cards stack behind each other with slight offset
+    // Arena style: sorted by power (王>2>A>K>...>3), same value stacked vertically
+    // Each card in stack visible (offset down, showing suit+value)
 
-    // Flatten all cards, sort by value descending (big on left)
-    const allCards = [];
-    if (jokers.length > 0) jokers.sort((a,b) => b.v - a.v).forEach(c => allCards.push(c));
+    // Sort order: 大王(17) > 小王(16) > 2(15) > A(14) > K(13) > ... > 3(3)
+    const allCards = [...jokers];
     [...groups.bomb, ...groups.triple, ...groups.pair, ...groups.single].forEach(g => {
       g.cards.forEach(c => allCards.push(c));
     });
+    allCards.sort((a, b) => b.v - a.v);
 
-    // Group consecutive same-value cards
+    // Group by value
     const columns = [];
-    let currentCol = [];
-    allCards.forEach((c, i) => {
-      if (currentCol.length === 0 || currentCol[0].v === c.v) {
-        currentCol.push(c);
+    let col = [];
+    allCards.forEach(c => {
+      if (col.length === 0 || col[0].v === c.v) {
+        col.push(c);
       } else {
-        columns.push([...currentCol]);
-        currentCol = [c];
+        columns.push([...col]);
+        col = [c];
       }
     });
-    if (currentCol.length > 0) columns.push(currentCol);
+    if (col.length > 0) columns.push(col);
 
-    // Render each column: cards overlap horizontally, each offset 14px to the right
+    // Render: each column stacked vertically, offset 18px per card to show suit+val
     const renderCol = (cards) => {
-      const w = 42 + (cards.length - 1) * 14;
-      let html = `<div style="position:relative;width:${w}px;height:58px;margin-right:4px">`;
+      const h = 58 + (cards.length - 1) * 18;
+      let html = `<div style="position:relative;width:42px;height:${h}px">`;
       cards.forEach((c, i) => {
-        html += `<div style="position:absolute;left:${i * 14}px;top:0;z-index:${i}">${this.cardHtml(c)}</div>`;
+        html += `<div style="position:absolute;top:${i * 18}px;left:0;z-index:${10 + i}">${this.cardHtml(c)}</div>`;
       });
       html += '</div>';
       return html;
     };
 
-    return `<div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:flex-end;
+    return `<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:flex-start;
       margin:12px 0;padding:12px 8px;background:#0a1218;border-radius:12px">
-      ${columns.map(col => renderCol(col)).join('')}
+      ${columns.map(c => renderCol(c)).join('')}
     </div>`;
   },
 
