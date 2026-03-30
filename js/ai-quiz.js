@@ -85,21 +85,31 @@ const AIQuiz = {
     sortGroup(groups.pair);
     sortGroup(groups.single);
 
-    // Render — all cards in one row, groups separated by gap
-    const renderGroup = (items) => {
-      return items.map(g => g.cards.map(c => this.cardHtml(c)).join('')).join('');
+    // Render — arena style: same value stacked vertically, groups side by side
+    // Each "column" = cards of the same value, stacked with only top part visible
+    const allGroups = [];
+    if (jokers.length > 0) allGroups.push(...jokers.map(c => [c])); // each joker separate
+    // Sort: bomb > triple > pair > single, within each by value desc
+    [...groups.bomb, ...groups.triple, ...groups.pair, ...groups.single].forEach(g => {
+      allGroups.push(g.cards);
+    });
+
+    const renderStack = (cards) => {
+      if (cards.length === 1) {
+        return `<div style="position:relative;width:42px;height:58px">${this.cardHtml(cards[0])}</div>`;
+      }
+      // Stack: each card offset down by 16px
+      let html = `<div style="position:relative;width:42px;height:${58 + (cards.length - 1) * 16}px">`;
+      cards.forEach((c, i) => {
+        html += `<div style="position:absolute;top:${i * 16}px;left:0">${this.cardHtml(c)}</div>`;
+      });
+      html += '</div>';
+      return html;
     };
 
-    let allSections = [];
-    if (jokers.length > 0) allSections.push(jokers.map(c => this.cardHtml(c)).join(''));
-    if (groups.bomb.length > 0) allSections.push(renderGroup(groups.bomb));
-    if (groups.triple.length > 0) allSections.push(renderGroup(groups.triple));
-    if (groups.pair.length > 0) allSections.push(renderGroup(groups.pair));
-    if (groups.single.length > 0) allSections.push(renderGroup(groups.single));
-
-    return `<div style="display:flex;flex-wrap:wrap;gap:0;justify-content:center;align-items:flex-end;
-      margin:12px 0;padding:10px;background:#0a1218;border-radius:12px">
-      ${allSections.join('<div style="width:12px"></div>')}
+    return `<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:flex-start;
+      margin:12px 0;padding:12px 8px;background:#0a1218;border-radius:12px">
+      ${allGroups.map(g => renderStack(g)).join('')}
     </div>`;
   },
 
