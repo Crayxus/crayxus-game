@@ -203,19 +203,21 @@ const AIQuiz = {
     const html = `<div id="quiz-panel" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;
       background:#0f1923;display:flex;flex-direction:column;overflow-y:auto">
       <div style="max-width:800px;width:95%;margin:0 auto;padding:20px 0">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="margin-bottom:16px">
           <span style="color:#a0b0c0;font-size:13px">第 ${this.currentQ + 1} / ${this.questions.length} 题</span>
-          <span style="background:${dimColor}22;color:${dimColor};
-            padding:4px 12px;border-radius:20px;font-size:11px;font-weight:bold">${q.dim}</span>
         </div>
         <div style="height:6px;background:#1e3148;border-radius:3px;margin-bottom:20px;overflow:hidden">
           <div style="height:100%;width:${progress}%;background:${dimColor};border-radius:3px;transition:width 0.3s"></div>
         </div>
         <div style="background:#1b2838;padding:20px;border-radius:16px;margin-bottom:16px;border:1px solid #2a4a6b">
-          <div style="color:#a0b0c0;font-size:12px;margin-bottom:4px">${q.scenario}</div>
+          <div style="color:#a0b0c0;font-size:13px;margin-bottom:8px">${q.scenario}</div>
+          ${q.last_play ? `<div style="margin:8px 0;padding:8px;background:#0f1923;border-radius:8px;border:1px solid #f8717144">
+            <div style="font-size:11px;color:#f87171;margin-bottom:6px">上家出的牌：</div>
+            <div style="display:flex;gap:2px">${q.last_play.map(c => this.cardHtmlSm(c)).join('')}</div>
+          </div>` : ''}
+          <div style="font-size:12px;color:#58cc02;margin:8px 0">你的手牌：</div>
           ${handHtml}
-          ${infoHtml}
-          <div style="color:#fff;font-size:16px;font-weight:bold;margin-top:8px">${q.question}</div>
+          <div style="color:#fff;font-size:16px;font-weight:bold;margin-top:12px">${q.question}</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           ${optionsHtml}

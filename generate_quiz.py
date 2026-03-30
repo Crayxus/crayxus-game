@@ -149,14 +149,26 @@ def generate_question(model, cfg, device, game, seat, dim_label):
     last_hand = state_info['last_hand']
     m_value = min_plays(hand)
 
-    # Scenario text
+    # Scenario text + last played cards
+    last_play_cards = []
     if last_hand is None or last_hand.get('type') == 'pass':
         scenario = '自由出牌'
     else:
         lh_owner = state_info.get('last_hand_owner', -1)
         rel = (lh_owner - seat) % 4
         who = ['你', '下家(对手)', '队友', '上家(对手)'][rel]
-        scenario = f'{who}出了牌，轮到你'
+        # Get the actual cards from game history
+        if game.history:
+            for h_seat, h_type, h_uids, h_ht in reversed(game.history):
+                if h_type != 'pass' and h_uids:
+                    last_play_cards = [uid_to_card(u) for u in h_uids]
+                    lh_type = detect_move_type(h_uids)
+                    scenario = f'{who}出了{lh_type}，轮到你'
+                    break
+            if not last_play_cards:
+                scenario = f'{who}出了牌，轮到你'
+        else:
+            scenario = f'{who}出了牌，轮到你'
 
     # Options
     options = []
@@ -193,9 +205,7 @@ def generate_question(model, cfg, device, game, seat, dim_label):
         'dim': dim_label,
         'scenario': scenario,
         'hand': hand_cards,
-        'hand_count': int(hand.sum()),
-        'counts': counts,
-        'm_value': m_value,
+        'last_play': last_play_cards if last_play_cards else None,
         'question': '你会怎么出牌？',
         'options': options,
         'n_legal': n,
