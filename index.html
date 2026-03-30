@@ -1550,15 +1550,15 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <div class="holo-btns" id="holo-btns">
       <div class="holo-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9654;</div>
-        <div class="h-name">ARENA</div>
-        <div class="h-desc">ONLINE 2V2<br>ELO RANKING</div>
-        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">PLAY NOW</div>
+        <div class="h-name">大乱斗</div>
+        <div class="h-desc">人机混战 2V2<br>ELO 排位赛</div>
+        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">开始对战</div>
       </div>
-      <div class="holo-btn" onclick="window.location.href='/replay'" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
+      <div class="holo-btn" onclick="AITraining.showTrainingCenter()" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#128269;</div>
-        <div class="h-name">AI REVIEW</div>
-        <div class="h-desc">GAME REPLAY<br>AI ANALYSIS</div>
-        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">REVIEW</div>
+        <div class="h-name">AI TRAINING</div>
+        <div class="h-desc">段位测评 · AI教练<br>AI复盘 · 等级认证</div>
+        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">进入训练</div>
       </div>
       <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9733;</div>
