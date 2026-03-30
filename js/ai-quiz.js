@@ -55,6 +55,68 @@ const AIQuiz = {
     return { label, cards };
   },
 
+  // 手牌分组展示：炸弹 | 三条 | 对子 | 散牌，同组内按大小排列
+  _renderGroupedHand(hand) {
+    // Count by value
+    const counts = {};
+    hand.forEach(c => {
+      const key = c.v;
+      if (!counts[key]) counts[key] = [];
+      counts[key].push(c);
+    });
+
+    // Group: 4+=炸弹, 3=三条, 2=对子, 1=散牌
+    const groups = { bomb: [], triple: [], pair: [], single: [] };
+    const jokers = [];
+
+    Object.entries(counts).forEach(([val, cards]) => {
+      const v = parseInt(val);
+      if (v >= 16) { jokers.push(...cards); return; }
+      if (cards.length >= 4) groups.bomb.push({ val: v, cards });
+      else if (cards.length === 3) groups.triple.push({ val: v, cards });
+      else if (cards.length === 2) groups.pair.push({ val: v, cards });
+      else groups.single.push({ val: v, cards });
+    });
+
+    // Sort each group by value (high to low)
+    const sortGroup = g => g.sort((a, b) => b.val - a.val);
+    sortGroup(groups.bomb);
+    sortGroup(groups.triple);
+    sortGroup(groups.pair);
+    sortGroup(groups.single);
+
+    // Render with separators
+    const renderSection = (items, label) => {
+      if (items.length === 0) return '';
+      const cardsHtml = items.map(g => g.cards.map(c => this.cardHtml(c)).join('')).join('');
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center">${cardsHtml}</div>
+        <div style="font-size:9px;color:#556;letter-spacing:1px">${label}</div>
+      </div>`;
+    };
+
+    const jokersHtml = jokers.length > 0 ?
+      `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="display:flex;gap:2px">${jokers.map(c => this.cardHtml(c)).join('')}</div>
+        <div style="font-size:9px;color:#556;letter-spacing:1px">王</div>
+      </div>` : '';
+
+    const sections = [
+      jokersHtml,
+      renderSection(groups.bomb, '炸弹'),
+      renderSection(groups.triple, '三条'),
+      renderSection(groups.pair, '对子'),
+      renderSection(groups.single, '散牌'),
+    ].filter(s => s);
+
+    const separator = '<div style="width:1px;background:#2a4a6b;margin:0 8px;align-self:stretch"></div>';
+
+    return `<div style="display:flex;flex-wrap:wrap;gap:0;justify-content:center;align-items:flex-end;
+      margin:12px 0;padding:10px;background:#0a1218;border-radius:12px">
+      ${sections.join(separator)}
+    </div>`;
+  },
+
   async loadQuestions() {
     try {
       const resp = await fetch('/js/quiz-data.json');
@@ -92,13 +154,10 @@ const AIQuiz = {
     };
     const dimColor = dimColors[q.dim] || '#58cc02';
 
-    // Hand display — arena style cards
+    // Hand display — grouped by count (like real hand sorting)
     let handHtml = '';
     if (q.hand && q.hand.length > 0) {
-      const sorted = [...q.hand].sort((a, b) => a.v - b.v);
-      handHtml = `<div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin:12px 0;padding:8px">
-        ${sorted.map(c => this.cardHtml(c)).join('')}
-      </div>`;
+      handHtml = this._renderGroupedHand(q.hand);
     }
 
     // Info line
