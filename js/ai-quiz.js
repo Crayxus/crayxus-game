@@ -108,12 +108,12 @@ const AIQuiz = {
     });
     if (col.length > 0) columns.push(col);
 
-    // Render: each column stacked vertically, offset 18px per card to show suit+val
+    // Render: each column stacked vertically, offset 35px per card to show suit+val
     const renderCol = (cards) => {
-      const h = 58 + (cards.length - 1) * 18;
-      let html = `<div style="position:relative;width:42px;height:${h}px">`;
+      const h = 65 + (cards.length - 1) * 35;
+      let html = `<div style="position:relative;width:48px;height:${h}px">`;
       cards.forEach((c, i) => {
-        html += `<div style="position:absolute;top:${i * 18}px;left:0;z-index:${10 + i}">${this.cardHtml(c)}</div>`;
+        html += `<div style="position:absolute;top:${i * 35}px;left:0;z-index:${10 + i}">${this.cardHtml(c)}</div>`;
       });
       html += '</div>';
       return html;
