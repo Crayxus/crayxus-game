@@ -168,17 +168,7 @@ const AIQuiz = {
       handHtml = this._renderGroupedHand(q.hand);
     }
 
-    // Info line
     let infoHtml = '';
-    if (q.counts) {
-      infoHtml = `<div style="display:flex;gap:12px;justify-content:center;margin:8px 0;font-size:11px;color:#a0b0c0">
-        <span>我方 ${q.counts[0]}张</span>
-        <span>对手 ${q.counts[1]}张</span>
-        <span>队友 ${q.counts[2]}张</span>
-        <span>对手 ${q.counts[3]}张</span>
-        ${q.m_value ? `<span style="color:#58cc02">M值=${q.m_value}</span>` : ''}
-      </div>`;
-    }
 
     // Shuffle options
     const options = q.options.map((o, i) => ({ ...o, origIdx: i }));
@@ -212,7 +202,7 @@ const AIQuiz = {
 
     const html = `<div id="quiz-panel" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;
       background:#0f1923;display:flex;flex-direction:column;overflow-y:auto">
-      <div style="max-width:500px;width:95%;margin:0 auto;padding:20px 0">
+      <div style="max-width:800px;width:95%;margin:0 auto;padding:20px 0">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
           <span style="color:#a0b0c0;font-size:13px">第 ${this.currentQ + 1} / ${this.questions.length} 题</span>
           <span style="background:${dimColor}22;color:${dimColor};
@@ -227,7 +217,9 @@ const AIQuiz = {
           ${infoHtml}
           <div style="color:#fff;font-size:16px;font-weight:bold;margin-top:8px">${q.question}</div>
         </div>
-        ${optionsHtml}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${optionsHtml}
+        </div>
       </div>
     </div>`;
 
@@ -270,8 +262,7 @@ const AIQuiz = {
         ${isCorrect ? '✅ 正确！' : '❌ 不正确'}
       </div>
       <div style="color:#a0b0c0;font-size:13px;line-height:1.6">
-        <strong style="color:#58cc02">AI最优选择：</strong>${correctOption.text}<br>
-        <strong>解析：</strong>${correctOption.explain}
+        <strong style="color:#58cc02">AI推荐：</strong>${correctOption.text}
       </div>
       <button onclick="AIQuiz.nextQuestion()" style="display:block;width:100%;margin-top:16px;padding:12px;
         background:#58cc02;color:#0f1923;border:none;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer">
