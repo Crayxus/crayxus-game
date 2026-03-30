@@ -392,15 +392,18 @@ const AITraining = {
     });
 
     const modes = [
-      { id: 'assess', icon: '📊', name: '智能测评', desc: '每步AI打分', color: '#4ade80' },
-      { id: 'review', icon: '🔄', name: '对局复盘', desc: '回顾关键决策', color: '#fbbf24', action: 'AITraining.showReview()' },
-      { id: 'live', icon: '🎯', name: '实时教练', desc: '出牌时AI提示', color: '#a78bfa' },
+      { id: 'assess', icon: '📊', name: '智能测评', desc: '每步AI打分', color: '#4ade80',
+        action: "AITraining.setMode('assess');document.getElementById('training-center').remove();if(typeof selectMode==='function')selectMode('arena');" },
+      { id: 'review', icon: '🔄', name: '对局复盘', desc: '回顾关键决策', color: '#fbbf24',
+        action: "document.getElementById('training-center').remove();AITraining.showReview();" },
+      { id: 'live', icon: '🎯', name: '实时教练', desc: '出牌时AI提示', color: '#a78bfa',
+        action: "AITraining.setMode('live');document.getElementById('training-center').remove();if(typeof selectMode==='function')selectMode('arena');" },
     ];
 
     let modesHtml = '';
     modes.forEach(m => {
       const active = this.mode === m.id;
-      const onclick = m.action || `AITraining.setMode('${m.id}');document.getElementById('training-center').remove()`;
+      const onclick = m.action;
       modesHtml += `<div style="background:${active?m.color+'22':'#0a0e1a'};padding:14px;border-radius:12px;
         text-align:center;cursor:pointer;border:2px solid ${active?m.color:'#1e2642'};transition:all 0.2s"
         onclick="${onclick}" onmouseenter="this.style.borderColor='${m.color}'" onmouseleave="this.style.borderColor='${active?m.color:'#1e2642'}'">
@@ -447,7 +450,7 @@ const AITraining = {
           <button onclick="AITraining.setMode('off');document.getElementById('training-center').remove()"
             style="flex:1;padding:10px;background:#1e2642;color:#888;border:1px solid #333;border-radius:10px;cursor:pointer;font-size:13px">
             关闭训练</button>
-          <button onclick="document.getElementById('training-center').remove()"
+          <button onclick="document.getElementById('training-center').remove();if(AITraining.mode==='off')AITraining.setMode('assess');if(typeof selectMode==='function')selectMode('arena');"
             style="flex:1;padding:10px;background:${rank.color};color:#000;border:none;border-radius:10px;
             font-weight:bold;cursor:pointer;font-size:13px">开始挑战</button>
         </div>
