@@ -387,24 +387,24 @@ const AITraining = {
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px">
           <div style="background:#0f1923;padding:16px 10px;border-radius:14px;text-align:center;
             cursor:pointer;border:2px solid rgba(88,204,2,0.3);transition:all 0.2s"
-            onclick="document.getElementById('training-center').remove();AITraining.setMode('assess');if(typeof selectMode==='function')selectMode('arena');">
+            onclick="document.getElementById('training-center').remove();if(typeof AIQuiz!=='undefined')AIQuiz.startQuiz();else AITraining._toast('题库加载中...');">
             <div style="font-size:28px;margin-bottom:6px">📋</div>
             <div style="font-size:13px;color:#58cc02;font-weight:bold">段位测评</div>
             <div style="font-size:10px;color:#a0b0c0;margin-top:4px">20题定级<br>6维度评分</div>
           </div>
           <div style="background:#0f1923;padding:16px 10px;border-radius:14px;text-align:center;
-            cursor:pointer;border:2px solid rgba(251,191,36,0.3);transition:all 0.2s"
-            onclick="document.getElementById('training-center').remove();AITraining.setMode('live');if(typeof selectMode==='function')selectMode('arena');">
+            ${this.rating.gamesPlayed > 0 ? 'cursor:pointer;border:2px solid rgba(251,191,36,0.3)' : 'cursor:not-allowed;border:2px solid #1e3148;opacity:0.4'};transition:all 0.2s"
+            onclick="${this.rating.gamesPlayed > 0 ? "document.getElementById('training-center').remove();AITraining.setMode('live');if(typeof selectMode==='function')selectMode('arena');" : "AITraining._toast('请先完成段位测评')" }">
             <div style="font-size:28px;margin-bottom:6px">🎯</div>
-            <div style="font-size:13px;color:#fbbf24;font-weight:bold">AI教练</div>
-            <div style="font-size:10px;color:#a0b0c0;margin-top:4px">实时指导<br>边打边学</div>
+            <div style="font-size:13px;color:${this.rating.gamesPlayed > 0 ? '#fbbf24' : '#555'};font-weight:bold">AI教练</div>
+            <div style="font-size:10px;color:#a0b0c0;margin-top:4px">${this.rating.gamesPlayed > 0 ? '实时指导<br>边打边学' : '请先完成<br>段位测评'}</div>
           </div>
           <div style="background:#0f1923;padding:16px 10px;border-radius:14px;text-align:center;
-            cursor:pointer;border:2px solid rgba(167,139,250,0.3);transition:all 0.2s"
-            onclick="document.getElementById('training-center').remove();AITraining.showReview();">
+            ${this.rating.gamesPlayed > 0 ? 'cursor:pointer;border:2px solid rgba(167,139,250,0.3)' : 'cursor:not-allowed;border:2px solid #1e3148;opacity:0.4'};transition:all 0.2s"
+            onclick="${this.rating.gamesPlayed > 0 ? "document.getElementById('training-center').remove();AITraining.showReview();" : "AITraining._toast('请先完成段位测评')"}">
             <div style="font-size:28px;margin-bottom:6px">🔄</div>
-            <div style="font-size:13px;color:#a78bfa;font-weight:bold">对局复盘</div>
-            <div style="font-size:10px;color:#a0b0c0;margin-top:4px">AI分析<br>标记失误</div>
+            <div style="font-size:13px;color:${this.rating.gamesPlayed > 0 ? '#a78bfa' : '#555'};font-weight:bold">对局复盘</div>
+            <div style="font-size:10px;color:#a0b0c0;margin-top:4px">${this.rating.gamesPlayed > 0 ? 'AI分析<br>标记失误' : '请先完成<br>段位测评'}</div>
           </div>
         </div>
 
