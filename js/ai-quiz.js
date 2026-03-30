@@ -85,35 +85,21 @@ const AIQuiz = {
     sortGroup(groups.pair);
     sortGroup(groups.single);
 
-    // Render with separators
-    const renderSection = (items, label) => {
-      if (items.length === 0) return '';
-      const cardsHtml = items.map(g => g.cards.map(c => this.cardHtml(c)).join('')).join('');
-      return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-        <div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center">${cardsHtml}</div>
-        <div style="font-size:9px;color:#556;letter-spacing:1px">${label}</div>
-      </div>`;
+    // Render — all cards in one row, groups separated by gap
+    const renderGroup = (items) => {
+      return items.map(g => g.cards.map(c => this.cardHtml(c)).join('')).join('');
     };
 
-    const jokersHtml = jokers.length > 0 ?
-      `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-        <div style="display:flex;gap:2px">${jokers.map(c => this.cardHtml(c)).join('')}</div>
-        <div style="font-size:9px;color:#556;letter-spacing:1px">王</div>
-      </div>` : '';
-
-    const sections = [
-      jokersHtml,
-      renderSection(groups.bomb, '炸弹'),
-      renderSection(groups.triple, '三条'),
-      renderSection(groups.pair, '对子'),
-      renderSection(groups.single, '散牌'),
-    ].filter(s => s);
-
-    const separator = '<div style="width:1px;background:#2a4a6b;margin:0 8px;align-self:stretch"></div>';
+    let allSections = [];
+    if (jokers.length > 0) allSections.push(jokers.map(c => this.cardHtml(c)).join(''));
+    if (groups.bomb.length > 0) allSections.push(renderGroup(groups.bomb));
+    if (groups.triple.length > 0) allSections.push(renderGroup(groups.triple));
+    if (groups.pair.length > 0) allSections.push(renderGroup(groups.pair));
+    if (groups.single.length > 0) allSections.push(renderGroup(groups.single));
 
     return `<div style="display:flex;flex-wrap:wrap;gap:0;justify-content:center;align-items:flex-end;
       margin:12px 0;padding:10px;background:#0a1218;border-radius:12px">
-      ${sections.join(separator)}
+      ${allSections.join('<div style="width:12px"></div>')}
     </div>`;
   },
 
