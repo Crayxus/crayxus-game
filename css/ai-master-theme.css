@@ -1,0 +1,228 @@
+/*
+ * AI 掼蛋大师 — Chess.com + Duolingo 融合主题
+ *
+ * Chess.com: 深色专业感、绿色主调、清晰的信息层级
+ * Duolingo: 圆润卡片、进度可视化、成就感、游戏化
+ */
+
+/* ===== 全局色彩重定义 ===== */
+:root {
+  --bg: #1b2838;          /* Steam 蓝灰，比纯黑友好 */
+  --bg-card: #1e3148;
+  --bg-panel: #243b53;
+  --neon: #58cc02;        /* Duolingo 绿 */
+  --gold: #ffc800;
+  --cyan: #58cc02;
+  --red: #ff4b4b;
+  --magenta: #e91e63;
+  --text: #f0f0f0;
+  --text-dim: #a0b0c0;
+  --border: rgba(88, 204, 2, 0.15);
+  --shadow-glow: rgba(88, 204, 2, 0.1);
+}
+
+/* ===== 模式选择页（主菜单）===== */
+#mode-select {
+  background: linear-gradient(180deg, #1b2838 0%, #0f1923 100%) !important;
+}
+
+/* 标题区域 */
+.mode-select-title {
+  background: linear-gradient(135deg, #58cc02, #89e219, #ffc800) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  font-size: 48px !important;
+  letter-spacing: 4px !important;
+}
+
+.mode-select-sub {
+  color: rgba(88, 204, 2, 0.6) !important;
+  letter-spacing: 8px !important;
+}
+
+/* Holo 按钮 — Duolingo 风格圆润卡片 */
+.holo-btn {
+  background: rgba(22, 33, 62, 0.9) !important;
+  border: 2px solid rgba(88, 204, 2, 0.12) !important;
+  border-radius: 24px !important;
+  padding: 28px 24px !important;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+.holo-btn:hover {
+  transform: translateY(-6px) scale(1.03) !important;
+  border-color: rgba(88, 204, 2, 0.4) !important;
+  box-shadow: 0 12px 40px rgba(88, 204, 2, 0.15) !important;
+  background: rgba(22, 33, 62, 1) !important;
+}
+
+.holo-btn .h-icon {
+  font-size: 48px !important;
+  margin-bottom: 10px !important;
+  filter: none !important;
+}
+
+.holo-btn .h-name {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  color: #fff !important;
+  text-shadow: none !important;
+}
+
+.holo-btn .h-desc {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  line-height: 1.5 !important;
+  margin-top: 4px !important;
+}
+
+.holo-btn .h-tag {
+  margin-top: 12px !important;
+  padding: 6px 16px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  background: rgba(88, 204, 2, 0.15) !important;
+  color: #58cc02 !important;
+  border: 1px solid rgba(88, 204, 2, 0.3) !important;
+}
+
+/* 不同按钮的强调色 */
+.holo-btn[data-mode="arena"] .h-tag {
+  background: rgba(88, 204, 2, 0.15) !important;
+  color: #58cc02 !important;
+  border-color: rgba(88, 204, 2, 0.3) !important;
+}
+.holo-btn[data-mode="review"] .h-tag {
+  background: rgba(255, 200, 0, 0.15) !important;
+  color: #ffc800 !important;
+  border-color: rgba(255, 200, 0, 0.3) !important;
+}
+.holo-btn[data-mode="tournament"] .h-tag,
+.holo-btn.arena-btn .h-tag {
+  background: rgba(233, 30, 99, 0.15) !important;
+  color: #e91e63 !important;
+  border-color: rgba(233, 30, 99, 0.3) !important;
+}
+.holo-btn[data-mode="dashboard"] .h-tag,
+.holo-btn.training-btn .h-tag {
+  background: rgba(0, 188, 212, 0.15) !important;
+  color: #00bcd4 !important;
+  border-color: rgba(0, 188, 212, 0.3) !important;
+}
+
+/* ===== Boot 页面 ===== */
+#boot {
+  background: linear-gradient(180deg, #1b2838 0%, #0f1923 100%) !important;
+}
+
+.boot-subtitle {
+  color: rgba(88, 204, 2, 0.6) !important;
+}
+
+#boot-start-btn {
+  background: #58cc02 !important;
+  color: #1a1a2e !important;
+  border-radius: 16px !important;
+  font-size: 18px !important;
+  padding: 16px 56px !important;
+  box-shadow: 0 4px 20px rgba(88, 204, 2, 0.3) !important;
+  transition: all 0.3s !important;
+}
+
+#boot-start-btn:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 8px 30px rgba(88, 204, 2, 0.4) !important;
+}
+
+/* ===== 游戏内 UI ===== */
+
+/* 出牌按钮 */
+#ctrls button {
+  border-radius: 14px !important;
+  font-weight: 700 !important;
+  transition: all 0.2s !important;
+}
+
+/* 训练按钮 */
+#training-mode-btn {
+  background: rgba(88, 204, 2, 0.15) !important;
+  border: 1px solid rgba(88, 204, 2, 0.4) !important;
+  color: #58cc02 !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+}
+
+#training-mode-btn:hover {
+  background: rgba(88, 204, 2, 0.3) !important;
+}
+
+/* AI 训练徽章 */
+#ai-training-badge {
+  font-weight: 600 !important;
+}
+
+/* ===== Holo 个人信息卡片 ===== */
+.holo-user-card,
+.holo-stats {
+  background: rgba(22, 33, 62, 0.8) !important;
+  border: 1px solid rgba(88, 204, 2, 0.1) !important;
+  border-radius: 16px !important;
+}
+
+/* ===== 进度条 ===== */
+#boot-load-bar {
+  background: linear-gradient(90deg, #58cc02, #89e219) !important;
+  border-radius: 4px !important;
+}
+
+/* ===== 弹窗和面板 — Duolingo 风格 ===== */
+.casual-popup,
+#lobby .lobby-card {
+  background: rgba(22, 33, 62, 0.95) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(88, 204, 2, 0.15) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ===== 全局字体 ===== */
+body {
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif !important;
+}
+
+/* ===== 滚动条美化 ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(88, 204, 2, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(88, 204, 2, 0.5);
+}
+
+/* ===== 亮色主题适配 ===== */
+body.light-theme .holo-btn {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(88, 204, 2, 0.2) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .holo-btn:hover {
+  box-shadow: 0 8px 30px rgba(88, 204, 2, 0.15) !important;
+}
+
+body.light-theme .holo-btn .h-name {
+  color: #1a1a2e !important;
+}
+
+body.light-theme #mode-select {
+  background: linear-gradient(180deg, #f5f5f5, #e8e8e8) !important;
+}
