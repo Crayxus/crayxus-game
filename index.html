@@ -1452,7 +1452,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <div class="holo-corner holo-corner-bl"></div>
   <div class="holo-corner holo-corner-br"></div>
   <div class="logo">CRAYXUS</div>
-  <div class="boot-subtitle">A I &nbsp; A R E N A</div>
+  <div class="boot-subtitle">A I 掼 蛋 · 以AI之智 行大师之道</div>
   <div style="color:var(--gold);margin-top:10px;font-size:28px;font-weight:bold;position:relative;z-index:10">V41.1</div>
   <div id="boot-loading" style="margin-top:28px;width:260px;text-align:center">
     <div id="boot-load-text" style="color:#888;font-size:13px;margin-bottom:10px">Loading AI model...</div>
@@ -1555,7 +1555,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
         <div class="h-desc">人机混战 2V2<br>ELO 排位赛</div>
         <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">开始对战</div>
       </div>
-      <div class="holo-btn" onclick="AITraining.showTrainingCenter()" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
+      <div class="holo-btn" onclick="AITraining.showAssessmentIntro()" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#128269;</div>
         <div class="h-name">AI TRAINING</div>
         <div class="h-desc">段位测评 · AI教练<br>AI复盘 · 等级认证</div>
@@ -1650,7 +1650,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <div class="hc-title" id="hc-title">翻牌定先手</div>
     </div>
     <button id="afk-btn" onclick="toggleAFK()">🤖 代打</button>
-    <button id="training-mode-btn" onclick="AITraining.showTrainingCenter()" style="position:absolute;top:10px;right:180px;z-index:501;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:#4ade80;font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;backdrop-filter:blur(6px)">🎓 训练</button>
+    <button id="training-mode-btn" onclick="AITraining.showAssessmentIntro()" style="position:absolute;top:10px;right:180px;z-index:501;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:#4ade80;font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;backdrop-filter:blur(6px)">🎓 训练</button>
     <div id="ai-training-badge" style="position:absolute;top:38px;right:180px;z-index:501;font-size:10px;color:#888"></div>
     <button onclick="exportTrainingData()" style="position:absolute;top:10px;right:120px;z-index:501;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#f87171;font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;backdrop-filter:blur(6px)">📊 导出训练数据</button>
     <button id="game-theme-btn" onclick="toggleSiteTheme()" style="position:absolute;top:10px;right:10px;z-index:501;background:rgba(20,20,30,0.6);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;backdrop-filter:blur(6px)">🌙</button>

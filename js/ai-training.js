@@ -372,7 +372,64 @@ const AITraining = {
     document.body.insertAdjacentHTML('beforeend', html);
   },
 
-  // 训练中心主面板
+  // 显示测评入口（20题定级）
+  showAssessmentIntro() {
+    const rank = this.getRank(this.rating.score);
+    const html = `<div id="training-center" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;
+      background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;overflow-y:auto"
+      onclick="if(event.target===this)this.remove()">
+      <div style="background:linear-gradient(135deg,#1b2838,#1e3148);border:2px solid #58cc02;
+        border-radius:20px;padding:32px;max-width:440px;width:95%;color:#e0e0e0;
+        font-family:'Segoe UI',sans-serif" onclick="event.stopPropagation()">
+        <h2 style="text-align:center;color:#58cc02;margin-bottom:8px;font-size:22px">🎓 AI 掼蛋大师</h2>
+        <div style="text-align:center;color:#a0b0c0;font-size:12px;margin-bottom:24px">以AI之智 · 行大师之道</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px">
+          <div style="background:#0f1923;padding:16px 10px;border-radius:14px;text-align:center;
+            cursor:pointer;border:2px solid rgba(88,204,2,0.3);transition:all 0.2s"
+            onclick="document.getElementById('training-center').remove();AITraining.setMode('assess');if(typeof selectMode==='function')selectMode('arena');">
+            <div style="font-size:28px;margin-bottom:6px">📋</div>
+            <div style="font-size:13px;color:#58cc02;font-weight:bold">段位测评</div>
+            <div style="font-size:10px;color:#a0b0c0;margin-top:4px">20题定级<br>6维度评分</div>
+          </div>
+          <div style="background:#0f1923;padding:16px 10px;border-radius:14px;text-align:center;
+            cursor:pointer;border:2px solid rgba(251,191,36,0.3);transition:all 0.2s"
+            onclick="document.getElementById('training-center').remove();AITraining.setMode('live');if(typeof selectMode==='function')selectMode('arena');">
+            <div style="font-size:28px;margin-bottom:6px">🎯</div>
+            <div style="font-size:13px;color:#fbbf24;font-weight:bold">AI教练</div>
+            <div style="font-size:10px;color:#a0b0c0;margin-top:4px">实时指导<br>边打边学</div>
+          </div>
+          <div style="background:#0f1923;padding:16px 10px;border-radius:14px;text-align:center;
+            cursor:pointer;border:2px solid rgba(167,139,250,0.3);transition:all 0.2s"
+            onclick="document.getElementById('training-center').remove();AITraining.showReview();">
+            <div style="font-size:28px;margin-bottom:6px">🔄</div>
+            <div style="font-size:13px;color:#a78bfa;font-weight:bold">对局复盘</div>
+            <div style="font-size:10px;color:#a0b0c0;margin-top:4px">AI分析<br>标记失误</div>
+          </div>
+        </div>
+
+        <div style="background:#0f1923;padding:16px;border-radius:14px;margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:24px">${rank.icon}</span>
+            <div>
+              <div style="font-size:15px;font-weight:bold;color:${rank.color}">${rank.name}</div>
+              <div style="font-size:11px;color:#a0b0c0">综合评分 ${this.rating.score} · ${this.rating.gamesPlayed}局</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#a0b0c0;line-height:1.6">
+            <strong style="color:#58cc02">六维评估体系：</strong>组牌分解 · 大牌控制 · 出牌时机 · 队友配合 · 炸弹使用 · 终局处理
+          </div>
+        </div>
+
+        <button onclick="document.getElementById('training-center').remove()"
+          style="display:block;width:100%;padding:14px;background:#1e3148;color:#a0b0c0;
+          border:1px solid #2a4a6b;border-radius:12px;cursor:pointer;font-size:13px">返回</button>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  },
+
+  // 训练中心主面板（保留兼容）
   showTrainingCenter() {
     const rank = this.getRank(this.rating.score);
     const nextRank = this.getNextRank(this.rating.score);
