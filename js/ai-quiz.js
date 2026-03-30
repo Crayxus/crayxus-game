@@ -11,15 +11,48 @@ const AIQuiz = {
   dimScores: {},
   loaded: false,
 
-  SUIT_SYMBOLS: { S: '♠', H: '♥', C: '♣', D: '♦', JK: '' },
-  SUIT_COLORS: { S: '#e0e0e0', H: '#ff3b3b', C: '#22cc44', D: '#4488ff', JK: '#ffd700' },
+  SUIT_SYMBOLS: { S: '♠', H: '♥', C: '♣', D: '♦', JK: '★' },
+  SUIT_CLASS: { S: 'suit-s', H: 'suit-h', C: 'suit-c', D: 'suit-d', JK: 'suit-jk' },
   VAL_NAMES: {3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A',15:'2',16:'小王',17:'大王'},
 
+  // 大卡片（手牌展示）
   cardHtml(card) {
+    const sc = this.SUIT_CLASS[card.s] || 'suit-s';
     const sym = this.SUIT_SYMBOLS[card.s] || '';
-    const color = this.SUIT_COLORS[card.s] || '#fff';
     const val = this.VAL_NAMES[card.v] || card.v;
-    return `<span style="color:${color}">${sym}${val}</span>`;
+    if (card.v >= 16) return `<div class="quiz-card ${sc}"><span class="qc-val">${val}</span></div>`;
+    return `<div class="quiz-card ${sc}"><span class="qc-val">${val}</span><span class="qc-suit">${sym}</span></div>`;
+  },
+
+  // 小卡片（选项中的出牌）
+  cardHtmlSm(card) {
+    const sc = this.SUIT_CLASS[card.s] || 'suit-s';
+    const sym = this.SUIT_SYMBOLS[card.s] || '';
+    const val = this.VAL_NAMES[card.v] || card.v;
+    if (card.v >= 16) return `<div class="quiz-card-sm ${sc}"><span class="qc-val">${val}</span></div>`;
+    return `<div class="quiz-card-sm ${sc}"><span class="qc-val">${val}</span><span class="qc-suit">${sym}</span></div>`;
+  },
+
+  // 解析选项文字中的牌，提取卡片
+  parseOptionCards(text) {
+    // text format: "顺子: ♥6 ♣7 ♠8 ♥9 ♥10" or "PASS"
+    if (text === 'PASS') return { label: 'PASS', cards: [] };
+    const colonIdx = text.indexOf(':');
+    const label = colonIdx >= 0 ? text.substring(0, colonIdx).trim() : '';
+    const cardPart = colonIdx >= 0 ? text.substring(colonIdx + 1).trim() : text;
+
+    const suitMap = {'♠':'S','♥':'H','♣':'C','♦':'D'};
+    const valMap = {'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14,'2':15};
+
+    const cards = [];
+    const regex = /([♠♥♣♦])(\d+|[JQKA])|小王|大王/g;
+    let m;
+    while ((m = regex.exec(cardPart)) !== null) {
+      if (m[0] === '小王') cards.push({s:'JK',v:16});
+      else if (m[0] === '大王') cards.push({s:'JK',v:17});
+      else cards.push({s: suitMap[m[1]] || 'S', v: valMap[m[2]] || 0});
+    }
+    return { label, cards };
   },
 
   async loadQuestions() {
@@ -59,14 +92,12 @@ const AIQuiz = {
     };
     const dimColor = dimColors[q.dim] || '#58cc02';
 
-    // Hand display
+    // Hand display — arena style cards
     let handHtml = '';
     if (q.hand && q.hand.length > 0) {
-      // Sort by value
       const sorted = [...q.hand].sort((a, b) => a.v - b.v);
-      handHtml = `<div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin:12px 0">
-        ${sorted.map(c => `<div style="background:#1e3148;padding:5px 8px;border-radius:6px;font-size:14px;
-          border:1px solid #2a4a6b;white-space:nowrap">${this.cardHtml(c)}</div>`).join('')}
+      handHtml = `<div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin:12px 0;padding:8px">
+        ${sorted.map(c => this.cardHtml(c)).join('')}
       </div>`;
     }
 
@@ -92,14 +123,23 @@ const AIQuiz = {
     let optionsHtml = '';
     options.forEach((o, i) => {
       const letter = ['A', 'B', 'C', 'D'][i];
+      const parsed = this.parseOptionCards(o.text);
+      const cardsHtml = parsed.cards.length > 0 ?
+        `<div style="display:flex;flex-wrap:wrap;gap:1px;margin-top:4px">${parsed.cards.map(c => this.cardHtmlSm(c)).join('')}</div>` :
+        '';
+      const labelText = parsed.label || o.text;
+
       optionsHtml += `<div class="quiz-option" data-idx="${o.origIdx}"
-        style="background:#0f1923;padding:14px 16px;border-radius:12px;margin:8px 0;
+        style="background:#0f1923;padding:12px 14px;border-radius:12px;margin:8px 0;
         cursor:pointer;border:2px solid #1e3148;transition:all 0.2s;display:flex;align-items:center;gap:12px"
         onclick="AIQuiz.selectAnswer(${o.origIdx}, this)"
         onmouseenter="this.style.borderColor='${dimColor}'" onmouseleave="this.style.borderColor='#1e3148'">
         <span style="background:#1e3148;color:${dimColor};width:28px;height:28px;border-radius:50%;
           display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:13px;flex-shrink:0">${letter}</span>
-        <span style="font-size:13px;color:#e0e0e0">${o.text}</span>
+        <div>
+          <div style="font-size:13px;color:#e0e0e0;font-weight:600">${labelText}</div>
+          ${cardsHtml}
+        </div>
       </div>`;
     });
 

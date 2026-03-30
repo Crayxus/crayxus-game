@@ -208,6 +208,62 @@ body {
   background: rgba(88, 204, 2, 0.5);
 }
 
+/* ===== 测评牌面卡片 ===== */
+.quiz-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 58px;
+  background: linear-gradient(145deg, #f8f8f0, #e8e8d8);
+  border: 1.5px solid #999;
+  border-radius: 6px;
+  margin: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  position: relative;
+  cursor: default;
+}
+.quiz-card .qc-val {
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+}
+.quiz-card .qc-suit {
+  font-size: 12px;
+  line-height: 1;
+  margin-top: 1px;
+}
+.quiz-card.suit-h .qc-val, .quiz-card.suit-h .qc-suit { color: #e02020; }
+.quiz-card.suit-d .qc-val, .quiz-card.suit-d .qc-suit { color: #3366ff; }
+.quiz-card.suit-c .qc-val, .quiz-card.suit-c .qc-suit { color: #18a018; }
+.quiz-card.suit-s .qc-val, .quiz-card.suit-s .qc-suit { color: #222; }
+.quiz-card.suit-jk { background: linear-gradient(145deg, #ffe066, #ffcc00); border-color: #cc9900; }
+.quiz-card.suit-jk .qc-val { color: #cc0000; font-size: 11px; }
+
+/* 选项中的小卡片 */
+.quiz-card-sm {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 44px;
+  background: linear-gradient(145deg, #f8f8f0, #e8e8d8);
+  border: 1px solid #999;
+  border-radius: 4px;
+  margin: 1px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.quiz-card-sm .qc-val { font-size: 13px; font-weight: 800; line-height: 1; }
+.quiz-card-sm .qc-suit { font-size: 10px; line-height: 1; }
+.quiz-card-sm.suit-h .qc-val, .quiz-card-sm.suit-h .qc-suit { color: #e02020; }
+.quiz-card-sm.suit-d .qc-val, .quiz-card-sm.suit-d .qc-suit { color: #3366ff; }
+.quiz-card-sm.suit-c .qc-val, .quiz-card-sm.suit-c .qc-suit { color: #18a018; }
+.quiz-card-sm.suit-s .qc-val, .quiz-card-sm.suit-s .qc-suit { color: #222; }
+.quiz-card-sm.suit-jk { background: linear-gradient(145deg, #ffe066, #ffcc00); }
+.quiz-card-sm.suit-jk .qc-val { color: #cc0000; font-size: 9px; }
+
 /* ===== 亮色主题适配 ===== */
 body.light-theme .holo-btn {
   background: rgba(255, 255, 255, 0.95) !important;
