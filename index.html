@@ -1451,7 +1451,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <div class="holo-corner holo-corner-tr"></div>
   <div class="holo-corner holo-corner-bl"></div>
   <div class="holo-corner holo-corner-br"></div>
-  <div class="logo">CRAYXUS</div>
+  <div class="logo">AI 掼蛋大师</div>
   <div class="boot-subtitle">A I 掼 蛋 · 以AI之智 行大师之道</div>
   <div style="color:var(--gold);margin-top:10px;font-size:28px;font-weight:bold;position:relative;z-index:10">V41.1</div>
   <div id="boot-loading" style="margin-top:28px;width:260px;text-align:center">
@@ -1476,18 +1476,18 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
   <!-- ELO display -->
   <div class="holo-elo-display">
-    <div class="holo-elo-label">ELO RATING</div>
+    <div class="holo-elo-label">积分</div>
     <div class="holo-elo-value" id="holo-elo">1500</div>
   </div>
 
   <!-- VIP badge -->
   <div class="holo-member-badge">
     <span style="font-style:normal">&#9733;</span>
-    <span class="holo-member-text">LIFETIME VIP</span>
+    <span class="holo-member-text">终身VIP</span>
   </div>
 
   <div class="mode-select-wrap">
-    <div class="mode-select-title">CRAYXUS GUANDAN</div>
+    <div class="mode-select-title">AI 掼蛋大师</div>
     <div class="mode-select-sub">A I &nbsp; B O U N T Y &nbsp; H U N T E R</div>
 
     <!-- Avatar section (shown when logged in) -->
@@ -1511,11 +1511,11 @@ body.view-table .holo-hex-grid{opacity:0.05}
           <div class="holo-rank-stars"></div>
         </div>
         <div class="holo-player-stats">
-          <div class="holo-stat"><span class="holo-stat-val" id="holo-wr">0%</span><span class="holo-stat-label">WIN RATE</span></div>
-          <div class="holo-stat"><span class="holo-stat-val holo-gold" id="holo-games">0</span><span class="holo-stat-label">GAMES</span></div>
-          <div class="holo-stat"><span class="holo-stat-val" id="holo-weekly">#--</span><span class="holo-stat-label">WEEKLY</span></div>
+          <div class="holo-stat"><span class="holo-stat-val" id="holo-wr">0%</span><span class="holo-stat-label">胜率</span></div>
+          <div class="holo-stat"><span class="holo-stat-val holo-gold" id="holo-games">0</span><span class="holo-stat-label">对局</span></div>
+          <div class="holo-stat"><span class="holo-stat-val" id="holo-weekly">#--</span><span class="holo-stat-label">周榜</span></div>
         </div>
-        <div class="holo-logout" id="holo-logout" onclick="doLogout()" style="display:none">LOG OUT</div>
+        <div class="holo-logout" id="holo-logout" onclick="doLogout()" style="display:none">退出</div>
       </div>
     </div>
 
@@ -1540,9 +1540,9 @@ body.view-table .holo-hex-grid{opacity:0.05}
           <span class="holo-rank-badge" style="background:rgba(0,255,255,0.08);color:rgba(0,255,255,0.5);border-color:rgba(0,255,255,0.2)">WECHAT SCAN</span>
         </div>
         <div class="holo-player-stats" style="opacity:0.3">
-          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">WIN RATE</span></div>
-          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">GAMES</span></div>
-          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">WEEKLY</span></div>
+          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">胜率</span></div>
+          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">对局</span></div>
+          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">周榜</span></div>
         </div>
       </div>
     </div>
@@ -1563,15 +1563,15 @@ body.view-table .holo-hex-grid{opacity:0.05}
       </div>
       <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9733;</div>
-        <div class="h-name">TOURNAMENT</div>
-        <div class="h-desc">SCOREBOARD · PAIRINGS<br>LIVE RESULTS</div>
-        <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">EVENTS</div>
+        <div class="h-name">锦标赛</div>
+        <div class="h-desc">赛程对阵<br>实时比分</div>
+        <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">赛事</div>
       </div>
       <div class="holo-btn training-btn" onclick="window.location.href='/dashboard'" data-mode="dashboard" onmouseenter="showModeInfo('dashboard')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9632;</div>
-        <div class="h-name">DASHBOARD</div>
-        <div class="h-desc">48 PLAYERS · LIVE SCORES<br>REFEREE CONTROL</div>
-        <div class="h-tag" style="background:rgba(46,213,115,0.1);color:#2ed573;border:1px solid rgba(46,213,115,0.3)">BIG SCREEN</div>
+        <div class="h-name">大屏控制</div>
+        <div class="h-desc">实时大屏 · 排行榜<br>裁判控制</div>
+        <div class="h-tag" style="background:rgba(46,213,115,0.1);color:#2ed573;border:1px solid rgba(46,213,115,0.3)">大屏</div>
       </div>
     </div>
   </div>
@@ -1579,7 +1579,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <!-- Theme toggle button -->
   <div id="theme-toggle" onclick="toggleSiteTheme()" style="position:absolute;top:16px;right:16px;z-index:60;cursor:pointer;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:8px;transition:all 0.3s">
     <span id="theme-icon" style="font-size:18px">🌙</span>
-    <span id="theme-label" style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:1px;font-family:'Orbitron','Segoe UI',sans-serif">DARK</span>
+    <span id="theme-label" style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:1px;font-family:'Orbitron','Segoe UI',sans-serif">暗色</span>
   </div>
 
 
@@ -2584,7 +2584,7 @@ function showModeInfo(mode){
   if(!mode){
     // Reset to default
     const wr=totalGames>0?Math.round(totalWins/totalGames*100)+'%':'0%';
-    statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" id="holo-wr">${wr}</span><span class="holo-stat-label">WIN RATE</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold" id="holo-games">${totalGames}</span><span class="holo-stat-label">GAMES</span></div><div class="holo-stat"><span class="holo-stat-val" id="holo-weekly">#--</span><span class="holo-stat-label">WEEKLY</span></div>`;
+    statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" id="holo-wr">${wr}</span><span class="holo-stat-label">胜率</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold" id="holo-games">${totalGames}</span><span class="holo-stat-label">对局</span></div><div class="holo-stat"><span class="holo-stat-val" id="holo-weekly">#--</span><span class="holo-stat-label">周榜</span></div>`;
     return;
   }
   if(mode==='casual'){
@@ -2592,7 +2592,7 @@ function showModeInfo(mode){
     const label=r&&typeof getRankLabel==='function'?getRankLabel(r):'BRONZE V';
     const wr=totalGames>0?Math.round(totalWins/totalGames*100)+'%':'0%';
     const streak=parseInt(localStorage.getItem('crayxus_casual_streak'))||0;
-    statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:${r?r.color:'var(--gold)'};text-shadow:0 0 8px ${r?r.color:'var(--gold)'}">${label}</span><span class="holo-stat-label">RANK</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">${wr}</span><span class="holo-stat-label">WIN RATE</span></div><div class="holo-stat"><span class="holo-stat-val">${streak}</span><span class="holo-stat-label">STREAK</span></div>`;
+    statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:${r?r.color:'var(--gold)'};text-shadow:0 0 8px ${r?r.color:'var(--gold)'}">${label}</span><span class="holo-stat-label">RANK</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">${wr}</span><span class="holo-stat-label">胜率</span></div><div class="holo-stat"><span class="holo-stat-val">${streak}</span><span class="holo-stat-label">STREAK</span></div>`;
   }else if(mode==='training'){
     statsEl.innerHTML=`<div class="holo-stat"><span class="holo-stat-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">AI</span><span class="holo-stat-label">COACH</span></div><div class="holo-stat"><span class="holo-stat-val holo-gold">DMC</span><span class="holo-stat-label">ENGINE</span></div><div class="holo-stat"><span class="holo-stat-val">V4</span><span class="holo-stat-label">78.5% WR</span></div>`;
   }else if(mode==='arena'){
