@@ -1572,8 +1572,8 @@ body.view-table .holo-hex-grid{opacity:0.05}
 <div id="lobby" class="screen">
   <div class="lobby-card">
     <div style="font-size:50px;margin-bottom:10px">&#9733;</div>
-    <div style="font-size:24px;font-weight:bold;margin-bottom:5px">SEASON 1</div>
-    <div style="color:#888;margin-bottom:20px">2V2 RANKED &middot; 1-4 PLAYERS</div>
+    <div style="font-size:24px;font-weight:bold;margin-bottom:5px">赛季 1</div>
+    <div style="color:#888;margin-bottom:20px">2V2 排位 &middot; 1-4 人</div>
     <div style="width:100%;padding:15px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:20px">
       <div class="row"><span>ELO</span><span style="color:var(--neon)" id="lobby-elo">1500</span></div>
       <div class="row"><span>胜率</span><span style="color:var(--gold)" id="lobby-winrate">0%</span></div>
@@ -2585,8 +2585,8 @@ function selectMode(mode){
   if(mode==='arena'){
     if(!socket.connected) socket.connect();
     // Restore lobby UI for arena mode
-    document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='SEASON 1';
-    document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='2V2 RANKED · 1-4 PLAYERS';
+    document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText='赛季 1';
+    document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='2V2 排位 · 1-4 人';
     var eloRow=document.getElementById('lobby-elo');
     if(eloRow)eloRow.parentElement.parentElement.style.display='';
     switchScreen('lobby');
