@@ -240,38 +240,50 @@ const AIQuiz = {
     this.dimScores[q.dim].total++;
     if (isCorrect) this.dimScores[q.dim].correct++;
 
-    // Highlight
-    document.querySelectorAll('.quiz-option').forEach(opt => {
-      opt.style.pointerEvents = 'none';
-      const idx = parseInt(opt.dataset.idx);
-      if (q.options[idx].correct) {
-        opt.style.borderColor = '#58cc02';
-        opt.style.background = 'rgba(88,204,2,0.15)';
-      } else if (idx === origIdx && !isCorrect) {
-        opt.style.borderColor = '#ff4b4b';
-        opt.style.background = 'rgba(255,75,75,0.15)';
-      }
-    });
+    // Assessment mode (段位测评): no feedback, go to next immediately
+    // Course mode: show feedback
+    const isAssessment = this.questions.length >= 15; // 20-question assessment
 
-    // Explanation
-    const panel = document.getElementById('quiz-panel');
-    const div = document.createElement('div');
-    div.style.cssText = 'max-width:500px;width:95%;margin:16px auto;padding:16px;border-radius:12px;' +
-      (isCorrect ? 'background:rgba(88,204,2,0.1);border:1px solid rgba(88,204,2,0.3)' :
-                   'background:rgba(255,75,75,0.1);border:1px solid rgba(255,75,75,0.3)');
-    div.innerHTML = `
-      <div style="font-size:18px;font-weight:bold;margin-bottom:8px;color:${isCorrect?'#58cc02':'#ff4b4b'}">
-        ${isCorrect ? '✅ 正确！' : '❌ 不正确'}
-      </div>
-      <div style="color:#e0e0e0;font-size:15px;line-height:1.8">
-        <strong style="color:#58cc02">📖 解析：</strong>${AIQuiz._generateExplanation(q, correctOption, selected)}
-      </div>
-      <button onclick="AIQuiz.nextQuestion()" style="display:block;width:100%;margin-top:16px;padding:12px;
-        background:#58cc02;color:#0f1923;border:none;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer">
-        ${this.currentQ < this.questions.length - 1 ? '下一题 →' : '查看结果 →'}
-      </button>`;
-    panel.querySelector('div').appendChild(div);
-    panel.scrollTo({ top: panel.scrollHeight, behavior: 'smooth' });
+    if (isAssessment) {
+      // No feedback, just move to next
+      document.querySelectorAll('.quiz-option').forEach(opt => opt.style.pointerEvents = 'none');
+      // Brief highlight selected
+      el.style.borderColor = '#58cc02';
+      el.style.background = 'rgba(88,204,2,0.1)';
+      setTimeout(() => this.nextQuestion(), 600);
+    } else {
+      // Course mode: show correct/wrong + explanation
+      document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        const idx = parseInt(opt.dataset.idx);
+        if (q.options[idx].correct) {
+          opt.style.borderColor = '#58cc02';
+          opt.style.background = 'rgba(88,204,2,0.15)';
+        } else if (idx === origIdx && !isCorrect) {
+          opt.style.borderColor = '#ff4b4b';
+          opt.style.background = 'rgba(255,75,75,0.15)';
+        }
+      });
+
+      const panel = document.getElementById('quiz-panel');
+      const div = document.createElement('div');
+      div.style.cssText = 'max-width:800px;width:95%;margin:16px auto;padding:20px;border-radius:14px;' +
+        (isCorrect ? 'background:rgba(88,204,2,0.1);border:1px solid rgba(88,204,2,0.3)' :
+                     'background:rgba(255,75,75,0.1);border:1px solid rgba(255,75,75,0.3)');
+      div.innerHTML = `
+        <div style="font-size:20px;font-weight:bold;margin-bottom:10px;color:${isCorrect?'#58cc02':'#ff4b4b'}">
+          ${isCorrect ? '✅ 正确！' : '❌ 再想想'}
+        </div>
+        <div style="color:#e0e0e0;font-size:16px;line-height:1.8">
+          <strong style="color:#58cc02">📖 解析：</strong>${AIQuiz._generateExplanation(q, correctOption, selected)}
+        </div>
+        <button onclick="AIQuiz.nextQuestion()" style="display:block;width:100%;margin-top:16px;padding:14px;
+          background:#58cc02;color:#0f1923;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer">
+          ${this.currentQ < this.questions.length - 1 ? '下一题 →' : '查看结果 →'}
+        </button>`;
+      panel.querySelector('div').appendChild(div);
+      panel.scrollTo({ top: panel.scrollHeight, behavior: 'smooth' });
+    }
   },
 
   // 生成教学解析（老师角度，不暴露算法）
