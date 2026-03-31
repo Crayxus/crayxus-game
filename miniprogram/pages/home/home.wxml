@@ -11,11 +11,7 @@
       </view>
     </view>
   </view>
-  <!-- 蛋力余额条 -->
-  <view class="egg-bar" bindtap="showEggWallet">
-    <text style="font-size:18px">🥚</text>
-    <text class="egg-bar-val">{{eggBalance || 100}} 蛋力</text>
-    <text class="egg-bar-add">+</text>
+  <!-- 我的蛋力值（六边形雷达图） -->
   </view>
 
   <!-- 蛋力值卡片 -->
@@ -64,15 +60,14 @@
     </view>
   </view>
 
-  <!-- 学习进度（横排紧凑） -->
+  <!-- 学习进度（两行三列紧凑） -->
   <view class="section">
     <view class="section-title">学习进度</view>
-    <view class="progress-row">
-      <view class="progress-chip" wx:for="{{courses}}" wx:key="id">
-        <text class="chip-icon">{{item.icon}}</text>
-        <view class="chip-bar-bg">
-          <view class="chip-bar-fill" style="width:{{item.progress}}%;background:{{item.color}}"></view>
-        </view>
+    <view class="learn-grid">
+      <view class="learn-item" wx:for="{{courses}}" wx:key="id">
+        <text class="learn-icon">{{item.icon}}</text>
+        <text class="learn-name">{{item.name}}</text>
+        <text class="learn-pct" style="color:{{item.color}}">{{item.progress}}%</text>
       </view>
     </view>
   </view>
@@ -142,6 +137,12 @@
         </view>
       </view>
     </view>
+  </view>
+
+  <!-- 联系我们 -->
+  <view class="contact-section">
+    <text class="contact-label">联系我们</text>
+    <text class="contact-email" selectable="true">general@crayxus.com.au</text>
   </view>
 
   <view style="height:120rpx"></view>

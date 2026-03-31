@@ -194,3 +194,28 @@ page { background: #0a0e1a; }
   display: flex; align-items: center; justify-content: center;
   font-size: 28rpx; font-weight: bold;
 }
+
+/* 学习进度 两行三列 */
+.learn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16rpx; }
+.learn-item {
+  display: flex; align-items: center; gap: 8rpx;
+  padding: 12rpx 16rpx; background: #1e3148; border-radius: 12rpx;
+}
+.learn-icon { font-size: 26rpx; }
+.learn-name { font-size: 24rpx; color: #e0e0e0; flex: 1; }
+.learn-pct { font-size: 22rpx; font-weight: bold; }
+
+/* 蛋力条新样式 */
+.egg-bar-info { flex: 1; }
+.egg-row { display: flex; align-items: center; gap: 8rpx; }
+.egg-label { font-size: 22rpx; color: #ffc800; }
+.egg-score-val { font-size: 24rpx; color: #a0b0c0; }
+.egg-bar-more { font-size: 22rpx; color: #8899aa; }
+
+/* 联系我们 */
+.contact-section {
+  text-align: center; padding: 30rpx; margin-top: 20rpx;
+  border-top: 1rpx solid #1e3148;
+}
+.contact-label { font-size: 22rpx; color: #8899aa; display: block; margin-bottom: 8rpx; }
+.contact-email { font-size: 24rpx; color: #58cc02; }
