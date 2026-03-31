@@ -204,13 +204,13 @@ const AIQuiz = {
       background:#0f1923;display:flex;flex-direction:column;overflow-y:auto">
       <div style="max-width:800px;width:95%;margin:0 auto;padding:20px 0">
         <div style="margin-bottom:16px">
-          <span style="color:#a0b0c0;font-size:13px">第 ${this.currentQ + 1} / ${this.questions.length} 题</span>
+          <span style="color:#a0b0c0;font-size:16px;font-weight:500">第 ${this.currentQ + 1} / ${this.questions.length} 题</span>
         </div>
         <div style="height:6px;background:#1e3148;border-radius:3px;margin-bottom:20px;overflow:hidden">
           <div style="height:100%;width:${progress}%;background:${dimColor};border-radius:3px;transition:width 0.3s"></div>
         </div>
-        <div style="background:#1b2838;padding:20px;border-radius:16px;margin-bottom:16px;border:1px solid #2a4a6b">
-          <div style="color:#a0b0c0;font-size:13px;margin-bottom:8px">${q.scenario}</div>
+        <div style="background:#1b2838;padding:24px;border-radius:16px;margin-bottom:20px;border:1px solid #2a4a6b">
+          <div style="color:#a0b0c0;font-size:16px;margin-bottom:10px">${q.scenario}</div>
           ${q.last_play ? `<div style="margin:8px 0;padding:8px;background:#0f1923;border-radius:8px;border:1px solid #f8717144">
             <div style="font-size:11px;color:#f87171;margin-bottom:6px">上家出的牌：</div>
             <div style="display:flex;gap:2px">${q.last_play.map(c => this.cardHtmlSm(c)).join('')}</div>
@@ -263,8 +263,8 @@ const AIQuiz = {
       <div style="font-size:18px;font-weight:bold;margin-bottom:8px;color:${isCorrect?'#58cc02':'#ff4b4b'}">
         ${isCorrect ? '✅ 正确！' : '❌ 不正确'}
       </div>
-      <div style="color:#a0b0c0;font-size:13px;line-height:1.6">
-        <strong style="color:#58cc02">AI推荐：</strong>${correctOption.text}
+      <div style="color:#e0e0e0;font-size:15px;line-height:1.8">
+        <strong style="color:#58cc02">📖 解析：</strong>${AIQuiz._generateExplanation(q, correctOption, selected)}
       </div>
       <button onclick="AIQuiz.nextQuestion()" style="display:block;width:100%;margin-top:16px;padding:12px;
         background:#58cc02;color:#0f1923;border:none;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer">
@@ -272,6 +272,62 @@ const AIQuiz = {
       </button>`;
     panel.querySelector('div').appendChild(div);
     panel.scrollTo({ top: panel.scrollHeight, behavior: 'smooth' });
+  },
+
+  // 生成教学解析（老师角度，不暴露算法）
+  _generateExplanation(q, correctOpt, selectedOpt) {
+    const correct = correctOpt.text;
+    const isPass = correct === 'PASS';
+    const scenario = q.scenario || '';
+    const isFollow = scenario.includes('出了');
+
+    // 根据牌型生成解析
+    if (isPass) {
+      if (isFollow) return '这手牌没有合适的牌可以压过，不必勉强。保留实力，等到自由出牌时再展开攻势，这是老手的选择。';
+      return '当前局面选择过牌是明智的。控制节奏比急于出牌更重要，留住手中的好牌等待关键时刻。';
+    }
+
+    const type = correct.split(':')[0].trim();
+    const explanations = {
+      '顺子': [
+        '顺子一次出5张牌，是清牌效率最高的牌型之一。优先出顺子可以大幅减少手牌数量，为后续出牌创造有利条件。',
+        '先把顺子打出去，不仅一次消耗5张牌，还能保留手中的对子和三条做后续组合，这是组牌的基本功。',
+      ],
+      '对子': [
+        '出对子是稳健的选择。对子出牌效率高于单牌，而且保留了更大的牌型做后续的控制。',
+        '先出小对子试探，既消耗了手牌又不暴露大牌实力，进可攻退可守。',
+      ],
+      '三带二': [
+        '三带二一次出5张牌，组牌效率极高。把三条和对子组合在一起出，比分开出节省了一手牌。',
+        '三带二是高效的出牌方式，一次性清掉5张牌。记住：能组三带二就不要拆开出。',
+      ],
+      '三条': [
+        '三条虽然不如三带二高效，但在当前局面是最合理的选择。有时候不需要追求完美组合。',
+      ],
+      '单牌': [
+        '出单牌虽然效率不高，但在当前局面是最稳妥的选择。大牌单出可以抢到牌权，小牌单出可以试探对手。',
+        '这张单牌出得恰到好处——既不浪费大牌的控制力，又能保持出牌节奏。',
+      ],
+      '炸弹': [
+        '关键时刻果断出炸弹！炸弹是掼蛋中最强的武器，用在正确的时机可以扭转整个牌局。',
+        '这个时机用炸弹非常关键——如果不抢回牌权，对手很可能直接走完。',
+      ],
+      '连对': [
+        '连对一次出6张牌，清牌效率极高。能组连对就优先出，这是高手的组牌思维。',
+      ],
+      '钢板': [
+        '钢板（连续三条）一次出6张，是非常高效的出牌方式。',
+      ],
+    };
+
+    const typeExps = explanations[type];
+    if (typeExps) return typeExps[Math.floor(Math.random() * typeExps.length)];
+
+    // 通用解析
+    if (correct.includes('张牌')) {
+      return '这个出牌选择在当前局面下最为合理。好的掼蛋选手总是在效率和控制之间找到最佳平衡点。';
+    }
+    return '掼蛋的精髓在于每一手牌都为最终的胜利服务。这个选择在综合考虑手牌结构和场上局势后，是当前最优的出牌方式。';
   },
 
   nextQuestion() { this.currentQ++; this._renderQuestion(); },
