@@ -3,13 +3,7 @@
  * 更圆滑、更友好、更明亮
  */
 
-/* ===== 字体：隶书(标题) + 思源黑体(正文) ===== */
-@font-face {
-  font-family: 'LiShu';
-  src: url('/css/lishu.ttf') format('truetype');
-  font-weight: normal;
-  font-display: swap;
-}
+/* ===== 字体：思源黑体 (全中文覆盖，稳定可靠) ===== */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
 
 /* ===== 全局 ===== */
@@ -42,10 +36,11 @@ body {
   letter-spacing: 0.3px;
 }
 
-/* 标题用隶书 */
+/* 标题加粗 */
 h1, h2, h3, .mode-select-title, .boot-title,
 .holo-btn .h-name, #boot-start-btn {
-  font-family: 'LiShu', 'STLiti', 'PingFang SC', sans-serif !important;
+  font-family: 'Noto Sans SC', 'PingFang SC', sans-serif !important;
+  font-weight: 900 !important;
 }
 
 /* VIP按钮不与主题按钮重叠 */
@@ -371,3 +366,8 @@ body.light-theme .quiz-card {
 }
 body.light-theme .quiz-card.suit-s .qc-val,
 body.light-theme .quiz-card.suit-s .qc-suit { color: #222; }
+
+/* 隐藏左上角ELO */
+.holo-elo-display, #elo-display, [class*="elo-badge"] {
+  display: none !important;
+}
