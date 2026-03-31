@@ -3,6 +3,9 @@
  * 更圆滑、更友好、更明亮
  */
 
+/* ===== 字体 ===== */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
 /* ===== 全局 ===== */
 :root {
   --bg: #131f2e;
@@ -28,8 +31,13 @@
 }
 
 body {
-  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif !important;
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif !important;
   -webkit-font-smoothing: antialiased;
+}
+
+/* VIP按钮不与主题按钮重叠 */
+.holo-member-badge {
+  right: 120px !important;
 }
 
 /* ===== 滚动条 ===== */
