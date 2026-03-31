@@ -154,12 +154,17 @@ const AICourses = {
     if (!this.progress[courseId]) this.progress[courseId] = {};
     const stars = score >= 90 ? 3 : score >= 70 ? 2 : score >= 50 ? 1 : 0;
     const prev = this.getLessonProgress(courseId, lessonId);
+    const isNewComplete = !prev.completed;
     this.progress[courseId][lessonId] = {
       completed: true,
       score: Math.max(prev.score, score),
       stars: Math.max(prev.stars, stars),
     };
     this.save();
+    // 蛋力奖励（只有首次完成给）
+    if (isNewComplete && typeof EggToken !== 'undefined') {
+      EggToken.onCourseComplete(stars);
+    }
   },
 
   getCourseProgress(courseId) {

@@ -4,8 +4,12 @@
 
   <!-- Header -->
   <view class="header">
-    <text class="header-title">Crayxus 掼蛋</text>
+    <text class="header-title">AI 掼蛋大师</text>
     <view class="header-right">
+      <view class="egg-token-btn" bindtap="showEggWallet">
+        <text style="font-size:16px">🥚</text>
+        <text class="egg-token-val">{{eggBalance || 100}}</text>
+      </view>
       <view class="scan-btn" bindtap="onScanLogin">
         <text class="scan-icon">⊞</text>
       </view>

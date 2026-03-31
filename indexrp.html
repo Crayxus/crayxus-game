@@ -1539,6 +1539,13 @@ body.view-table .holo-hex-grid{opacity:0.05}
   </div>
 
   <!-- Theme toggle button -->
+  <div id="egg-token-btn" onclick="EggToken.showWallet()" style="position:absolute;top:16px;right:100px;z-index:60;
+    display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:30px;cursor:pointer;
+    background:linear-gradient(135deg,rgba(255,200,0,0.15),rgba(255,200,0,0.05));
+    border:1px solid rgba(255,200,0,0.3);transition:all 0.2s">
+    <span style="font-size:18px">🥚</span>
+    <span id="egg-token-display" style="font-size:14px;color:#ffc800;font-weight:bold">0</span>
+  </div>
   <div id="theme-toggle" onclick="toggleSiteTheme()" style="position:absolute;top:16px;right:16px;z-index:60;cursor:pointer;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:8px;transition:all 0.3s">
     <span id="theme-icon" style="font-size:18px">🌙</span>
     <span id="theme-label" style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:1px;font-family:'Orbitron','Segoe UI',sans-serif">暗色</span>
@@ -6864,6 +6871,7 @@ setTimeout(updateHomeLoginState,1000);
 <script src="/js/ai-training.js"></script>
 <script src="/js/ai-quiz.js"></script>
 <script src="/js/ai-courses.js"></script>
+<script src="/js/egg-token.js"></script>
 <script>
 // M Algorithm integration
 function updateMValue(){

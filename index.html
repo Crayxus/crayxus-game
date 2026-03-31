@@ -1485,6 +1485,13 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <span style="font-style:normal">&#9733;</span>
     <span class="holo-member-text">终身VIP</span>
   </div>
+  <div id="egg-token-btn" onclick="EggToken.showWallet()" style="position:absolute;top:30px;right:200px;z-index:20;
+    display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:30px;cursor:pointer;
+    background:linear-gradient(135deg,rgba(255,200,0,0.15),rgba(255,200,0,0.05));
+    border:1px solid rgba(255,200,0,0.3);transition:all 0.2s">
+    <span style="font-size:18px">🥚</span>
+    <span id="egg-token-display" style="font-size:14px;color:#ffc800;font-weight:bold">0</span>
+  </div>
 
   <div class="mode-select-wrap">
     <div class="mode-select-title">AI 掼蛋大师</div>
@@ -6255,6 +6262,7 @@ async function useAiHelp(){
 <script src="/js/ai-training.js"></script>
 <script src="/js/ai-quiz.js"></script>
 <script src="/js/ai-courses.js"></script>
+<script src="/js/egg-token.js"></script>
 <script>
 // Preload ONNX model on page load so it's ready when game starts
 loadOnnxModel();

@@ -140,3 +140,19 @@ page { background: #0a0e1a; }
 .recent-right { text-align: right; }
 .recent-rank { font-size: 28rpx; font-weight: 800; color: #ffd700; display: block; }
 .recent-score { font-size: 20rpx; color: #00d4aa; }
+
+/* 蛋力 Token */
+.egg-token-btn {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 30rpx;
+  background: linear-gradient(135deg, rgba(255,200,0,0.15), rgba(255,200,0,0.05));
+  border: 1rpx solid rgba(255,200,0,0.3);
+}
+.egg-token-val {
+  font-size: 26rpx;
+  color: #ffc800;
+  font-weight: bold;
+}
