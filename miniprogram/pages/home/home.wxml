@@ -6,14 +6,16 @@
   <view class="header">
     <text class="header-title">AI 掼蛋大师</text>
     <view class="header-right">
-      <view class="egg-token-btn" bindtap="showEggWallet">
-        <text style="font-size:16px">🥚</text>
-        <text class="egg-token-val">{{eggBalance || 100}}</text>
-      </view>
       <view class="scan-btn" bindtap="onScanLogin">
         <text class="scan-icon">⊞</text>
       </view>
     </view>
+  </view>
+  <!-- 蛋力余额条 -->
+  <view class="egg-bar" bindtap="showEggWallet">
+    <text style="font-size:18px">🥚</text>
+    <text class="egg-bar-val">{{eggBalance || 100}} 蛋力</text>
+    <text class="egg-bar-add">+</text>
   </view>
 
   <!-- 蛋力值卡片 -->
@@ -62,19 +64,15 @@
     </view>
   </view>
 
-  <!-- 学习进度 -->
+  <!-- 学习进度（横排紧凑） -->
   <view class="section">
     <view class="section-title">学习进度</view>
-    <view class="progress-grid">
-      <view class="progress-item" wx:for="{{courses}}" wx:key="id">
-        <text class="progress-icon">{{item.icon}}</text>
-        <view class="progress-info">
-          <text class="progress-name">{{item.name}}</text>
-          <view class="progress-bar-bg">
-            <view class="progress-bar-fill" style="width:{{item.progress}}%;background:{{item.color}}"></view>
-          </view>
+    <view class="progress-row">
+      <view class="progress-chip" wx:for="{{courses}}" wx:key="id">
+        <text class="chip-icon">{{item.icon}}</text>
+        <view class="chip-bar-bg">
+          <view class="chip-bar-fill" style="width:{{item.progress}}%;background:{{item.color}}"></view>
         </view>
-        <text class="progress-pct" style="color:{{item.color}}">{{item.progress}}%</text>
       </view>
     </view>
   </view>

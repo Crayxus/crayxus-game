@@ -171,3 +171,26 @@ page { background: #0a0e1a; }
 .progress-bar-bg { height: 12rpx; background: #1e3148; border-radius: 6rpx; overflow: hidden; }
 .progress-bar-fill { height: 100%; border-radius: 6rpx; transition: width 0.3s; }
 .progress-pct { font-size: 22rpx; font-weight: bold; min-width: 60rpx; text-align: right; }
+
+/* 学习进度横排 */
+.progress-row { display: flex; gap: 12rpx; flex-wrap: wrap; }
+.progress-chip { display: flex; align-items: center; gap: 6rpx; flex: 1; min-width: 140rpx; }
+.chip-icon { font-size: 24rpx; }
+.chip-bar-bg { flex: 1; height: 10rpx; background: #1e3148; border-radius: 5rpx; overflow: hidden; }
+.chip-bar-fill { height: 100%; border-radius: 5rpx; }
+
+/* 蛋力余额条 */
+.egg-bar {
+  display: flex; align-items: center; gap: 12rpx;
+  padding: 14rpx 24rpx; margin: 16rpx 0;
+  background: linear-gradient(135deg, rgba(255,200,0,0.12), rgba(255,200,0,0.04));
+  border: 1rpx solid rgba(255,200,0,0.25);
+  border-radius: 20rpx;
+}
+.egg-bar-val { font-size: 28rpx; color: #ffc800; font-weight: bold; flex: 1; }
+.egg-bar-add {
+  width: 40rpx; height: 40rpx; border-radius: 50%;
+  background: rgba(255,200,0,0.2); color: #ffc800;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28rpx; font-weight: bold;
+}
