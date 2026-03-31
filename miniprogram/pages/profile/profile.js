@@ -7,7 +7,7 @@ Page({
     nickname: '',
     hasNickname: false,
     danli: { score: 0, rank: '' },
-    quiz: { totalQuestions: 0, correctRate: 0, streak: 0, bestStreak: 0 },
+    eggBalance: 100,
     dims: []
   },
 
@@ -144,6 +144,10 @@ Page({
   // Share
   onShareCard() {
     wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage', 'shareTimeline'] })
+  },
+
+  toggleTheme() {
+    wx.showToast({ title: '主题切换即将上线', icon: 'none' })
   },
 
   onShareAppMessage() {

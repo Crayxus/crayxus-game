@@ -26,6 +26,19 @@
     </view>
   </view>
 
+  <!-- 蛋力 Token -->
+  <view class="section">
+    <view class="section-title">蛋力 Token</view>
+    <view class="token-card">
+      <view class="token-row">
+        <text style="font-size:24px">🥚</text>
+        <text class="token-balance">{{eggBalance || 100}}</text>
+        <text class="token-label">蛋力</text>
+      </view>
+      <view class="token-desc">完成课程、测评、对战可获得蛋力</view>
+    </view>
+  </view>
+
   <!-- 六维雷达 -->
   <view class="section" wx:if="{{danli.score}}">
     <view class="section-title">六边形战士</view>
@@ -37,29 +50,6 @@
           <view class="dim-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
         </view>
         <text class="dim-val" style="color:{{item.color}}">{{item.val}}</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 做题统计 -->
-  <view class="section">
-    <view class="section-title">做题数据</view>
-    <view class="stat-list">
-      <view class="stat-row">
-        <text class="stat-label">总做题数</text>
-        <text class="stat-val">{{quiz.totalQuestions || 0}}</text>
-      </view>
-      <view class="stat-row">
-        <text class="stat-label">正确率</text>
-        <text class="stat-val accent">{{quiz.correctRate || '--'}}%</text>
-      </view>
-      <view class="stat-row">
-        <text class="stat-label">连续天数</text>
-        <text class="stat-val gold">{{quiz.streak || 0}}</text>
-      </view>
-      <view class="stat-row">
-        <text class="stat-label">最佳连续</text>
-        <text class="stat-val">{{quiz.bestStreak || 0}}</text>
       </view>
     </view>
   </view>
@@ -76,6 +66,18 @@
       <text class="action-label">扫码登录游戏</text>
       <text class="action-arrow">›</text>
     </view>
+    <view class="action-row" bindtap="toggleTheme">
+      <text class="action-icon">🌓</text>
+      <text class="action-label">切换主题（黑/白）</text>
+      <text class="action-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 联系我们 -->
+  <view class="contact-footer">
+    <text class="contact-title">联系我们</text>
+    <text class="contact-email" selectable="true">general@crayxus.com.au</text>
+    <text class="contact-copy">© 2026 Crayxus · AI 掼蛋大师</text>
   </view>
 
   <view style="height:120rpx"></view>

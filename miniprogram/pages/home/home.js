@@ -100,7 +100,16 @@ Page({
 
   // 商城
   goShop() {
-    wx.showToast({ title: '商城即将开放', icon: 'none' })
+    wx.showActionSheet({
+      itemList: ['赛事设备租赁', '设备购买', '联系我们: general@crayxus.com.au'],
+      success(res) {
+        if (res.tapIndex === 2) {
+          wx.setClipboardData({ data: 'general@crayxus.com.au' })
+        } else {
+          wx.showToast({ title: '即将开放，敬请期待', icon: 'none' })
+        }
+      }
+    })
   },
 
   // 蛋力钱包
