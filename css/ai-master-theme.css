@@ -3,8 +3,8 @@
  * 更圆滑、更友好、更明亮
  */
 
-/* ===== 字体 ===== */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+/* ===== 字体：ZCOOL XiaoWei 站酷小薇体 (圆润有质感) + Ma Shan Zheng 马善政楷体 (标题) ===== */
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;700;900&display=swap');
 
 /* ===== 全局 ===== */
 :root {
@@ -31,8 +31,15 @@
 }
 
 body {
-  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif !important;
+  font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', 'STKaiti', 'KaiTi', 'PingFang SC', serif !important;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.5px;
+}
+
+/* 标题用楷体 */
+h1, h2, h3, .mode-select-title, .h-name, .boot-title,
+.holo-btn .h-name, #boot-start-btn {
+  font-family: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif !important;
 }
 
 /* VIP按钮不与主题按钮重叠 */
