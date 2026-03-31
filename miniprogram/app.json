@@ -3,7 +3,8 @@
     "pages/home/home",
     "pages/quiz/quiz",
     "pages/tournament/tournament",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/shop/shop"
   ],
   "window": {
     "navigationBarTitleText": "Crayxus MTT",
