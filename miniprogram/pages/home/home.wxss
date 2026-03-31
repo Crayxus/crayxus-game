@@ -156,3 +156,18 @@ page { background: #0a0e1a; }
   color: #ffc800;
   font-weight: bold;
 }
+
+/* 5列入口 */
+.five-col { grid-template-columns: repeat(5, 1fr) !important; }
+.entry-academy .entry-icon { background: linear-gradient(135deg, #ffc800, #ff9800) !important; }
+.entry-shop .entry-icon { background: linear-gradient(135deg, #4dd0e1, #00bcd4) !important; }
+
+/* 学习进度 */
+.progress-grid { display: flex; flex-direction: column; gap: 16rpx; }
+.progress-item { display: flex; align-items: center; gap: 16rpx; }
+.progress-icon { font-size: 28rpx; width: 40rpx; text-align: center; }
+.progress-info { flex: 1; }
+.progress-name { font-size: 24rpx; color: #e0e0e0; display: block; margin-bottom: 6rpx; }
+.progress-bar-bg { height: 12rpx; background: #1e3148; border-radius: 6rpx; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 6rpx; transition: width 0.3s; }
+.progress-pct { font-size: 22rpx; font-weight: bold; min-width: 60rpx; text-align: right; }

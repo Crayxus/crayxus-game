@@ -7,7 +7,16 @@ Page({
     mtt: { totalEvents: 0, bestRank: '--', itm: 0, totalScore: 0 },
     dims: [],
     aiSchedule: [],
-    recentEvents: []
+    recentEvents: [],
+    eggBalance: 100,
+    courses: [
+      { id: 'decompose', name: '组牌分解', icon: '🃏', color: '#58cc02', progress: 0 },
+      { id: 'power', name: '大牌控制', icon: '👑', color: '#ffc800', progress: 0 },
+      { id: 'timing', name: '出牌时机', icon: '⏱️', color: '#00bcd4', progress: 0 },
+      { id: 'teamwork', name: '队友配合', icon: '🤝', color: '#e91e63', progress: 0 },
+      { id: 'bomb', name: '炸弹使用', icon: '💣', color: '#ff6b35', progress: 0 },
+      { id: 'endgame', name: '终局处理', icon: '🏁', color: '#a78bfa', progress: 0 },
+    ]
   },
 
   onLoad() {
@@ -82,6 +91,21 @@ Page({
   // 蛋力值测评 — 跳转原生测评页
   goDanli() {
     wx.navigateTo({ url: '/pages/quiz/quiz?mode=danli' })
+  },
+
+  // 蛋力学院
+  goAcademy() {
+    wx.showToast({ title: '蛋力学院即将开放', icon: 'none' })
+  },
+
+  // 商城
+  goShop() {
+    wx.showToast({ title: '商城即将开放', icon: 'none' })
+  },
+
+  // 蛋力钱包
+  showEggWallet() {
+    wx.showToast({ title: '蛋力余额: ' + this.data.eggBalance, icon: 'none' })
   },
 
   // 赛事报名

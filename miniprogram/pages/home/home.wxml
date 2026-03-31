@@ -33,22 +33,49 @@
     </view>
   </view>
 
-  <!-- 功能入口 (3个: 蛋力测评 / 赛事记录 / 赛事报名) -->
-  <view class="entry-grid three-col">
+  <!-- 功能入口 (5个) -->
+  <view class="entry-grid five-col">
     <view class="entry-card entry-danli" bindtap="goDanli">
-      <text class="entry-icon">🎯</text>
+      <text class="entry-icon">📋</text>
       <text class="entry-name">蛋力测评</text>
-      <text class="entry-desc">18题测出实力</text>
+      <text class="entry-desc">20题定级</text>
+    </view>
+    <view class="entry-card entry-academy" bindtap="goAcademy">
+      <text class="entry-icon">📚</text>
+      <text class="entry-name">蛋力学院</text>
+      <text class="entry-desc">60节课程</text>
     </view>
     <view class="entry-card entry-daily" bindtap="goTournament">
       <text class="entry-icon">📊</text>
       <text class="entry-name">赛事记录</text>
-      <text class="entry-desc">MTT 战绩追踪</text>
+      <text class="entry-desc">战绩追踪</text>
     </view>
     <view class="entry-card entry-tournament" bindtap="goTournament">
       <text class="entry-icon">🏆</text>
       <text class="entry-name">赛事报名</text>
-      <text class="entry-desc">MTT · AI大乱斗</text>
+      <text class="entry-desc">AI挑战赛</text>
+    </view>
+    <view class="entry-card entry-shop" bindtap="goShop">
+      <text class="entry-icon">🛒</text>
+      <text class="entry-name">商城</text>
+      <text class="entry-desc">设备租购</text>
+    </view>
+  </view>
+
+  <!-- 学习进度 -->
+  <view class="section">
+    <view class="section-title">学习进度</view>
+    <view class="progress-grid">
+      <view class="progress-item" wx:for="{{courses}}" wx:key="id">
+        <text class="progress-icon">{{item.icon}}</text>
+        <view class="progress-info">
+          <text class="progress-name">{{item.name}}</text>
+          <view class="progress-bar-bg">
+            <view class="progress-bar-fill" style="width:{{item.progress}}%;background:{{item.color}}"></view>
+          </view>
+        </view>
+        <text class="progress-pct" style="color:{{item.color}}">{{item.progress}}%</text>
+      </view>
     </view>
   </view>
 
