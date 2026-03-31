@@ -392,9 +392,11 @@ body.light-theme .quiz-card.suit-s .qc-suit { color: #222; }
   right: 80px !important;
   z-index: 100 !important;
 }
+/* 暗色切换放右下角 */
 #theme-toggle {
   position: fixed !important;
-  top: 16px !important;
-  right: 16px !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  top: auto !important;
   z-index: 100 !important;
 }

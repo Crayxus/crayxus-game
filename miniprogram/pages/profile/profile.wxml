@@ -1,5 +1,5 @@
 <!-- 个人中心 -->
-<view class="page">
+<view class="page {{isLight ? 'light' : ''}}">
   <view style="height:{{statusBarHeight}}px"></view>
 
   <!-- Header -->

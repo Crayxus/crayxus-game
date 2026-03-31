@@ -219,3 +219,14 @@ page { background: #0a0e1a; }
 }
 .contact-label { font-size: 22rpx; color: #8899aa; display: block; margin-bottom: 8rpx; }
 .contact-email { font-size: 24rpx; color: #58cc02; }
+
+/* 亮色主题 */
+.page.light { background: linear-gradient(180deg, #f0f2f5, #e8ecf0) !important; }
+.page.light .header-title { color: #1a1a2e !important; }
+.page.light .section-title { color: #1a1a2e !important; }
+.page.light .danli-card { background: #fff !important; border-color: rgba(0,0,0,0.08) !important; }
+.page.light .entry-card { background: #fff !important; border-color: rgba(0,0,0,0.08) !important; }
+.page.light .section { background: #fff !important; }
+.page.light .learn-item { background: #f0f2f5 !important; }
+.page.light .learn-name { color: #1a1a2e !important; }
+.page.light .stat-grid { background: #fff !important; }

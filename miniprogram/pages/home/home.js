@@ -9,6 +9,7 @@ Page({
     aiSchedule: [],
     recentEvents: [],
     eggBalance: 100,
+    isLight: false,
     courses: [
       { id: 'decompose', name: '组牌分解', icon: '🃏', color: '#58cc02', progress: 0 },
       { id: 'power', name: '大牌控制', icon: '👑', color: '#ffc800', progress: 0 },
@@ -28,6 +29,8 @@ Page({
 
   onShow() {
     this.loadData()
+    const theme = wx.getStorageSync('theme') || 'dark'
+    this.setData({ isLight: theme === 'light' })
   },
 
   loadData() {

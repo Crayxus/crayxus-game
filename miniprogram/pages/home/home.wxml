@@ -1,5 +1,5 @@
 <!-- 掼蛋首页 -->
-<view class="page">
+<view class="page {{isLight ? 'light' : ''}}">
   <view style="height:{{statusBarHeight}}px"></view>
 
   <!-- Header -->

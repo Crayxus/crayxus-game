@@ -8,6 +8,7 @@ Page({
     hasNickname: false,
     danli: { score: 0, rank: '' },
     eggBalance: 100,
+    isLight: false,
     dims: []
   },
 
@@ -21,6 +22,8 @@ Page({
 
   onShow() {
     this.loadData()
+    const theme = wx.getStorageSync('theme') || 'dark'
+    this.setData({ isLight: theme === 'light' })
   },
 
   loadCachedUser() {
@@ -147,7 +150,16 @@ Page({
   },
 
   toggleTheme() {
-    wx.showToast({ title: '主题切换即将上线', icon: 'none' })
+    const isLight = !this.data.isLight
+    this.setData({ isLight })
+    wx.setStorageSync('theme', isLight ? 'light' : 'dark')
+    // Apply to page
+    if (isLight) {
+      wx.setNavigationBarColor({ frontColor: '#000000', backgroundColor: '#f0f2f5' })
+    } else {
+      wx.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: '#0a0e1a' })
+    }
+    wx.showToast({ title: isLight ? '已切换为亮色' : '已切换为暗色', icon: 'none' })
   },
 
   onShareAppMessage() {
