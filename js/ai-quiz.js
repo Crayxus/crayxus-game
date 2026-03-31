@@ -356,54 +356,171 @@ const AIQuiz = {
       dimData[d] = ds.total > 0 ? Math.round(ds.correct / ds.total * 100) : 0;
     });
 
-    const rank = typeof AITraining !== 'undefined' ? AITraining.getRank(rating) : { name: '中级一段', icon: '🥇', color: '#ffd700' };
+    const rank = typeof AITraining !== 'undefined' ? AITraining.getRank(rating) : { name: '黄金·精进', icon: '🏅', color: '#ffd700' };
     let weakest = this.dimensions[0], weakestScore = 100;
     this.dimensions.forEach(d => { if (dimData[d] < weakestScore) { weakestScore = dimData[d]; weakest = d; } });
 
+    // --- 六边形雷达图 SVG ---
+    const dimLabels = ['组牌分解','大牌控制','出牌时机','队友配合','炸弹使用','终局处理'];
     const dimColors = ['#58cc02','#ffc800','#00bcd4','#e91e63','#ff6b35','#a78bfa'];
-    let radarHtml = '';
-    this.dimensions.forEach((d, i) => {
-      const score = dimData[d];
-      radarHtml += `<div style="display:flex;align-items:center;gap:8px;margin:6px 0">
-        <span style="min-width:70px;font-size:12px;color:${dimColors[i]}">${d}</span>
-        <div style="flex:1;height:20px;background:#0f1923;border-radius:4px;overflow:hidden">
-          <div style="height:100%;width:${score}%;background:${dimColors[i]};border-radius:4px;
-            display:flex;align-items:center;justify-content:flex-end;padding-right:6px;
-            font-size:10px;color:#000;font-weight:bold;min-width:24px">${score}</div>
-        </div>
-      </div>`;
+    const cx = 130, cy = 130, R = 100;
+    const angles = dimLabels.map((_, i) => (Math.PI / 2) + (2 * Math.PI * i / 6));
+    const ptAt = (r, i) => {
+      const a = angles[i];
+      return [cx + r * Math.cos(a), cy - r * Math.sin(a)];
+    };
+    // grid rings
+    let gridSvg = '';
+    [0.25, 0.5, 0.75, 1.0].forEach(f => {
+      const pts = dimLabels.map((_, i) => ptAt(R * f, i).join(',')).join(' ');
+      gridSvg += `<polygon points="${pts}" fill="none" stroke="rgba(212,175,110,0.15)" stroke-width="1"/>`;
     });
+    // axes
+    dimLabels.forEach((_, i) => {
+      const [x, y] = ptAt(R, i);
+      gridSvg += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(212,175,110,0.2)" stroke-width="1"/>`;
+    });
+    // data polygon
+    const vals = dimLabels.map(d => (dimData[d] || 0) / 100);
+    const dataPts = vals.map((v, i) => ptAt(R * Math.max(v, 0.05), i).join(',')).join(' ');
+    // labels
+    let labelsSvg = '';
+    const labelR = R + 24;
+    dimLabels.forEach((d, i) => {
+      const [lx, ly] = ptAt(labelR, i);
+      const score = dimData[d] || 0;
+      labelsSvg += `<text x="${lx}" y="${ly}" fill="${dimColors[i]}" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="central">${d}</text>`;
+      labelsSvg += `<text x="${lx}" y="${ly + 13}" fill="rgba(255,255,255,0.6)" font-size="9" text-anchor="middle">${score}分</text>`;
+    });
+    // dot markers
+    let dotsSvg = '';
+    vals.forEach((v, i) => {
+      const [dx, dy] = ptAt(R * Math.max(v, 0.05), i);
+      dotsSvg += `<circle cx="${dx}" cy="${dy}" r="3.5" fill="${dimColors[i]}" stroke="#fff" stroke-width="1"/>`;
+    });
+
+    const radarSvg = `<svg viewBox="0 0 260 260" width="240" height="240" style="display:block;margin:0 auto">
+      ${gridSvg}
+      <polygon points="${dataPts}" fill="rgba(212,175,110,0.15)" stroke="#d4af6e" stroke-width="2"/>
+      ${dotsSvg}
+      ${labelsSvg}
+    </svg>`;
+
+    // --- 认证编号 ---
+    const certNo = 'CRX-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 90000 + 10000));
+    const certDate = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
     const old = document.getElementById('quiz-panel');
     if (old) old.remove();
 
     const html = `<div id="quiz-panel" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;
-      background:#0f1923;display:flex;align-items:center;justify-content:center;overflow-y:auto">
-      <div style="max-width:440px;width:95%;padding:20px 0">
-        <div style="background:linear-gradient(135deg,#1b2838,#1e3148);border-radius:20px;padding:28px;border:2px solid ${rank.color}">
-          <h2 style="text-align:center;color:#fff;margin-bottom:4px;font-size:20px">📋 AI 测评报告</h2>
-          <div style="text-align:center;color:#a0b0c0;font-size:12px;margin-bottom:20px">基于 V7 92.6% 大模型评估</div>
-          <div style="text-align:center;margin-bottom:20px">
-            <div style="font-size:48px">${rank.icon}</div>
-            <div style="font-size:22px;font-weight:bold;color:${rank.color}">${rank.name}</div>
-            <div style="font-size:36px;font-weight:900;color:#fff">${rating}分</div>
-            <div style="color:#a0b0c0;font-size:13px">${correct}/${total} 正确 (${pct}%)</div>
-          </div>
-          <div style="background:#0f1923;padding:16px;border-radius:14px;margin-bottom:16px">
-            <div style="color:#a0b0c0;font-size:11px;margin-bottom:10px;font-weight:bold">六维能力评估</div>
-            ${radarHtml}
-          </div>
-          <div style="background:rgba(255,75,75,0.1);border:1px solid rgba(255,75,75,0.2);padding:12px;border-radius:10px;margin-bottom:16px">
-            <div style="font-size:12px;color:#ff4b4b;font-weight:bold">💡 需要提升：${weakest}</div>
-            <div style="font-size:11px;color:#a0b0c0;margin-top:4px">建议重点练习该维度相关策略</div>
-          </div>
-          <div style="display:flex;gap:8px">
-            <button onclick="document.getElementById('quiz-panel').remove()"
-              style="flex:1;padding:12px;background:#1e3148;color:#a0b0c0;border:1px solid #2a4a6b;border-radius:10px;cursor:pointer;font-size:13px">返回</button>
-            <button onclick="AIQuiz.startQuiz()"
-              style="flex:1;padding:12px;background:#58cc02;color:#0f1923;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:13px">重新测评</button>
-          </div>
+      background:rgba(10,8,6,0.95);display:flex;align-items:center;justify-content:center;overflow-y:auto">
+      <div style="max-width:460px;width:95%;padding:16px 0">
+
+        <!-- 证书外框：皮质感 -->
+        <div style="background:linear-gradient(145deg,#2c1810,#3d2518,#2a1508);border-radius:16px;padding:4px;
+          box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);
+          border:1px solid rgba(212,175,110,0.3)">
+
+          <!-- 金色内框 -->
+          <div style="border:2px solid rgba(212,175,110,0.5);border-radius:13px;padding:3px;
+            background:linear-gradient(145deg,rgba(212,175,110,0.08),transparent,rgba(212,175,110,0.05))">
+
+            <!-- 内页：米白纸质感 -->
+            <div style="background:linear-gradient(170deg,#f5f0e8,#efe8db,#f2ece2);border-radius:10px;padding:28px 24px;position:relative;
+              box-shadow:inset 0 0 60px rgba(180,160,120,0.15)">
+
+              <!-- 水印花纹 -->
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+                width:200px;height:200px;border:3px solid rgba(212,175,110,0.08);border-radius:50%;
+                pointer-events:none"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+                width:160px;height:160px;border:2px solid rgba(212,175,110,0.06);border-radius:50%;
+                pointer-events:none"></div>
+
+              <!-- 顶部装饰线 -->
+              <div style="text-align:center;margin-bottom:6px">
+                <div style="display:inline-block;width:60px;height:1px;background:linear-gradient(90deg,transparent,#d4af6e,transparent)"></div>
+                <span style="color:#d4af6e;font-size:10px;margin:0 8px;letter-spacing:4px">CRAYXUS AI</span>
+                <div style="display:inline-block;width:60px;height:1px;background:linear-gradient(90deg,transparent,#d4af6e,transparent)"></div>
+              </div>
+
+              <!-- 标题 -->
+              <h2 style="text-align:center;color:#2c1810;font-size:22px;font-weight:900;margin:4px 0 2px;
+                letter-spacing:6px;text-shadow:0 1px 0 rgba(212,175,110,0.3)">掼蛋段位认证</h2>
+              <div style="text-align:center;color:#8a7a65;font-size:10px;margin-bottom:16px;letter-spacing:2px">
+                Crayxus AI 掼蛋能力认证中心
+              </div>
+
+              <!-- 分隔线 -->
+              <div style="height:1px;background:linear-gradient(90deg,transparent,#d4af6e80,transparent);margin-bottom:16px"></div>
+
+              <!-- 段位+分数 -->
+              <div style="text-align:center;margin-bottom:16px">
+                <div style="font-size:40px;line-height:1">${rank.icon}</div>
+                <div style="font-size:24px;font-weight:900;color:#2c1810;margin:4px 0;letter-spacing:3px;
+                  text-shadow:0 1px 0 rgba(212,175,110,0.4)">${rank.name}</div>
+                <div style="font-size:42px;font-weight:900;color:#8b6914;font-family:Georgia,serif;letter-spacing:2px">${rating}</div>
+                <div style="font-size:11px;color:#8a7a65;letter-spacing:1px">综合评分 · ${correct}/${total} 正确率 ${pct}%</div>
+              </div>
+
+              <!-- 分隔线 -->
+              <div style="height:1px;background:linear-gradient(90deg,transparent,#d4af6e60,transparent);margin-bottom:14px"></div>
+
+              <!-- 六维雷达图 -->
+              <div style="text-align:center;margin-bottom:14px">
+                <div style="font-size:11px;color:#8a7a65;font-weight:bold;letter-spacing:3px;margin-bottom:8px">六 维 能 力 评 估</div>
+                ${radarSvg}
+              </div>
+
+              <!-- 薄弱项 -->
+              <div style="background:rgba(180,80,50,0.08);border:1px solid rgba(180,80,50,0.2);padding:10px 14px;border-radius:8px;margin-bottom:16px">
+                <div style="font-size:11px;color:#b45032;font-weight:bold">待提升维度：${weakest}</div>
+                <div style="font-size:10px;color:#8a7a65;margin-top:2px">建议通过蛋力学院重点练习该维度策略</div>
+              </div>
+
+              <!-- 认证信息 -->
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
+                <div style="font-size:9px;color:#a09880;line-height:1.8">
+                  <div>认证编号：${certNo}</div>
+                  <div>评估日期：${certDate}</div>
+                  <div>评估模型：V8 超冠军级 AI</div>
+                </div>
+                <!-- 红色印章 -->
+                <div style="width:64px;height:64px;border:3px solid #c0392b;border-radius:50%;display:flex;
+                  align-items:center;justify-content:center;transform:rotate(-15deg);opacity:0.85;
+                  box-shadow:0 0 0 2px rgba(192,57,43,0.3)">
+                  <div style="text-align:center;line-height:1.15">
+                    <div style="font-size:8px;color:#c0392b;font-weight:900">CRAYXUS</div>
+                    <div style="font-size:7px;color:#c0392b;font-weight:bold">AI认证</div>
+                    <div style="font-size:6px;color:#c0392b">专用章</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 底部装饰 -->
+              <div style="text-align:center;margin-top:8px">
+                <div style="display:inline-block;width:40px;height:1px;background:linear-gradient(90deg,transparent,#d4af6e,transparent)"></div>
+                <span style="color:#c0a96e;font-size:8px;margin:0 6px;letter-spacing:2px">以AI之智 行大师之道</span>
+                <div style="display:inline-block;width:40px;height:1px;background:linear-gradient(90deg,transparent,#d4af6e,transparent)"></div>
+              </div>
+
+            </div><!-- 内页结束 -->
+          </div><!-- 金色内框结束 -->
+        </div><!-- 皮质外框结束 -->
+
+        <!-- 按钮 -->
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button onclick="document.getElementById('quiz-panel').remove()"
+            style="flex:1;padding:13px;background:linear-gradient(145deg,#3d2518,#2c1810);color:#d4af6e;
+              border:1px solid rgba(212,175,110,0.3);border-radius:12px;cursor:pointer;font-size:13px;
+              letter-spacing:2px;font-weight:bold">返回</button>
+          <button onclick="AIQuiz.startQuiz()"
+            style="flex:1;padding:13px;background:linear-gradient(145deg,#8b6914,#a07d2e);color:#fff;
+              border:none;border-radius:12px;font-weight:bold;cursor:pointer;font-size:13px;
+              letter-spacing:2px;box-shadow:0 4px 12px rgba(139,105,20,0.4)">重新测评</button>
         </div>
+
       </div>
     </div>`;
     document.body.insertAdjacentHTML('beforeend', html);
