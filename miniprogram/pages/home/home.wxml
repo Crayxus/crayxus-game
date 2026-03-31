@@ -11,9 +11,6 @@
       </view>
     </view>
   </view>
-  <!-- 我的蛋力值（六边形雷达图） -->
-  </view>
-
   <!-- 蛋力值卡片 -->
   <view class="danli-card" bindtap="goDanli">
     <view class="danli-left">
