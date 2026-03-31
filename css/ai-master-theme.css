@@ -93,24 +93,63 @@ h1, h2, h3, .mode-select-title, .h-name, .boot-title,
   background: linear-gradient(135deg, #58cc02, #89e219, #ffc800) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
-  font-size: 46px !important;
-  letter-spacing: 5px !important;
+  font-size: 52px !important;
+  letter-spacing: 8px !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+  filter: drop-shadow(0 4px 12px rgba(88,204,2,0.2));
 }
 
 .mode-select-sub {
-  color: rgba(88, 204, 2, 0.45) !important;
-  letter-spacing: 6px !important;
-  font-weight: 300 !important;
+  color: rgba(88, 204, 2, 0.5) !important;
+  letter-spacing: 8px !important;
+  font-weight: 400 !important;
+  font-size: 16px !important;
+  margin-top: 8px !important;
 }
 
-/* ===== Holo 按钮 — 圆润友好 ===== */
+/* ===== 模型加载条（主页面底部） ===== */
+#mode-model-loader {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: linear-gradient(0deg, #0f1a28, transparent);
+  padding: 20px 40px 30px;
+  text-align: center;
+  transition: opacity 0.5s;
+}
+#mode-model-loader.loaded { opacity: 0; pointer-events: none; }
+#mode-model-loader .loader-bar {
+  height: 8px;
+  background: #1e3148;
+  border-radius: 4px;
+  max-width: 400px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+#mode-model-loader .loader-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #58cc02, #89e219);
+  border-radius: 4px;
+  transition: width 0.3s;
+  width: 0%;
+}
+#mode-model-loader .loader-text {
+  color: #8899aa;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+/* ===== Holo 按钮 — 加厚更有分量 ===== */
 .holo-btn {
-  background: linear-gradient(145deg, #1a2d42, #162438) !important;
-  border: 2px solid rgba(255,255,255,0.06) !important;
+  background: linear-gradient(145deg, #1e3350, #1a2d42) !important;
+  border: 2.5px solid rgba(255,255,255,0.08) !important;
   border-radius: var(--radius-lg) !important;
-  padding: 28px 22px !important;
+  padding: 32px 24px !important;
   transition: var(--transition) !important;
-  box-shadow: var(--shadow) !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05) !important;
   backdrop-filter: none !important;
 }
 .holo-btn::before, .holo-btn::after {
@@ -130,28 +169,28 @@ h1, h2, h3, .mode-select-title, .h-name, .boot-title,
 }
 
 .holo-btn .h-name {
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  letter-spacing: 2px !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  letter-spacing: 3px !important;
   color: #f0f4f8 !important;
   text-shadow: none !important;
 }
 
 .holo-btn .h-desc {
-  font-size: 11px !important;
+  font-size: 13px !important;
   color: #8899aa !important;
-  line-height: 1.5 !important;
-  margin-top: 6px !important;
+  line-height: 1.6 !important;
+  margin-top: 8px !important;
   letter-spacing: 0.5px !important;
 }
 
 .holo-btn .h-tag {
-  margin-top: 14px !important;
-  padding: 7px 18px !important;
+  margin-top: 16px !important;
+  padding: 10px 24px !important;
   border-radius: 24px !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  letter-spacing: 1px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
   transition: var(--transition) !important;
 }
 
