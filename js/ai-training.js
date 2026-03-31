@@ -397,7 +397,7 @@ const AITraining = {
             onclick="document.getElementById('training-center').remove();if(typeof AICourses!=='undefined')AICourses.showCourseList();else AITraining._toast('课程加载中...');">
             <div style="font-size:40px;margin-bottom:10px">📚</div>
             <div style="font-size:18px;color:#fbbf24;font-weight:bold">课程学习</div>
-            <div style="font-size:13px;color:#a0b0c0;margin-top:6px">6大维度<br>30节课程</div>
+            <div style="font-size:13px;color:#a0b0c0;margin-top:6px">6大维度<br>60节课程</div>
           </div>
           <div style="background:#0f1923;padding:16px 10px;border-radius:14px;text-align:center;
             ${this.rating.gamesPlayed > 0 ? 'cursor:pointer;border:2px solid rgba(167,139,250,0.3)' : 'cursor:not-allowed;border:2px solid #1e3148;opacity:0.4'};transition:all 0.2s"
