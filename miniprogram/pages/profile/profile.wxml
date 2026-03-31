@@ -76,7 +76,7 @@
   <!-- 联系我们 -->
   <view class="contact-footer">
     <text class="contact-title">联系我们</text>
-    <text class="contact-email" selectable="true">general@crayxus.com.au</text>
+    <text class="contact-email" style="user-select:text">general@crayxus.com.au</text>
     <text class="contact-copy">© 2026 Crayxus · AI 掼蛋大师</text>
   </view>
 

@@ -372,22 +372,29 @@ body.light-theme .quiz-card.suit-s .qc-suit { color: #222; }
   display: none !important;
 }
 
-/* 右上角按钮整理 */
+/* 蛋力放左上角 */
 #egg-token-btn {
-  position: absolute !important;
+  position: fixed !important;
+  top: 16px !important;
+  left: 16px !important;
+  right: auto !important;
+  z-index: 100 !important;
+  padding: 10px 20px !important;
+  font-size: 16px !important;
+}
+#egg-token-btn #egg-token-display {
+  font-size: 18px !important;
+}
+/* VIP + 暗色 放右上角，间距拉开 */
+.holo-member-badge {
+  position: fixed !important;
   top: 16px !important;
   right: 80px !important;
-  z-index: 60 !important;
-}
-.holo-member-badge {
-  position: absolute !important;
-  top: 16px !important;
-  right: 160px !important;
-  z-index: 60 !important;
+  z-index: 100 !important;
 }
 #theme-toggle {
-  position: absolute !important;
+  position: fixed !important;
   top: 16px !important;
   right: 16px !important;
-  z-index: 60 !important;
+  z-index: 100 !important;
 }

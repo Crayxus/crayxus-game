@@ -139,7 +139,7 @@
   <!-- 联系我们 -->
   <view class="contact-section">
     <text class="contact-label">联系我们</text>
-    <text class="contact-email" selectable="true">general@crayxus.com.au</text>
+    <text class="contact-email" style="user-select:text">general@crayxus.com.au</text>
   </view>
 
   <view style="height:120rpx"></view>
