@@ -15,12 +15,4 @@ page {
   --border: rgba(255,255,255,0.08);
 }
 
-/* 亮色主题 */
-page.light {
-  --bg: #f0f2f5;
-  --text: #1a1a2e;
-  --card-bg: #fff;
-  --border: rgba(0,0,0,0.08);
-  --panel: rgba(255,255,255,0.98);
-  --neon: #58cc02;
-}
+/* 亮色主题通过 .page.light 控制 */
