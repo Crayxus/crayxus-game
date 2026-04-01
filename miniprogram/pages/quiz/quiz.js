@@ -328,6 +328,9 @@ Page({
       egg.history.unshift({ type: 'earn', amount: 20, reason: '段位测评', time: Date.now() })
       wx.setStorageSync('crayxus_egg', egg)
 
+      // 同步到服务器
+      this._syncToServer(danliData, egg)
+
       this.setData({
         finished: true,
         result: {
@@ -359,6 +362,24 @@ Page({
         result: { correct, total: questions.length }
       })
     }
+  },
+
+  _syncToServer(danli, egg) {
+    let uid = wx.getStorageSync('crayxus_uid')
+    if (!uid) {
+      uid = 'wx-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+      wx.setStorageSync('crayxus_uid', uid)
+    }
+    const courses = wx.getStorageSync('crayxus_academy') || {}
+    wx.request({
+      url: app.globalData.serverUrl + '/api/progress',
+      method: 'POST',
+      header: { 'content-type': 'application/json' },
+      data: {
+        userId: uid,
+        data: { danli, egg, courses, source: 'miniprogram' }
+      }
+    })
   },
 
   _shuffle(arr) {

@@ -140,6 +140,13 @@ Page({
   },
 
   doLogin(sessionId) {
+    // 获取小程序端userId
+    let wxUid = wx.getStorageSync('crayxus_uid')
+    if (!wxUid) {
+      wxUid = 'wx-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+      wx.setStorageSync('crayxus_uid', wxUid)
+    }
+
     wx.request({
       url: app.globalData.serverUrl + '/api/wx-login',
       method: 'POST',
@@ -147,10 +154,15 @@ Page({
       data: {
         sessionId,
         avatarUrl: app.globalData.avatarBase64 || app.globalData.avatarUrl,
-        nickname: app.globalData.nickname
+        nickname: app.globalData.nickname,
+        wxUserId: wxUid
       },
       success: (resp) => {
         if (resp.data && resp.data.success) {
+          // 如果服务器返回了web端userId，绑定关联
+          if (resp.data.webUserId) {
+            wx.setStorageSync('crayxus_uid', resp.data.webUserId)
+          }
           wx.showToast({ title: '登录成功', icon: 'success' })
         } else {
           wx.showToast({ title: resp.data.msg || '登录失败', icon: 'none' })

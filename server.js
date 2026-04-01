@@ -362,6 +362,74 @@ app.post('/api/wx-login', (req, res) => {
     res.json({ success: true, stats });
 });
 
+// ========== 用户进度同步 API ==========
+const PROGRESS_DIR = path.join(__dirname, 'user_progress');
+if (!fs.existsSync(PROGRESS_DIR)) fs.mkdirSync(PROGRESS_DIR);
+
+function getProgressPath(userId) {
+    // 安全处理用户ID，防止路径注入
+    const safe = String(userId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+    return path.join(PROGRESS_DIR, safe + '.json');
+}
+
+// 保存进度
+app.post('/api/progress', (req, res) => {
+    const { userId, data } = req.body || {};
+    if (!userId || !data) {
+        return res.json({ success: false, msg: 'Missing userId or data' });
+    }
+
+    try {
+        const filePath = getProgressPath(userId);
+        // 读取现有进度，合并更新
+        let existing = {};
+        if (fs.existsSync(filePath)) {
+            existing = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        }
+
+        // 合并各模块（取最新的）
+        const merged = { ...existing, ...data, updatedAt: Date.now() };
+
+        // 课程进度：合并而非覆盖（保留两端各自完成的课）
+        if (existing.courses && data.courses) {
+            const mc = { ...existing.courses };
+            Object.keys(data.courses).forEach(courseId => {
+                if (!mc[courseId]) mc[courseId] = {};
+                Object.keys(data.courses[courseId]).forEach(lessonIdx => {
+                    if (data.courses[courseId][lessonIdx] === 'done') {
+                        mc[courseId][lessonIdx] = 'done';
+                    }
+                });
+            });
+            merged.courses = mc;
+        }
+
+        fs.writeFileSync(filePath, JSON.stringify(merged, null, 2), 'utf8');
+        gameLog(`[Progress] Saved for ${userId}`);
+        res.json({ success: true, data: merged });
+    } catch(e) {
+        gameLog(`[Progress] Error saving: ${e.message}`);
+        res.json({ success: false, msg: e.message });
+    }
+});
+
+// 读取进度
+app.get('/api/progress/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const filePath = getProgressPath(userId);
+
+    if (!fs.existsSync(filePath)) {
+        return res.json({ success: true, data: null });
+    }
+
+    try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        res.json({ success: true, data });
+    } catch(e) {
+        res.json({ success: false, msg: e.message });
+    }
+});
+
 // Redirect for /wxlogin QR scan (in case someone opens QR URL in browser)
 app.get('/wxlogin', (req, res) => {
     res.send(`

@@ -115,7 +115,57 @@ Page({
   },
 
   onShow() {
-    this.loadProgress()
+    this.syncFromServer(() => this.loadProgress())
+  },
+
+  _getUserId() {
+    let uid = wx.getStorageSync('crayxus_uid')
+    if (!uid) {
+      uid = 'wx-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+      wx.setStorageSync('crayxus_uid', uid)
+    }
+    return uid
+  },
+
+  syncFromServer(cb) {
+    const userId = this._getUserId()
+    wx.request({
+      url: app.globalData.serverUrl + '/api/progress/' + userId,
+      success: (res) => {
+        if (res.data && res.data.success && res.data.data && res.data.data.courses) {
+          // 合并远程进度
+          const local = wx.getStorageSync('crayxus_academy') || {}
+          const remote = res.data.data.courses
+          Object.keys(remote).forEach(courseId => {
+            if (!local[courseId]) local[courseId] = {}
+            Object.keys(remote[courseId]).forEach(lessonIdx => {
+              if (remote[courseId][lessonIdx] === 'done') {
+                local[courseId][lessonIdx] = 'done'
+              }
+            })
+          })
+          wx.setStorageSync('crayxus_academy', local)
+        }
+        if (cb) cb()
+      },
+      fail: () => { if (cb) cb() }
+    })
+  },
+
+  syncToServer() {
+    const userId = this._getUserId()
+    const progress = wx.getStorageSync('crayxus_academy') || {}
+    const danli = wx.getStorageSync('crayxus_danli') || {}
+    const egg = wx.getStorageSync('crayxus_egg') || {}
+    wx.request({
+      url: app.globalData.serverUrl + '/api/progress',
+      method: 'POST',
+      header: { 'content-type': 'application/json' },
+      data: {
+        userId,
+        data: { courses: progress, danli, egg, source: 'miniprogram' }
+      }
+    })
   },
 
   loadProgress() {
@@ -179,6 +229,8 @@ Page({
 
     wx.showToast({ title: '完成 +5蛋力', icon: 'success' })
 
+    // 同步到服务器
+    this.syncToServer()
     this.loadProgress()
     // 刷新选中课程
     const updated = this.data.courses.find(c => c.id === course.id)

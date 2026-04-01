@@ -133,12 +133,67 @@ const AICourses = {
       const saved = localStorage.getItem('crayxus_courses');
       if (saved) this.progress = JSON.parse(saved);
     } catch(e) {}
+    // 从服务器拉取最新进度
+    this.syncFromServer();
   },
 
   save() {
     try {
       localStorage.setItem('crayxus_courses', JSON.stringify(this.progress));
     } catch(e) {}
+    // 推送到服务器
+    this.syncToServer();
+  },
+
+  _getUserId() {
+    let uid = localStorage.getItem('crayxus_uid');
+    if (!uid) {
+      uid = 'web-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      localStorage.setItem('crayxus_uid', uid);
+    }
+    return uid;
+  },
+
+  syncToServer() {
+    const userId = this._getUserId();
+    // 收集所有进度数据
+    const danli = JSON.parse(localStorage.getItem('crayxus_ai_master') || '{}');
+    const egg = JSON.parse(localStorage.getItem('crayxus_egg_token') || '{}');
+    const data = {
+      courses: this.progress,
+      danli: danli.rating || null,
+      egg: egg,
+      source: 'web',
+    };
+    fetch('/api/progress', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ userId, data }),
+    }).catch(() => {});
+  },
+
+  syncFromServer() {
+    const userId = this._getUserId();
+    fetch('/api/progress/' + userId)
+      .then(r => r.json())
+      .then(resp => {
+        if (resp.success && resp.data && resp.data.courses) {
+          // 合并服务端进度（取并集）
+          const remote = resp.data.courses;
+          Object.keys(remote).forEach(courseId => {
+            if (!this.progress[courseId]) this.progress[courseId] = {};
+            Object.keys(remote[courseId]).forEach(lessonId => {
+              const local = this.progress[courseId][lessonId];
+              const rem = remote[courseId][lessonId];
+              if (rem && rem.completed && (!local || !local.completed)) {
+                this.progress[courseId][lessonId] = rem;
+              }
+            });
+          });
+          try { localStorage.setItem('crayxus_courses', JSON.stringify(this.progress)); } catch(e) {}
+        }
+      })
+      .catch(() => {});
   },
 
   getLessonProgress(courseId, lessonId) {
