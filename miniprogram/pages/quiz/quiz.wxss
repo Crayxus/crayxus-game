@@ -81,60 +81,81 @@ page { background: #0a0e1a; }
   margin-bottom: 20rpx;
 }
 
-/* Question Card */
-.question-card {
-  padding: 32rpx;
-  background: rgba(255,255,255,.03);
-  border: 1rpx solid rgba(255,255,255,.08);
-  border-radius: 20rpx;
-  margin-bottom: 20rpx;
+/* 场景描述 */
+.scenario-text {
+  display: block; font-size: 24rpx; color: rgba(255,255,255,.5);
+  margin-bottom: 16rpx;
 }
-.q-text {
-  font-size: 30rpx;
-  color: #fff;
-  font-weight: 600;
-  line-height: 1.7;
-  margin-bottom: 28rpx;
+
+/* 扑克牌 */
+.card-row { display: flex; flex-wrap: wrap; gap: 6rpx; }
+.hand-cards { gap: 4rpx; }
+.poker-card {
+  width: 56rpx; height: 78rpx;
+  background: #1a2030; border: 1rpx solid rgba(255,255,255,.15);
+  border-radius: 6rpx; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; flex-shrink: 0;
 }
-.q-options { display: flex; flex-direction: column; gap: 16rpx; }
-.q-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 16rpx;
-  padding: 20rpx 24rpx;
-  border: 1rpx solid rgba(255,255,255,.08);
+.pc-val { font-size: 24rpx; font-weight: 900; line-height: 1; }
+.pc-suit { font-size: 16rpx; line-height: 1; margin-top: 2rpx; }
+
+/* 小扑克牌（选项中） */
+.poker-card-sm {
+  width: 44rpx; height: 62rpx;
+  background: #1a2030; border: 1rpx solid rgba(255,255,255,.12);
+  border-radius: 4rpx; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pcs-val { font-size: 20rpx; font-weight: 900; line-height: 1; }
+.pcs-suit { font-size: 13rpx; line-height: 1; margin-top: 1rpx; }
+
+/* 上一手牌 */
+.last-play-area { margin-bottom: 16rpx; }
+.last-play-label { font-size: 20rpx; color: rgba(255,255,255,.35); display: block; margin-bottom: 6rpx; }
+
+/* 手牌区 */
+.hand-area {
+  padding: 16rpx 20rpx; margin-bottom: 16rpx;
+  background: rgba(255,255,255,.03); border: 1rpx solid rgba(255,255,255,.06);
   border-radius: 14rpx;
-  background: rgba(255,255,255,.02);
-  transition: all .2s;
+}
+.hand-label { font-size: 20rpx; color: rgba(255,255,255,.35); display: block; margin-bottom: 8rpx; }
+
+/* 题目 */
+.q-text {
+  display: block; font-size: 28rpx; color: #fff; font-weight: 600;
+  line-height: 1.7; margin-bottom: 16rpx;
+}
+
+/* 选项 */
+.q-options { display: flex; flex-direction: column; gap: 12rpx; }
+.q-option {
+  display: flex; align-items: center; gap: 12rpx;
+  padding: 16rpx 20rpx;
+  border: 1rpx solid rgba(255,255,255,.08);
+  border-radius: 14rpx; background: rgba(255,255,255,.02);
 }
 .q-option.selected {
-  border-color: rgba(0,212,170,.4);
-  background: rgba(0,212,170,.08);
+  border-color: rgba(0,212,170,.4); background: rgba(0,212,170,.08);
 }
 .q-option.correct {
-  border-color: rgba(0,212,170,.6);
-  background: rgba(0,212,170,.12);
+  border-color: rgba(0,212,170,.6); background: rgba(0,212,170,.12);
 }
 .q-option.wrong {
-  border-color: rgba(255,59,48,.5);
-  background: rgba(255,59,48,.08);
+  border-color: rgba(255,59,48,.5); background: rgba(255,59,48,.08);
 }
 .opt-letter {
-  width: 40rpx;
-  height: 40rpx;
-  border-radius: 50%;
+  width: 40rpx; height: 40rpx; border-radius: 50%;
   background: rgba(255,255,255,.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22rpx;
-  font-weight: 700;
-  color: rgba(255,255,255,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22rpx; font-weight: 700; color: rgba(255,255,255,.5);
   flex-shrink: 0;
 }
 .q-option.correct .opt-letter { background: rgba(0,212,170,.3); color: #00d4aa; }
 .q-option.wrong .opt-letter { background: rgba(255,59,48,.3); color: #ff3b30; }
-.opt-text { font-size: 26rpx; color: rgba(255,255,255,.75); line-height: 1.5; flex: 1; }
+.opt-content { flex: 1; display: flex; align-items: center; }
+.opt-cards { display: flex; gap: 4rpx; flex-wrap: wrap; }
+.opt-text { font-size: 26rpx; color: rgba(255,255,255,.75); line-height: 1.5; }
 
 /* Explain Card */
 .explain-card {

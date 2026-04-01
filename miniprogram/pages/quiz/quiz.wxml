@@ -5,7 +5,7 @@
   <!-- 顶部导航 -->
   <view class="nav-bar">
     <view class="nav-back" bindtap="goBack">←</view>
-    <text class="nav-title">{{mode === 'danli' ? '蛋力值测评' : '每日做题'}}</text>
+    <text class="nav-title">{{mode === 'danli' ? '段位测评' : '每日做题'}}</text>
     <view class="nav-right">
       <text class="nav-progress" wx:if="{{started}}">{{currentIndex + 1}}/{{questions.length}}</text>
     </view>
@@ -14,14 +14,14 @@
   <!-- 开始页 -->
   <view class="start-page" wx:if="{{!started && !finished}}">
     <view class="start-icon">{{mode === 'danli' ? '🎯' : '📝'}}</view>
-    <view class="start-title">{{mode === 'danli' ? '蛋力值测评' : '每日做题'}}</view>
+    <view class="start-title">{{mode === 'danli' ? '段位测评' : '每日做题'}}</view>
     <view class="start-desc" wx:if="{{mode === 'danli'}}">
-      18道题，6大维度全面评估你的掼蛋实力\n出牌 · 配合 · 炸弹 · 记牌 · 大局 · 心态
+      20道真实牌局，V8 超冠军级AI出题\n随机题目，每次不同\n组牌 · 大牌 · 时机 · 配合 · 炸弹 · 终局
     </view>
     <view class="start-desc" wx:else>
       每天3道精选题目，坚持练习提升实力
     </view>
-    <view class="start-btn" bindtap="startQuiz">开始答题</view>
+    <view class="start-btn" bindtap="startQuiz">{{poolLoaded ? '开始答题' : '加载题库中...'}}</view>
   </view>
 
   <!-- 答题中 -->
@@ -33,35 +33,69 @@
 
     <!-- 维度标签 -->
     <view class="dim-tag" style="background:{{currentQ.dimColor}}22;color:{{currentQ.dimColor}};border:1rpx solid {{currentQ.dimColor}}44">
-      {{currentQ.dimIcon}} {{currentQ.dimName}} · 难度{{currentQ.difficulty}}
+      {{currentQ.dim}}
     </view>
 
-    <!-- 题目 -->
-    <view class="question-card">
-      <view class="q-text">{{currentQ.question}}</view>
-      <view class="q-options">
-        <view
-          class="q-option {{selectedAnswer === idx ? (showResult ? (idx === currentQ.correct ? 'correct' : 'wrong') : 'selected') : (showResult && idx === currentQ.correct ? 'correct' : '')}}"
-          wx:for="{{currentQ.options}}"
-          wx:key="index"
-          wx:for-index="idx"
-          data-idx="{{idx}}"
-          bindtap="selectAnswer"
-        >
-          <text class="opt-letter">{{['A','B','C','D'][idx]}}</text>
-          <text class="opt-text">{{item}}</text>
+    <!-- 场景描述 -->
+    <text class="scenario-text">{{currentQ.scenario}}</text>
+
+    <!-- 上一手牌（如有） -->
+    <view class="last-play-area" wx:if="{{currentQ.lastPlay && currentQ.lastPlay.length > 0}}">
+      <text class="last-play-label">上一手出牌：</text>
+      <view class="card-row">
+        <view class="poker-card" wx:for="{{currentQ.lastPlay}}" wx:key="index" style="color:{{item.color}}">
+          <text class="pc-val">{{item.val}}</text>
+          <text class="pc-suit" wx:if="{{item.v < 16}}">{{item.suit}}</text>
         </view>
       </view>
     </view>
 
-    <!-- 解析 -->
-    <view class="explain-card" wx:if="{{showResult}}">
-      <text class="explain-title">{{selectedAnswer === currentQ.correct ? '✓ 回答正确' : '✗ 回答错误'}}</text>
-      <text class="explain-text">{{currentQ.explain}}</text>
+    <!-- 你的手牌 -->
+    <view class="hand-area">
+      <text class="hand-label">你的手牌：</text>
+      <view class="card-row hand-cards">
+        <view class="poker-card" wx:for="{{currentQ.hand}}" wx:key="index" style="color:{{item.color}}">
+          <text class="pc-val">{{item.val}}</text>
+          <text class="pc-suit" wx:if="{{item.v < 16}}">{{item.suit}}</text>
+        </view>
+      </view>
     </view>
 
-    <!-- 下一题按钮 -->
-    <view class="next-btn" wx:if="{{showResult}}" bindtap="nextQuestion">
+    <!-- 题目 -->
+    <text class="q-text">{{currentQ.question}}</text>
+
+    <!-- 选项 -->
+    <view class="q-options">
+      <view
+        class="q-option {{selectedAnswer === idx ? (showResult ? (currentQ.options[idx].correct ? 'correct' : 'wrong') : 'selected') : (showResult && currentQ.options[idx].correct ? 'correct' : '')}}"
+        wx:for="{{currentQ.options}}"
+        wx:key="index"
+        wx:for-index="idx"
+        data-idx="{{idx}}"
+        bindtap="selectAnswer"
+      >
+        <text class="opt-letter">{{['A','B','C','D'][idx]}}</text>
+        <view class="opt-content">
+          <!-- 选项牌面 -->
+          <view class="opt-cards" wx:if="{{item.cards && item.cards.length > 0}}">
+            <view class="poker-card-sm" wx:for="{{item.cards}}" wx:for-item="card" wx:key="index" style="color:{{card.color}}">
+              <text class="pcs-val">{{card.val}}</text>
+              <text class="pcs-suit" wx:if="{{card.v < 16}}">{{card.suit}}</text>
+            </view>
+          </view>
+          <text class="opt-text" wx:else>{{item.text}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 解析（仅每日做题模式） -->
+    <view class="explain-card" wx:if="{{showResult && mode !== 'danli'}}">
+      <text class="explain-title">{{currentQ.options[selectedAnswer].correct ? '✓ 正确' : '✗ 错误'}}</text>
+      <text class="explain-text">{{currentQ.options[selectedAnswer].explain || ''}}</text>
+    </view>
+
+    <!-- 下一题按钮（仅每日做题） -->
+    <view class="next-btn" wx:if="{{showResult && mode !== 'danli'}}" bindtap="nextQuestion">
       {{currentIndex < questions.length - 1 ? '下一题 →' : '查看结果'}}
     </view>
   </view>
@@ -72,7 +106,7 @@
     <!-- 每日做题简单结果 -->
     <view wx:if="{{mode !== 'danli'}}" style="text-align:center;padding-top:120rpx">
       <text class="result-score" style="font-size:96rpx">{{result.correct}}</text>
-      <text class="result-max">/{{questions.length}}</text>
+      <text class="result-max">/{{result.total}}</text>
       <text class="result-correct" style="display:block;margin-top:20rpx">答对 {{result.correct}} 题</text>
       <view class="result-actions" style="margin-top:60rpx">
         <view class="result-btn primary" bindtap="retryQuiz">再来一次</view>
@@ -84,34 +118,29 @@
     <view class="cert-outer" wx:if="{{mode === 'danli'}}">
       <view class="cert-gold-border">
         <view class="cert-inner">
-          <!-- 水印 -->
           <view class="cert-watermark"></view>
           <view class="cert-watermark-sm"></view>
 
-          <!-- 顶部装饰 -->
           <view class="cert-top-line">
             <view class="cert-line-bar"></view>
             <text class="cert-top-label">CRAYXUS AI</text>
             <view class="cert-line-bar"></view>
           </view>
 
-          <!-- 标题 -->
           <text class="cert-title">掼蛋段位认证</text>
           <text class="cert-subtitle">Crayxus AI 掼蛋能力认证中心</text>
 
           <view class="cert-divider"></view>
 
-          <!-- 段位+分数 -->
           <view class="cert-rank-area">
             <text class="cert-rank-icon">{{result.rankIcon}}</text>
             <text class="cert-rank-name" style="color:{{result.rankColor}}">{{result.rank}}</text>
             <text class="cert-rating">{{result.rating}}</text>
-            <text class="cert-rating-label">综合评分 · {{result.score}}/1000 蛋力值</text>
+            <text class="cert-rating-label">综合评分 · {{result.correct}}/{{result.total}} 正确率 {{result.pct}}%</text>
           </view>
 
           <view class="cert-divider"></view>
 
-          <!-- 六维能力 -->
           <text class="cert-dim-title">六 维 能 力 评 估</text>
           <view class="cert-dims">
             <view class="cert-dim" wx:for="{{result.dims}}" wx:key="key">
@@ -120,17 +149,15 @@
               <view class="cd-bar">
                 <view class="cd-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
               </view>
-              <text class="cd-val" style="color:{{item.color}}">{{item.val}}</text>
+              <text class="cd-val" style="color:{{item.color}}">{{item.pct}}%</text>
             </view>
           </view>
 
-          <!-- 薄弱项 -->
           <view class="cert-weak">
             <text class="cert-weak-title">待提升维度：{{result.weakest}}</text>
             <text class="cert-weak-desc">建议通过蛋力学院重点练习该维度策略</text>
           </view>
 
-          <!-- 认证信息+印章 -->
           <view class="cert-footer">
             <view class="cert-info">
               <text class="cert-info-line">认证编号：{{result.certNo}}</text>
@@ -144,7 +171,6 @@
             </view>
           </view>
 
-          <!-- 底部slogan -->
           <view class="cert-bottom-line">
             <view class="cert-line-bar-sm"></view>
             <text class="cert-slogan">以AI之智 行大师之道</text>
@@ -154,7 +180,6 @@
       </view>
     </view>
 
-    <!-- 按钮 -->
     <view class="cert-actions" wx:if="{{mode === 'danli'}}">
       <view class="cert-btn-secondary" bindtap="goBack">返回</view>
       <view class="cert-btn-primary" bindtap="retryQuiz">重新测评</view>
