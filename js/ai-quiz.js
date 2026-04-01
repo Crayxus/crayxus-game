@@ -127,23 +127,70 @@ const AIQuiz = {
 
   async loadQuestions() {
     try {
-      const resp = await fetch('/js/quiz-data.json');
+      // 优先加载大题库
+      let resp = await fetch('/js/quiz-pool.json');
+      if (!resp.ok) resp = await fetch('/js/quiz-data.json');
       const data = await resp.json();
-      this.questions = data.questions;
+      this.pool = data.questions;
       this.loaded = true;
-      console.log(`[Quiz] Loaded ${this.questions.length} questions from AI model`);
+      console.log(`[Quiz] Loaded ${this.pool.length} questions from AI model`);
     } catch(e) {
       console.warn('[Quiz] Failed to load quiz data:', e);
       this.loaded = false;
     }
   },
 
+  _pickBalanced(pool, n) {
+    // 每维度至少2题，随机抽取
+    const byDim = {};
+    pool.forEach(q => {
+      if (!byDim[q.dim]) byDim[q.dim] = [];
+      byDim[q.dim].push(q);
+    });
+    Object.values(byDim).forEach(arr => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    });
+    const result = [];
+    const dims = Object.keys(byDim);
+    const perDim = Math.max(2, Math.floor(n / dims.length));
+    dims.forEach(dim => result.push(...(byDim[dim] || []).slice(0, perDim)));
+    if (result.length < n) {
+      const used = new Set(result);
+      const rest = pool.filter(q => !used.has(q));
+      for (let i = rest.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [rest[i], rest[j]] = [rest[j], rest[i]];
+      }
+      result.push(...rest.slice(0, n - result.length));
+    }
+    // 打乱最终顺序
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result.slice(0, n);
+  },
+
   async startQuiz() {
     if (!this.loaded) await this.loadQuestions();
-    if (!this.questions.length) {
+    if (!this.pool || !this.pool.length) {
       if (typeof toast === 'function') toast('题库加载失败，请刷新重试');
       return;
     }
+    // 随机抽20题
+    this.questions = this._pickBalanced(this.pool, 20);
+    // 打乱每题选项顺序
+    this.questions.forEach(q => {
+      const opts = [...q.options];
+      for (let i = opts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+      }
+      q.options = opts;
+    });
     this.currentQ = 0;
     this.answers = [];
     this.dimScores = {};

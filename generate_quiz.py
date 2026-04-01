@@ -238,8 +238,8 @@ def main():
         '终局处理': [],  # late game
     }
 
-    target_per_dim = {'组牌分解': 50, '大牌控制': 40, '出牌时机': 40,
-                      '队友配合': 40, '炸弹使用': 40, '终局处理': 50}
+    target_per_dim = {'组牌分解': 60, '大牌控制': 55, '出牌时机': 55,
+                      '队友配合': 55, '炸弹使用': 55, '终局处理': 60}
 
     print('Generating questions...')
     attempts = 0
@@ -298,8 +298,8 @@ def main():
 
     # Select best questions per dimension
     final_questions = []
-    pick = {'组牌分解': 40, '大牌控制': 35, '出牌时机': 35,
-            '队友配合': 35, '炸弹使用': 35, '终局处理': 40}
+    pick = {'组牌分解': 55, '大牌控制': 50, '出牌时机': 50,
+            '队友配合': 50, '炸弹使用': 50, '终局处理': 55}
 
     for dim, qs in dims.items():
         # Sort by number of legal moves (more options = more interesting)
