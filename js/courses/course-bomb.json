@@ -1,0 +1,4216 @@
+{
+  "courseId": "bomb",
+  "dim": "炸弹使用",
+  "total_lessons": 10,
+  "lessons": [
+    {
+      "lesson": 1,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 3,
+              "name": "♠3"
+            },
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "H",
+              "v": 5,
+              "name": "♥5"
+            },
+            {
+              "s": "H",
+              "v": 5,
+              "name": "♥5"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦9",
+              "correct": true,
+              "q_value": -1.1847,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-1.185), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦7",
+              "correct": false,
+              "q_value": -1.185,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-1.185 (排名第2/11), 出牌后M值=5"
+            },
+            {
+              "text": "对子: ♥5 ♥5",
+              "correct": false,
+              "q_value": -1.2329,
+              "q_rank": 6,
+              "m_after": 6,
+              "explain": "Q值=-1.233 (排名第6/11), 出牌后M值=6"
+            },
+            {
+              "text": "对子: ♥4 ♣4",
+              "correct": false,
+              "q_value": -1.2828,
+              "q_rank": 11,
+              "m_after": 7,
+              "explain": "Q值=-1.283 (排名第11/11), 出牌后M值=7"
+            }
+          ],
+          "n_legal": 11
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 10,
+              "name": "♠10"
+            },
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            },
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            },
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            },
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            },
+            {
+              "s": "H",
+              "v": 10,
+              "name": "♥10"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣4",
+              "correct": true,
+              "q_value": -0.5756,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.576), 出牌后M值=3"
+            },
+            {
+              "text": "三带二: ♥6 ♣6 ♦6 ♥8 ♥8",
+              "correct": false,
+              "q_value": -0.6744,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.674 (排名第2/14), 出牌后M值=3"
+            },
+            {
+              "text": "对子: ♥8 ♥8",
+              "correct": false,
+              "q_value": -0.8025,
+              "q_rank": 8,
+              "m_after": 4,
+              "explain": "Q值=-0.803 (排名第8/14), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♥6",
+              "correct": false,
+              "q_value": -0.9231,
+              "q_rank": 14,
+              "m_after": 4,
+              "explain": "Q值=-0.923 (排名第14/14), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 14
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 3,
+              "name": "♥3"
+            },
+            {
+              "s": "H",
+              "v": 7,
+              "name": "♥7"
+            },
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            },
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦4",
+              "correct": true,
+              "q_value": -1.3434,
+              "q_rank": 1,
+              "m_after": 8,
+              "explain": "AI推荐最优选择 (Q值最高=-1.343), 出牌后M值=8"
+            },
+            {
+              "text": "单牌: ♣5",
+              "correct": false,
+              "q_value": -1.3466,
+              "q_rank": 2,
+              "m_after": 8,
+              "explain": "Q值=-1.347 (排名第2/10), 出牌后M值=8"
+            },
+            {
+              "text": "单牌: ♦10",
+              "correct": false,
+              "q_value": -1.3642,
+              "q_rank": 6,
+              "m_after": 8,
+              "explain": "Q值=-1.364 (排名第6/10), 出牌后M值=8"
+            },
+            {
+              "text": "单牌: ♦A",
+              "correct": false,
+              "q_value": -1.3981,
+              "q_rank": 10,
+              "m_after": 8,
+              "explain": "Q值=-1.398 (排名第10/10), 出牌后M值=8"
+            }
+          ],
+          "n_legal": 10
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            },
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            },
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦K",
+              "correct": true,
+              "q_value": -1.0267,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-1.027), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦A",
+              "correct": false,
+              "q_value": -1.077,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-1.077 (排名第2/5), 出牌后M值=5"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -1.088,
+              "q_rank": 3,
+              "m_after": 6,
+              "explain": "Q值=-1.088 (排名第3/5), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.152,
+              "q_rank": 5,
+              "m_after": 5,
+              "explain": "Q值=-1.152 (排名第5/5), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 7,
+              "name": "♥7"
+            },
+            {
+              "s": "H",
+              "v": 14,
+              "name": "♥A"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦6",
+              "correct": true,
+              "q_value": -0.6285,
+              "q_rank": 1,
+              "m_after": 7,
+              "explain": "AI推荐最优选择 (Q值最高=-0.628), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: ♦4",
+              "correct": false,
+              "q_value": -0.6435,
+              "q_rank": 2,
+              "m_after": 7,
+              "explain": "Q值=-0.643 (排名第2/10), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": -0.847,
+              "q_rank": 6,
+              "m_after": 7,
+              "explain": "Q值=-0.847 (排名第6/10), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.9462,
+              "q_rank": 10,
+              "m_after": 7,
+              "explain": "Q值=-0.946 (排名第10/10), 出牌后M值=7"
+            }
+          ],
+          "n_legal": 10
+        }
+      ]
+    },
+    {
+      "lesson": 2,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 13,
+              "name": "♥K"
+            },
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣6",
+              "correct": true,
+              "q_value": -0.24,
+              "q_rank": 1,
+              "m_after": 7,
+              "explain": "AI推荐最优选择 (Q值最高=-0.240), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: ♦9",
+              "correct": false,
+              "q_value": -0.2889,
+              "q_rank": 2,
+              "m_after": 7,
+              "explain": "Q值=-0.289 (排名第2/9), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: ♣3",
+              "correct": false,
+              "q_value": -0.3816,
+              "q_rank": 5,
+              "m_after": 7,
+              "explain": "Q值=-0.382 (排名第5/9), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.6778,
+              "q_rank": 9,
+              "m_after": 7,
+              "explain": "Q值=-0.678 (排名第9/9), 出牌后M值=7"
+            }
+          ],
+          "n_legal": 9
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 3,
+              "name": "♠3"
+            },
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            },
+            {
+              "s": "H",
+              "v": 14,
+              "name": "♥A"
+            },
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♠3 ♣3",
+              "correct": true,
+              "q_value": -0.7726,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-0.773), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦4",
+              "correct": false,
+              "q_value": -0.8486,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-0.849 (排名第2/9), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦Q",
+              "correct": false,
+              "q_value": -0.8795,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-0.879 (排名第5/9), 出牌后M值=6"
+            },
+            {
+              "text": "对子: ♠A ♥A",
+              "correct": false,
+              "q_value": -0.984,
+              "q_rank": 9,
+              "m_after": 6,
+              "explain": "Q值=-0.984 (排名第9/9), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 9
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 9,
+              "name": "♠9"
+            },
+            {
+              "s": "H",
+              "v": 10,
+              "name": "♥10"
+            },
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣3",
+              "correct": true,
+              "q_value": 0.5999,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.600), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♥10",
+              "correct": false,
+              "q_value": 0.4284,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.428 (排名第2/10), 出牌后M值=4"
+            },
+            {
+              "text": "对子: ♠9 ♦9",
+              "correct": false,
+              "q_value": 0.1316,
+              "q_rank": 6,
+              "m_after": 6,
+              "explain": "Q值=0.132 (排名第6/10), 出牌后M值=6"
+            },
+            {
+              "text": "三带二: ♠9 ♦9 ♦9 ♣A ♣A",
+              "correct": false,
+              "q_value": -0.2583,
+              "q_rank": 10,
+              "m_after": 4,
+              "explain": "Q值=-0.258 (排名第10/10), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 10
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 3,
+              "name": "♥3"
+            },
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            },
+            {
+              "s": "H",
+              "v": 14,
+              "name": "♥A"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦J",
+              "correct": true,
+              "q_value": 0.2201,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=0.220), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦K",
+              "correct": false,
+              "q_value": 0.1544,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=0.154 (排名第2/5), 出牌后M值=6"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": 0.1307,
+              "q_rank": 3,
+              "m_after": 7,
+              "explain": "Q值=0.131 (排名第3/5), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.5306,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-0.531 (排名第5/5), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 10,
+              "name": "♠10"
+            },
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "炸弹: ♥9 ♣9 ♦9 ♦9",
+              "correct": true,
+              "q_value": 0.5791,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=0.579), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♠10",
+              "correct": false,
+              "q_value": 0.4921,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=0.492 (排名第2/6), 出牌后M值=5"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": 0.3293,
+              "q_rank": 4,
+              "m_after": 6,
+              "explain": "Q值=0.329 (排名第4/6), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.037,
+              "q_rank": 6,
+              "m_after": 5,
+              "explain": "Q值=0.037 (排名第6/6), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 6
+        }
+      ]
+    },
+    {
+      "lesson": 3,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 5,
+              "name": "♥5"
+            },
+            {
+              "s": "H",
+              "v": 10,
+              "name": "♥10"
+            },
+            {
+              "s": "H",
+              "v": 13,
+              "name": "♥K"
+            },
+            {
+              "s": "H",
+              "v": 14,
+              "name": "♥A"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥5",
+              "correct": true,
+              "q_value": 0.1021,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=0.102), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣4",
+              "correct": false,
+              "q_value": 0.0963,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=0.096 (排名第2/9), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♥10",
+              "correct": false,
+              "q_value": -0.0095,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-0.009 (排名第5/9), 出牌后M值=6"
+            },
+            {
+              "text": "对子: ♥A ♣A",
+              "correct": false,
+              "q_value": -0.3537,
+              "q_rank": 9,
+              "m_after": 5,
+              "explain": "Q值=-0.354 (排名第9/9), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 9
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 3,
+              "name": "♥3"
+            },
+            {
+              "s": "H",
+              "v": 5,
+              "name": "♥5"
+            },
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♥5 ♣5",
+              "correct": true,
+              "q_value": -0.4623,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-0.462), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♣8",
+              "correct": false,
+              "q_value": -0.4685,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-0.468 (排名第2/9), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♥5",
+              "correct": false,
+              "q_value": -0.7119,
+              "q_rank": 5,
+              "m_after": 7,
+              "explain": "Q值=-0.712 (排名第5/9), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.8942,
+              "q_rank": 9,
+              "m_after": 6,
+              "explain": "Q值=-0.894 (排名第9/9), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 9
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♥4 ♣4",
+              "correct": true,
+              "q_value": -0.8872,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.887), 出牌后M值=5"
+            },
+            {
+              "text": "对子: ♣8 ♦8",
+              "correct": false,
+              "q_value": -0.9856,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.986 (排名第2/9), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣9",
+              "correct": false,
+              "q_value": -1.0283,
+              "q_rank": 5,
+              "m_after": 5,
+              "explain": "Q值=-1.028 (排名第5/9), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -1.1053,
+              "q_rank": 9,
+              "m_after": 5,
+              "explain": "Q值=-1.105 (排名第9/9), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 9
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♣7 ♦7",
+              "correct": true,
+              "q_value": -0.7033,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-0.703), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♣9",
+              "correct": false,
+              "q_value": -0.7999,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-0.800 (排名第2/8), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♣7",
+              "correct": false,
+              "q_value": -0.9027,
+              "q_rank": 5,
+              "m_after": 7,
+              "explain": "Q值=-0.903 (排名第5/8), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.1578,
+              "q_rank": 8,
+              "m_after": 6,
+              "explain": "Q值=-1.158 (排名第8/8), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 8
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 9,
+              "name": "♠9"
+            },
+            {
+              "s": "S",
+              "v": 9,
+              "name": "♠9"
+            },
+            {
+              "s": "S",
+              "v": 11,
+              "name": "♠J"
+            },
+            {
+              "s": "H",
+              "v": 12,
+              "name": "♥Q"
+            },
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦5",
+              "correct": true,
+              "q_value": -1.1428,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-1.143), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♣7",
+              "correct": false,
+              "q_value": -1.1478,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-1.148 (排名第2/8), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♥Q",
+              "correct": false,
+              "q_value": -1.1946,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-1.195 (排名第5/8), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.2692,
+              "q_rank": 8,
+              "m_after": 6,
+              "explain": "Q值=-1.269 (排名第8/8), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 8
+        }
+      ]
+    },
+    {
+      "lesson": 4,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 10,
+              "name": "♥10"
+            },
+            {
+              "s": "H",
+              "v": 12,
+              "name": "♥Q"
+            },
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦8",
+              "correct": true,
+              "q_value": -0.509,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-0.509), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♥10",
+              "correct": false,
+              "q_value": -0.5408,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-0.541 (排名第2/7), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦A",
+              "correct": false,
+              "q_value": -0.6697,
+              "q_rank": 4,
+              "m_after": 6,
+              "explain": "Q值=-0.670 (排名第4/7), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.8893,
+              "q_rank": 7,
+              "m_after": 6,
+              "explain": "Q值=-0.889 (排名第7/7), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 10,
+              "name": "♠10"
+            },
+            {
+              "s": "S",
+              "v": 13,
+              "name": "♠K"
+            },
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "S",
+              "v": 6,
+              "name": "♠6"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦9",
+              "correct": true,
+              "q_value": -0.4983,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.498), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♠K",
+              "correct": false,
+              "q_value": -0.5775,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.578 (排名第2/6), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♥8",
+              "correct": false,
+              "q_value": -0.6497,
+              "q_rank": 4,
+              "m_after": 6,
+              "explain": "Q值=-0.650 (排名第4/6), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.9647,
+              "q_rank": 6,
+              "m_after": 5,
+              "explain": "Q值=-0.965 (排名第6/6), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            },
+            {
+              "s": "H",
+              "v": 7,
+              "name": "♥7"
+            },
+            {
+              "s": "H",
+              "v": 7,
+              "name": "♥7"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "三条: ♠4 ♣4 ♣4",
+              "correct": true,
+              "q_value": 0.4542,
+              "q_rank": 1,
+              "m_after": 2,
+              "explain": "AI推荐最优选择 (Q值最高=0.454), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": 0.3543,
+              "q_rank": 2,
+              "m_after": 2,
+              "explain": "Q值=0.354 (排名第2/10), 出牌后M值=2"
+            },
+            {
+              "text": "三带二: ♠4 ♣4 ♣4 ♥7 ♥7",
+              "correct": false,
+              "q_value": 0.2593,
+              "q_rank": 6,
+              "m_after": 2,
+              "explain": "Q值=0.259 (排名第6/10), 出牌后M值=2"
+            },
+            {
+              "text": "三带二: ♥7 ♥7 ♣7 ♠4 ♣4",
+              "correct": false,
+              "q_value": 0.0836,
+              "q_rank": 10,
+              "m_after": 3,
+              "explain": "Q值=0.084 (排名第10/10), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 10
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 13,
+              "name": "♠K"
+            },
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣3",
+              "correct": true,
+              "q_value": -0.6845,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.684), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦6",
+              "correct": false,
+              "q_value": -0.8045,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.805 (排名第2/9), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦10",
+              "correct": false,
+              "q_value": -0.9378,
+              "q_rank": 5,
+              "m_after": 5,
+              "explain": "Q值=-0.938 (排名第5/9), 出牌后M值=5"
+            },
+            {
+              "text": "对子: ♠K ♣K",
+              "correct": false,
+              "q_value": -1.0511,
+              "q_rank": 9,
+              "m_after": 5,
+              "explain": "Q值=-1.051 (排名第9/9), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 9
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 3,
+              "name": "♠3"
+            },
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥9",
+              "correct": true,
+              "q_value": -0.135,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-0.135), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♠3",
+              "correct": false,
+              "q_value": -0.1927,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-0.193 (排名第2/8), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": -0.2947,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-0.295 (排名第5/8), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.9051,
+              "q_rank": 8,
+              "m_after": 6,
+              "explain": "Q值=-0.905 (排名第8/8), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 8
+        }
+      ]
+    },
+    {
+      "lesson": 5,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            },
+            {
+              "s": "S",
+              "v": 5,
+              "name": "♠5"
+            },
+            {
+              "s": "S",
+              "v": 6,
+              "name": "♠6"
+            },
+            {
+              "s": "S",
+              "v": 15,
+              "name": "♠2"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♠4",
+              "correct": true,
+              "q_value": -0.8871,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.887), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦7",
+              "correct": false,
+              "q_value": -0.9071,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.907 (排名第2/8), 出牌后M值=5"
+            },
+            {
+              "text": "对子: ♠6 ♣6",
+              "correct": false,
+              "q_value": -1.0018,
+              "q_rank": 5,
+              "m_after": 5,
+              "explain": "Q值=-1.002 (排名第5/8), 出牌后M值=5"
+            },
+            {
+              "text": "对子: ♠2 ♦2",
+              "correct": false,
+              "q_value": -1.1803,
+              "q_rank": 8,
+              "m_after": 5,
+              "explain": "Q值=-1.180 (排名第8/8), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 8
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦4",
+              "correct": true,
+              "q_value": -0.8531,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-0.853), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♥6",
+              "correct": false,
+              "q_value": -0.9079,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-0.908 (排名第2/8), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♣9",
+              "correct": false,
+              "q_value": -0.9473,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-0.947 (排名第5/8), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.1282,
+              "q_rank": 8,
+              "m_after": 6,
+              "explain": "Q值=-1.128 (排名第8/8), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 8
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 3,
+              "name": "♠3"
+            },
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♠3",
+              "correct": true,
+              "q_value": -0.8614,
+              "q_rank": 1,
+              "m_after": 7,
+              "explain": "AI推荐最优选择 (Q值最高=-0.861), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: ♣6",
+              "correct": false,
+              "q_value": -1.0183,
+              "q_rank": 2,
+              "m_after": 7,
+              "explain": "Q值=-1.018 (排名第2/8), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: ♦8",
+              "correct": false,
+              "q_value": -1.1256,
+              "q_rank": 5,
+              "m_after": 7,
+              "explain": "Q值=-1.126 (排名第5/8), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.3737,
+              "q_rank": 8,
+              "m_after": 7,
+              "explain": "Q值=-1.374 (排名第8/8), 出牌后M值=7"
+            }
+          ],
+          "n_legal": 8
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 12,
+              "name": "♠Q"
+            },
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            },
+            {
+              "s": "H",
+              "v": 7,
+              "name": "♥7"
+            },
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣5",
+              "correct": true,
+              "q_value": -0.2784,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.278), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♥7",
+              "correct": false,
+              "q_value": -0.2859,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.286 (排名第2/8), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣2",
+              "correct": false,
+              "q_value": -0.5087,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-0.509 (排名第5/8), 出牌后M值=6"
+            },
+            {
+              "text": "对子: 小王 小王",
+              "correct": false,
+              "q_value": -0.8977,
+              "q_rank": 8,
+              "m_after": 5,
+              "explain": "Q值=-0.898 (排名第8/8), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 8
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 12,
+              "name": "♠Q"
+            },
+            {
+              "s": "H",
+              "v": 3,
+              "name": "♥3"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥3",
+              "correct": true,
+              "q_value": -0.4548,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.455), 出牌后M值=5"
+            },
+            {
+              "text": "对子: ♦6 ♦6",
+              "correct": false,
+              "q_value": -0.601,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.601 (排名第2/8), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦6",
+              "correct": false,
+              "q_value": -0.7789,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-0.779 (排名第5/8), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.1075,
+              "q_rank": 8,
+              "m_after": 5,
+              "explain": "Q值=-1.107 (排名第8/8), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 8
+        }
+      ]
+    },
+    {
+      "lesson": 6,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 3,
+              "name": "♠3"
+            },
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            },
+            {
+              "s": "H",
+              "v": 3,
+              "name": "♥3"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♠4 ♦4",
+              "correct": true,
+              "q_value": 0.289,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=0.289), 出牌后M值=3"
+            },
+            {
+              "text": "对子: ♠3 ♥3",
+              "correct": false,
+              "q_value": 0.2803,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.280 (排名第2/8), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♠3",
+              "correct": false,
+              "q_value": 0.0516,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=0.052 (排名第5/8), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠4",
+              "correct": false,
+              "q_value": -0.0074,
+              "q_rank": 8,
+              "m_after": 4,
+              "explain": "Q值=-0.007 (排名第8/8), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 8
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 10,
+              "name": "♠10"
+            },
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣6",
+              "correct": true,
+              "q_value": -0.4196,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.420), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣3",
+              "correct": false,
+              "q_value": -0.5011,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.501 (排名第2/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♠10",
+              "correct": false,
+              "q_value": -0.5631,
+              "q_rank": 4,
+              "m_after": 5,
+              "explain": "Q值=-0.563 (排名第4/7), 出牌后M值=5"
+            },
+            {
+              "text": "对子: 小王 小王",
+              "correct": false,
+              "q_value": -0.9223,
+              "q_rank": 7,
+              "m_after": 5,
+              "explain": "Q值=-0.922 (排名第7/7), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 13,
+              "name": "♠K"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦9",
+              "correct": true,
+              "q_value": 0.8215,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=0.822), 出牌后M值=5"
+            },
+            {
+              "text": "对子: ♠K ♣K",
+              "correct": false,
+              "q_value": 0.8101,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=0.810 (排名第2/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♠K",
+              "correct": false,
+              "q_value": 0.6881,
+              "q_rank": 4,
+              "m_after": 6,
+              "explain": "Q值=0.688 (排名第4/7), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.1671,
+              "q_rank": 7,
+              "m_after": 5,
+              "explain": "Q值=0.167 (排名第7/7), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            },
+            {
+              "s": "S",
+              "v": 11,
+              "name": "♠J"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♠4",
+              "correct": true,
+              "q_value": -0.4095,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-0.409), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦6",
+              "correct": false,
+              "q_value": -0.6005,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-0.601 (排名第2/7), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦7",
+              "correct": false,
+              "q_value": -0.6427,
+              "q_rank": 4,
+              "m_after": 6,
+              "explain": "Q值=-0.643 (排名第4/7), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.0487,
+              "q_rank": 7,
+              "m_after": 6,
+              "explain": "Q值=-1.049 (排名第7/7), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "S",
+              "v": 8,
+              "name": "♠8"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥9",
+              "correct": true,
+              "q_value": -1.2462,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-1.246), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -1.2848,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-1.285 (排名第2/5), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": -1.2864,
+              "q_rank": 3,
+              "m_after": 6,
+              "explain": "Q值=-1.286 (排名第3/5), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.3757,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-1.376 (排名第5/5), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 5
+        }
+      ]
+    },
+    {
+      "lesson": 7,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 11,
+              "name": "♥J"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥J",
+              "correct": true,
+              "q_value": -0.9657,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.966), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦K",
+              "correct": false,
+              "q_value": -0.9788,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.979 (排名第2/5), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣9",
+              "correct": false,
+              "q_value": -1.0222,
+              "q_rank": 3,
+              "m_after": 6,
+              "explain": "Q值=-1.022 (排名第3/5), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.2206,
+              "q_rank": 5,
+              "m_after": 5,
+              "explain": "Q值=-1.221 (排名第5/5), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣10",
+              "correct": true,
+              "q_value": -0.9765,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-0.977), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -1.022,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-1.022 (排名第2/5), 出牌后M值=6"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -1.0792,
+              "q_rank": 3,
+              "m_after": 7,
+              "explain": "Q值=-1.079 (排名第3/5), 出牌后M值=7"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.1593,
+              "q_rank": 5,
+              "m_after": 6,
+              "explain": "Q值=-1.159 (排名第5/5), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            },
+            {
+              "s": "H",
+              "v": 14,
+              "name": "♥A"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦5",
+              "correct": true,
+              "q_value": 0.4661,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.466), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠A",
+              "correct": false,
+              "q_value": 0.4283,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=0.428 (排名第2/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣Q",
+              "correct": false,
+              "q_value": 0.4219,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=0.422 (排名第4/7), 出牌后M值=4"
+            },
+            {
+              "text": "三条: ♠A ♥A ♣A",
+              "correct": false,
+              "q_value": 0.2312,
+              "q_rank": 7,
+              "m_after": 4,
+              "explain": "Q值=0.231 (排名第7/7), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 3,
+              "name": "♥3"
+            },
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "H",
+              "v": 7,
+              "name": "♥7"
+            },
+            {
+              "s": "H",
+              "v": 13,
+              "name": "♥K"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥7",
+              "correct": true,
+              "q_value": -0.6924,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.692), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♥4",
+              "correct": false,
+              "q_value": -0.714,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.714 (排名第2/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦Q",
+              "correct": false,
+              "q_value": -0.8053,
+              "q_rank": 4,
+              "m_after": 5,
+              "explain": "Q值=-0.805 (排名第4/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♥K",
+              "correct": false,
+              "q_value": -0.948,
+              "q_rank": 7,
+              "m_after": 6,
+              "explain": "Q值=-0.948 (排名第7/7), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣3",
+              "correct": true,
+              "q_value": -0.4732,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.473), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": -0.7382,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.738 (排名第2/7), 出牌后M值=4"
+            },
+            {
+              "text": "三条: ♣6 ♣6 ♦6",
+              "correct": false,
+              "q_value": -0.7689,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.769 (排名第4/7), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.0926,
+              "q_rank": 7,
+              "m_after": 4,
+              "explain": "Q值=-1.093 (排名第7/7), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 7
+        }
+      ]
+    },
+    {
+      "lesson": 8,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥4",
+              "correct": true,
+              "q_value": -1.001,
+              "q_rank": 1,
+              "m_after": 6,
+              "explain": "AI推荐最优选择 (Q值最高=-1.001), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♦3",
+              "correct": false,
+              "q_value": -1.0223,
+              "q_rank": 2,
+              "m_after": 6,
+              "explain": "Q值=-1.022 (排名第2/7), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -1.0788,
+              "q_rank": 4,
+              "m_after": 6,
+              "explain": "Q值=-1.079 (排名第4/7), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.1668,
+              "q_rank": 7,
+              "m_after": 6,
+              "explain": "Q值=-1.167 (排名第7/7), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦K",
+              "correct": true,
+              "q_value": 1.0857,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=1.086), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": 1.0853,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=1.085 (排名第2/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦A",
+              "correct": false,
+              "q_value": 1.0745,
+              "q_rank": 4,
+              "m_after": 5,
+              "explain": "Q值=1.075 (排名第4/7), 出牌后M值=5"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": 0.9779,
+              "q_rank": 7,
+              "m_after": 6,
+              "explain": "Q值=0.978 (排名第7/7), 出牌后M值=6"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 13,
+              "name": "♥K"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦3",
+              "correct": true,
+              "q_value": -0.4655,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.466), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣8",
+              "correct": false,
+              "q_value": -0.5058,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.506 (排名第2/7), 出牌后M值=5"
+            },
+            {
+              "text": "对子: ♥K ♣K",
+              "correct": false,
+              "q_value": -0.7514,
+              "q_rank": 4,
+              "m_after": 5,
+              "explain": "Q值=-0.751 (排名第4/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.98,
+              "q_rank": 7,
+              "m_after": 5,
+              "explain": "Q值=-0.980 (排名第7/7), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            },
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦7",
+              "correct": true,
+              "q_value": 0.7939,
+              "q_rank": 1,
+              "m_after": 2,
+              "explain": "AI推荐最优选择 (Q值最高=0.794), 出牌后M值=2"
+            },
+            {
+              "text": "对子: ♥8 ♦8",
+              "correct": false,
+              "q_value": 0.7535,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.753 (排名第2/8), 出牌后M值=3"
+            },
+            {
+              "text": "三带二: ♠A ♣A ♣A ♥8 ♦8",
+              "correct": false,
+              "q_value": 0.5765,
+              "q_rank": 5,
+              "m_after": 2,
+              "explain": "Q值=0.577 (排名第5/8), 出牌后M值=2"
+            },
+            {
+              "text": "三条: ♠A ♣A ♣A",
+              "correct": false,
+              "q_value": 0.3034,
+              "q_rank": 8,
+              "m_after": 3,
+              "explain": "Q值=0.303 (排名第8/8), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 8
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 3,
+              "name": "♥3"
+            },
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥3",
+              "correct": true,
+              "q_value": 0.1611,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.161), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣6",
+              "correct": false,
+              "q_value": 0.1281,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.128 (排名第2/7), 出牌后M值=4"
+            },
+            {
+              "text": "对子: ♦10 ♦10",
+              "correct": false,
+              "q_value": 0.0014,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=0.001 (排名第4/7), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": -0.4882,
+              "q_rank": 7,
+              "m_after": 4,
+              "explain": "Q值=-0.488 (排名第7/7), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 7
+        }
+      ]
+    },
+    {
+      "lesson": 9,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 5,
+              "name": "♠5"
+            },
+            {
+              "s": "H",
+              "v": 5,
+              "name": "♥5"
+            },
+            {
+              "s": "H",
+              "v": 14,
+              "name": "♥A"
+            },
+            {
+              "s": "C",
+              "v": 11,
+              "name": "♣J"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦8",
+              "correct": true,
+              "q_value": 0.0068,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.007), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣J",
+              "correct": false,
+              "q_value": -0.0694,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.069 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": -0.2806,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.281 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♥A",
+              "correct": false,
+              "q_value": -0.3127,
+              "q_rank": 6,
+              "m_after": 5,
+              "explain": "Q值=-0.313 (排名第6/6), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 5,
+              "name": "♠5"
+            },
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "PASS",
+              "correct": true,
+              "q_value": 0.8527,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=0.853), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": 0.7277,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=0.728 (排名第2/4), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": 0.6632,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.663 (排名第3/4), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.5262,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=0.526 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥4",
+              "correct": true,
+              "q_value": -0.1069,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.107), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦6",
+              "correct": false,
+              "q_value": -0.1709,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.171 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦7",
+              "correct": false,
+              "q_value": -0.1957,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.196 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣A",
+              "correct": false,
+              "q_value": -0.3975,
+              "q_rank": 6,
+              "m_after": 4,
+              "explain": "Q值=-0.398 (排名第6/6), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣8",
+              "correct": true,
+              "q_value": 0.3273,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=0.327), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦9",
+              "correct": false,
+              "q_value": 0.2819,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=0.282 (排名第2/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣2",
+              "correct": false,
+              "q_value": 0.0229,
+              "q_rank": 4,
+              "m_after": 5,
+              "explain": "Q值=0.023 (排名第4/7), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.5432,
+              "q_rank": 7,
+              "m_after": 5,
+              "explain": "Q值=-0.543 (排名第7/7), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 7
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 7,
+              "name": "♠7"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "H",
+              "v": 11,
+              "name": "♥J"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦Q",
+              "correct": true,
+              "q_value": 0.2372,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=0.237), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦K",
+              "correct": false,
+              "q_value": 0.1823,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=0.182 (排名第2/5), 出牌后M值=5"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": 0.0252,
+              "q_rank": 3,
+              "m_after": 6,
+              "explain": "Q值=0.025 (排名第3/5), 出牌后M值=6"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.2852,
+              "q_rank": 5,
+              "m_after": 5,
+              "explain": "Q值=-0.285 (排名第5/5), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 5
+        }
+      ]
+    },
+    {
+      "lesson": 10,
+      "questions": [
+        {
+          "dim": "炸弹使用",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 10,
+              "name": "♠10"
+            },
+            {
+              "s": "S",
+              "v": 12,
+              "name": "♠Q"
+            },
+            {
+              "s": "S",
+              "v": 13,
+              "name": "♠K"
+            },
+            {
+              "s": "S",
+              "v": 15,
+              "name": "♠2"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♠10",
+              "correct": true,
+              "q_value": 0.6374,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.637), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠K",
+              "correct": false,
+              "q_value": 0.5952,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.595 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": 0.5679,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.568 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠2",
+              "correct": false,
+              "q_value": 0.5193,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=0.519 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "C",
+              "v": 11,
+              "name": "♣J"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥4",
+              "correct": true,
+              "q_value": -0.7934,
+              "q_rank": 1,
+              "m_after": 5,
+              "explain": "AI推荐最优选择 (Q值最高=-0.793), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦7",
+              "correct": false,
+              "q_value": -0.9102,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=-0.910 (排名第2/6), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -0.9896,
+              "q_rank": 4,
+              "m_after": 5,
+              "explain": "Q值=-0.990 (排名第4/6), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": -1.0048,
+              "q_rank": 6,
+              "m_after": 5,
+              "explain": "Q值=-1.005 (排名第6/6), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 13,
+              "name": "♠K"
+            },
+            {
+              "s": "C",
+              "v": 11,
+              "name": "♣J"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦7",
+              "correct": true,
+              "q_value": -0.313,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.313), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦10",
+              "correct": false,
+              "q_value": -0.3874,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.387 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "对子: ♠K ♣K",
+              "correct": false,
+              "q_value": -0.47,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.470 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": -0.7554,
+              "q_rank": 6,
+              "m_after": 4,
+              "explain": "Q值=-0.755 (排名第6/6), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            },
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♥9 ♣9",
+              "correct": true,
+              "q_value": 0.0587,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.059), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦5",
+              "correct": false,
+              "q_value": -0.068,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.068 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦Q",
+              "correct": false,
+              "q_value": -0.2542,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.254 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.9174,
+              "q_rank": 6,
+              "m_after": 4,
+              "explain": "Q值=-0.917 (排名第6/6), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "炸弹使用",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣6",
+              "correct": true,
+              "q_value": -0.6336,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.634), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦3",
+              "correct": false,
+              "q_value": -0.6615,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.661 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦Q",
+              "correct": false,
+              "q_value": -0.8916,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.892 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "对子: 大王 大王",
+              "correct": false,
+              "q_value": -1.5133,
+              "q_rank": 6,
+              "m_after": 4,
+              "explain": "Q值=-1.513 (排名第6/6), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 6
+        }
+      ]
+    }
+  ]
+}

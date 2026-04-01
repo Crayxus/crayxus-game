@@ -562,6 +562,10 @@ const AIQuiz = {
             style="flex:1;padding:13px;background:linear-gradient(145deg,#3d2518,#2c1810);color:#d4af6e;
               border:1px solid rgba(212,175,110,0.3);border-radius:12px;cursor:pointer;font-size:13px;
               letter-spacing:2px;font-weight:bold">返回</button>
+          <button onclick="AIQuiz.saveCertImage()"
+            style="flex:1;padding:13px;background:linear-gradient(145deg,#2c5e1a,#3d7a28);color:#a8e6a0;
+              border:1px solid rgba(88,204,2,0.3);border-radius:12px;font-weight:bold;cursor:pointer;font-size:13px;
+              letter-spacing:2px">保存图片</button>
           <button onclick="AIQuiz.startQuiz()"
             style="flex:1;padding:13px;background:linear-gradient(145deg,#8b6914,#a07d2e);color:#fff;
               border:none;border-radius:12px;font-weight:bold;cursor:pointer;font-size:13px;
@@ -579,6 +583,55 @@ const AIQuiz = {
       AITraining.save();
       AITraining.updateBadge();
     }
+  },
+
+  // 保存证书为图片
+  saveCertImage() {
+    const panel = document.getElementById('quiz-panel');
+    if (!panel) return;
+
+    // 找到证书区域（皮质外框）
+    const cert = panel.querySelector('[style*="linear-gradient(145deg,#2c1810"]');
+    if (!cert) {
+      // fallback: 截整个面板
+      this._captureElement(panel);
+      return;
+    }
+    this._captureElement(cert);
+  },
+
+  _captureElement(el) {
+    // 使用 html2canvas 如果已加载
+    if (typeof html2canvas !== 'undefined') {
+      html2canvas(el, {
+        backgroundColor: '#0a0806',
+        scale: 2,
+        useCORS: true,
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = '掼蛋段位认证_Crayxus.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+      return;
+    }
+
+    // 动态加载 html2canvas
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    script.onload = () => {
+      html2canvas(el, {
+        backgroundColor: '#0a0806',
+        scale: 2,
+        useCORS: true,
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = '掼蛋段位认证_Crayxus.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    };
+    document.head.appendChild(script);
   },
 };
 

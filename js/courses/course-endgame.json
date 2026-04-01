@@ -1,0 +1,3515 @@
+{
+  "courseId": "endgame",
+  "dim": "终局处理",
+  "total_lessons": 10,
+  "lessons": [
+    {
+      "lesson": 1,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 11,
+              "name": "♣J"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦4",
+              "correct": true,
+              "q_value": 0.0364,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.036), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦7",
+              "correct": false,
+              "q_value": -0.2647,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.265 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -0.3902,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.390 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.0596,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-1.060 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 15,
+              "name": "♠2"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣Q",
+              "correct": true,
+              "q_value": 0.7122,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.712), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠2",
+              "correct": false,
+              "q_value": 0.5235,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.523 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": 0.4909,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.491 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.2902,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=0.290 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 11,
+              "name": "♥J"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "H",
+              "v": 5,
+              "name": "♥5"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦7",
+              "correct": true,
+              "q_value": -0.579,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.579), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦8",
+              "correct": false,
+              "q_value": -0.5931,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.593 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣6",
+              "correct": false,
+              "q_value": -0.6207,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.621 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": -0.8357,
+              "q_rank": 6,
+              "m_after": 4,
+              "explain": "Q值=-0.836 (排名第6/6), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 3,
+              "name": "♠3"
+            },
+            {
+              "s": "S",
+              "v": 15,
+              "name": "♠2"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♠3",
+              "correct": true,
+              "q_value": 0.4064,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.406), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣9",
+              "correct": false,
+              "q_value": 0.3826,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.383 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": 0.2872,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.287 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.3262,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-0.326 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦4",
+              "correct": true,
+              "q_value": -0.7941,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.794), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣9",
+              "correct": false,
+              "q_value": -0.8161,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.816 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦8",
+              "correct": false,
+              "q_value": -0.8458,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.846 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": -0.8889,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-0.889 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        }
+      ]
+    },
+    {
+      "lesson": 2,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 13,
+              "name": "♥K"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣8",
+              "correct": true,
+              "q_value": 0.1296,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.130), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦6",
+              "correct": false,
+              "q_value": 0.1139,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.114 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♥K",
+              "correct": false,
+              "q_value": -0.056,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.056 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.6353,
+              "q_rank": 6,
+              "m_after": 4,
+              "explain": "Q值=-0.635 (排名第6/6), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦9",
+              "correct": true,
+              "q_value": 1.046,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=1.046), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": 1.0128,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=1.013 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣A",
+              "correct": false,
+              "q_value": 0.9878,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.988 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.5944,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=0.594 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            },
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦6",
+              "correct": true,
+              "q_value": -0.7633,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.763), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦9",
+              "correct": false,
+              "q_value": -0.7924,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.792 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦K",
+              "correct": false,
+              "q_value": -0.862,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.862 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠A",
+              "correct": false,
+              "q_value": -0.9664,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-0.966 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 11,
+              "name": "♣J"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♠A",
+              "correct": true,
+              "q_value": 0.5462,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.546), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣2",
+              "correct": false,
+              "q_value": 0.4345,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.435 (排名第2/4), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": 0.3813,
+              "q_rank": 3,
+              "m_after": 5,
+              "explain": "Q值=0.381 (排名第3/4), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": 0.3377,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=0.338 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 9,
+              "name": "♥9"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦Q",
+              "correct": true,
+              "q_value": 0.8756,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.876), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♥9",
+              "correct": false,
+              "q_value": 0.8718,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.872 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣8",
+              "correct": false,
+              "q_value": 0.8644,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.864 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.2056,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=0.206 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        }
+      ]
+    },
+    {
+      "lesson": 3,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 12,
+              "name": "♥Q"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦10",
+              "correct": true,
+              "q_value": -1.0809,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-1.081), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♥Q",
+              "correct": false,
+              "q_value": -1.1322,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-1.132 (排名第2/4), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -1.231,
+              "q_rank": 3,
+              "m_after": 5,
+              "explain": "Q值=-1.231 (排名第3/4), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.3192,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-1.319 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            },
+            {
+              "s": "H",
+              "v": 10,
+              "name": "♥10"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "S",
+              "v": 8,
+              "name": "♠8"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥10",
+              "correct": true,
+              "q_value": -0.7443,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.744), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣A",
+              "correct": false,
+              "q_value": -0.8153,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.815 (排名第2/4), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -0.864,
+              "q_rank": 3,
+              "m_after": 5,
+              "explain": "Q值=-0.864 (排名第3/4), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.0623,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-1.062 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦A",
+              "correct": true,
+              "q_value": 1.0391,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=1.039), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": 1.0263,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=1.026 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": 1.0067,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=1.007 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.8584,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=0.858 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 14,
+              "name": "♣A"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣3",
+              "correct": true,
+              "q_value": 0.345,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=0.345), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦9",
+              "correct": false,
+              "q_value": 0.2923,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.292 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣A",
+              "correct": false,
+              "q_value": 0.1934,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=0.193 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "对子: ♣2 ♦2",
+              "correct": false,
+              "q_value": -0.0122,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=-0.012 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦4",
+              "correct": true,
+              "q_value": 0.244,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.244), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦3",
+              "correct": false,
+              "q_value": 0.2261,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.226 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦A",
+              "correct": false,
+              "q_value": 0.0163,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.016 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.1905,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-0.191 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        }
+      ]
+    },
+    {
+      "lesson": 4,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            },
+            {
+              "s": "H",
+              "v": 12,
+              "name": "♥Q"
+            },
+            {
+              "s": "C",
+              "v": 11,
+              "name": "♣J"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦4",
+              "correct": true,
+              "q_value": -0.4947,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.495), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣J",
+              "correct": false,
+              "q_value": -0.7313,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.731 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -0.7892,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.789 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -0.9526,
+              "q_rank": 6,
+              "m_after": 5,
+              "explain": "Q值=-0.953 (排名第6/6), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥6",
+              "correct": true,
+              "q_value": -1.0932,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-1.093), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦9",
+              "correct": false,
+              "q_value": -1.0991,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-1.099 (排名第2/6), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦A",
+              "correct": false,
+              "q_value": -1.1182,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-1.118 (排名第4/6), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -1.2094,
+              "q_rank": 6,
+              "m_after": 5,
+              "explain": "Q值=-1.209 (排名第6/6), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 6
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            },
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣Q",
+              "correct": true,
+              "q_value": 0.0304,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=0.030), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♥8",
+              "correct": false,
+              "q_value": 0.012,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.012 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣7",
+              "correct": false,
+              "q_value": -0.0903,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.090 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -0.2384,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-0.238 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            },
+            {
+              "s": "H",
+              "v": 10,
+              "name": "♥10"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♠4",
+              "correct": true,
+              "q_value": -0.4331,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.433), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣6",
+              "correct": false,
+              "q_value": -0.6255,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.625 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♥10",
+              "correct": false,
+              "q_value": -0.6467,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.647 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.909,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-0.909 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 13,
+              "name": "♠K"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "S",
+              "v": 7,
+              "name": "♠7"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣9",
+              "correct": true,
+              "q_value": -1.0376,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-1.038), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣10",
+              "correct": false,
+              "q_value": -1.0611,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-1.061 (排名第2/4), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠K",
+              "correct": false,
+              "q_value": -1.0849,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-1.085 (排名第3/4), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -1.1545,
+              "q_rank": 4,
+              "m_after": 5,
+              "explain": "Q值=-1.155 (排名第4/4), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 4
+        }
+      ]
+    },
+    {
+      "lesson": 5,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣10",
+              "correct": true,
+              "q_value": -0.2229,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.223), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦Q",
+              "correct": false,
+              "q_value": -0.2928,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.293 (排名第2/4), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -0.4459,
+              "q_rank": 3,
+              "m_after": 5,
+              "explain": "Q值=-0.446 (排名第3/4), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": -0.5397,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.540 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 15,
+              "name": "♠2"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♣K ♦K",
+              "correct": true,
+              "q_value": 0.7274,
+              "q_rank": 1,
+              "m_after": 2,
+              "explain": "AI推荐最优选择 (Q值最高=0.727), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": 0.4361,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.436 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣Q",
+              "correct": false,
+              "q_value": 0.4334,
+              "q_rank": 3,
+              "m_after": 2,
+              "explain": "Q值=0.433 (排名第3/5), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♠2",
+              "correct": false,
+              "q_value": 0.2187,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=0.219 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♣Q ♦Q",
+              "correct": true,
+              "q_value": -0.1474,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.147), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦9",
+              "correct": false,
+              "q_value": -0.2555,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.256 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦7",
+              "correct": false,
+              "q_value": -0.3034,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.303 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♠A",
+              "correct": false,
+              "q_value": -0.5339,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=-0.534 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦A",
+              "correct": true,
+              "q_value": -0.0321,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.032), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.1925,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.192 (排名第2/4), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.3211,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.321 (排名第3/4), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -0.3689,
+              "q_rank": 4,
+              "m_after": 5,
+              "explain": "Q值=-0.369 (排名第4/4), 出牌后M值=5"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣4",
+              "correct": true,
+              "q_value": -0.7836,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.784), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣3",
+              "correct": false,
+              "q_value": -0.851,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.851 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣Q",
+              "correct": false,
+              "q_value": -0.9206,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.921 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣2",
+              "correct": false,
+              "q_value": -1.0214,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-1.021 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        }
+      ]
+    },
+    {
+      "lesson": 6,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 11,
+              "name": "♣J"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦8",
+              "correct": true,
+              "q_value": 0.6352,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.635), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣J",
+              "correct": false,
+              "q_value": 0.5172,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=0.517 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦Q",
+              "correct": false,
+              "q_value": 0.4469,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.447 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": 0.186,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=0.186 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "H",
+              "v": 7,
+              "name": "♥7"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♦10 ♦10",
+              "correct": true,
+              "q_value": -0.3424,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.342), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♥4",
+              "correct": false,
+              "q_value": -0.3583,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.358 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♥7",
+              "correct": false,
+              "q_value": -0.4249,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.425 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -0.5742,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=-0.574 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            },
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣5",
+              "correct": true,
+              "q_value": 0.0972,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.097), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♦6",
+              "correct": false,
+              "q_value": -0.1023,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.102 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♥8",
+              "correct": false,
+              "q_value": -0.1036,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.104 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.7966,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-0.797 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 8,
+              "name": "♠8"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♠8 ♣8",
+              "correct": true,
+              "q_value": 0.495,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=0.495), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣9",
+              "correct": false,
+              "q_value": 0.2155,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.216 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": 0.1483,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=0.148 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.2606,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=-0.261 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 7,
+              "name": "♠7"
+            },
+            {
+              "s": "S",
+              "v": 9,
+              "name": "♠9"
+            },
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦4",
+              "correct": true,
+              "q_value": -0.8326,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.833), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠7",
+              "correct": false,
+              "q_value": -0.8538,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.854 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♠9",
+              "correct": false,
+              "q_value": -0.878,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.878 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣6",
+              "correct": false,
+              "q_value": -0.898,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-0.898 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        }
+      ]
+    },
+    {
+      "lesson": 7,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 13,
+              "name": "♥K"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 3,
+              "name": "♦3"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦8",
+              "correct": true,
+              "q_value": -0.6784,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.678), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦9",
+              "correct": false,
+              "q_value": -0.7261,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.726 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♥K",
+              "correct": false,
+              "q_value": -0.9117,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.912 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.0688,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=-1.069 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣8",
+              "correct": true,
+              "q_value": -0.696,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=-0.696), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣4",
+              "correct": false,
+              "q_value": -0.7474,
+              "q_rank": 2,
+              "m_after": 4,
+              "explain": "Q值=-0.747 (排名第2/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: ♣5",
+              "correct": false,
+              "q_value": -0.7644,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=-0.764 (排名第3/5), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.2044,
+              "q_rank": 5,
+              "m_after": 4,
+              "explain": "Q值=-1.204 (排名第5/5), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 12,
+              "name": "♠Q"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♦8 ♦8",
+              "correct": true,
+              "q_value": 0.2895,
+              "q_rank": 1,
+              "m_after": 2,
+              "explain": "AI推荐最优选择 (Q值最高=0.289), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♣10",
+              "correct": false,
+              "q_value": 0.0894,
+              "q_rank": 2,
+              "m_after": 2,
+              "explain": "Q值=0.089 (排名第2/5), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♦8",
+              "correct": false,
+              "q_value": 0.0111,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=0.011 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♠Q",
+              "correct": false,
+              "q_value": -0.1542,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=-0.154 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦2",
+              "correct": true,
+              "q_value": 0.3714,
+              "q_rank": 1,
+              "m_after": 4,
+              "explain": "AI推荐最优选择 (Q值最高=0.371), 出牌后M值=4"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": 0.2923,
+              "q_rank": 2,
+              "m_after": 5,
+              "explain": "Q值=0.292 (排名第2/4), 出牌后M值=5"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": 0.2669,
+              "q_rank": 3,
+              "m_after": 4,
+              "explain": "Q值=0.267 (排名第3/4), 出牌后M值=4"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.0648,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=0.065 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 12,
+              "name": "♥Q"
+            },
+            {
+              "s": "C",
+              "v": 15,
+              "name": "♣2"
+            },
+            {
+              "s": "D",
+              "v": 6,
+              "name": "♦6"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦8",
+              "correct": true,
+              "q_value": -0.7806,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.781), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦6",
+              "correct": false,
+              "q_value": -0.8236,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.824 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♥Q",
+              "correct": false,
+              "q_value": -0.9663,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.966 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣2",
+              "correct": false,
+              "q_value": -1.0998,
+              "q_rank": 4,
+              "m_after": 3,
+              "explain": "Q值=-1.100 (排名第4/4), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 4
+        }
+      ]
+    },
+    {
+      "lesson": 8,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 14,
+              "name": "♥A"
+            },
+            {
+              "s": "C",
+              "v": 11,
+              "name": "♣J"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣J",
+              "correct": true,
+              "q_value": 1.0239,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=1.024), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦Q",
+              "correct": false,
+              "q_value": 0.988,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.988 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♥A",
+              "correct": false,
+              "q_value": 0.9099,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=0.910 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.4069,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=0.407 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 3,
+              "name": "♠3"
+            },
+            {
+              "s": "H",
+              "v": 4,
+              "name": "♥4"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥4",
+              "correct": true,
+              "q_value": -0.1455,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.145), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♠3",
+              "correct": false,
+              "q_value": -0.1573,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.157 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": -0.2981,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.298 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.9858,
+              "q_rank": 4,
+              "m_after": 3,
+              "explain": "Q值=-0.986 (排名第4/4), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "H",
+              "v": 12,
+              "name": "♥Q"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "H",
+              "v": 10,
+              "name": "♥10"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♥Q",
+              "correct": true,
+              "q_value": 0.8973,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=0.897), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": 0.8653,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.865 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": 0.8141,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=0.814 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": 0.5754,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=0.575 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "H",
+              "v": 13,
+              "name": "♥K"
+            },
+            {
+              "s": "C",
+              "v": 9,
+              "name": "♣9"
+            },
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣9",
+              "correct": true,
+              "q_value": -0.482,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.482), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦8",
+              "correct": false,
+              "q_value": -0.4941,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.494 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♥K",
+              "correct": false,
+              "q_value": -0.5395,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.539 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.6207,
+              "q_rank": 4,
+              "m_after": 3,
+              "explain": "Q值=-0.621 (排名第4/4), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "C",
+              "v": 10,
+              "name": "♣10"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "D",
+              "v": 5,
+              "name": "♦5"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣8",
+              "correct": true,
+              "q_value": -1.1757,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-1.176), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣10",
+              "correct": false,
+              "q_value": -1.1768,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-1.177 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦Q",
+              "correct": false,
+              "q_value": -1.2355,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-1.236 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -1.2659,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-1.266 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        }
+      ]
+    },
+    {
+      "lesson": 9,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "H",
+              "v": 6,
+              "name": "♥6"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦9",
+              "correct": true,
+              "q_value": -0.2075,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.207), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -0.3925,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.393 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦A",
+              "correct": false,
+              "q_value": -0.4419,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.442 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -0.5794,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.579 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "S",
+              "v": 14,
+              "name": "♠A"
+            },
+            {
+              "s": "C",
+              "v": 8,
+              "name": "♣8"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "H",
+              "v": 7,
+              "name": "♥7"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣8",
+              "correct": true,
+              "q_value": 0.4218,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=0.422), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦10",
+              "correct": false,
+              "q_value": 0.3138,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=0.314 (排名第2/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♠A",
+              "correct": false,
+              "q_value": 0.0259,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=0.026 (排名第3/5), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -0.3881,
+              "q_rank": 5,
+              "m_after": 3,
+              "explain": "Q值=-0.388 (排名第5/5), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 5
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 4,
+              "name": "♣4"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 9,
+              "name": "♦9"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "对子: ♣4 ♦4",
+              "correct": true,
+              "q_value": -0.4425,
+              "q_rank": 1,
+              "m_after": 2,
+              "explain": "AI推荐最优选择 (Q值最高=-0.443), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♦9",
+              "correct": false,
+              "q_value": -0.6364,
+              "q_rank": 2,
+              "m_after": 2,
+              "explain": "Q值=-0.636 (排名第2/4), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♣4",
+              "correct": false,
+              "q_value": -0.7981,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.798 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -0.8209,
+              "q_rank": 4,
+              "m_after": 2,
+              "explain": "Q值=-0.821 (排名第4/4), 出牌后M值=2"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "S",
+              "v": 4,
+              "name": "♠4"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "C",
+              "v": 13,
+              "name": "♣K"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♠4",
+              "correct": true,
+              "q_value": -0.695,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.695), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": -0.9593,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.959 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣K",
+              "correct": false,
+              "q_value": -0.9725,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.972 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣Q",
+              "correct": false,
+              "q_value": -0.982,
+              "q_rank": 4,
+              "m_after": 3,
+              "explain": "Q值=-0.982 (排名第4/4), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 7,
+              "name": "♣7"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            },
+            {
+              "s": "JK",
+              "v": 17,
+              "name": "大王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣7",
+              "correct": true,
+              "q_value": -0.7639,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.764), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.8359,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.836 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦K",
+              "correct": false,
+              "q_value": -0.8417,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.842 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 大王",
+              "correct": false,
+              "q_value": -1.0264,
+              "q_rank": 4,
+              "m_after": 3,
+              "explain": "Q值=-1.026 (排名第4/4), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 4
+        }
+      ]
+    },
+    {
+      "lesson": 10,
+      "questions": [
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 5,
+              "name": "♣5"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            },
+            {
+              "s": "D",
+              "v": 15,
+              "name": "♦2"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣5",
+              "correct": true,
+              "q_value": 0.8192,
+              "q_rank": 1,
+              "m_after": 2,
+              "explain": "AI推荐最优选择 (Q值最高=0.819), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♦K",
+              "correct": false,
+              "q_value": 0.6986,
+              "q_rank": 2,
+              "m_after": 2,
+              "explain": "Q值=0.699 (排名第2/4), 出牌后M值=2"
+            },
+            {
+              "text": "单牌: ♦2",
+              "correct": false,
+              "q_value": 0.4747,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=0.475 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "对子: ♦2 ♦2",
+              "correct": false,
+              "q_value": 0.38,
+              "q_rank": 4,
+              "m_after": 2,
+              "explain": "Q值=0.380 (排名第4/4), 出牌后M值=2"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 3,
+              "name": "♣3"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♣3",
+              "correct": true,
+              "q_value": -0.9027,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.903), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": -0.9122,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.912 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦10",
+              "correct": false,
+              "q_value": -0.9219,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.922 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -1.0249,
+              "q_rank": 4,
+              "m_after": 3,
+              "explain": "Q值=-1.025 (排名第4/4), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 7,
+              "name": "♦7"
+            },
+            {
+              "s": "D",
+              "v": 11,
+              "name": "♦J"
+            },
+            {
+              "s": "JK",
+              "v": 16,
+              "name": "小王"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦7",
+              "correct": true,
+              "q_value": -0.4438,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-0.444), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦4",
+              "correct": false,
+              "q_value": -0.4643,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.464 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦J",
+              "correct": false,
+              "q_value": -0.5406,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.541 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: 小王",
+              "correct": false,
+              "q_value": -0.987,
+              "q_rank": 4,
+              "m_after": 3,
+              "explain": "Q值=-0.987 (排名第4/4), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "自由出牌",
+          "hand": [
+            {
+              "s": "C",
+              "v": 6,
+              "name": "♣6"
+            },
+            {
+              "s": "C",
+              "v": 12,
+              "name": "♣Q"
+            },
+            {
+              "s": "D",
+              "v": 4,
+              "name": "♦4"
+            },
+            {
+              "s": "D",
+              "v": 10,
+              "name": "♦10"
+            }
+          ],
+          "last_play": null,
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦4",
+              "correct": true,
+              "q_value": -1.1345,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=-1.135), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣6",
+              "correct": false,
+              "q_value": -1.1432,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-1.143 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦10",
+              "correct": false,
+              "q_value": -1.1832,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-1.183 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♣Q",
+              "correct": false,
+              "q_value": -1.1925,
+              "q_rank": 4,
+              "m_after": 3,
+              "explain": "Q值=-1.192 (排名第4/4), 出牌后M值=3"
+            }
+          ],
+          "n_legal": 4
+        },
+        {
+          "dim": "终局处理",
+          "scenario": "上家(对手)出了单牌，轮到你",
+          "hand": [
+            {
+              "s": "D",
+              "v": 8,
+              "name": "♦8"
+            },
+            {
+              "s": "D",
+              "v": 12,
+              "name": "♦Q"
+            },
+            {
+              "s": "D",
+              "v": 13,
+              "name": "♦K"
+            },
+            {
+              "s": "D",
+              "v": 14,
+              "name": "♦A"
+            }
+          ],
+          "last_play": [
+            {
+              "s": "H",
+              "v": 8,
+              "name": "♥8"
+            }
+          ],
+          "question": "你会怎么出牌？",
+          "options": [
+            {
+              "text": "单牌: ♦Q",
+              "correct": true,
+              "q_value": 0.0238,
+              "q_rank": 1,
+              "m_after": 3,
+              "explain": "AI推荐最优选择 (Q值最高=0.024), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦K",
+              "correct": false,
+              "q_value": -0.0574,
+              "q_rank": 2,
+              "m_after": 3,
+              "explain": "Q值=-0.057 (排名第2/4), 出牌后M值=3"
+            },
+            {
+              "text": "单牌: ♦A",
+              "correct": false,
+              "q_value": -0.1293,
+              "q_rank": 3,
+              "m_after": 3,
+              "explain": "Q值=-0.129 (排名第3/4), 出牌后M值=3"
+            },
+            {
+              "text": "PASS",
+              "correct": false,
+              "q_value": -0.1713,
+              "q_rank": 4,
+              "m_after": 4,
+              "explain": "Q值=-0.171 (排名第4/4), 出牌后M值=4"
+            }
+          ],
+          "n_legal": 4
+        }
+      ]
+    }
+  ]
+}
