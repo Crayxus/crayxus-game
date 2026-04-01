@@ -66,30 +66,98 @@
     </view>
   </view>
 
-  <!-- 结果页 -->
+  <!-- 结果页：证书风格 -->
   <view class="result-page" wx:if="{{finished}}">
-    <view class="result-score-ring">
-      <text class="result-score">{{result.score}}</text>
-      <text class="result-max">/{{mode === 'danli' ? '1000' : questions.length}}</text>
-    </view>
-    <text class="result-rank" wx:if="{{mode === 'danli'}}">{{result.rank}}</text>
-    <text class="result-correct" wx:else>答对 {{result.correct}}/{{questions.length}} 题</text>
 
-    <!-- 蛋力值六维详情 -->
-    <view class="result-dims" wx:if="{{mode === 'danli'}}">
-      <view class="result-dim" wx:for="{{result.dims}}" wx:key="key">
-        <text class="rd-icon">{{item.icon}}</text>
-        <text class="rd-name">{{item.name}}</text>
-        <view class="rd-bar">
-          <view class="rd-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
-        </view>
-        <text class="rd-val" style="color:{{item.color}}">{{item.val}}</text>
+    <!-- 每日做题简单结果 -->
+    <view wx:if="{{mode !== 'danli'}}" style="text-align:center;padding-top:120rpx">
+      <text class="result-score" style="font-size:96rpx">{{result.correct}}</text>
+      <text class="result-max">/{{questions.length}}</text>
+      <text class="result-correct" style="display:block;margin-top:20rpx">答对 {{result.correct}} 题</text>
+      <view class="result-actions" style="margin-top:60rpx">
+        <view class="result-btn primary" bindtap="retryQuiz">再来一次</view>
+        <view class="result-btn" bindtap="goBack">返回</view>
       </view>
     </view>
 
-    <view class="result-actions">
-      <view class="result-btn primary" bindtap="retryQuiz">再来一次</view>
-      <view class="result-btn" bindtap="goBack">返回首页</view>
+    <!-- 蛋力测评证书 -->
+    <view class="cert-outer" wx:if="{{mode === 'danli'}}">
+      <view class="cert-gold-border">
+        <view class="cert-inner">
+          <!-- 水印 -->
+          <view class="cert-watermark"></view>
+          <view class="cert-watermark-sm"></view>
+
+          <!-- 顶部装饰 -->
+          <view class="cert-top-line">
+            <view class="cert-line-bar"></view>
+            <text class="cert-top-label">CRAYXUS AI</text>
+            <view class="cert-line-bar"></view>
+          </view>
+
+          <!-- 标题 -->
+          <text class="cert-title">掼蛋段位认证</text>
+          <text class="cert-subtitle">Crayxus AI 掼蛋能力认证中心</text>
+
+          <view class="cert-divider"></view>
+
+          <!-- 段位+分数 -->
+          <view class="cert-rank-area">
+            <text class="cert-rank-icon">{{result.rankIcon}}</text>
+            <text class="cert-rank-name" style="color:{{result.rankColor}}">{{result.rank}}</text>
+            <text class="cert-rating">{{result.rating}}</text>
+            <text class="cert-rating-label">综合评分 · {{result.score}}/1000 蛋力值</text>
+          </view>
+
+          <view class="cert-divider"></view>
+
+          <!-- 六维能力 -->
+          <text class="cert-dim-title">六 维 能 力 评 估</text>
+          <view class="cert-dims">
+            <view class="cert-dim" wx:for="{{result.dims}}" wx:key="key">
+              <text class="cd-icon">{{item.icon}}</text>
+              <text class="cd-name">{{item.name}}</text>
+              <view class="cd-bar">
+                <view class="cd-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+              </view>
+              <text class="cd-val" style="color:{{item.color}}">{{item.val}}</text>
+            </view>
+          </view>
+
+          <!-- 薄弱项 -->
+          <view class="cert-weak">
+            <text class="cert-weak-title">待提升维度：{{result.weakest}}</text>
+            <text class="cert-weak-desc">建议通过蛋力学院重点练习该维度策略</text>
+          </view>
+
+          <!-- 认证信息+印章 -->
+          <view class="cert-footer">
+            <view class="cert-info">
+              <text class="cert-info-line">认证编号：{{result.certNo}}</text>
+              <text class="cert-info-line">评估日期：{{result.certDate}}</text>
+              <text class="cert-info-line">评估模型：V8 超冠军级 AI</text>
+            </view>
+            <view class="cert-stamp">
+              <text class="cert-stamp-t1">CRAYXUS</text>
+              <text class="cert-stamp-t2">AI认证</text>
+              <text class="cert-stamp-t3">专用章</text>
+            </view>
+          </view>
+
+          <!-- 底部slogan -->
+          <view class="cert-bottom-line">
+            <view class="cert-line-bar-sm"></view>
+            <text class="cert-slogan">以AI之智 行大师之道</text>
+            <view class="cert-line-bar-sm"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 按钮 -->
+    <view class="cert-actions" wx:if="{{mode === 'danli'}}">
+      <view class="cert-btn-secondary" bindtap="goBack">返回</view>
+      <view class="cert-btn-primary" bindtap="retryQuiz">重新测评</view>
     </view>
   </view>
 </view>

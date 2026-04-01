@@ -173,77 +173,143 @@ page { background: #0a0e1a; }
 
 /* Result Page */
 .result-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 60rpx;
+  padding-top: 20rpx;
+  padding-bottom: 40rpx;
 }
-.result-score-ring {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  margin-bottom: 16rpx;
-}
-.result-score {
-  font-size: 96rpx;
-  font-weight: 900;
-  color: #ffd700;
-}
-.result-max {
-  font-size: 32rpx;
-  color: rgba(255,255,255,.25);
-}
-.result-rank {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #00d4aa;
-  margin-bottom: 40rpx;
-}
-.result-correct {
-  font-size: 30rpx;
-  color: rgba(255,255,255,.6);
-  margin-bottom: 40rpx;
-}
-
-/* Result Dims */
-.result-dims {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-  margin-bottom: 40rpx;
-}
-.result-dim {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-.rd-icon { font-size: 28rpx; width: 40rpx; text-align: center; }
-.rd-name { font-size: 24rpx; color: rgba(255,255,255,.6); width: 80rpx; }
-.rd-bar { flex: 1; height: 12rpx; background: rgba(255,255,255,.06); border-radius: 6rpx; overflow: hidden; }
-.rd-fill { height: 100%; border-radius: 6rpx; }
-.rd-val { font-size: 26rpx; font-weight: 700; width: 80rpx; text-align: right; }
-
-/* Result Actions */
-.result-actions {
-  display: flex;
-  gap: 20rpx;
-  width: 100%;
-  margin-top: 20rpx;
-}
+.result-score { font-size: 96rpx; font-weight: 900; color: #ffd700; }
+.result-max { font-size: 32rpx; color: rgba(255,255,255,.25); }
+.result-correct { font-size: 30rpx; color: rgba(255,255,255,.6); }
+.result-actions { display: flex; gap: 20rpx; width: 100%; }
 .result-btn {
-  flex: 1;
-  text-align: center;
-  padding: 22rpx;
-  border-radius: 14rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: rgba(255,255,255,.6);
-  background: rgba(255,255,255,.04);
-  border: 1rpx solid rgba(255,255,255,.1);
+  flex: 1; text-align: center; padding: 22rpx; border-radius: 14rpx;
+  font-size: 28rpx; font-weight: 600; color: rgba(255,255,255,.6);
+  background: rgba(255,255,255,.04); border: 1rpx solid rgba(255,255,255,.1);
 }
-.result-btn.primary {
-  background: linear-gradient(135deg, #00d4aa, #7c4dff);
-  color: #fff;
-  border: none;
+.result-btn.primary { background: linear-gradient(135deg, #00d4aa, #7c4dff); color: #fff; border: none; }
+
+/* === 证书风格 === */
+.cert-outer {
+  background: linear-gradient(145deg, #2c1810, #3d2518, #2a1508);
+  border-radius: 24rpx; padding: 6rpx;
+  box-shadow: 0 12rpx 48rpx rgba(0,0,0,0.6);
+  border: 1rpx solid rgba(212,175,110,0.3);
+}
+.cert-gold-border {
+  border: 3rpx solid rgba(212,175,110,0.5); border-radius: 20rpx; padding: 4rpx;
+  background: linear-gradient(145deg, rgba(212,175,110,0.08), transparent, rgba(212,175,110,0.05));
+}
+.cert-inner {
+  background: linear-gradient(170deg, #f5f0e8, #efe8db, #f2ece2);
+  border-radius: 16rpx; padding: 40rpx 32rpx; position: relative;
+  box-shadow: inset 0 0 80rpx rgba(180,160,120,0.15);
+  overflow: hidden;
+}
+.cert-watermark {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 300rpx; height: 300rpx; border: 4rpx solid rgba(212,175,110,0.08);
+  border-radius: 50%; pointer-events: none;
+}
+.cert-watermark-sm {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 240rpx; height: 240rpx; border: 3rpx solid rgba(212,175,110,0.06);
+  border-radius: 50%; pointer-events: none;
+}
+
+/* 顶部装饰线 */
+.cert-top-line, .cert-bottom-line {
+  display: flex; align-items: center; justify-content: center; gap: 12rpx; margin-bottom: 8rpx;
+}
+.cert-line-bar {
+  width: 80rpx; height: 1rpx;
+  background: linear-gradient(90deg, transparent, #d4af6e, transparent);
+}
+.cert-line-bar-sm {
+  width: 60rpx; height: 1rpx;
+  background: linear-gradient(90deg, transparent, #d4af6e, transparent);
+}
+.cert-top-label { font-size: 18rpx; color: #d4af6e; letter-spacing: 6rpx; }
+
+/* 标题 */
+.cert-title {
+  display: block; text-align: center; font-size: 38rpx; font-weight: 900;
+  color: #2c1810; letter-spacing: 8rpx; margin: 6rpx 0 4rpx;
+}
+.cert-subtitle {
+  display: block; text-align: center; font-size: 18rpx; color: #8a7a65;
+  letter-spacing: 3rpx; margin-bottom: 20rpx;
+}
+.cert-divider {
+  height: 1rpx; margin: 16rpx 0;
+  background: linear-gradient(90deg, transparent, rgba(212,175,110,0.5), transparent);
+}
+
+/* 段位+分数 */
+.cert-rank-area { text-align: center; margin: 16rpx 0; }
+.cert-rank-icon { display: block; font-size: 64rpx; line-height: 1; }
+.cert-rank-name {
+  display: block; font-size: 40rpx; font-weight: 900; margin: 6rpx 0;
+  letter-spacing: 4rpx;
+}
+.cert-rating {
+  display: block; font-size: 72rpx; font-weight: 900; color: #8b6914;
+  font-family: Georgia, serif; letter-spacing: 3rpx;
+}
+.cert-rating-label {
+  display: block; font-size: 20rpx; color: #8a7a65; letter-spacing: 2rpx;
+}
+
+/* 六维 */
+.cert-dim-title {
+  display: block; text-align: center; font-size: 20rpx; color: #8a7a65;
+  font-weight: bold; letter-spacing: 4rpx; margin: 16rpx 0 12rpx;
+}
+.cert-dims { display: flex; flex-direction: column; gap: 14rpx; }
+.cert-dim { display: flex; align-items: center; gap: 10rpx; }
+.cd-icon { font-size: 26rpx; width: 36rpx; text-align: center; }
+.cd-name { font-size: 22rpx; color: #5a4a35; width: 72rpx; font-weight: 600; }
+.cd-bar {
+  flex: 1; height: 16rpx; background: rgba(212,175,110,0.15);
+  border-radius: 8rpx; overflow: hidden;
+}
+.cd-fill { height: 100%; border-radius: 8rpx; }
+.cd-val { font-size: 24rpx; font-weight: 700; width: 72rpx; text-align: right; }
+
+/* 薄弱项 */
+.cert-weak {
+  margin: 20rpx 0; padding: 16rpx 20rpx; border-radius: 12rpx;
+  background: rgba(180,80,50,0.08); border: 1rpx solid rgba(180,80,50,0.2);
+}
+.cert-weak-title { display: block; font-size: 22rpx; color: #b45032; font-weight: bold; }
+.cert-weak-desc { display: block; font-size: 18rpx; color: #8a7a65; margin-top: 4rpx; }
+
+/* 认证信息+印章 */
+.cert-footer { display: flex; justify-content: space-between; align-items: flex-end; margin: 16rpx 0 12rpx; }
+.cert-info { display: flex; flex-direction: column; gap: 4rpx; }
+.cert-info-line { font-size: 18rpx; color: #a09880; }
+.cert-stamp {
+  width: 100rpx; height: 100rpx; border: 4rpx solid #c0392b; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transform: rotate(-15deg); opacity: 0.85;
+}
+.cert-stamp-t1 { font-size: 14rpx; color: #c0392b; font-weight: 900; }
+.cert-stamp-t2 { font-size: 13rpx; color: #c0392b; font-weight: bold; }
+.cert-stamp-t3 { font-size: 11rpx; color: #c0392b; }
+
+/* 底部slogan */
+.cert-bottom-line { margin-top: 12rpx; }
+.cert-slogan { font-size: 16rpx; color: #c0a96e; letter-spacing: 3rpx; }
+
+/* 证书按钮 */
+.cert-actions { display: flex; gap: 16rpx; margin-top: 24rpx; }
+.cert-btn-secondary {
+  flex: 1; text-align: center; padding: 22rpx; border-radius: 16rpx;
+  font-size: 26rpx; font-weight: bold; letter-spacing: 3rpx;
+  background: linear-gradient(145deg, #3d2518, #2c1810); color: #d4af6e;
+  border: 1rpx solid rgba(212,175,110,0.3);
+}
+.cert-btn-primary {
+  flex: 1; text-align: center; padding: 22rpx; border-radius: 16rpx;
+  font-size: 26rpx; font-weight: bold; letter-spacing: 3rpx;
+  background: linear-gradient(145deg, #8b6914, #a07d2e); color: #fff;
+  box-shadow: 0 6rpx 20rpx rgba(139,105,20,0.4);
 }

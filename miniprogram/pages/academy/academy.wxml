@@ -1,0 +1,75 @@
+<!-- 蛋力学院 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- 导航栏 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="{{selectedCourse ? 'backToList' : 'goBack'}}">←</view>
+    <text class="nav-title">{{selectedCourse ? selectedCourse.name : '蛋力学院'}}</text>
+    <view style="width:60rpx"></view>
+  </view>
+
+  <!-- 课程列表 -->
+  <view wx:if="{{!selectedCourse}}">
+    <view class="academy-header">
+      <text class="academy-desc">6门课程 · 60节精品课 · AI大师亲授</text>
+    </view>
+
+    <view class="course-list">
+      <view class="course-card" wx:for="{{courses}}" wx:key="id" bindtap="selectCourse" data-id="{{item.id}}">
+        <view class="course-icon-wrap" style="background:{{item.color}}22;border-color:{{item.color}}44">
+          <text class="course-icon">{{item.icon}}</text>
+        </view>
+        <view class="course-info">
+          <text class="course-name">{{item.name}}</text>
+          <text class="course-desc">{{item.desc}}</text>
+          <view class="course-progress-bar">
+            <view class="course-progress-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+          </view>
+          <text class="course-progress-text" style="color:{{item.color}}">{{item.completed}}/{{item.total}} 课 · {{item.pct}}%</text>
+        </view>
+        <view class="course-stars">
+          <text class="star {{item.stars >= 1 ? 'active' : ''}}">★</text>
+          <text class="star {{item.stars >= 2 ? 'active' : ''}}">★</text>
+          <text class="star {{item.stars >= 3 ? 'active' : ''}}">★</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 课程详情：课时列表 -->
+  <view wx:if="{{selectedCourse}}">
+    <view class="lesson-header" style="border-color:{{selectedCourse.color}}44">
+      <text class="lesson-header-icon">{{selectedCourse.icon}}</text>
+      <view>
+        <text class="lesson-header-name">{{selectedCourse.name}}</text>
+        <text class="lesson-header-desc">{{selectedCourse.desc}}</text>
+      </view>
+    </view>
+
+    <view class="lesson-list">
+      <view
+        class="lesson-item {{item.done ? 'done' : ''}} {{!item.unlocked ? 'locked' : ''}}"
+        wx:for="{{selectedCourse.lessons}}"
+        wx:key="id"
+        bindtap="startLesson"
+        data-idx="{{index}}"
+      >
+        <view class="lesson-num" style="{{item.done ? 'background:' + selectedCourse.color : ''}}">
+          <text wx:if="{{item.done}}">✓</text>
+          <text wx:elif="{{!item.unlocked}}">🔒</text>
+          <text wx:else>{{index + 1}}</text>
+        </view>
+        <view class="lesson-info">
+          <text class="lesson-name">{{item.name}}</text>
+          <text class="lesson-tag" wx:if="{{item.free}}" style="color:#58cc02">免费</text>
+          <text class="lesson-tag" wx:elif="{{item.done}}" style="color:{{selectedCourse.color}}">已完成</text>
+          <text class="lesson-tag" wx:elif="{{!item.unlocked}}" style="color:#666">未解锁</text>
+        </view>
+        <text class="lesson-reward" wx:if="{{!item.done && item.unlocked}}">+5🥚</text>
+      </view>
+    </view>
+  </view>
+
+  <view style="height:120rpx"></view>
+</view>

@@ -53,7 +53,10 @@ Page({
       pct: ((danli[d.key] || 0) / 10).toFixed(0)
     }))
 
-    this.setData({ danli, quiz, dims })
+    // 蛋力Token余额
+    const egg = wx.getStorageSync('crayxus_egg') || { balance: 100, history: [] }
+
+    this.setData({ danli, quiz, dims, eggBalance: egg.balance })
   },
 
   // Avatar

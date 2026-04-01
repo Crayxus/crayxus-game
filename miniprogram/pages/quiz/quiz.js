@@ -199,21 +199,41 @@ Page({
       })
 
       const totalScore = dims.reduce((s, d) => s + d.val, 0)
-      const rank = totalScore >= 900 ? '蛋王' :
-                   totalScore >= 750 ? '蛋帝' :
-                   totalScore >= 600 ? '蛋将' :
-                   totalScore >= 400 ? '蛋士' :
-                   totalScore >= 200 ? '蛋兵' : '蛋徒'
+      // 映射到2000分制评分 (totalScore max=1000 → rating max≈2200)
+      const rating = Math.round(totalScore * 2.2 + 200)
+      const RANKS = [
+        { name: '青铜·初窥', icon: '🛡️', min: 0, color: '#cd7f32' },
+        { name: '青铜·入门', icon: '🛡️', min: 600, color: '#cd7f32' },
+        { name: '白银·小成', icon: '⚔️', min: 800, color: '#c0c0c0' },
+        { name: '白银·通达', icon: '⚔️', min: 1000, color: '#c0c0c0' },
+        { name: '黄金·精进', icon: '🏅', min: 1200, color: '#ffd700' },
+        { name: '黄金·老练', icon: '🏅', min: 1400, color: '#ffd700' },
+        { name: '铂金·纵横', icon: '💠', min: 1600, color: '#00e5ff' },
+        { name: '铂金·无双', icon: '💠', min: 1800, color: '#00e5ff' },
+        { name: '钻石·宗师', icon: '💎', min: 2000, color: '#b388ff' },
+        { name: '钻石·大宗师', icon: '💎', min: 2200, color: '#b388ff' },
+        { name: '王者·掼圣', icon: '👑', min: 2400, color: '#ff6b35' },
+        { name: '传奇·掼蛋大师', icon: '🏆', min: 2800, color: '#ff4500' },
+      ]
+      let rankObj = RANKS[0]
+      for (const r of RANKS) { if (rating >= r.min) rankObj = r }
+      const rank = rankObj.name
+      const certNo = 'CRX-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 90000 + 10000))
+      const certDate = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
+
+      // 找薄弱维度
+      let weakest = dims[0]
+      dims.forEach(d => { if (d.pct < weakest.pct) weakest = d })
 
       // 保存到globalData和本地存储
-      const danliData = { score: totalScore, rank, testedAt: Date.now() }
+      const danliData = { score: totalScore, rank, rating, testedAt: Date.now() }
       dims.forEach(d => { danliData[d.key] = d.val })
       app.globalData.danli = danliData
       wx.setStorageSync('crayxus_danli', danliData)
 
       this.setData({
         finished: true,
-        result: { score: totalScore, rank, dims }
+        result: { score: totalScore, rating, rank, rankIcon: rankObj.icon, rankColor: rankObj.color, dims, certNo, certDate, weakest: weakest.name }
       })
     } else {
       // 每日做题 — 记录统计

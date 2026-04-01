@@ -26,16 +26,30 @@
     </view>
   </view>
 
-  <!-- 蛋力 Token -->
+  <!-- 蛋力值（能力评分） -->
+  <view class="section" wx:if="{{danli.score}}">
+    <view class="section-title">蛋力值 · 能力评分</view>
+    <view class="danli-card-profile">
+      <view class="danli-row">
+        <text class="danli-score-big">{{danli.score}}</text>
+        <text class="danli-score-max">/1000</text>
+      </view>
+      <text class="danli-rank-text" wx:if="{{danli.rank}}">{{danli.rank}}</text>
+      <text class="danli-hint">通过段位测评获得，代表你的掼蛋综合实力</text>
+    </view>
+  </view>
+
+  <!-- 蛋力Token（虚拟货币） -->
   <view class="section">
-    <view class="section-title">蛋力 Token</view>
+    <view class="section-title">蛋力 Token · 虚拟货币</view>
     <view class="token-card">
       <view class="token-row">
         <text style="font-size:24px">🥚</text>
         <text class="token-balance">{{eggBalance || 100}}</text>
-        <text class="token-label">蛋力</text>
+        <text class="token-unit">枚</text>
       </view>
-      <view class="token-desc">完成课程、测评、对战可获得蛋力</view>
+      <text class="token-desc">完成课程+5 · 通过测评+20 · 每日登录+10</text>
+      <text class="token-desc">可用于解锁课程、报名赛事、AI教练等</text>
     </view>
   </view>
 

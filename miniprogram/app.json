@@ -2,6 +2,7 @@
   "pages": [
     "pages/home/home",
     "pages/quiz/quiz",
+    "pages/academy/academy",
     "pages/tournament/tournament",
     "pages/profile/profile",
     "pages/shop/shop"

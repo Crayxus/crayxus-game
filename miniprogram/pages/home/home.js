@@ -98,7 +98,7 @@ Page({
 
   // 蛋力学院
   goAcademy() {
-    wx.showToast({ title: '蛋力学院即将开放', icon: 'none' })
+    wx.navigateTo({ url: '/pages/academy/academy' })
   },
 
   // 商城
