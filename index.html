@@ -1493,93 +1493,119 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <span id="egg-token-display" style="font-size:14px;color:#ffc800;font-weight:bold">0</span>
   </div>
 
-  <div class="mode-select-wrap">
-    <div class="mode-select-title">AI 掼蛋大师</div>
-    <div class="mode-select-sub">以 A I 之 智 · 行 大 师 之 道</div>
+  <div class="mode-select-wrap" style="position:relative;width:100%;height:100%">
 
-    <!-- Avatar section (shown when logged in) -->
-    <div class="holo-avatar-section" id="holo-avatar-section">
-      <div class="holo-avatar-ring">
-        <div class="holo-avatar-glow"></div>
-        <svg viewBox="0 0 152 152" fill="none">
-          <circle cx="76" cy="76" r="74" stroke="url(#msGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/>
-          <defs><linearGradient id="msGrad" x1="0" y1="0" x2="152" y2="152">
-            <stop offset="0%" stop-color="#00ffff"/>
-            <stop offset="50%" stop-color="#ffd700"/>
-            <stop offset="100%" stop-color="#ff00ff"/>
-          </linearGradient></defs>
-        </svg>
-        <div class="holo-avatar-img" style="font-size:48px;line-height:120px">P1</div>
+    <style>
+    @keyframes ddBlink{0%,92%,100%{transform:scaleY(0);opacity:0}95%{transform:scaleY(1);opacity:1}}
+    @keyframes ddFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes ddFloat2{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    @keyframes ddPulse{0%,100%{box-shadow:0 0 15px rgba(0,229,255,0.2)}50%{box-shadow:0 0 25px rgba(0,229,255,0.4)}}
+    .dd-orb{position:absolute;width:160px;height:160px;border-radius:50%;cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+      transition:all 0.3s;z-index:20;backdrop-filter:blur(4px)}
+    .dd-orb:hover{transform:scale(1.12)!important;filter:brightness(1.3)}
+    .dd-orb:active{transform:scale(0.95)!important}
+    .dd-orb .dd-orb-icon{font-size:42px;line-height:1}
+    .dd-orb .dd-orb-name{font-size:16px;font-weight:700;letter-spacing:1px}
+    </style>
+
+    <!-- ═══ DanDan Pac-Man Style — 50vh, pinned to center ═══ -->
+    <div id="dandan-face" style="position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);
+      width:50vh;height:50vh;max-width:420px;max-height:420px;cursor:pointer"
+         onclick="if(typeof VoiceSystem!=='undefined'){VoiceSystem.say('welcome')}">
+      <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <!-- Body — simple circle -->
+        <circle cx="100" cy="105" r="90" fill="#ffd700"/>
+
+        <!-- Eyes — Pac-Man style, simple black dots with white highlight -->
+        <circle cx="72" cy="75" r="14" fill="#000"/>
+        <circle cx="128" cy="75" r="14" fill="#000"/>
+        <circle cx="67" cy="70" r="5.5" fill="#fff"/>
+        <circle cx="123" cy="70" r="5.5" fill="#fff"/>
+
+        <!-- Mouth — simple arc, opens when talking -->
+        <path id="dd-mouth" d="M60 120 Q100 145 140 120" stroke="#000" stroke-width="4" fill="none" stroke-linecap="round"
+          style="transition:d 0.06s ease"/>
+      </svg>
+
+      <!-- Blink overlays -->
+      <div style="position:absolute;top:30%;left:26%;width:14%;height:14%;background:#ffd700;border-radius:50%;opacity:0;pointer-events:none;animation:ddBlink 4.5s ease-in-out infinite"></div>
+      <div style="position:absolute;top:30%;left:54%;width:14%;height:14%;background:#ffd700;border-radius:50%;opacity:0;pointer-events:none;animation:ddBlink 4.5s ease-in-out infinite;animation-delay:0.05s"></div>
+    </div>
+
+    <!-- Speech bubble — pinned below egg -->
+    <div id="dd-speech" style="position:absolute;left:50%;top:72%;transform:translateX(-50%);
+      text-align:center;min-height:28px;white-space:nowrap;
+      color:#fff;font-size:20px;font-weight:600;letter-spacing:1px;
+      text-shadow:0 0 20px rgba(255,215,0,0.4);
+      transition:opacity 0.3s">
+      你好！我是蛋蛋
+    </div>
+
+    <!-- ═══ 4 Floating Orbs — symmetrical, all using left+transform ═══ -->
+    <div class="dd-orb" onclick="selectMode('arena')"
+      style="left:calc(50% - 380px);top:26%;background:rgba(0,229,255,0.15);border:2px solid #00e5ff;color:#00e5ff;
+      animation:ddFloat 3s ease-in-out infinite;animation-delay:0s">
+      <div class="dd-orb-icon">&#9654;</div>
+      <div class="dd-orb-name">对战</div>
+    </div>
+    <div class="dd-orb" onclick="AITraining.showAssessmentIntro()"
+      style="left:calc(50% - 380px);top:52%;background:rgba(255,215,0,0.12);border:2px solid #ffd700;color:#ffd700;
+      animation:ddFloat2 3.5s ease-in-out infinite;animation-delay:0.5s">
+      <div class="dd-orb-icon">&#9733;</div>
+      <div class="dd-orb-name">训练</div>
+    </div>
+
+    <div class="dd-orb" onclick="window.location.href='/tournament'"
+      style="left:calc(50% + 220px);top:26%;background:rgba(255,0,255,0.12);border:2px solid #ff00ff;color:#ff00ff;
+      animation:ddFloat 3.2s ease-in-out infinite;animation-delay:0.3s">
+      <div class="dd-orb-icon">&#127942;</div>
+      <div class="dd-orb-name">赛事</div>
+    </div>
+    <div class="dd-orb" onclick="window.location.href='/dashboard'"
+      style="left:calc(50% + 220px);top:52%;background:rgba(46,213,115,0.12);border:2px solid #2ed573;color:#2ed573;
+      animation:ddFloat2 3.8s ease-in-out infinite;animation-delay:0.8s">
+      <div class="dd-orb-icon">&#9632;</div>
+      <div class="dd-orb-name">大屏</div>
+    </div>
+
+    <!-- ═══ User info bar (pinned bottom) ═══ -->
+    <div id="holo-avatar-section" style="position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+      display:flex;align-items:center;gap:12px;
+      padding:8px 20px;border-radius:30px;
+      background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">
+      <div class="holo-avatar-img" style="width:36px;height:36px;border-radius:50%;background:#222;
+        display:flex;align-items:center;justify-content:center;font-size:16px;border:1.5px solid #ffd700">P1</div>
+      <div style="flex:1">
+        <div id="holo-player-name" style="font-size:13px;font-weight:600;color:#fff">PLAYER_ONE</div>
+        <div style="display:flex;gap:12px;margin-top:2px">
+          <span style="font-size:11px;color:#888"><span style="color:var(--neon)" id="holo-wr">0%</span> 胜率</span>
+          <span style="font-size:11px;color:#888"><span style="color:var(--gold)" id="holo-games">0</span> 对局</span>
+          <span style="font-size:11px;color:#888"><span id="holo-weekly">#--</span> 周榜</span>
+        </div>
       </div>
-      <div class="holo-player-info">
-        <div class="holo-player-name" id="holo-player-name">PLAYER_ONE</div>
-        <div class="holo-player-rank">
-          <span class="holo-rank-badge">BRONZE V</span>
-          <div class="holo-rank-stars"></div>
-        </div>
-        <div class="holo-player-stats">
-          <div class="holo-stat"><span class="holo-stat-val" id="holo-wr">0%</span><span class="holo-stat-label">胜率</span></div>
-          <div class="holo-stat"><span class="holo-stat-val holo-gold" id="holo-games">0</span><span class="holo-stat-label">对局</span></div>
-          <div class="holo-stat"><span class="holo-stat-val" id="holo-weekly">#--</span><span class="holo-stat-label">周榜</span></div>
-        </div>
-        <div class="holo-logout" id="holo-logout" onclick="doLogout()" style="display:none">退出</div>
+      <span class="holo-rank-badge" style="font-size:10px">BRONZE V</span>
+      <div class="holo-rank-stars"></div>
+      <div class="holo-logout" id="holo-logout" onclick="doLogout()" style="display:none;font-size:11px;cursor:pointer;color:#666">退出</div>
+    </div>
+
+    <!-- QR Login (hidden by default) -->
+    <div id="qr-inline-login" style="display:none;cursor:pointer;
+      position:absolute !important;bottom:60px;left:0;right:0;
+      text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:12px;padding:8px 20px;border-radius:30px;
+        background:rgba(0,255,255,0.04);border:1px solid rgba(0,255,255,0.15)">
+        <canvas id="qr-inline-canvas" width="100" height="100" style="border-radius:6px;background:#fff;image-rendering:pixelated;width:36px;height:36px"></canvas>
+        <span style="color:rgba(0,255,255,0.7);font-size:13px;letter-spacing:2px">扫码登录</span>
       </div>
     </div>
 
-    <!-- QR Login inline (shown when NOT logged in, replaces avatar section) -->
-    <div class="holo-avatar-section" id="qr-inline-login" style="display:none;cursor:pointer">
-      <div class="holo-avatar-ring">
-        <div class="holo-avatar-glow"></div>
-        <svg viewBox="0 0 152 152" fill="none">
-          <circle cx="76" cy="76" r="74" stroke="url(#msGrad2)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/>
-          <defs><linearGradient id="msGrad2" x1="0" y1="0" x2="152" y2="152">
-            <stop offset="0%" stop-color="#00ffff"/>
-            <stop offset="100%" stop-color="#00ffcc"/>
-          </linearGradient></defs>
-        </svg>
-        <div class="holo-avatar-img" style="font-size:0;line-height:120px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:50%">
-          <canvas id="qr-inline-canvas" width="100" height="100" style="border-radius:8px;background:#fff;image-rendering:pixelated;width:90px;height:90px"></canvas>
-        </div>
-      </div>
-      <div class="holo-player-info">
-        <div class="holo-player-name" style="color:rgba(0,255,255,0.7);font-size:16px;letter-spacing:3px">扫码登录</div>
-        <div class="holo-player-rank">
-          <span class="holo-rank-badge" style="background:rgba(0,255,255,0.08);color:rgba(0,255,255,0.5);border-color:rgba(0,255,255,0.2)">微信扫码</span>
-        </div>
-        <div class="holo-player-stats" style="opacity:0.3">
-          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">胜率</span></div>
-          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">对局</span></div>
-          <div class="holo-stat"><span class="holo-stat-val">--</span><span class="holo-stat-label">周榜</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Holographic mode buttons -->
-    <div class="holo-btns" id="holo-btns">
-      <div class="holo-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#9654;</div>
-        <div class="h-name">大乱斗</div>
-        <div class="h-desc">人机混战 2V2<br>ELO 排位赛</div>
-        <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">开始对战</div>
-      </div>
-      <div class="holo-btn" onclick="AITraining.showAssessmentIntro()" data-mode="review" onmouseenter="showModeInfo('review')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#128269;</div>
-        <div class="h-name">AI 训练</div>
-        <div class="h-desc">段位测评 · AI教练<br>AI复盘 · 等级认证</div>
-        <div class="h-tag" style="background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.3)">进入训练</div>
-      </div>
-      <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#9733;</div>
-        <div class="h-name">锦标赛</div>
-        <div class="h-desc">赛程对阵<br>实时比分</div>
-        <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">赛事</div>
-      </div>
-      <div class="holo-btn training-btn" onclick="window.location.href='/dashboard'" data-mode="dashboard" onmouseenter="showModeInfo('dashboard')" onmouseleave="showModeInfo(null)">
-        <div class="h-icon" style="font-style:normal">&#9632;</div>
-        <div class="h-name">大屏控制</div>
-        <div class="h-desc">实时大屏 · 排行榜<br>裁判控制</div>
-        <div class="h-tag" style="background:rgba(46,213,115,0.1);color:#2ed573;border:1px solid rgba(46,213,115,0.3)">大屏</div>
-      </div>
+    <!-- Hidden holo-btns for backward compatibility (JS references) -->
+    <div id="holo-btns" style="display:none">
+      <div class="holo-btn" data-mode="arena"></div>
+      <div class="holo-btn" data-mode="review"></div>
+      <div class="holo-btn arena-btn" data-mode="tournament"></div>
+      <div class="holo-btn training-btn" data-mode="dashboard"></div>
     </div>
   </div>
 
@@ -1774,6 +1800,30 @@ let roundEndTimer=null,actionSeq=0,hintIndex=0,hintOptions=[];
 let autoContinueTimer=null,autoContinueLeft=0;
 let botSeats=[1,3],finishOrder=[];
 let myScore=parseInt(localStorage.getItem('crayxus_score'))||0;
+
+// Bridge for demo mode — allows external modules to read/write game state
+window._gameState = {
+  get myCards() { return myCards; },
+  set myCards(v) { myCards = v; },
+  get mySeat() { return mySeat; },
+  set mySeat(v) { mySeat = v; },
+  get turn() { return turn; },
+  set turn(v) { turn = v; },
+  get lastHand() { return lastHand; },
+  set lastHand(v) { lastHand = v; },
+  get counts() { return counts; },
+  set counts(v) { counts = v; },
+  get gameOver() { return gameOver; },
+  set gameOver(v) { gameOver = v; },
+  get finishOrder() { return finishOrder; },
+  set finishOrder(v) { finishOrder = v; },
+  get isMyTurn() { return typeof isMyTurn !== 'undefined' ? isMyTurn : false; },
+  set isMyTurn(v) { if(typeof isMyTurn !== 'undefined') isMyTurn = v; },
+  get gameMode() { return typeof gameMode !== 'undefined' ? gameMode : 'casual'; },
+  set gameMode(v) { if(typeof gameMode !== 'undefined') gameMode = v; },
+  get currentWildValue() { return typeof currentWildValue !== 'undefined' ? currentWildValue : '2'; },
+  set currentWildValue(v) { if(typeof currentWildValue !== 'undefined') currentWildValue = v; },
+};
 let myRank=parseInt(localStorage.getItem('crayxus_rank'))||46,ladderData=[];
 let playerScores=JSON.parse(localStorage.getItem('crayxus_pscores')||'[0,0,0,0]');
 let totalGames=parseInt(localStorage.getItem('crayxus_games'))||0;
@@ -6619,5 +6669,15 @@ handleSync=function(d){_origHandleSync(d);broadcastViewState();};
 setInterval(()=>{if(timerInterval)broadcastViewState();},1000);
 
 </script>
+
+<!-- DanDan AI Assistant -->
+<script src="js/voice-system.js"></script>
+<script src="js/mascot.js"></script>
+<script src="js/voice-input.js"></script>
+<script src="js/tutorial.js"></script>
+<script src="js/game-voice-hooks.js"></script>
+<script src="js/demo.js"></script>
+<script src="js/dandan-ai.js"></script>
+
 </body>
 </html>
