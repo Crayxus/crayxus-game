@@ -10,9 +10,8 @@
 
 const VolcASR = (function() {
 
-  const WS_URL = 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel';
-  const API_KEY = '8280548b-9c87-424c-ba77-238ea3d9f806';
-  const RESOURCE_ID = 'volc.bigasr.sauc.duration';
+  // Connect to our own server's ASR proxy (server handles auth headers)
+  const WS_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/asr';
 
   let ws = null;
   let mediaStream = null;
@@ -99,17 +98,14 @@ const VolcASR = (function() {
   function _connect() {
     if (ws && ws.readyState <= 1) return;
 
-    const connectId = crypto.randomUUID ? crypto.randomUUID() :
-      'xxxx-xxxx-xxxx'.replace(/x/g, () => Math.floor(Math.random()*16).toString(16));
-
-    // WebSocket with auth headers via URL params (browsers can't set WS headers)
-    // Use subprotocol trick or just connect and send auth in first message
     ws = new WebSocket(WS_URL);
     ws.binaryType = 'arraybuffer';
 
     ws.onopen = () => {
-      console.log('[VolcASR] Connected');
-      // Send initial config
+      console.log('[VolcASR] Connected to proxy');
+
+      // Send initial config (server forwards to Volcengine with auth)
+      const connectId = Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
       const config = {
         header: {
           appid: 'default',
@@ -134,10 +130,6 @@ const VolcASR = (function() {
           },
         },
       };
-
-      // Try sending with auth header in config
-      config.header['X-Api-Key'] = API_KEY;
-      config.header['X-Api-Resource-Id'] = RESOURCE_ID;
 
       const msg = buildMessage([0x11, 0x10, 0x10, 0x00], config);
       ws.send(msg);

@@ -2521,6 +2521,79 @@ function runDemoRound(tourney) {
     }
 }
 
+// ═══ Volcengine ASR WebSocket Proxy ═══
+// Browser can't set WS headers, so we proxy: Browser → Server → Volcengine
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ noServer: true });
+const VOLC_ASR_URL = 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel';
+const VOLC_ASR_KEY = '8280548b-9c87-424c-ba77-238ea3d9f806';
+const VOLC_RESOURCE_ID = 'volc.bigasr.sauc.duration';
+
+http.on('upgrade', (request, socket, head) => {
+    if (request.url === '/asr') {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request);
+        });
+    }
+    // Let socket.io handle its own upgrades (it does this automatically)
+});
+
+wss.on('connection', (clientWs) => {
+    console.log('[ASR Proxy] Client connected');
+    const connectId = Math.random().toString(36).substr(2, 12);
+
+    // Connect to Volcengine with proper auth headers
+    const volcWs = new WebSocket(VOLC_ASR_URL, {
+        headers: {
+            'X-Api-Key': VOLC_ASR_KEY,
+            'X-Api-Resource-Id': VOLC_RESOURCE_ID,
+            'X-Api-Connect-Id': connectId,
+        }
+    });
+    volcWs.binaryType = 'arraybuffer';
+
+    let volcReady = false;
+    let pendingMessages = [];
+
+    volcWs.on('open', () => {
+        console.log('[ASR Proxy] Connected to Volcengine');
+        volcReady = true;
+        // Send any pending messages
+        pendingMessages.forEach(msg => volcWs.send(msg));
+        pendingMessages = [];
+    });
+
+    volcWs.on('message', (data) => {
+        // Forward Volcengine responses to browser
+        if (clientWs.readyState === 1) {
+            clientWs.send(data);
+        }
+    });
+
+    volcWs.on('error', (e) => {
+        console.error('[ASR Proxy] Volcengine error:', e.message);
+    });
+
+    volcWs.on('close', () => {
+        console.log('[ASR Proxy] Volcengine disconnected');
+        if (clientWs.readyState === 1) clientWs.close();
+    });
+
+    // Forward browser audio to Volcengine
+    clientWs.on('message', (data) => {
+        if (volcReady && volcWs.readyState === 1) {
+            volcWs.send(data);
+        } else {
+            pendingMessages.push(data);
+        }
+    });
+
+    clientWs.on('close', () => {
+        console.log('[ASR Proxy] Client disconnected');
+        if (volcWs.readyState === 1) volcWs.close();
+    });
+});
+
 http.listen(PORT, () => {
-    gameLog(`Crayxus V43 (Tournament System + Dashboard) Running on port ${PORT}`);
+    gameLog(`Crayxus V43 (Tournament System + Dashboard + ASR Proxy) Running on port ${PORT}`);
 });
