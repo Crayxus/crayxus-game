@@ -60,6 +60,12 @@ const VoiceInput = (function() {
         console.log(`[VoiceInput] Command: ${cmd}`);
         executeCommand(cmd);
         if (onCommandCallback) onCommandCallback(cmd, text);
+      } else if (text.length >= 2) {
+        // Not a command → send to DanDan Chat (豆包大模型)
+        console.log(`[VoiceInput] Chat: "${text}"`);
+        if (typeof DanDanChat !== 'undefined' && DanDanChat.isConversation(text)) {
+          DanDanChat.chat(text);
+        }
       }
     };
 
@@ -149,13 +155,12 @@ const VoiceInput = (function() {
         break;
       }
       case 'wake': {
-        // Wake word — open DanDan panel and greet
-        if (typeof DanDanAI !== 'undefined' && DanDanAI._qaGreet) {
+        // Wake word — send to DanDan Chat if available, otherwise pre-recorded
+        if (typeof DanDanChat !== 'undefined') {
+          DanDanChat.chat(text);
+        } else if (typeof DanDanAI !== 'undefined' && DanDanAI._qaGreet) {
           DanDanAI._qaGreet();
         }
-        // Also open the fab panel
-        const fab = document.getElementById('dandan-fab');
-        if (fab) fab.click();
         break;
       }
     }
