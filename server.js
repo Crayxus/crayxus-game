@@ -2522,53 +2522,86 @@ function runDemoRound(tourney) {
 }
 
 // ═══ Volcengine ASR HTTP API ═══
-const multer = require('multer');
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
-const VOLC_ASR_KEY_HTTP = '8280548b-9c87-424c-ba77-238ea3d9f806';
+// Accept raw PCM body (not multipart)
+app.post('/api/asr', express.raw({ type: 'application/octet-stream', limit: '5mb' }), (req, res) => {
+    const pcmData = req.body;
+    if (!pcmData || pcmData.length === 0) return res.json({ text: '' });
 
-app.post('/api/asr', upload.single('audio'), async (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'no audio' });
+    console.log(`[ASR] Received ${(pcmData.length/1024).toFixed(1)}KB PCM`);
 
-    try {
-        // Convert webm to base64 and send to Volcengine
-        const audioBase64 = req.file.buffer.toString('base64');
-
-        const response = await fetch('https://openspeech.bytedance.com/api/v3/sauc/bigmodel', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Api-Key': VOLC_ASR_KEY_HTTP,
-                'X-Api-Resource-Id': 'volc.bigasr.sauc.duration',
-            },
-            body: JSON.stringify({
-                user: { uid: 'dandan' },
-                audio: {
-                    data: audioBase64,
-                    format: 'webm',
-                    codec: 'opus',
-                },
-                request: {
-                    model_name: 'bigmodel',
-                    enable_punc: true,
-                    enable_itn: true,
-                }
-            })
-        });
-
-        if (!response.ok) {
-            // Fallback: use a simpler approach - just echo back empty
-            console.error('[ASR] Volcengine HTTP error:', response.status);
-            return res.json({ text: '' });
+    const connectId = Date.now().toString(36) + Math.random().toString(36).substr(2,6);
+    const volcWs = new WebSocket(VOLC_ASR_URL, {
+        headers: {
+            'X-Api-Key': VOLC_ASR_KEY,
+            'X-Api-Resource-Id': VOLC_RESOURCE_ID,
+            'X-Api-Connect-Id': connectId,
         }
+    });
 
-        const data = await response.json();
-        const text = data?.result?.text || data?.payload?.result?.text || '';
-        console.log(`[ASR] Recognized: "${text}"`);
-        res.json({ text });
-    } catch(e) {
-        console.error('[ASR] Error:', e.message);
-        res.json({ text: '' });
-    }
+    let finalText = '';
+    let responded = false;
+    const timeout = setTimeout(() => {
+        if (!responded) { responded = true; res.json({ text: finalText }); }
+        try { volcWs.close(); } catch(e){}
+    }, 10000);
+
+    volcWs.on('open', () => {
+        // Send config
+        const config = JSON.stringify({
+            header: { appid: 'default', namespace: 'SeedASR', connect_id: connectId },
+            payload: {
+                user: { uid: 'dandan' },
+                audio: { format: 'pcm', rate: 16000, bits: 16, channel: 1, codec: 'raw' },
+                request: { model_name: 'bigmodel', enable_punc: true, enable_itn: true, result_type: 'full' }
+            }
+        });
+        const configBuf = Buffer.from(config);
+        const header1 = Buffer.from([0x11, 0x10, 0x10, 0x00]);
+        const size1 = Buffer.alloc(4); size1.writeUInt32BE(configBuf.length);
+        volcWs.send(Buffer.concat([header1, size1, configBuf]));
+
+        // Send audio in chunks
+        const CHUNK = 6400; // 200ms at 16kHz 16bit mono
+        for (let i = 0; i < pcmData.length; i += CHUNK) {
+            const isLast = (i + CHUNK >= pcmData.length);
+            const chunk = pcmData.slice(i, i + CHUNK);
+            const headerByte = isLast ? 0x22 : 0x20;
+            const header2 = Buffer.from([0x11, headerByte, 0x00, 0x00]);
+            const size2 = Buffer.alloc(4); size2.writeUInt32BE(chunk.length);
+            volcWs.send(Buffer.concat([header2, size2, chunk]));
+        }
+    });
+
+    volcWs.on('message', (data) => {
+        try {
+            // Parse: skip 8 byte header, rest is JSON
+            const buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
+            if (buf.length <= 8) return;
+            const json = JSON.parse(buf.slice(8).toString('utf8'));
+            const text = json?.payload?.result?.text || json?.result?.text || '';
+            if (text) finalText = text;
+
+            // Check if final
+            const isFinal = json?.payload?.result?.utterances?.some(u => u.definite) ||
+                           json?.is_final || false;
+            if (isFinal || (json?.payload?.result?.type === 'final')) {
+                console.log(`[ASR] Final: "${finalText}"`);
+                if (!responded) { responded = true; clearTimeout(timeout); res.json({ text: finalText }); }
+                volcWs.close();
+            }
+        } catch(e) {
+            console.error('[ASR] Parse error:', e.message);
+        }
+    });
+
+    volcWs.on('error', (e) => {
+        console.error('[ASR] WS error:', e.message);
+        if (!responded) { responded = true; clearTimeout(timeout); res.json({ text: '' }); }
+    });
+
+    volcWs.on('close', () => {
+        if (!responded) { responded = true; clearTimeout(timeout); res.json({ text: finalText }); }
+    });
 });
 
 // ═══ Volcengine ASR WebSocket Proxy ═══

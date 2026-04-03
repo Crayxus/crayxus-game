@@ -85,14 +85,8 @@ const VolcASR = (function() {
           speechStart = Date.now();
           audioChunks = [];
 
-          mediaRecorder = new MediaRecorder(recorderStream, {
-            mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-              ? 'audio/webm;codecs=opus' : 'audio/webm'
-          });
-          mediaRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) audioChunks.push(e.data);
-          };
-          mediaRecorder.start(100); // collect in 100ms chunks
+          // Record raw PCM using ScriptProcessor (Volcengine needs PCM, not webm)
+          _startPCMCapture();
           console.log('[VolcASR] Speech detected...');
         }
         silenceStart = 0;
@@ -106,31 +100,68 @@ const VolcASR = (function() {
           isSpeaking = false;
           silenceStart = 0;
 
-          if (mediaRecorder && mediaRecorder.state === 'recording') {
-            mediaRecorder.stop();
-            mediaRecorder.onstop = () => {
-              if (speechLen >= MIN_SPEECH_MS && audioChunks.length > 0) {
-                const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                console.log(`[VolcASR] Sending ${(blob.size/1024).toFixed(1)}KB audio...`);
-                _sendToServer(blob);
-              }
-            };
+          _stopPCMCapture();
+          if (speechLen >= MIN_SPEECH_MS && audioChunks.length > 0) {
+            // Merge PCM chunks into single Int16Array
+            const totalLen = audioChunks.reduce((s, c) => s + c.length, 0);
+            const pcm = new Int16Array(totalLen);
+            let offset = 0;
+            audioChunks.forEach(chunk => { pcm.set(chunk, offset); offset += chunk.length; });
+            console.log(`[VolcASR] Sending ${(pcm.byteLength/1024).toFixed(1)}KB PCM...`);
+            _sendPCMToServer(pcm.buffer);
           }
         }
       }
     }, 50); // check every 50ms
   }
 
-  // ── Send audio to server for recognition ──
+  // ── PCM capture using ScriptProcessor ──
 
-  async function _sendToServer(audioBlob) {
+  let pcmProcessor = null;
+  let pcmSource = null;
+  let isCapturing = false;
+
+  function _startPCMCapture() {
+    if (isCapturing) return;
+    isCapturing = true;
+    audioChunks = [];
+
+    pcmSource = audioCtx.createMediaStreamSource(mediaStream);
+    pcmProcessor = audioCtx.createScriptProcessor(4096, 1, 1);
+
+    pcmProcessor.onaudioprocess = (e) => {
+      if (!isCapturing) return;
+      const float32 = e.inputBuffer.getChannelData(0);
+      // Downsample to 16kHz
+      const ratio = audioCtx.sampleRate / 16000;
+      const newLen = Math.round(float32.length / ratio);
+      const int16 = new Int16Array(newLen);
+      for (let i = 0; i < newLen; i++) {
+        const idx = Math.round(i * ratio);
+        const s = Math.max(-1, Math.min(1, float32[idx] || 0));
+        int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      }
+      audioChunks.push(int16);
+    };
+
+    pcmSource.connect(pcmProcessor);
+    pcmProcessor.connect(audioCtx.destination);
+  }
+
+  function _stopPCMCapture() {
+    isCapturing = false;
+    if (pcmProcessor) { pcmProcessor.disconnect(); pcmProcessor = null; }
+    if (pcmSource) { pcmSource.disconnect(); pcmSource = null; }
+  }
+
+  // ── Send PCM to server ──
+
+  async function _sendPCMToServer(pcmBuffer) {
     try {
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'speech.webm');
-
       const resp = await fetch('/api/asr', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/octet-stream' },
+        body: pcmBuffer,
       });
 
       if (!resp.ok) {
@@ -142,9 +173,11 @@ const VolcASR = (function() {
       if (result.text && onResultCallback) {
         console.log(`[VolcASR] Recognized: "${result.text}"`);
         onResultCallback(result.text, true);
+      } else {
+        console.log('[VolcASR] No text in response:', result);
       }
     } catch(e) {
-      console.warn('[VolcASR] Recognition error:', e);
+      console.warn('[VolcASR] Error:', e);
     }
   }
 
