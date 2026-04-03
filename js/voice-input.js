@@ -133,12 +133,8 @@ const VoiceInput = (function() {
       if (onCommandCallback) onCommandCallback(cmd, text);
     } else if (text.length >= 2) {
       console.log(`[VoiceInput] Chat: "${text}"`);
-      // Try fixed replies first (instant), then fallback to 豆包API
-      if (!_tryFixedReply(text)) {
-        if (typeof DanDanChat !== 'undefined' && DanDanChat.isConversation(text)) {
-          DanDanChat.chat(text);
-        }
-      }
+      // Fixed replies only (no API, instant response)
+      _tryFixedReply(text);
     }
   }
 
@@ -191,12 +187,8 @@ const VoiceInput = (function() {
         break;
       }
       case 'wake': {
-        // Wake word — send to DanDan Chat if available, otherwise pre-recorded
-        if (typeof DanDanChat !== 'undefined') {
-          DanDanChat.chat(_lastHeardText);
-        } else if (typeof DanDanAI !== 'undefined' && DanDanAI._qaGreet) {
-          DanDanAI._qaGreet();
-        }
+        // Wake word — fixed reply, no API
+        _tryFixedReply(_lastHeardText);
         break;
       }
     }
