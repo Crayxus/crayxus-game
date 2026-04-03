@@ -33,81 +33,60 @@ const VoiceInput = (function() {
     { keywords: ['整理', '理牌', '排列'], action: 'sort' },
   ];
 
+  let useVolcASR = false; // true = 豆包ASR, false = Web Speech API
+
   function init() {
-    // Check Web Speech API support
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.warn('[VoiceInput] Web Speech API not supported');
-      return;
-    }
-
-    recognition = new SpeechRecognition();
-    recognition.lang = 'zh-CN';
-    recognition.continuous = true;       // keep listening
-    recognition.interimResults = false;  // only final results (saves CPU)
-    recognition.maxAlternatives = 1;     // one result (saves CPU)
-
-    recognition.onresult = (event) => {
-      const last = event.results[event.results.length - 1];
-      if (!last.isFinal) return;
-
-      const text = last[0].transcript.trim();
-      console.log(`[VoiceInput] Heard: "${text}"`);
-
-      // Anti-echo: ignore if DanDan is currently speaking
-      if (typeof VoiceSystem !== 'undefined' && typeof Mascot !== 'undefined' && Mascot.isTalking) {
-        console.log('[VoiceInput] Ignored (DanDan is speaking)');
-        return;
-      }
-      // Also ignore if text contains DanDan's own phrases
-      if (text.includes('我是蛋蛋') || text.includes('AI掼蛋助手') || text.includes('蛋力学院')) {
-        console.log('[VoiceInput] Ignored (echo detected)');
+    // Try Volcengine ASR first (works in China without Google)
+    if (typeof VolcASR !== 'undefined') {
+      useVolcASR = true;
+      VolcASR.onResult((text, isFinal) => {
+        if (!isFinal) return; // only process final results
+        _handleRecognizedText(text);
+      });
+      console.log('[VoiceInput] Using Volcengine (豆包) ASR');
+    } else {
+      // Fallback: Web Speech API
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn('[VoiceInput] No speech recognition available');
         return;
       }
 
-      _lastHeardText = text;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'zh-CN';
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
 
-      // Match command
-      const cmd = matchCommand(text);
-      if (cmd) {
-        console.log(`[VoiceInput] Command: ${cmd}`);
-        executeCommand(cmd);
-        if (onCommandCallback) onCommandCallback(cmd, text);
-      } else if (text.length >= 2) {
-        // Not a command → send to DanDan Chat (豆包大模型)
-        console.log(`[VoiceInput] Chat: "${text}"`);
-        if (typeof DanDanChat !== 'undefined' && DanDanChat.isConversation(text)) {
-          DanDanChat.chat(text);
+      recognition.onresult = (event) => {
+        const last = event.results[event.results.length - 1];
+        if (!last.isFinal) return;
+        _handleRecognizedText(last[0].transcript.trim());
+      };
+
+      recognition.onerror = (event) => {
+        if (event.error === 'no-speech' || event.error === 'aborted') return;
+        console.warn(`[VoiceInput] Error: ${event.error}`);
+        if (event.error === 'network' && isListening) {
+          setTimeout(() => { if (isListening) restart(); }, 2000);
         }
-      }
-    };
+      };
 
-    recognition.onerror = (event) => {
-      if (event.error === 'no-speech') return; // normal, ignore
-      if (event.error === 'aborted') return;   // manual stop
-      console.warn(`[VoiceInput] Error: ${event.error}`);
-      // Auto-restart on network errors
-      if (event.error === 'network' && isListening) {
-        setTimeout(() => { if (isListening) restart(); }, 2000);
-      }
-    };
-
-    recognition.onend = () => {
-      // Auto-restart if still supposed to be listening
-      if (isListening) {
-        setTimeout(() => {
-          if (isListening) {
-            try { recognition.start(); } catch(e) {}
-          }
-        }, 300);
-      }
-    };
+      recognition.onend = () => {
+        if (isListening) {
+          setTimeout(() => {
+            if (isListening) { try { recognition.start(); } catch(e) {} }
+          }, 300);
+        }
+      };
+      console.log('[VoiceInput] Using Web Speech API (fallback)');
+    }
 
     // Load saved preference
     enabled = localStorage.getItem('voice_input_enabled') === 'true';
     if (enabled) start();
 
-    // Kiosk mode: auto-start on first user interaction (bypass autoplay policy)
+    // Kiosk mode: auto-start on first user interaction
     if (!enabled) {
       const autoEnable = () => {
         if (!isListening) start();
@@ -119,6 +98,38 @@ const VoiceInput = (function() {
     }
 
     console.log('[VoiceInput] Initialized');
+  }
+
+  // ── Centralized text handler (shared by both ASR engines) ──
+
+  function _handleRecognizedText(text) {
+    if (!text) return;
+    console.log(`[VoiceInput] Heard: "${text}"`);
+
+    // Anti-echo: ignore if DanDan is speaking
+    if (typeof Mascot !== 'undefined' && Mascot.isTalking) {
+      console.log('[VoiceInput] Ignored (DanDan is speaking)');
+      return;
+    }
+    if (text.includes('我是蛋蛋') || text.includes('AI掼蛋助手') || text.includes('蛋力学院')) {
+      console.log('[VoiceInput] Ignored (echo detected)');
+      return;
+    }
+
+    _lastHeardText = text;
+
+    // Match command
+    const cmd = matchCommand(text);
+    if (cmd) {
+      console.log(`[VoiceInput] Command: ${cmd}`);
+      executeCommand(cmd);
+      if (onCommandCallback) onCommandCallback(cmd, text);
+    } else if (text.length >= 2) {
+      console.log(`[VoiceInput] Chat: "${text}"`);
+      if (typeof DanDanChat !== 'undefined' && DanDanChat.isConversation(text)) {
+        DanDanChat.chat(text);
+      }
+    }
   }
 
   function matchCommand(text) {
@@ -182,11 +193,14 @@ const VoiceInput = (function() {
   }
 
   function start() {
-    if (!recognition) return;
     isListening = true;
     enabled = true;
     localStorage.setItem('voice_input_enabled', 'true');
-    try { recognition.start(); } catch(e) {}
+    if (useVolcASR) {
+      VolcASR.start();
+    } else if (recognition) {
+      try { recognition.start(); } catch(e) {}
+    }
     console.log('[VoiceInput] Listening...');
   }
 
@@ -194,18 +208,21 @@ const VoiceInput = (function() {
     isListening = false;
     enabled = false;
     localStorage.setItem('voice_input_enabled', 'false');
-    if (recognition) {
+    if (useVolcASR) {
+      VolcASR.stop();
+    } else if (recognition) {
       try { recognition.stop(); } catch(e) {}
     }
     console.log('[VoiceInput] Stopped');
   }
 
   function restart() {
-    if (recognition) {
+    if (useVolcASR) {
+      VolcASR.stop();
+      setTimeout(() => VolcASR.start(), 500);
+    } else if (recognition) {
       try { recognition.stop(); } catch(e) {}
-      setTimeout(() => {
-        try { recognition.start(); } catch(e) {}
-      }, 200);
+      setTimeout(() => { try { recognition.start(); } catch(e) {} }, 200);
     }
   }
 
