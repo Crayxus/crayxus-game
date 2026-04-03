@@ -104,6 +104,14 @@ const XfyunASR = (function() {
         if (!ws || ws.readyState !== 1) return;
         const float32 = e.inputBuffer.getChannelData(0);
 
+        // VAD: skip silent frames (don't send noise to讯飞)
+        let maxAmp = 0;
+        for (let i = 0; i < float32.length; i += 32) {
+          const a = Math.abs(float32[i]);
+          if (a > maxAmp) maxAmp = a;
+        }
+        if (maxAmp < 0.01 && !isFirstFrame) return; // skip silence
+
         // Downsample if needed
         const rate = audioCtx.sampleRate;
         let samples = float32;
@@ -208,9 +216,9 @@ const XfyunASR = (function() {
         // Session complete
         if (resp.data && resp.data.status === 2) {
           _cleanup();
-          // Auto-restart for continuous listening
+          // Auto-restart for continuous listening (with delay to avoid 10165)
           if (isListening) {
-            setTimeout(_listen, 500);
+            setTimeout(_listen, 2000);
           }
         }
       } catch(e) {
@@ -221,12 +229,12 @@ const XfyunASR = (function() {
     ws.onerror = () => {
       console.warn('[XfyunASR] WebSocket error');
       _cleanup();
-      if (isListening) setTimeout(_listen, 2000);
+      if (isListening) setTimeout(_listen, 3000);
     };
 
     ws.onclose = () => {
       _cleanup();
-      if (isListening) setTimeout(_listen, 500);
+      // Don't auto-restart here, onmessage status=2 handles it
     };
   }
 
