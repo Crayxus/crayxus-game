@@ -8,6 +8,7 @@
  * Uses Voice Activity Detection (volume threshold) to auto-segment.
  */
 
+console.log('[VolcASR] v2 - HTTP recording mode loaded');
 const VolcASR = (function() {
 
   let mediaStream = null;
@@ -21,7 +22,7 @@ const VolcASR = (function() {
   let isSpeaking = false;
   let silenceStart = 0;
   let audioChunks = [];
-  const SILENCE_THRESHOLD = 15;   // volume below this = silence
+  const SILENCE_THRESHOLD = 8;    // volume below this = silence (lowered for sensitivity)
   const SILENCE_DURATION = 1200;  // ms of silence before processing
   const MIN_SPEECH_MS = 300;      // minimum speech length to process
   let speechStart = 0;
@@ -73,6 +74,9 @@ const VolcASR = (function() {
       let sum = 0;
       for (let i = 2; i < 40; i++) sum += data[i];
       const vol = sum / 38;
+
+      // Debug: log volume every 2 seconds
+      if (Date.now() % 2000 < 60) console.log(`[VolcASR] vol: ${vol.toFixed(1)}`);
 
       if (vol > SILENCE_THRESHOLD) {
         if (!isSpeaking) {
