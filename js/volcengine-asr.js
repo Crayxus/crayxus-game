@@ -1,172 +1,30 @@
 /**
- * Volcengine (火山引擎/豆包) Streaming ASR
- * ==========================================
- * WebSocket streaming speech recognition using 豆包大模型语音识别
- * Replaces Web Speech API for reliable Chinese speech recognition
+ * Volcengine ASR — Simple record-then-recognize approach
+ * =======================================================
+ * Records audio when user speaks, sends to server for recognition.
+ * Server calls Volcengine ASR API with proper auth.
  *
- * Protocol: wss://openspeech.bytedance.com/api/v3/sauc/bigmodel
- * Binary framing: 4-byte header + 4-byte payload size + payload
+ * Simpler and more reliable than WebSocket streaming.
+ * Uses Voice Activity Detection (volume threshold) to auto-segment.
  */
 
 const VolcASR = (function() {
 
-  // Connect to our own server's ASR proxy (server handles auth headers)
-  const WS_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/asr';
-
-  let ws = null;
   let mediaStream = null;
   let audioCtx = null;
+  let analyser = null;
   let processor = null;
   let isListening = false;
   let onResultCallback = null;
-  let reconnectTimer = null;
-  let silenceTimer = null;
 
-  // ── Binary protocol helpers ──
-
-  function buildMessage(headerBytes, payload) {
-    const payloadBuf = new TextEncoder().encode(JSON.stringify(payload));
-    const msg = new ArrayBuffer(8 + payloadBuf.length);
-    const view = new DataView(msg);
-    // Header: 4 bytes
-    view.setUint8(0, headerBytes[0]);
-    view.setUint8(1, headerBytes[1]);
-    view.setUint8(2, headerBytes[2]);
-    view.setUint8(3, headerBytes[3]);
-    // Payload size: 4 bytes big-endian
-    view.setUint32(4, payloadBuf.length);
-    // Payload
-    new Uint8Array(msg, 8).set(payloadBuf);
-    return msg;
-  }
-
-  function buildAudioMessage(pcmData, isLast) {
-    const header = isLast ? [0x11, 0x22, 0x00, 0x00] : [0x11, 0x20, 0x00, 0x00];
-    const msg = new ArrayBuffer(8 + pcmData.byteLength);
-    const view = new DataView(msg);
-    view.setUint8(0, header[0]);
-    view.setUint8(1, header[1]);
-    view.setUint8(2, header[2]);
-    view.setUint8(3, header[3]);
-    view.setUint32(4, pcmData.byteLength);
-    new Uint8Array(msg, 8).set(new Uint8Array(pcmData));
-    return msg;
-  }
-
-  function parseResponse(data) {
-    try {
-      if (data instanceof ArrayBuffer) {
-        // Skip 8-byte header, parse JSON payload
-        if (data.byteLength <= 8) return null;
-        const payload = new TextDecoder().decode(new Uint8Array(data, 8));
-        return JSON.parse(payload);
-      } else if (typeof data === 'string') {
-        return JSON.parse(data);
-      }
-    } catch(e) {
-      return null;
-    }
-  }
-
-  // ── Float32 PCM → Int16 PCM conversion ──
-
-  function float32ToInt16(float32Array) {
-    const int16 = new Int16Array(float32Array.length);
-    for (let i = 0; i < float32Array.length; i++) {
-      const s = Math.max(-1, Math.min(1, float32Array[i]));
-      int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-    }
-    return int16;
-  }
-
-  // ── Downsample to 16kHz ──
-
-  function downsample(buffer, fromRate, toRate) {
-    if (fromRate === toRate) return buffer;
-    const ratio = fromRate / toRate;
-    const newLength = Math.round(buffer.length / ratio);
-    const result = new Float32Array(newLength);
-    for (let i = 0; i < newLength; i++) {
-      const idx = Math.round(i * ratio);
-      result[i] = buffer[idx] || 0;
-    }
-    return result;
-  }
-
-  // ── Connect WebSocket ──
-
-  function _connect() {
-    if (ws && ws.readyState <= 1) return;
-
-    ws = new WebSocket(WS_URL);
-    ws.binaryType = 'arraybuffer';
-
-    ws.onopen = () => {
-      console.log('[VolcASR] Connected to proxy');
-
-      // Send initial config (server forwards to Volcengine with auth)
-      const connectId = Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
-      const config = {
-        header: {
-          appid: 'default',
-          namespace: 'SeedASR',
-          connect_id: connectId,
-        },
-        payload: {
-          user: { uid: 'dandan_user' },
-          audio: {
-            format: 'pcm',
-            rate: 16000,
-            bits: 16,
-            channel: 1,
-            codec: 'raw',
-          },
-          request: {
-            model_name: 'bigmodel',
-            enable_punc: true,
-            enable_itn: true,
-            result_type: 'full',
-            show_utterances: true,
-          },
-        },
-      };
-
-      const msg = buildMessage([0x11, 0x10, 0x10, 0x00], config);
-      ws.send(msg);
-    };
-
-    ws.onmessage = (ev) => {
-      const resp = parseResponse(ev.data);
-      if (!resp) return;
-
-      // Extract recognized text
-      let text = '';
-      if (resp.payload && resp.payload.result) {
-        text = resp.payload.result.text || '';
-      } else if (resp.result) {
-        text = resp.result.text || '';
-      }
-
-      if (text && onResultCallback) {
-        const isFinal = resp.payload?.result?.type === 'final' ||
-                        resp.result?.type === 'final' ||
-                        resp.is_final === true;
-        onResultCallback(text, isFinal);
-      }
-    };
-
-    ws.onerror = (e) => {
-      console.warn('[VolcASR] WebSocket error');
-    };
-
-    ws.onclose = () => {
-      console.log('[VolcASR] Disconnected');
-      ws = null;
-      if (isListening) {
-        reconnectTimer = setTimeout(_connect, 2000);
-      }
-    };
-  }
+  // Voice activity detection
+  let isSpeaking = false;
+  let silenceStart = 0;
+  let audioChunks = [];
+  const SILENCE_THRESHOLD = 15;   // volume below this = silence
+  const SILENCE_DURATION = 1200;  // ms of silence before processing
+  const MIN_SPEECH_MS = 300;      // minimum speech length to process
+  let speechStart = 0;
 
   // ── Start listening ──
 
@@ -175,63 +33,127 @@ const VolcASR = (function() {
 
     try {
       mediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true }
       });
     } catch(e) {
       console.error('[VolcASR] Mic access denied:', e);
       return;
     }
 
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const source = audioCtx.createMediaStreamSource(mediaStream);
 
-    // ScriptProcessor for raw PCM (deprecated but widely supported)
-    const bufferSize = 4096;
-    processor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+    // Analyser for volume detection
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+    analyser.smoothingTimeConstant = 0.3;
+    source.connect(analyser);
 
-    processor.onaudioprocess = (e) => {
-      if (!ws || ws.readyState !== 1) return;
-
-      // Get PCM data
-      const float32 = e.inputBuffer.getChannelData(0);
-      const resampled = downsample(float32, audioCtx.sampleRate, 16000);
-      const int16 = float32ToInt16(resampled);
-
-      // Send audio frame
-      const msg = buildAudioMessage(int16.buffer, false);
-      ws.send(msg);
-    };
-
-    source.connect(processor);
-    processor.connect(audioCtx.destination);
+    // MediaRecorder for capturing audio
+    _startVAD();
 
     isListening = true;
-    _connect();
-
     console.log('[VolcASR] Listening...');
+  }
+
+  // ── Voice Activity Detection loop ──
+
+  let vadInterval = null;
+  let mediaRecorder = null;
+
+  function _startVAD() {
+    // Use MediaRecorder to capture audio
+    const recorderStream = mediaStream;
+
+    vadInterval = setInterval(() => {
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(data);
+
+      // Average volume in speech range
+      let sum = 0;
+      for (let i = 2; i < 40; i++) sum += data[i];
+      const vol = sum / 38;
+
+      if (vol > SILENCE_THRESHOLD) {
+        if (!isSpeaking) {
+          // Speech started
+          isSpeaking = true;
+          speechStart = Date.now();
+          audioChunks = [];
+
+          mediaRecorder = new MediaRecorder(recorderStream, {
+            mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+              ? 'audio/webm;codecs=opus' : 'audio/webm'
+          });
+          mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) audioChunks.push(e.data);
+          };
+          mediaRecorder.start(100); // collect in 100ms chunks
+          console.log('[VolcASR] Speech detected...');
+        }
+        silenceStart = 0;
+      } else {
+        if (isSpeaking && silenceStart === 0) {
+          silenceStart = Date.now();
+        }
+        // Check if silence long enough to end utterance
+        if (isSpeaking && silenceStart > 0 && (Date.now() - silenceStart) > SILENCE_DURATION) {
+          const speechLen = Date.now() - speechStart;
+          isSpeaking = false;
+          silenceStart = 0;
+
+          if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            mediaRecorder.onstop = () => {
+              if (speechLen >= MIN_SPEECH_MS && audioChunks.length > 0) {
+                const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                console.log(`[VolcASR] Sending ${(blob.size/1024).toFixed(1)}KB audio...`);
+                _sendToServer(blob);
+              }
+            };
+          }
+        }
+      }
+    }, 50); // check every 50ms
+  }
+
+  // ── Send audio to server for recognition ──
+
+  async function _sendToServer(audioBlob) {
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'speech.webm');
+
+      const resp = await fetch('/api/asr', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!resp.ok) {
+        console.warn('[VolcASR] Server error:', resp.status);
+        return;
+      }
+
+      const result = await resp.json();
+      if (result.text && onResultCallback) {
+        console.log(`[VolcASR] Recognized: "${result.text}"`);
+        onResultCallback(result.text, true);
+      }
+    } catch(e) {
+      console.warn('[VolcASR] Recognition error:', e);
+    }
   }
 
   // ── Stop ──
 
   function stop() {
     isListening = false;
-
-    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
-
-    if (processor) { processor.disconnect(); processor = null; }
+    if (vadInterval) { clearInterval(vadInterval); vadInterval = null; }
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
     if (audioCtx) { audioCtx.close().catch(()=>{}); audioCtx = null; }
     if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
-
-    if (ws) {
-      // Send last frame
-      try {
-        const lastMsg = buildAudioMessage(new ArrayBuffer(0), true);
-        ws.send(lastMsg);
-      } catch(e) {}
-      ws.close();
-      ws = null;
-    }
-
     console.log('[VolcASR] Stopped');
   }
 

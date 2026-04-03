@@ -2521,6 +2521,56 @@ function runDemoRound(tourney) {
     }
 }
 
+// ═══ Volcengine ASR HTTP API ═══
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+const VOLC_ASR_KEY_HTTP = '8280548b-9c87-424c-ba77-238ea3d9f806';
+
+app.post('/api/asr', upload.single('audio'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'no audio' });
+
+    try {
+        // Convert webm to base64 and send to Volcengine
+        const audioBase64 = req.file.buffer.toString('base64');
+
+        const response = await fetch('https://openspeech.bytedance.com/api/v3/sauc/bigmodel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Api-Key': VOLC_ASR_KEY_HTTP,
+                'X-Api-Resource-Id': 'volc.bigasr.sauc.duration',
+            },
+            body: JSON.stringify({
+                user: { uid: 'dandan' },
+                audio: {
+                    data: audioBase64,
+                    format: 'webm',
+                    codec: 'opus',
+                },
+                request: {
+                    model_name: 'bigmodel',
+                    enable_punc: true,
+                    enable_itn: true,
+                }
+            })
+        });
+
+        if (!response.ok) {
+            // Fallback: use a simpler approach - just echo back empty
+            console.error('[ASR] Volcengine HTTP error:', response.status);
+            return res.json({ text: '' });
+        }
+
+        const data = await response.json();
+        const text = data?.result?.text || data?.payload?.result?.text || '';
+        console.log(`[ASR] Recognized: "${text}"`);
+        res.json({ text });
+    } catch(e) {
+        console.error('[ASR] Error:', e.message);
+        res.json({ text: '' });
+    }
+});
+
 // ═══ Volcengine ASR WebSocket Proxy ═══
 // Browser can't set WS headers, so we proxy: Browser → Server → Volcengine
 const WebSocket = require('ws');
