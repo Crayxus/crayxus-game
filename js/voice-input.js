@@ -133,8 +133,11 @@ const VoiceInput = (function() {
       if (onCommandCallback) onCommandCallback(cmd, text);
     } else if (text.length >= 2) {
       console.log(`[VoiceInput] Chat: "${text}"`);
-      if (typeof DanDanChat !== 'undefined' && DanDanChat.isConversation(text)) {
-        DanDanChat.chat(text);
+      // Try fixed replies first (instant), then fallback to 豆包API
+      if (!_tryFixedReply(text)) {
+        if (typeof DanDanChat !== 'undefined' && DanDanChat.isConversation(text)) {
+          DanDanChat.chat(text);
+        }
       }
     }
   }
@@ -243,6 +246,60 @@ const VoiceInput = (function() {
   function toggle() {
     if (isListening) stop();
     else start();
+  }
+
+  // ── Fixed replies (instant, no API) ──
+
+  const FIXED_REPLIES = [
+    { keywords: ['你好', '嗨', '哈喽'], voice: 'welcome_1', text: '你好！我是蛋蛋，你的AI掼蛋助手' },
+    { keywords: ['你是谁', '你叫什么', '介绍'], voice: 'welcome_2', text: '我是蛋蛋，我会陪你学习掼蛋' },
+    { keywords: ['怎么玩', '怎么打', '教我', '规则'], voice: 'guide_keyboard', text: '我来教你！每一列代表一个点数' },
+    { keywords: ['炸弹', '什么是炸弹'], voice: 'play_bomb', text: '炸弹是四张相同的牌，威力巨大！' },
+    { keywords: ['测评', '段位', '考试', '测试'], voice: 'rank_start', text: '欢迎参加段位测评', action: 'START_QUIZ' },
+    { keywords: ['打牌', '来一局', '开始', '对战'], voice: 'game_start_1', text: '好的，开始一局！', action: 'START_GAME' },
+    { keywords: ['学习', '课程', '学院'], voice: 'lesson_start', text: '欢迎来到蛋力学院', action: 'START_COURSE' },
+    { keywords: ['演示', '教程', 'demo'], voice: 'guide_done', text: '我来给你演示一遍', action: 'START_DEMO' },
+    { keywords: ['比赛', '赛事', '锦标'], voice: null, text: '带你去看赛事！', action: 'SHOW_TOURNAMENT' },
+    { keywords: ['谢谢', '感谢'], voice: 'play_nice_1', text: '不客气！随时找我' },
+    { keywords: ['厉害', '牛', '强'], voice: 'play_nice_2', text: '谢谢夸奖！一起加油' },
+    { keywords: ['再见', '拜拜', '退出'], voice: null, text: '下次再来找蛋蛋玩！' },
+  ];
+
+  function _tryFixedReply(text) {
+    for (const rule of FIXED_REPLIES) {
+      for (const kw of rule.keywords) {
+        if (text.includes(kw)) {
+          console.log(`[VoiceInput] Fixed reply: "${rule.text}"`);
+
+          // Play voice
+          if (rule.voice && typeof VoiceSystem !== 'undefined') {
+            VoiceSystem.say(rule.voice);
+          } else if (typeof VoiceSystem !== 'undefined') {
+            VoiceSystem.speak(rule.text);
+          }
+
+          // Show subtitle
+          const el = document.getElementById('dd-speech');
+          if (el) { el.textContent = rule.text; el.style.opacity = '1'; }
+          const fab = document.getElementById('fab-speech');
+          if (fab) fab.textContent = rule.text;
+
+          // Execute action if any
+          if (rule.action) {
+            setTimeout(() => {
+              if (rule.action === 'START_GAME' && typeof selectMode === 'function') selectMode('casual');
+              else if (rule.action === 'START_QUIZ' && typeof AITraining !== 'undefined') AITraining.showAssessmentIntro();
+              else if (rule.action === 'START_COURSE' && typeof AITraining !== 'undefined') AITraining.showAssessmentIntro();
+              else if (rule.action === 'START_DEMO' && typeof Demo !== 'undefined') Demo.start();
+              else if (rule.action === 'SHOW_TOURNAMENT') window.location.href = '/tournament';
+            }, 2000);
+          }
+
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   function onCommand(cb) {
