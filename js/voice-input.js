@@ -36,11 +36,18 @@ const VoiceInput = (function() {
   let useVolcASR = false; // true = 豆包ASR, false = Web Speech API
 
   function init() {
-    // Try Volcengine ASR first (works in China without Google)
-    if (typeof VolcASR !== 'undefined') {
+    // Priority: XfyunASR (讯飞) > VolcASR (豆包) > Web Speech API
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
+      useVolcASR = true; // reuse flag, means "use external ASR"
+      XfyunASR.onResult((text, isFinal) => {
+        if (!isFinal) return;
+        _handleRecognizedText(text);
+      });
+      console.log('[VoiceInput] Using iFlytek (讯飞) ASR — direct browser WebSocket');
+    } else if (typeof VolcASR !== 'undefined') {
       useVolcASR = true;
       VolcASR.onResult((text, isFinal) => {
-        if (!isFinal) return; // only process final results
+        if (!isFinal) return;
         _handleRecognizedText(text);
       });
       console.log('[VoiceInput] Using Volcengine (豆包) ASR');
@@ -196,7 +203,9 @@ const VoiceInput = (function() {
     isListening = true;
     enabled = true;
     localStorage.setItem('voice_input_enabled', 'true');
-    if (useVolcASR) {
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
+      XfyunASR.start();
+    } else if (useVolcASR) {
       VolcASR.start();
     } else if (recognition) {
       try { recognition.start(); } catch(e) {}
@@ -208,7 +217,9 @@ const VoiceInput = (function() {
     isListening = false;
     enabled = false;
     localStorage.setItem('voice_input_enabled', 'false');
-    if (useVolcASR) {
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
+      XfyunASR.stop();
+    } else if (useVolcASR) {
       VolcASR.stop();
     } else if (recognition) {
       try { recognition.stop(); } catch(e) {}
@@ -217,7 +228,10 @@ const VoiceInput = (function() {
   }
 
   function restart() {
-    if (useVolcASR) {
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
+      XfyunASR.stop();
+      setTimeout(() => XfyunASR.start(), 500);
+    } else if (useVolcASR) {
       VolcASR.stop();
       setTimeout(() => VolcASR.start(), 500);
     } else if (recognition) {
