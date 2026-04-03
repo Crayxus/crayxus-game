@@ -54,6 +54,19 @@ const VoiceInput = (function() {
       const text = last[0].transcript.trim();
       console.log(`[VoiceInput] Heard: "${text}"`);
 
+      // Anti-echo: ignore if DanDan is currently speaking
+      if (typeof VoiceSystem !== 'undefined' && typeof Mascot !== 'undefined' && Mascot.isTalking) {
+        console.log('[VoiceInput] Ignored (DanDan is speaking)');
+        return;
+      }
+      // Also ignore if text contains DanDan's own phrases
+      if (text.includes('我是蛋蛋') || text.includes('AI掼蛋助手') || text.includes('蛋力学院')) {
+        console.log('[VoiceInput] Ignored (echo detected)');
+        return;
+      }
+
+      _lastHeardText = text;
+
       // Match command
       const cmd = matchCommand(text);
       if (cmd) {
@@ -117,6 +130,8 @@ const VoiceInput = (function() {
     return null;
   }
 
+  let _lastHeardText = '';
+
   function executeCommand(action) {
     switch(action) {
       case 'play': {
@@ -157,7 +172,7 @@ const VoiceInput = (function() {
       case 'wake': {
         // Wake word — send to DanDan Chat if available, otherwise pre-recorded
         if (typeof DanDanChat !== 'undefined') {
-          DanDanChat.chat(text);
+          DanDanChat.chat(_lastHeardText);
         } else if (typeof DanDanAI !== 'undefined' && DanDanAI._qaGreet) {
           DanDanAI._qaGreet();
         }
