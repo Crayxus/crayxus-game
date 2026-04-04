@@ -134,7 +134,12 @@ const VoiceInput = (function() {
     } else if (text.length >= 2) {
       console.log(`[VoiceInput] Chat: "${text}"`);
       // Fixed replies only (no API, instant response)
-      _tryFixedReply(text);
+      if (!_tryFixedReply(text)) {
+        // Fallback: didn't match any keyword
+        if (typeof VoiceSystem !== 'undefined') VoiceSystem.say('idle_1');
+        const el = document.getElementById('dd-speech');
+        if (el) { el.textContent = '蛋蛋没听清，你再说一遍？'; el.style.opacity = '1'; }
+      }
     }
   }
 
@@ -243,24 +248,30 @@ const VoiceInput = (function() {
   // ── Fixed replies (instant, no API) ──
 
   const FIXED_REPLIES = [
-    { keywords: ['你好', '嗨', '哈喽'], voice: 'welcome_1', text: '你好！我是蛋蛋，你的AI掼蛋助手' },
-    { keywords: ['你是谁', '你叫什么', '介绍'], voice: 'welcome_2', text: '我是蛋蛋，我会陪你学习掼蛋' },
-    { keywords: ['怎么玩', '怎么打', '教我', '规则'], voice: 'guide_keyboard', text: '我来教你！每一列代表一个点数' },
-    { keywords: ['炸弹', '什么是炸弹'], voice: 'play_bomb', text: '炸弹是四张相同的牌，威力巨大！' },
-    { keywords: ['测评', '段位', '考试', '测试'], voice: 'rank_start', text: '欢迎参加段位测评', action: 'START_QUIZ' },
-    { keywords: ['打牌', '来一局', '开始', '对战'], voice: 'game_start_1', text: '好的，开始一局！', action: 'START_GAME' },
-    { keywords: ['学习', '课程', '学院'], voice: 'lesson_start', text: '欢迎来到蛋力学院', action: 'START_COURSE' },
-    { keywords: ['演示', '教程', 'demo'], voice: 'guide_done', text: '我来给你演示一遍', action: 'START_DEMO' },
-    { keywords: ['比赛', '赛事', '锦标'], voice: null, text: '带你去看赛事！', action: 'SHOW_TOURNAMENT' },
-    { keywords: ['谢谢', '感谢'], voice: 'play_nice_1', text: '不客气！随时找我' },
-    { keywords: ['厉害', '牛', '强'], voice: 'play_nice_2', text: '谢谢夸奖！一起加油' },
-    { keywords: ['再见', '拜拜', '退出'], voice: null, text: '下次再来找蛋蛋玩！' },
+    { keywords: ['你好', '嗨', '哈喽', '好', '嘿'], voice: 'welcome_1', text: '你好！我是蛋蛋，你的AI掼蛋助手' },
+    { keywords: ['你是谁', '你叫什么', '介绍', '是谁'], voice: 'welcome_2', text: '我是蛋蛋，我会陪你学习掼蛋' },
+    { keywords: ['怎么玩', '怎么打', '教我', '规则', '玩法'], voice: 'guide_keyboard', text: '我来教你！每一列代表一个点数' },
+    { keywords: ['炸弹', '什么是炸弹', '炸'], voice: 'play_bomb', text: '炸弹是四张相同的牌，威力巨大！' },
+    { keywords: ['测评', '段位', '考试', '测试', '考'], voice: 'rank_start', text: '欢迎参加段位测评', action: 'START_QUIZ' },
+    { keywords: ['打牌', '来一局', '开始', '对战', '打', '来'], voice: 'game_start_1', text: '好的，开始一局！', action: 'START_GAME' },
+    { keywords: ['学习', '课程', '学院', '学'], voice: 'lesson_start', text: '欢迎来到蛋力学院', action: 'START_COURSE' },
+    { keywords: ['演示', '教程', '展示', '看看', '示范'], voice: 'guide_done', text: '我来给你演示一遍', action: 'START_DEMO' },
+    { keywords: ['比赛', '赛事', '锦标', '竞赛'], voice: null, text: '带你去看赛事！', action: 'SHOW_TOURNAMENT' },
+    { keywords: ['谢谢', '感谢', '谢'], voice: 'play_nice_1', text: '不客气！随时找我' },
+    { keywords: ['厉害', '牛', '强', '棒'], voice: 'play_nice_2', text: '谢谢夸奖！一起加油' },
+    { keywords: ['再见', '拜拜', '退出', '走了'], voice: null, text: '下次再来找蛋蛋玩！' },
+    { keywords: ['掼蛋', '干嘛', '什么', '这个'], voice: 'welcome_2', text: '我是蛋蛋，专门教你打掼蛋的AI助手' },
   ];
 
   function _tryFixedReply(text) {
+    // Clean text: remove punctuation, deduplicate consecutive chars
+    let clean = text.replace(/[。，？！、\.\,\?\!]/g, '').trim();
+    clean = clean.replace(/(.)\1{1,}/g, '$1'); // "好好好" → "好", "展展示" → "展示"
+    console.log(`[VoiceInput] Cleaned: "${clean}"`);
+
     for (const rule of FIXED_REPLIES) {
       for (const kw of rule.keywords) {
-        if (text.includes(kw)) {
+        if (clean.includes(kw)) {
           console.log(`[VoiceInput] Fixed reply: "${rule.text}"`);
 
           // Play voice

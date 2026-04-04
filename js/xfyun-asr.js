@@ -28,7 +28,7 @@ const XfyunASR = (function() {
   let vadInterval = null;
 
   // Thresholds
-  const WAKE_THRESHOLD = 0.03;    // volume to trigger wake (0-1 scale)
+  const WAKE_THRESHOLD = 0.12;    // volume to trigger wake (raised to avoid ambient noise)
   const SILENCE_FRAMES = 30;      // ~1.5s of silence to end listening (at 50ms interval)
   let silenceCount = 0;
 
