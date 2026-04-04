@@ -73,6 +73,15 @@ const VoiceInput = (function() {
     };
     console.log('[VoiceInput] Using Web Speech API');
 
+    // Also listen to XfyunASR if available (fallback for when Google is blocked)
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
+      XfyunASR.onResult((text, isFinal) => {
+        if (!isFinal) return;
+        console.log(`[VoiceInput] XfyunASR result: "${text}"`);
+        _handleRecognizedText(text);
+      });
+    }
+
     // Load saved preference
     enabled = localStorage.getItem('voice_input_enabled') === 'true';
     if (enabled) start();
@@ -187,8 +196,12 @@ const VoiceInput = (function() {
     isListening = true;
     enabled = true;
     localStorage.setItem('voice_input_enabled', 'true');
-    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
+    // Start XfyunASR alongside Web Speech API (dual mode)
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available && !XfyunASR.isListening) {
       XfyunASR.start();
+    }
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
+      // already started above
     } else if (useVolcASR) {
       VolcASR.start();
     } else if (recognition) {
