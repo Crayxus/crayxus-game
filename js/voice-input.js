@@ -36,58 +36,42 @@ const VoiceInput = (function() {
   let useVolcASR = false; // true = 豆包ASR, false = Web Speech API
 
   function init() {
-    // Priority: XfyunASR (讯飞) > VolcASR (豆包) > Web Speech API
-    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
-      useVolcASR = true; // reuse flag, means "use external ASR"
-      XfyunASR.onResult((text, isFinal) => {
-        if (!isFinal) return;
-        _handleRecognizedText(text);
-      });
-      console.log('[VoiceInput] Using iFlytek (讯飞) ASR — direct browser WebSocket');
-    } else if (typeof VolcASR !== 'undefined') {
-      useVolcASR = true;
-      VolcASR.onResult((text, isFinal) => {
-        if (!isFinal) return;
-        _handleRecognizedText(text);
-      });
-      console.log('[VoiceInput] Using Volcengine (豆包) ASR');
-    } else {
-      // Fallback: Web Speech API
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        console.warn('[VoiceInput] No speech recognition available');
-        return;
-      }
-
-      recognition = new SpeechRecognition();
-      recognition.lang = 'zh-CN';
-      recognition.continuous = true;
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.onresult = (event) => {
-        const last = event.results[event.results.length - 1];
-        if (!last.isFinal) return;
-        _handleRecognizedText(last[0].transcript.trim());
-      };
-
-      recognition.onerror = (event) => {
-        if (event.error === 'no-speech' || event.error === 'aborted') return;
-        console.warn(`[VoiceInput] Error: ${event.error}`);
-        if (event.error === 'network' && isListening) {
-          setTimeout(() => { if (isListening) restart(); }, 2000);
-        }
-      };
-
-      recognition.onend = () => {
-        if (isListening) {
-          setTimeout(() => {
-            if (isListening) { try { recognition.start(); } catch(e) {} }
-          }, 300);
-        }
-      };
-      console.log('[VoiceInput] Using Web Speech API (fallback)');
+    // Use Web Speech API — works great on localhost with proxy
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.warn('[VoiceInput] No speech recognition available');
+      return;
     }
+
+    useVolcASR = false;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN';
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const last = event.results[event.results.length - 1];
+      if (!last.isFinal) return;
+      _handleRecognizedText(last[0].transcript.trim());
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error === 'no-speech' || event.error === 'aborted') return;
+      console.warn(`[VoiceInput] Error: ${event.error}`);
+      if (event.error === 'network' && isListening) {
+        setTimeout(() => { if (isListening) restart(); }, 2000);
+      }
+    };
+
+    recognition.onend = () => {
+      if (isListening) {
+        setTimeout(() => {
+          if (isListening) { try { recognition.start(); } catch(e) {} }
+        }, 300);
+      }
+    };
+    console.log('[VoiceInput] Using Web Speech API');
 
     // Load saved preference
     enabled = localStorage.getItem('voice_input_enabled') === 'true';
