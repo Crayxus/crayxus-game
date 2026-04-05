@@ -73,14 +73,7 @@ const VoiceInput = (function() {
     };
     console.log('[VoiceInput] Using Web Speech API');
 
-    // Also listen to XfyunASR if available (fallback for when Google is blocked)
-    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
-      XfyunASR.onResult((text, isFinal) => {
-        if (!isFinal) return;
-        console.log(`[VoiceInput] XfyunASR result: "${text}"`);
-        _handleRecognizedText(text);
-      });
-    }
+    // XfyunASR disabled — Web Speech API is more accurate
 
     // Load saved preference
     enabled = localStorage.getItem('voice_input_enabled') === 'true';
@@ -196,13 +189,7 @@ const VoiceInput = (function() {
     isListening = true;
     enabled = true;
     localStorage.setItem('voice_input_enabled', 'true');
-    // Start XfyunASR alongside Web Speech API (dual mode)
-    if (typeof XfyunASR !== 'undefined' && XfyunASR.available && !XfyunASR.isListening) {
-      XfyunASR.start();
-    }
-    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
-      // already started above
-    } else if (useVolcASR) {
+    if (useVolcASR) {
       VolcASR.start();
     } else if (recognition) {
       try { recognition.start(); } catch(e) {}
@@ -245,7 +232,7 @@ const VoiceInput = (function() {
   // ── Fixed replies (instant, no API) ──
 
   const FIXED_REPLIES = [
-    { keywords: ['你好', '嗨', '哈喽', '好', '嘿'], voice: 'welcome_1', text: '你好！我是蛋蛋，你的AI掼蛋助手' },
+    { keywords: ['你好', '嗨', '哈喽', '好', '嘿', '蛋蛋', '蛋', '号小', '小蛋'], voice: 'welcome_1', text: '你好！我是蛋蛋，你的AI掼蛋助手' },
     { keywords: ['你是谁', '你叫什么', '介绍', '是谁'], voice: 'welcome_2', text: '我是蛋蛋，我会陪你学习掼蛋' },
     { keywords: ['怎么玩', '怎么打', '教我', '规则', '玩法'], voice: 'guide_keyboard', text: '我来教你！每一列代表一个点数' },
     { keywords: ['炸弹', '什么是炸弹', '炸'], voice: 'play_bomb', text: '炸弹是四张相同的牌，威力巨大！' },
@@ -263,7 +250,7 @@ const VoiceInput = (function() {
   function _tryFixedReply(text) {
     // Clean text: remove punctuation, deduplicate consecutive chars
     let clean = text.replace(/[。，？！、\.\,\?\!]/g, '').trim();
-    clean = clean.replace(/(.)\1{1,}/g, '$1'); // "好好好" → "好", "展展示" → "展示"
+    clean = clean.replace(/(.)\1{2,}/g, '$1$1'); // "好好好好" → "好好", 保留两个重复（蛋蛋是合法词）
     console.log(`[VoiceInput] Cleaned: "${clean}"`);
 
     for (const rule of FIXED_REPLIES) {
