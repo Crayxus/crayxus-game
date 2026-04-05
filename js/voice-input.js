@@ -59,8 +59,15 @@ const VoiceInput = (function() {
     recognition.onerror = (event) => {
       if (event.error === 'no-speech' || event.error === 'aborted') return;
       console.warn(`[VoiceInput] Error: ${event.error}`);
-      if (event.error === 'network' && isListening) {
-        setTimeout(() => { if (isListening) restart(); }, 2000);
+      if (event.error === 'network') {
+        if (!webSpeechFailed) {
+          webSpeechFailed = true;
+          console.log('[VoiceInput] Google blocked, switching to XfyunASR');
+          // Start讯飞 as fallback
+          if (typeof XfyunASR !== 'undefined' && XfyunASR.available && !XfyunASR.isListening) {
+            XfyunASR.start();
+          }
+        }
       }
     };
 
@@ -73,7 +80,15 @@ const VoiceInput = (function() {
     };
     console.log('[VoiceInput] Using Web Speech API');
 
-    // XfyunASR disabled — Web Speech API is more accurate
+    // Auto-fallback: if Web Speech API fails (network), switch to XfyunASR
+    let webSpeechFailed = false;
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available) {
+      XfyunASR.onResult((text, isFinal) => {
+        if (!isFinal || !webSpeechFailed) return; // only use when Google fails
+        console.log(`[VoiceInput] XfyunASR result: "${text}"`);
+        _handleRecognizedText(text);
+      });
+    }
 
     // Load saved preference
     enabled = localStorage.getItem('voice_input_enabled') === 'true';
@@ -232,19 +247,19 @@ const VoiceInput = (function() {
   // ── Fixed replies (instant, no API) ──
 
   const FIXED_REPLIES = [
-    { keywords: ['你好', '嗨', '哈喽', '好', '嘿', '蛋蛋', '蛋', '号小', '小蛋'], voice: 'welcome_1', text: '你好！我是蛋蛋，你的AI掼蛋助手' },
-    { keywords: ['你是谁', '你叫什么', '介绍', '是谁'], voice: 'welcome_2', text: '我是蛋蛋，我会陪你学习掼蛋' },
-    { keywords: ['怎么玩', '怎么打', '教我', '规则', '玩法'], voice: 'guide_keyboard', text: '我来教你！每一列代表一个点数' },
+    { keywords: ['你好', '嗨', '哈喽', '嘿', '蛋蛋', '号小', '小蛋', '好蛋', '蛋'], voice: 'welcome_1', text: '你好！我是蛋蛋，你的AI掼蛋助手' },
+    { keywords: ['你是谁', '你叫什么', '介绍', '是谁', '叫啥'], voice: 'welcome_2', text: '我是蛋蛋，我会陪你学习掼蛋' },
+    { keywords: ['怎么玩', '怎么打', '教我', '规则', '玩法', '教教'], voice: 'guide_keyboard', text: '我来教你！每一列代表一个点数' },
     { keywords: ['炸弹', '什么是炸弹', '炸'], voice: 'play_bomb', text: '炸弹是四张相同的牌，威力巨大！' },
-    { keywords: ['测评', '段位', '考试', '测试', '考'], voice: 'rank_start', text: '欢迎参加段位测评', action: 'START_QUIZ' },
-    { keywords: ['打牌', '来一局', '开始', '对战', '打', '来'], voice: 'game_start_1', text: '好的，开始一局！', action: 'START_GAME' },
-    { keywords: ['学习', '课程', '学院', '学'], voice: 'lesson_start', text: '欢迎来到蛋力学院', action: 'START_COURSE' },
-    { keywords: ['演示', '教程', '展示', '看看', '示范'], voice: 'guide_done', text: '我来给你演示一遍', action: 'START_DEMO' },
-    { keywords: ['比赛', '赛事', '锦标', '竞赛'], voice: null, text: '带你去看赛事！', action: 'SHOW_TOURNAMENT' },
-    { keywords: ['谢谢', '感谢', '谢'], voice: 'play_nice_1', text: '不客气！随时找我' },
-    { keywords: ['厉害', '牛', '强', '棒'], voice: 'play_nice_2', text: '谢谢夸奖！一起加油' },
-    { keywords: ['再见', '拜拜', '退出', '走了'], voice: null, text: '下次再来找蛋蛋玩！' },
-    { keywords: ['掼蛋', '干嘛', '什么', '这个'], voice: 'welcome_2', text: '我是蛋蛋，专门教你打掼蛋的AI助手' },
+    { keywords: ['测评', '段位', '考试', '测试', '考', '评测'], voice: 'rank_start', text: '欢迎参加段位测评', action: 'START_QUIZ' },
+    { keywords: ['打牌', '来一局', '开始', '对战', '来局', '开局'], voice: 'game_start_1', text: '好的，开始一局！', action: 'START_GAME' },
+    { keywords: ['学习', '课程', '学院', '上课'], voice: 'lesson_start', text: '欢迎来到蛋力学院', action: 'START_COURSE' },
+    { keywords: ['演示', '教程', '展示', '示范', '看看怎么'], voice: 'guide_done', text: '我来给你演示一遍', action: 'START_DEMO' },
+    { keywords: ['比赛', '赛事', '锦标', '竞赛', '报名'], voice: null, text: '带你去看赛事！', action: 'SHOW_TOURNAMENT' },
+    { keywords: ['谢谢', '感谢'], voice: 'play_nice_1', text: '不客气！随时找我' },
+    { keywords: ['厉害', '牛', '强', '棒', '好强'], voice: 'play_nice_2', text: '谢谢夸奖！一起加油' },
+    { keywords: ['再见', '拜拜', '退出', '走了', '88'], voice: null, text: '下次再来找蛋蛋玩！' },
+    { keywords: ['掼蛋', '干嘛', '什么', '这个', '干啥'], voice: 'welcome_2', text: '我是蛋蛋，专门教你打掼蛋的AI助手' },
   ];
 
   function _tryFixedReply(text) {
