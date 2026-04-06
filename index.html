@@ -60,9 +60,11 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .match-loader{width:60px;height:60px;border:5px solid #333;border-top:5px solid var(--neon);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
 @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 .seat-grid{display:grid;grid-template-columns:repeat(4,80px);gap:10px;margin:20px 0}
-.seat-slot{width:80px;height:80px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:11px;color:#666;transition:0.3s}
-.seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.1)}
-.seat-slot.bot{border-color:#666;color:#888;border-style:dashed}
+.seat-slot{width:80px;height:80px;border-radius:50%;border:2px solid #333;display:flex;justify-content:center;align-items:center;font-size:11px;color:#666;transition:0.3s;cursor:pointer;flex-direction:column;gap:2px}
+.seat-slot:not(.taken):not(.bot):hover{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.05);transform:scale(1.08)}
+.seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.1);cursor:default}
+.seat-slot.bot{border-color:#666;color:#888;border-style:dashed;cursor:default}
+.seat-label{font-size:9px;color:#555;margin-top:2px}
 #game-ui{display:none;width:100%;height:100%}
 /* dashboard base overridden by .dash-* styles below */
 .rank-val{font-size:50px;font-weight:900}
@@ -1512,7 +1514,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <!-- ═══ DanDan Pac-Man Style — 50vh, pinned to center ═══ -->
     <div id="dandan-face" style="position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);
       width:50vh;height:50vh;max-width:420px;max-height:420px;cursor:pointer"
-         onclick="if(typeof VoiceSystem!=='undefined'){VoiceSystem.say('welcome')}">
+         onclick="if(typeof DanDanAI!=='undefined'){DanDanAI.activate()}">
       <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <!-- Body — simple circle -->
         <circle cx="100" cy="105" r="90" fill="#ffd700"/>
@@ -1664,11 +1666,12 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <div class="match-loader"></div>
   <div style="font-size:20px;margin-bottom:10px">GAME ROOM</div>
   <div class="seat-grid" id="seat-grid">
-    <div class="seat-slot" id="slot-0">空位</div>
-    <div class="seat-slot" id="slot-1">空位</div>
-    <div class="seat-slot" id="slot-2">空位</div>
-    <div class="seat-slot" id="slot-3">空位</div>
+    <div class="seat-slot" id="slot-0" onclick="requestSeat(0)"><span>空位</span><span class="seat-label">1号位</span></div>
+    <div class="seat-slot" id="slot-1" onclick="requestSeat(1)"><span>空位</span><span class="seat-label">2号位</span></div>
+    <div class="seat-slot" id="slot-2" onclick="requestSeat(2)"><span>空位</span><span class="seat-label">3号位</span></div>
+    <div class="seat-slot" id="slot-3" onclick="requestSeat(3)"><span>空位</span><span class="seat-label">4号位</span></div>
   </div>
+  <div style="color:#555;font-size:11px;margin-top:2px">点击空位选择座位</div>
   <div style="color:var(--neon)" id="match-status">Waiting for players...</div>
   <div id="match-room-code" style="display:none;font-size:13px;color:#555;margin-top:4px;letter-spacing:2px;cursor:pointer"
     onclick="if(this.dataset.code){navigator.clipboard&&navigator.clipboard.writeText(this.dataset.code);this.innerText='✓ 已复制: '+this.dataset.code;}"
@@ -2742,8 +2745,13 @@ socket.on('initIdentity',d=>{console.log('[initIdentity] received:', JSON.string
     document.getElementById('match-wait-msg').style.display='block';
   }
   document.getElementById('match-status').innerText='Players: 1/4';
-  let mySlot=document.getElementById('slot-'+d.seat);
-  if(mySlot){mySlot.className='seat-slot taken';mySlot.innerText='YOU';}
+  let seatLabels=['1号位','2号位','3号位','4号位'];
+  for(let i=0;i<4;i++){
+    let sl=document.getElementById('slot-'+i);
+    if(!sl) continue;
+    if(i===mySeat){ sl.className='seat-slot taken'; sl.innerHTML='<span>YOU</span><span class="seat-label">'+seatLabels[i]+'</span>'; }
+    else { sl.className='seat-slot'; sl.innerHTML='<span>空位</span><span class="seat-label">'+seatLabels[i]+'</span>'; }
+  }
 });
 
 socket.on('roomUpdate',d=>{
@@ -2757,18 +2765,20 @@ socket.on('roomUpdate',d=>{
     const code=d.roomId||d.roomCode;
     if(mc){mc.style.display='block';mc.dataset.code=code;mc.innerText='房间码: '+code+' (点击复制)';}
   }
+  let seatLabels=['1号位','2号位','3号位','4号位'];
   if(d.seats)d.seats.forEach((s,i)=>{
     let sl=document.getElementById('slot-'+i);
     if(!sl) return;
+    let label='<span class="seat-label">'+seatLabels[i]+'</span>';
     if(s==='HUMAN'){
       sl.className='seat-slot taken';
-      sl.innerText = (mySeat>=0 && i===mySeat) ? 'YOU' : 'P'+(i+1);
+      sl.innerHTML = '<span>'+((mySeat>=0 && i===mySeat) ? 'YOU' : 'P'+(i+1))+'</span>'+label;
     } else if(s==='BOT'){
       sl.className='seat-slot bot';
-      sl.innerText='BOT';
+      sl.innerHTML='<span>BOT</span>'+label;
     } else {
       sl.className='seat-slot';
-      sl.innerText='空位';
+      sl.innerHTML='<span>空位</span>'+label;
     }
   });
   document.getElementById('match-timer').innerText=d.count+'/4 玩家 · 空位将由AI填充';
@@ -2777,6 +2787,24 @@ socket.on('matchCountdown',d=>{});
 socket.on('hostStatus',d=>{
   if(d.isHost){isHost=true;document.getElementById('btn-start-match').style.display='block';document.getElementById('match-wait-msg').style.display='none'}
   else{isHost=false;document.getElementById('btn-start-match').style.display='none';document.getElementById('match-wait-msg').style.display='block'}
+});
+function requestSeat(targetSeat){
+  if(mySeat<0) return; // not in room yet
+  if(targetSeat===mySeat) return; // already there
+  let sl=document.getElementById('slot-'+targetSeat);
+  if(sl && sl.classList.contains('taken')) return; // occupied by human
+  socket.emit('requestSeat', { seat: targetSeat });
+}
+socket.on('seatSwapped', d=>{
+  mySeat=Number(d.seat);
+  console.log('[SeatSwap] Now at seat', mySeat);
+  // Update all slots
+  for(let i=0;i<4;i++){
+    let sl=document.getElementById('slot-'+i);
+    if(!sl) continue;
+    if(i===mySeat){ sl.className='seat-slot taken'; sl.innerHTML='<span>YOU</span><span class="seat-label">'+['1号位','2号位','3号位','4号位'][i]+'</span>'; }
+    else { sl.className='seat-slot'; sl.innerHTML='<span>空位</span><span class="seat-label">'+['1号位','2号位','3号位','4号位'][i]+'</span>'; }
+  }
 });
 function startMatch(){
   let btn=document.getElementById('btn-start-match');

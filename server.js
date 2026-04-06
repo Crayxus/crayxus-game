@@ -544,6 +544,43 @@ io.on('connection', (socket) => {
         }
     });
 
+    /* Seat swap: player clicks an empty seat to move there */
+    socket.on('requestSeat', (data) => {
+        const rid = playerMap[socket.id];
+        if (!rid || !rooms[rid]) return;
+        const room = rooms[rid];
+        if (room.game && room.game.active) return; // can't swap during game
+        const targetSeat = Number(data && data.seat);
+        if (targetSeat < 0 || targetSeat > 3) return;
+        const currentSeat = room.players[socket.id];
+        if (currentSeat === undefined || currentSeat === targetSeat) return;
+        // Target must be empty (null)
+        if (room.seats[targetSeat] !== null) {
+            socket.emit('err', '该座位已被占用');
+            return;
+        }
+        // Swap
+        room.seats[currentSeat] = null;
+        room.seats[targetSeat] = socket.id;
+        room.players[socket.id] = targetSeat;
+        if (room.playerInfo[socket.id]) room.playerInfo[socket.id].seat = targetSeat;
+        gameLog(`[SeatSwap] Room ${rid}: ${socket.id} moved from seat ${currentSeat} to seat ${targetSeat}`);
+        // Notify the player
+        socket.emit('seatSwapped', { seat: targetSeat });
+        // Notify all: rebuild playersInfo and send roomUpdate
+        let playersInfo = {};
+        for (let sid in room.playerInfo) {
+            let info = room.playerInfo[sid];
+            playersInfo[info.seat] = { avatarUrl: info.avatarUrl, nickname: info.nickname };
+        }
+        io.to(rid).emit('roomUpdate', { count: room.count, seats: room.seats.map(s=>s===null?'EMPTY':(s==='BOT'?'BOT':'HUMAN')), roomId: rid, playersInfo });
+        // Update host status
+        let hostSid = getHostSid(room);
+        if (hostSid) {
+            Object.keys(room.players).forEach(sid => io.to(sid).emit('hostStatus', { isHost: (sid===hostSid) }));
+        }
+    });
+
     /* Spectator mode: join room without taking a seat */
     socket.on('spectateGame', (data) => {
         let roomId = (data && data.roomCode) ? data.roomCode.trim().toUpperCase() : null;

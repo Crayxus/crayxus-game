@@ -18,6 +18,9 @@
 const DanDanAI = (function() {
 
   let initialized = false;
+  let _active = false;         // DanDan starts dormant
+  let _idleTimer = null;
+  const IDLE_TIMEOUT = 30000;  // 30s no interaction → deactivate
 
   async function init() {
     if (initialized) return;
@@ -40,7 +43,13 @@ const DanDanAI = (function() {
       VoiceInput.init();
       // Show mascot feedback on voice command
       VoiceInput.onCommand((cmd, text) => {
-        if (typeof Mascot !== 'undefined') {
+        // Wake command activates DanDan
+        if (cmd === 'wake') {
+          activate();
+        } else if (_active) {
+          _resetIdleTimer(); // any command resets idle timer
+        }
+        if (_active && typeof Mascot !== 'undefined') {
           Mascot.setExpression('surprised');
         }
       });
@@ -100,7 +109,10 @@ const DanDanAI = (function() {
     // 8. Create settings button
     createSettingsUI();
 
-    console.log('[DanDan] AI assistant ready!');
+    // 9. Start in dormant state
+    _setDormantVisual();
+
+    console.log('[DanDan] AI assistant ready (dormant — say "你好蛋蛋" to wake)');
   }
 
   function hookMascotExpressions(sock) {
@@ -131,6 +143,52 @@ const DanDanAI = (function() {
         return origHelp.apply(this, arguments);
       };
     }
+  }
+
+  // ── Dormant / Active state ──
+
+  function activate() {
+    if (_active) { _resetIdleTimer(); return; }
+    _active = true;
+    console.log('[DanDan] Activated!');
+    const face = document.getElementById('dandan-face');
+    if (face) { face.style.opacity = '1'; face.style.filter = ''; }
+    const fab = document.getElementById('dandan-fab');
+    if (fab) { fab.style.opacity = '1'; fab.style.filter = ''; }
+    const speech = document.getElementById('dd-speech');
+    if (speech) { speech.style.opacity = '1'; }
+    // Greet on activation
+    if (typeof VoiceSystem !== 'undefined') VoiceSystem.say('welcome');
+    _resetIdleTimer();
+  }
+
+  function deactivate() {
+    if (!_active) return;
+    _active = false;
+    if (_idleTimer) { clearTimeout(_idleTimer); _idleTimer = null; }
+    console.log('[DanDan] Deactivated (idle)');
+    closeFabPanel();
+    const face = document.getElementById('dandan-face');
+    if (face) { face.style.opacity = '0.3'; face.style.filter = 'grayscale(0.8)'; }
+    const fab = document.getElementById('dandan-fab');
+    if (fab) { fab.style.opacity = '0.4'; fab.style.filter = 'grayscale(0.6)'; }
+    const speech = document.getElementById('dd-speech');
+    if (speech) { speech.style.opacity = '0'; }
+  }
+
+  function _resetIdleTimer() {
+    if (_idleTimer) clearTimeout(_idleTimer);
+    _idleTimer = setTimeout(deactivate, IDLE_TIMEOUT);
+  }
+
+  function _setDormantVisual() {
+    // Set initial dormant look (without triggering deactivate logic)
+    const face = document.getElementById('dandan-face');
+    if (face) { face.style.opacity = '0.3'; face.style.filter = 'grayscale(0.8)'; face.style.transition = 'opacity 0.5s, filter 0.5s'; }
+    const fab = document.getElementById('dandan-fab');
+    if (fab) { fab.style.opacity = '0.4'; fab.style.filter = 'grayscale(0.6)'; fab.style.transition = 'opacity 0.3s, filter 0.3s'; }
+    const speech = document.getElementById('dd-speech');
+    if (speech) { speech.style.opacity = '0'; speech.style.transition = 'opacity 0.5s'; }
   }
 
   // ── Floating DanDan Button (visible on ALL pages) ──
@@ -178,6 +236,8 @@ const DanDanAI = (function() {
     };
     fab.onclick = (e) => {
       e.stopPropagation();
+      if (!_active) { activate(); return; }
+      _resetIdleTimer();
       toggleFabPanel();
     };
 
@@ -454,8 +514,10 @@ const DanDanAI = (function() {
   }
 
   function _showSpeechBubble(text) {
+    if (!_active) return; // don't show bubble when dormant
     const el = document.getElementById('dd-speech');
     if (!el) return;
+    _resetIdleTimer();
 
     // Cancel any pending fade-back
     if (idleFadeTimer) { clearTimeout(idleFadeTimer); idleFadeTimer = null; }
@@ -495,19 +557,54 @@ const DanDanAI = (function() {
     }, 1500);
   }
 
+  // ── Game-screen awareness: hide DanDan during match ──
+
+  function _hookScreenSwitch() {
+    if (typeof switchScreen !== 'function') return;
+    const origSwitch = switchScreen;
+    window.switchScreen = function(id) {
+      origSwitch.apply(this, arguments);
+      _onScreenChange(id);
+    };
+  }
+
+  function _onScreenChange(screenId) {
+    const fab = document.getElementById('dandan-fab');
+    const face = document.getElementById('dandan-face');
+    if (screenId === 'match') {
+      // Entering game — hide DanDan, stop voice input
+      if (fab) fab.style.display = 'none';
+      if (face) face.style.display = 'none';
+      closeFabPanel();
+      if (typeof VoiceInput !== 'undefined' && VoiceInput.isListening) {
+        VoiceInput.stop();
+      }
+    } else {
+      // Leaving game — show DanDan
+      if (fab) fab.style.display = 'flex';
+      if (face) face.style.display = '';
+    }
+  }
+
   // ── Boot ──
 
   document.addEventListener('DOMContentLoaded', () => {
     // Delay init to let game UI load first
-    setTimeout(init, 500);
+    setTimeout(() => {
+      init();
+      _hookScreenSwitch();
+    }, 500);
   });
 
   return {
     init,
+    activate,
+    deactivate,
     _qaHint,
     _qaTutorial,
     _qaGreet,
     get initialized() { return initialized; },
+    get active() { return _active; },
   };
 
 })();

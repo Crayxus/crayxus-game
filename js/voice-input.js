@@ -90,14 +90,16 @@ const VoiceInput = (function() {
       });
     }
 
-    // Load saved preference
+    // Load saved preference — but don't auto-start during match
     enabled = localStorage.getItem('voice_input_enabled') === 'true';
-    if (enabled) start();
+    const inMatch = typeof currentScreen !== 'undefined' && currentScreen === 'match';
+    if (enabled && !inMatch) start();
 
-    // Kiosk mode: auto-start on first user interaction
+    // Kiosk mode: auto-start on first user interaction (only outside match)
     if (!enabled) {
       const autoEnable = () => {
-        if (!isListening) start();
+        const inGame = typeof currentScreen !== 'undefined' && currentScreen === 'match';
+        if (!isListening && !inGame) start();
         document.removeEventListener('click', autoEnable);
         document.removeEventListener('keydown', autoEnable);
       };
@@ -128,11 +130,26 @@ const VoiceInput = (function() {
 
     // Match command
     const cmd = matchCommand(text);
+    const dandanActive = typeof DanDanAI !== 'undefined' && DanDanAI.active;
+
     if (cmd) {
+      // Wake command always works (even when dormant)
+      if (cmd === 'wake') {
+        console.log(`[VoiceInput] Command: wake`);
+        executeCommand(cmd);
+        if (onCommandCallback) onCommandCallback(cmd, text);
+        return;
+      }
+      // Other commands only work when DanDan is active
+      if (!dandanActive) {
+        console.log(`[VoiceInput] Ignored (DanDan dormant): ${cmd}`);
+        return;
+      }
       console.log(`[VoiceInput] Command: ${cmd}`);
       executeCommand(cmd);
       if (onCommandCallback) onCommandCallback(cmd, text);
     } else if (text.length >= 2) {
+      if (!dandanActive) return; // ignore chat when dormant
       console.log(`[VoiceInput] Chat: "${text}"`);
       // Fixed replies only (no API, instant response)
       if (!_tryFixedReply(text)) {
