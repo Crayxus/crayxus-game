@@ -1638,8 +1638,18 @@ body.view-table .holo-hex-grid{opacity:0.05}
     <div class="pc-opt" data-pc="32" onclick="selectPlayerCount(32)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">32人</div>
     <div class="pc-opt selected" data-pc="48" onclick="selectPlayerCount(48)" style="padding:5px 12px;border-radius:8px;border:1px solid var(--neon);background:rgba(0,255,200,.08);color:var(--neon);font-size:12px;font-weight:700;cursor:pointer">48人</div>
     <div class="pc-opt" data-pc="64" onclick="selectPlayerCount(64)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">64人</div>
+    <div class="pc-opt" data-pc="128" onclick="selectPlayerCount(128)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">128人</div>
   </div>
-  <div id="pc-info" style="font-size:10px;color:#555;margin-top:6px;text-align:center">12桌 · 17轮 (热身3+预赛3+决赛11) · 约90分钟</div>
+  <!-- Duration selector -->
+  <div id="duration-select" style="margin-top:8px;display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap">
+    <span style="font-size:11px;color:#666;margin-right:4px">赛事时长:</span>
+    <div class="dur-opt" data-dur="1.5" onclick="selectDuration(1.5)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">1.5h</div>
+    <div class="dur-opt selected" data-dur="2" onclick="selectDuration(2)" style="padding:5px 12px;border-radius:8px;border:1px solid var(--neon);background:rgba(0,255,200,.08);color:var(--neon);font-size:12px;font-weight:700;cursor:pointer">2h</div>
+    <div class="dur-opt" data-dur="3" onclick="selectDuration(3)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">3h</div>
+    <div class="dur-opt" data-dur="4" onclick="selectDuration(4)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">半天</div>
+    <div class="dur-opt" data-dur="8" onclick="selectDuration(8)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">全天</div>
+  </div>
+  <div id="pc-info" style="font-size:10px;color:#555;margin-top:6px;text-align:center">12桌 · 热身6轮+淘汰4轮 · 前24人晋级 · 约120分钟</div>
   <div style="color:#888;margin-top:8px;font-size:12px" id="match-timer">空位将由AI填充</div>
   <button id="btn-start-match" onclick="startMatch()" style="display:none;margin-top:10px;padding:9px 30px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:1px">开始游戏</button>
   <div id="match-wait-msg" style="display:none;margin-top:20px;color:#888;font-size:14px">等待房主开始游戏...</div>
@@ -2761,6 +2771,18 @@ socket.on('hostStatus',d=>{
   else{isHost=false;document.getElementById('btn-start-match').style.display='none';document.getElementById('match-wait-msg').style.display='block'}
 });
 var selectedPlayerCount=48;
+var selectedDuration=2;
+function selectDuration(h){
+  selectedDuration=h;
+  document.querySelectorAll('.dur-opt').forEach(el=>{
+    if(parseFloat(el.dataset.dur)===h){
+      el.style.borderColor='var(--neon)';el.style.background='rgba(0,255,200,.08)';el.style.color='var(--neon)';
+    }else{
+      el.style.borderColor='#333';el.style.background='rgba(255,255,255,.03)';el.style.color='#888';
+    }
+  });
+  updateTournamentInfo();
+}
 function selectPlayerCount(n){
   selectedPlayerCount=n;
   document.querySelectorAll('.pc-opt').forEach(el=>{
@@ -2770,13 +2792,25 @@ function selectPlayerCount(n){
       el.style.borderColor='#333';el.style.background='rgba(255,255,255,.03)';el.style.color='#888';
     }
   });
-  // Update info
-  var tables=Math.floor(n/4);
-  var practice=3,qualifier=Math.max(3,Math.ceil(n/16)),elim=Math.floor((n-4)/4);
-  var total=practice+qualifier+elim;
-  var mins=Math.round(total*5);
+  updateTournamentInfo();
+}
+function updateTournamentInfo(){
+  var n=selectedPlayerCount, dur=selectedDuration;
+  var tables=Math.ceil(n/4);
+  var gameMin=5;
+  var totalMin=Math.floor(dur*60);
+  var learnMin=15, breakMin=15;
+  var playMin=totalMin-learnMin-breakMin;
+  var warmupRounds=Math.max(2, Math.floor(Math.round(playMin/3)/gameMin));
+  var elimMin=playMin-Math.round(playMin/3);
+  // Count actual elimination rounds (halving until 4 remain)
+  var advancers=Math.max(8, Math.ceil(n*0.5/4)*4);
+  var elimSteps=0, rem=advancers;
+  while(rem>4){rem=Math.ceil(rem/2/4)*4;if(rem<4)rem=4;elimSteps++;}
+  elimSteps++; // count final
+  var totalTime=learnMin+warmupRounds*gameMin+breakMin+elimSteps*gameMin+10; // +10 for BO3 final
   var info=document.getElementById('pc-info');
-  if(info)info.textContent=tables+'桌 · '+total+'轮 (热身'+practice+'+预赛'+qualifier+'+决赛'+elim+') · 约'+mins+'分钟';
+  if(info)info.textContent=tables+'桌 · 热身'+warmupRounds+'轮+淘汰'+elimSteps+'轮 · 前'+advancers+'人晋级 · 约'+totalTime+'分钟';
 
   // Rebuild table grid to match player count
   var g=document.getElementById('seat-grid');
