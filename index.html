@@ -2931,19 +2931,22 @@ function generateTournament(){
     detail:`${breakMin}分钟`});
   t+=breakMin;
 
-  // Phase 3: 淘汰赛
+  // Phase 3: 淘汰赛 — each round halves players until final (4 people)
   let remaining=advancers;
-  for(let r=0;r<elimRounds&&remaining>=4;r++){
+  let elimRound=0;
+  while(remaining>=4&&elimRound<elimRounds){
     const curTables=Math.ceil(remaining/4);
     const isFinal=remaining<=4;
     const isSemi=remaining<=8&&!isFinal;
-    const rName=isFinal?'决赛':isSemi?'半决赛':`淘汰赛 第${r+1}轮`;
+    const rName=isFinal?'决赛（三局两胜）':isSemi?'半决赛':`淘汰赛 第${elimRound+1}轮`;
     timeline.push({phase:'elim',name:rName,icon:isFinal?'&#127942;':'&#9876;',color:'#ff00ff',
-      time:t, dur:gameMin+(isFinal?5:0), desc:`${curTables}桌 · ${remaining}人 · 败者淘汰`,
+      time:t, dur:isFinal?15:gameMin, desc:`${curTables}桌 · ${remaining}人 · ${isFinal?'三局两胜决冠军':'败者淘汰'}`,
       detail:isFinal?'冠军诞生！':`淘汰${Math.floor(remaining/2)}人`});
-    t+=gameMin+(isFinal?5:0);
-    remaining=Math.ceil(remaining/2);
-    if(remaining<4)remaining=4;
+    t+=isFinal?15:gameMin;
+    if(isFinal) break; // 决赛结束
+    remaining=Math.ceil(remaining/2/4)*4; // 保持4的倍数（每桌4人）
+    if(remaining<4) remaining=4;
+    elimRound++;
   }
 
   const totalTime=t;
