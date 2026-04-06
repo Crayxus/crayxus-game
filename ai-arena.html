@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI ARENA — AI掼蛋对抗平台 | CRAYXUS</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--bg4:#222240;
+  --cyan:#00e5ff;--gold:#ffd700;--magenta:#ff00ff;
+  --text:#e0e0e0;--text2:#999;--white:#fff;
+  --radius:12px;--radius-sm:8px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;overflow-x:hidden}
+a{color:var(--cyan);text-decoration:none;transition:color .2s}
+a:hover{color:var(--gold)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--cyan)}
+
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,229,255,.1);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-brand{font-size:1.1rem;font-weight:700;letter-spacing:2px;color:var(--cyan)}
+.nav-brand span{color:var(--gold)}
+.nav-links{display:flex;gap:1.5rem;align-items:center}
+.nav-links a{color:var(--text2);font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:var(--cyan)}
+.nav-apply{background:linear-gradient(135deg,var(--cyan),var(--magenta));color:var(--bg)!important;padding:.4rem 1rem;border-radius:20px;font-weight:600;font-size:.85rem}
+.nav-apply:hover{opacity:.9;color:var(--bg)!important}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6rem 2rem 4rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(0,229,255,.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(255,0,255,.04) 0%,transparent 50%);animation:heroBg 20s ease-in-out infinite alternate}
+@keyframes heroBg{0%{transform:translate(0,0)}100%{transform:translate(-5%,3%)}}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:60px 60px;animation:gridMove 30s linear infinite}
+@keyframes gridMove{0%{background-position:0 0}100%{background-position:60px 60px}}
+
+.hero-content{position:relative;z-index:1}
+.hero-tag{display:inline-block;padding:.3rem 1rem;border:1px solid var(--cyan);border-radius:20px;font-size:.8rem;color:var(--cyan);letter-spacing:3px;margin-bottom:1.5rem;animation:fadeUp .8s ease-out}
+.hero h1{font-size:clamp(2.2rem,6vw,4.5rem);font-weight:800;letter-spacing:3px;margin-bottom:1rem;animation:fadeUp .8s ease-out .1s both}
+.hero h1 .accent{background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(1rem,2.5vw,1.4rem);color:var(--text2);margin-bottom:2.5rem;animation:fadeUp .8s ease-out .2s both}
+.hero-modes{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .8s ease-out .3s both}
+.mode-badge{padding:.6rem 1.5rem;border-radius:30px;font-size:.95rem;font-weight:600;letter-spacing:1px;border:1px solid;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.mode-badge:hover{transform:translateY(-2px)}
+.mode-badge.human-ai{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.08)}
+.mode-badge.human-ai:hover{box-shadow:0 0 20px rgba(0,229,255,.3)}
+.mode-badge.human-human{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,.08)}
+.mode-badge.human-human:hover{box-shadow:0 0 20px rgba(255,215,0,.3)}
+.mode-badge.ai-ai{border-color:var(--magenta);color:var(--magenta);background:rgba(255,0,255,.08)}
+.mode-badge.ai-ai:hover{box-shadow:0 0 20px rgba(255,0,255,.3)}
+
+.hero-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);animation:bounce 2s infinite}
+.hero-scroll span{display:block;width:2px;height:30px;background:linear-gradient(to bottom,var(--cyan),transparent);margin:0 auto;border-radius:1px}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* Section common */
+.section{padding:5rem 2rem;max-width:1200px;margin:0 auto}
+.section-title{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;text-align:center;margin-bottom:.6rem}
+.section-title .dot{color:var(--cyan)}
+.section-desc{text-align:center;color:var(--text2);margin-bottom:3rem;font-size:1rem}
+
+/* Mode Cards */
+.mode-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+.mode-card{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:2.5rem 2rem;text-align:center;transition:transform .3s,border-color .3s,box-shadow .3s;position:relative;overflow:hidden}
+.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+.mode-card:nth-child(1)::before{background:linear-gradient(90deg,var(--cyan),rgba(0,229,255,.3))}
+.mode-card:nth-child(2)::before{background:linear-gradient(90deg,var(--gold),rgba(255,215,0,.3))}
+.mode-card:nth-child(3)::before{background:linear-gradient(90deg,var(--magenta),rgba(255,0,255,.3))}
+.mode-card:hover{transform:translateY(-6px);border-color:rgba(0,229,255,.2);box-shadow:0 20px 40px rgba(0,0,0,.4)}
+.mode-icon{font-size:3rem;margin-bottom:1rem;display:block}
+.mode-card h3{font-size:1.3rem;margin-bottom:.8rem;color:var(--white)}
+.mode-card p{color:var(--text2);font-size:.95rem;line-height:1.8}
+
+/* Rules */
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem}
+.rule-item{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:1.5rem 1.8rem;display:flex;gap:1rem;align-items:flex-start;transition:border-color .3s}
+.rule-item:hover{border-color:rgba(0,229,255,.2)}
+.rule-icon{flex-shrink:0;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700}
+.rule-icon.cyan{background:rgba(0,229,255,.12);color:var(--cyan)}
+.rule-icon.gold{background:rgba(255,215,0,.12);color:var(--gold)}
+.rule-icon.mag{background:rgba(255,0,255,.12);color:var(--magenta)}
+.rule-item h4{font-size:1rem;color:var(--white);margin-bottom:.3rem}
+.rule-item p{font-size:.9rem;color:var(--text2);line-height:1.6}
+
+/* API Docs */
+.api-section{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:2rem;margin-bottom:2rem}
+.api-section h3{font-size:1.2rem;color:var(--cyan);margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+.api-section h3 .badge{font-size:.7rem;padding:.15rem .5rem;border-radius:4px;font-weight:600;letter-spacing:1px}
+.badge-post{background:rgba(0,229,255,.15);color:var(--cyan)}
+.badge-ws{background:rgba(255,0,255,.15);color:var(--magenta)}
+.badge-http{background:rgba(255,215,0,.15);color:var(--gold)}
+.api-desc{color:var(--text2);font-size:.9rem;margin-bottom:1rem}
+.api-endpoint{font-family:'Cascadia Code','Fira Code',monospace;color:var(--gold);font-size:.85rem;margin-bottom:1rem;display:inline-block}
+pre{background:var(--bg);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:1.2rem 1.5rem;overflow-x:auto;font-size:.85rem;line-height:1.7;font-family:'Cascadia Code','Fira Code','Consolas',monospace;margin-bottom:.5rem;position:relative}
+pre code{color:var(--text)}
+.code-label{position:absolute;top:.5rem;right:.8rem;font-size:.7rem;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
+.str{color:#a5d6a7}.key{color:var(--cyan)}.num{color:var(--gold)}.comment{color:#666;font-style:italic}.kw{color:var(--magenta)}.func{color:#82b1ff}
+
+/* Bot Table */
+.bot-table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid rgba(255,255,255,.06)}
+table{width:100%;border-collapse:collapse;background:var(--bg2);font-size:.9rem}
+thead{background:var(--bg3)}
+th{padding:1rem 1.2rem;text-align:left;font-weight:600;color:var(--cyan);font-size:.85rem;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+td{padding:.9rem 1.2rem;border-top:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,255,.03)}
+.bot-name{font-weight:600;color:var(--white)}
+.tag{display:inline-block;padding:.1rem .5rem;border-radius:4px;font-size:.75rem;font-weight:600}
+.tag-latest{background:rgba(0,229,255,.12);color:var(--cyan)}
+.tag-stable{background:rgba(0,229,255,.08);color:var(--text2)}
+.tag-classic{background:rgba(255,215,0,.1);color:var(--gold)}
+.tag-baseline{background:rgba(255,255,255,.06);color:var(--text2)}
+.tag-test{background:rgba(255,255,255,.04);color:var(--text2)}
+.win-rate{font-weight:700;font-family:'Cascadia Code','Fira Code',monospace}
+.win-high{color:var(--cyan)}
+.win-mid{color:var(--gold)}
+.win-low{color:var(--text2)}
+
+/* Quickstart */
+.quickstart-block{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:2rem;position:relative}
+.quickstart-block h3{color:var(--cyan);margin-bottom:1rem;font-size:1.2rem}
+.step{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.5rem}
+.step-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;margin-top:.2rem}
+.step-content h4{color:var(--white);font-size:.95rem;margin-bottom:.3rem}
+.step-content p{color:var(--text2);font-size:.85rem}
+
+/* CTA */
+.cta-section{text-align:center;padding:5rem 2rem;position:relative}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,229,255,.05),transparent 70%)}
+.cta-btn{display:inline-block;padding:1rem 3rem;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:var(--bg);font-size:1.1rem;font-weight:700;border-radius:30px;letter-spacing:2px;border:none;cursor:pointer;transition:transform .3s,box-shadow .3s;position:relative;z-index:1}
+.cta-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,229,255,.3);color:var(--bg)}
+
+/* Footer */
+.footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem;text-align:center}
+.footer-brand{font-size:.9rem;font-weight:600;letter-spacing:2px;color:var(--text2);margin-bottom:.8rem}
+.footer-links{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap}
+.footer-links a{color:var(--text2);font-size:.85rem}
+.footer-links a:hover{color:var(--cyan)}
+.footer-copy{margin-top:1rem;font-size:.75rem;color:#555}
+
+/* Responsive */
+@media(max-width:768px){
+  .nav{padding:0 1rem}
+  .nav-links{gap:.8rem}
+  .nav-links a:not(.nav-apply){display:none}
+  .section{padding:3rem 1rem}
+  .hero{padding:5rem 1.5rem 3rem}
+  .hero h1{letter-spacing:1px}
+  .mode-cards{grid-template-columns:1fr}
+  .rules-grid{grid-template-columns:1fr}
+  .api-section{padding:1.5rem 1rem}
+  pre{padding:.8rem 1rem;font-size:.78rem}
+  th,td{padding:.6rem .8rem;font-size:.8rem}
+}
+@media(max-width:480px){
+  .hero-modes{flex-direction:column;align-items:center}
+  .mode-badge{width:100%;max-width:240px}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="/" class="nav-brand">CRAYXUS <span>AI</span></a>
+  <div class="nav-links">
+    <a href="#modes">赛事模式</a>
+    <a href="#rules">规则</a>
+    <a href="#api">技术文档</a>
+    <a href="#bots">Bot一览</a>
+    <a href="#start">快速开始</a>
+    <a href="javascript:void(0)" class="nav-apply" onclick="applyAccess()">申请接入</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">TOURNAMENT PLATFORM</div>
+    <h1><span class="accent">AI ARENA</span> — AI掼蛋对抗平台</h1>
+    <p class="hero-sub">让你的AI模型与掼蛋大师一较高下</p>
+    <div class="hero-modes">
+      <span class="mode-badge human-ai">&#9823; 人 vs AI</span>
+      <span class="mode-badge human-human">&#9823; 人 vs 人</span>
+      <span class="mode-badge ai-ai">&#9881; AI vs AI</span>
+    </div>
+  </div>
+  <div class="hero-scroll"><span></span></div>
+</section>
+
+<!-- Modes -->
+<section class="section" id="modes">
+  <h2 class="section-title">三大赛事模式<span class="dot">.</span></h2>
+  <p class="section-desc">从休闲对局到技术巅峰，覆盖全场景</p>
+  <div class="mode-cards">
+    <div class="mode-card">
+      <span class="mode-icon">&#9823;</span>
+      <h3>人 vs AI</h3>
+      <p>挑战不同难度的AI对手，从Rule Agent到V8冠军。实时获得AI决策分析，帮助你理解牌局走向，提升实战水平。</p>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">&#128101;</span>
+      <h3>人 vs 人</h3>
+      <p>多人联机竞技，支持好友房间和匹配对局。ELO段位排名，从入门到掼蛋大师，13级段位体系完整呈现。</p>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">&#9881;</span>
+      <h3>AI vs AI</h3>
+      <p>模型对抗的终极舞台。接入你的AI模型，与Crayxus V8、V7等顶级Bot进行千局对决，用数据说话。</p>
+    </div>
+  </div>
+</section>
+
+<!-- Rules -->
+<section class="section" id="rules">
+  <h2 class="section-title">AI对抗赛规则<span class="dot">.</span></h2>
+  <p class="section-desc">公平、透明、可验证的竞赛规则体系</p>
+  <div class="rules-grid">
+    <div class="rule-item">
+      <div class="rule-icon cyan">&#10003;</div>
+      <div>
+        <h4>参赛资格</h4>
+        <p>任何能通过 HTTP/WebSocket 返回合法出牌的AI模型均可参赛，不限算法、不限框架。</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-icon gold">4P</div>
+      <div>
+        <h4>对战格式</h4>
+        <p>4人桌 (2v2) 对抗。Bot分配座位 0/2（一队） vs 1/3（一队），队友协作至关重要。</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-icon mag">5s</div>
+      <div>
+        <h4>计时规则</h4>
+        <p>每手 5 秒决策时间。超时自动 PASS，确保比赛流畅进行。</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-icon cyan">&#9733;</div>
+      <div>
+        <h4>计分规则</h4>
+        <p>标准掼蛋规则，头游判定胜负。采用 ELO 排名系统，客观反映模型实力。</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-icon gold">&#9854;</div>
+      <div>
+        <h4>赛制支持</h4>
+        <p>支持单挑 (BO100)、瑞士制、淘汰赛等多种赛制，满足不同评估需求。</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-icon mag">&#128274;</div>
+      <div>
+        <h4>反作弊机制</h4>
+        <p>不提供对手手牌信息，仅推送合法可见信息。所有对局全程记录可回溯。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- API Docs -->
+<section class="section" id="api">
+  <h2 class="section-title">接入技术文档<span class="dot">.</span></h2>
+  <p class="section-desc">标准化 API 接口，快速对接你的 AI 模型</p>
+
+  <!-- 4.1 Register -->
+  <div class="api-section">
+    <h3><span class="badge badge-post">POST</span> 4.1 注册 Bot</h3>
+    <p class="api-desc">注册你的Bot，获取身份凭证。</p>
+    <code class="api-endpoint">POST /api/bot/register</code>
+    <pre><code><span class="comment">// Request Body</span>
+{
+  <span class="key">"name"</span>: <span class="str">"MyBot"</span>,
+  <span class="key">"callbackUrl"</span>: <span class="str">"https://my-server.com/play"</span>,
+  <span class="key">"key"</span>: <span class="str">"your-api-key"</span>
+}</code><span class="code-label">JSON</span></pre>
+    <pre><code><span class="comment">// Response</span>
+{
+  <span class="key">"botId"</span>: <span class="str">"bot_xxx"</span>,
+  <span class="key">"token"</span>: <span class="str">"auth_token"</span>
+}</code><span class="code-label">JSON</span></pre>
+  </div>
+
+  <!-- 4.2 Game State -->
+  <div class="api-section">
+    <h3><span class="badge badge-post">PUSH</span> 4.2 游戏状态（服务器 &rarr; Bot）</h3>
+    <p class="api-desc">每回合服务器推送完整游戏状态，包含手牌、历史、合法出牌列表。</p>
+    <pre><code>{
+  <span class="key">"gameId"</span>: <span class="str">"game_123"</span>,
+  <span class="key">"round"</span>: <span class="num">3</span>,
+  <span class="key">"seat"</span>: <span class="num">0</span>,
+  <span class="key">"myHand"</span>: [
+    {<span class="key">"s"</span>:<span class="str">"&hearts;"</span>, <span class="key">"v"</span>:<span class="str">"A"</span>, <span class="key">"p"</span>:<span class="num">14</span>, <span class="key">"id"</span>:<span class="str">"card_01"</span>},
+    <span class="comment">// ... more cards</span>
+  ],
+  <span class="key">"lastPlay"</span>: {
+    <span class="key">"seat"</span>: <span class="num">1</span>,
+    <span class="key">"cards"</span>: [<span class="comment">...</span>],
+    <span class="key">"type"</span>: <span class="str">"对子"</span>,
+    <span class="key">"val"</span>: <span class="num">9</span>
+  },
+  <span class="key">"counts"</span>: [<span class="num">22</span>, <span class="num">18</span>, <span class="num">25</span>, <span class="num">20</span>],
+  <span class="key">"finishOrder"</span>: [],
+  <span class="key">"wildValue"</span>: <span class="str">"2"</span>,
+  <span class="key">"legalMoves"</span>: [
+    [{<span class="key">"s"</span>:<span class="str">"&hearts;"</span>, <span class="key">"v"</span>:<span class="str">"A"</span>, <span class="key">"p"</span>:<span class="num">14</span>, <span class="key">"id"</span>:<span class="str">"card_01"</span>}],
+    [{<span class="key">"s"</span>:<span class="str">"&spades;"</span>, <span class="key">"v"</span>:<span class="str">"K"</span>, <span class="key">"p"</span>:<span class="num">13</span>, <span class="key">"id"</span>:<span class="str">"card_02"</span>}],
+    []  <span class="comment">// empty array = PASS</span>
+  ],
+  <span class="key">"history"</span>: [
+    {<span class="key">"seat"</span>:<span class="num">1</span>, <span class="key">"type"</span>:<span class="str">"play"</span>, <span class="key">"cards"</span>:[<span class="comment">...</span>], <span class="key">"handType"</span>:<span class="str">"对子"</span>},
+    {<span class="key">"seat"</span>:<span class="num">2</span>, <span class="key">"type"</span>:<span class="str">"pass"</span>},
+    {<span class="key">"seat"</span>:<span class="num">3</span>, <span class="key">"type"</span>:<span class="str">"pass"</span>}
+  ],
+  <span class="key">"timeLimit"</span>: <span class="num">5000</span>
+}</code><span class="code-label">JSON</span></pre>
+  </div>
+
+  <!-- 4.3 Bot Response -->
+  <div class="api-section">
+    <h3><span class="badge badge-post">RESPONSE</span> 4.3 Bot 响应</h3>
+    <p class="api-desc">Bot 返回选择的出牌动作，对应 legalMoves 数组的索引。</p>
+    <pre><code><span class="comment">// 出牌</span>
+{
+  <span class="key">"action"</span>: <span class="str">"play"</span>,
+  <span class="key">"moveIndex"</span>: <span class="num">0</span>
+}
+
+<span class="comment">// 不出 (PASS)</span>
+{
+  <span class="key">"action"</span>: <span class="str">"pass"</span>
+}</code><span class="code-label">JSON</span></pre>
+  </div>
+
+  <!-- 4.4 WebSocket -->
+  <div class="api-section">
+    <h3><span class="badge badge-ws">WS</span> 4.4 WebSocket 实时模式</h3>
+    <p class="api-desc">低延迟双向通信，适合高频对局。</p>
+    <code class="api-endpoint">ws://host/api/bot/play?token=xxx</code>
+    <pre><code><span class="comment">// Server &rarr; Bot: 游戏状态</span>
+{<span class="key">"type"</span>: <span class="str">"gameState"</span>, <span class="comment">...same as 4.2</span>}
+
+<span class="comment">// Bot &rarr; Server: 出牌</span>
+{<span class="key">"type"</span>: <span class="str">"move"</span>, <span class="key">"moveIndex"</span>: <span class="num">0</span>}
+
+<span class="comment">// Server &rarr; Bot: 对局结果</span>
+{<span class="key">"type"</span>: <span class="str">"result"</span>, <span class="key">"winner"</span>: <span class="str">"teamA"</span>, <span class="key">"scores"</span>: {<span class="comment">...</span>}}</code><span class="code-label">WebSocket</span></pre>
+  </div>
+
+  <!-- 4.5 HTTP Callback -->
+  <div class="api-section">
+    <h3><span class="badge badge-http">HTTP</span> 4.5 HTTP 回调模式</h3>
+    <p class="api-desc">服务器主动调用你的回调地址，无需维护长连接。</p>
+    <pre><code><span class="comment">// 服务器 POST 请求 &rarr; 你的 callbackUrl</span>
+<span class="comment">// Request Body = 完整游戏状态 (同 4.2)</span>
+
+<span class="comment">// 你的服务器响应出牌 JSON (同 4.3)</span>
+<span class="comment">// 5 秒超时 &rarr; 自动 PASS</span></code><span class="code-label">HTTP</span></pre>
+  </div>
+</section>
+
+<!-- Built-in Bots -->
+<section class="section" id="bots">
+  <h2 class="section-title">内置 Bot 一览<span class="dot">.</span></h2>
+  <p class="section-desc">与顶级 AI 对手同场竞技，检验你的模型实力</p>
+  <div class="bot-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Bot</th>
+          <th>版本</th>
+          <th>算法</th>
+          <th>vs Champion</th>
+          <th>特点</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="bot-name">Crayxus V8</span></td>
+          <td><span class="tag tag-latest">最新</span></td>
+          <td>DMC + M-value</td>
+          <td><span class="win-rate win-high">58.5%</span></td>
+          <td>716维 state, LSTM + ResNet</td>
+        </tr>
+        <tr>
+          <td><span class="bot-name">Crayxus V7</span></td>
+          <td><span class="tag tag-stable">稳定</span></td>
+          <td>Human BC</td>
+          <td><span class="win-rate win-mid">92.6% vs Rule</span></td>
+          <td>714维, 人类行为克隆</td>
+        </tr>
+        <tr>
+          <td><span class="bot-name">Crayxus V1</span></td>
+          <td><span class="tag tag-classic">经典</span></td>
+          <td>DMC Large</td>
+          <td><span class="win-rate win-mid">83% vs Rule</span></td>
+          <td>326维, 初代冠军</td>
+        </tr>
+        <tr>
+          <td><span class="bot-name">Rule Agent</span></td>
+          <td><span class="tag tag-baseline">基线</span></td>
+          <td>规则引擎</td>
+          <td><span class="win-rate win-low">~40%</span></td>
+          <td>手写规则, 基线对手</td>
+        </tr>
+        <tr>
+          <td><span class="bot-name">Random</span></td>
+          <td><span class="tag tag-test">测试</span></td>
+          <td>随机出牌</td>
+          <td><span class="win-rate win-low">~5%</span></td>
+          <td>合法随机, 测试用</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Quick Start -->
+<section class="section" id="start">
+  <h2 class="section-title">快速开始<span class="dot">.</span></h2>
+  <p class="section-desc">Python 示例 &mdash; 三步接入 AI Arena</p>
+  <div class="quickstart-block">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>注册你的 Bot</h4>
+        <p>调用注册接口获取 token</p>
+      </div>
+    </div>
+    <pre><code><span class="kw">import</span> requests
+
+<span class="comment"># Register your bot</span>
+r = requests.<span class="func">post</span>(
+    <span class="str">"https://crayxus-game.onrender.com/api/bot/register"</span>,
+    json={
+        <span class="str">"name"</span>: <span class="str">"MyBot"</span>,
+        <span class="str">"callbackUrl"</span>: <span class="str">"https://my-server.com/play"</span>
+    }
+)
+bot_token = r.<span class="func">json</span>()[<span class="str">"token"</span>]</code><span class="code-label">Python</span></pre>
+
+    <div class="step" style="margin-top:1.5rem">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>实现回调接口</h4>
+        <p>接收游戏状态，返回出牌决策</p>
+      </div>
+    </div>
+    <pre><code><span class="kw">from</span> flask <span class="kw">import</span> Flask, request, jsonify
+
+app = Flask(__name__)
+
+<span class="comment"># Your callback server handles game state</span>
+@app.<span class="func">post</span>(<span class="str">"/play"</span>)
+<span class="kw">def</span> <span class="func">play</span>():
+    state = request.json
+    legal_moves = state[<span class="str">"legalMoves"</span>]
+
+    <span class="comment"># Your AI logic here</span>
+    best = your_model.<span class="func">predict</span>(state)
+
+    <span class="kw">return</span> jsonify({
+        <span class="str">"action"</span>: <span class="str">"play"</span>,
+        <span class="str">"moveIndex"</span>: best
+    })</code><span class="code-label">Python</span></pre>
+
+    <div class="step" style="margin-top:1.5rem">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>开始对局</h4>
+        <p>你的 Bot 将自动匹配对手，对局数据实时回传</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="section-title" style="margin-bottom:1rem">准备好了吗？<span class="dot">.</span></h2>
+  <p class="section-desc" style="margin-bottom:2rem">接入 AI Arena，与中国最强掼蛋 AI 一较高下</p>
+  <button class="cta-btn" onclick="applyAccess()">申请接入</button>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-brand">CRAYXUS AI Tournament System</div>
+  <div class="footer-links">
+    <a href="/">首页</a>
+    <a href="#modes">赛事日历</a>
+    <a href="/dashboard.html">大屏</a>
+    <a href="https://github.com" target="_blank">GitHub</a>
+  </div>
+  <div class="footer-copy">&copy; 2026 Crayxus Pty Ltd. All rights reserved.</div>
+</footer>
+
+<script>
+function applyAccess(){
+  alert('申请接入 AI Arena\n\n请发送邮件至: general@crayxus.com.au\n\n邮件请包含:\n- 团队/公司名称\n- AI模型简述\n- 预期对局量\n\n我们将在 48 小时内回复。');
+}
+
+// Intersection Observer for fade-in animations
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)'}})
+},{threshold:0.1});
+document.querySelectorAll('.mode-card,.rule-item,.api-section,.quickstart-block').forEach(el=>{
+  el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='opacity .6s ease-out, transform .6s ease-out';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

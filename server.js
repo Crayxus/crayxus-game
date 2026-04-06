@@ -30,6 +30,7 @@ app.get('/danli', (req, res) => res.sendFile(path.join(__dirname, 'danli.html'))
 
 // Dashboard大屏
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
+app.get('/ai-arena', (req, res) => res.sendFile(path.join(__dirname, 'ai-arena.html')));
 
 // Game event logging
 const LOG_FILE = path.join(__dirname, 'game_log.txt');
