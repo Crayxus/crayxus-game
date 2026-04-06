@@ -1630,17 +1630,17 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <div id="match-room-code" style="display:none;font-size:13px;color:#555;margin-top:4px;letter-spacing:2px;cursor:pointer"
     onclick="if(this.dataset.code){navigator.clipboard&&navigator.clipboard.writeText(this.dataset.code);this.innerText='✓ 已复制: '+this.dataset.code;}"
     title="点击复制房间码"></div>
-  <!-- Preset player counts -->
+  <!-- Player count selector (original) -->
   <div id="player-count-select" style="margin-top:12px;display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap">
-    <span style="font-size:11px;color:#666;margin-right:4px">快捷:</span>
-    <div class="pc-opt" onclick="setPreset(16,90)" style="padding:4px 10px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:11px;font-weight:700;cursor:pointer">16人/1.5h</div>
-    <div class="pc-opt" onclick="setPreset(32,120)" style="padding:4px 10px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:11px;font-weight:700;cursor:pointer">32人/2h</div>
-    <div class="pc-opt selected" onclick="setPreset(48,120)" style="padding:4px 10px;border-radius:8px;border:1px solid var(--neon);background:rgba(0,255,200,.08);color:var(--neon);font-size:11px;font-weight:700;cursor:pointer">48人/2h</div>
-    <div class="pc-opt" onclick="setPreset(64,180)" style="padding:4px 10px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:11px;font-weight:700;cursor:pointer">64人/3h</div>
-    <div class="pc-opt" onclick="setPreset(128,240)" style="padding:4px 10px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:11px;font-weight:700;cursor:pointer">128人/4h</div>
+    <span style="font-size:11px;color:#666;margin-right:4px">参赛人数:</span>
+    <div class="pc-opt" data-pc="16" onclick="selectPlayerCount(16)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">16人</div>
+    <div class="pc-opt" data-pc="24" onclick="selectPlayerCount(24)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">24人</div>
+    <div class="pc-opt" data-pc="32" onclick="selectPlayerCount(32)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">32人</div>
+    <div class="pc-opt selected" data-pc="48" onclick="selectPlayerCount(48)" style="padding:5px 12px;border-radius:8px;border:1px solid var(--neon);background:rgba(0,255,200,.08);color:var(--neon);font-size:12px;font-weight:700;cursor:pointer">48人</div>
+    <div class="pc-opt" data-pc="64" onclick="selectPlayerCount(64)" style="padding:5px 12px;border-radius:8px;border:1px solid #333;background:rgba(255,255,255,.03);color:#888;font-size:12px;font-weight:700;cursor:pointer">64人</div>
   </div>
-  <!-- Custom sliders -->
-  <div id="tournament-config" style="margin-top:14px;width:90%;max-width:500px;margin-left:auto;margin-right:auto;text-align:center">
+  <!-- Custom tournament config -->
+  <div id="tournament-config" style="margin-top:10px;width:90%;max-width:500px;margin-left:auto;margin-right:auto;text-align:center">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
       <span style="font-size:11px;color:#888;width:50px;text-align:right">人数</span>
       <input type="range" id="slider-players" min="8" max="200" step="4" value="48"
@@ -2786,35 +2786,21 @@ socket.on('hostStatus',d=>{
 });
 var selectedPlayerCount=48;
 var selectedDuration=2;
-function setPreset(n, mins){
-  document.getElementById('slider-players').value=n;
-  document.getElementById('slider-duration').value=mins;
-  document.querySelectorAll('#player-count-select .pc-opt').forEach(el=>{
-    el.style.borderColor='#333';el.style.background='rgba(255,255,255,.03)';el.style.color='#888';
-  });
-  // highlight clicked preset
-  event.target.style.borderColor='var(--neon)';event.target.style.background='rgba(0,255,200,.08)';event.target.style.color='var(--neon)';
-  onSliderChange();
-}
 function onSliderChange(){
   var n=parseInt(document.getElementById('slider-players').value);
   var mins=parseInt(document.getElementById('slider-duration').value);
-  // Round to multiples of 4
   n=Math.round(n/4)*4; if(n<8)n=8;
-  selectedPlayerCount=n;
   selectedDuration=mins/60;
   // Display values
   document.getElementById('slider-players-val').textContent=n+'人';
   var h=Math.floor(mins/60), m=mins%60;
   document.getElementById('slider-duration-val').textContent=(h>0?h+'小时':'')+(m>0?m+'分':'');
-  // Quick preview in pc-info
+  // Quick preview
   var result=calcMTT(n,mins);
   var info=document.getElementById('pc-info');
   if(info)info.textContent=result.tables+'桌 · 学习15min → 热身'+result.warmupRounds+'轮 → 淘汰'+result.elimSteps+'轮 · 前'+result.advancers+'人晋级 · 约'+result.totalTime+'分钟';
-  // Deselect presets
-  document.querySelectorAll('#player-count-select .pc-opt').forEach(el=>{
-    el.style.borderColor='#333';el.style.background='rgba(255,255,255,.03)';el.style.color='#888';
-  });
+  // Rebuild tables + highlight preset if matching
+  selectPlayerCount(n);
 }
 function calcMTT(n, totalMin){
   var tables=Math.ceil(n/4), gameMin=5;
@@ -2874,6 +2860,26 @@ function generateMTT(){
 }
 function selectPlayerCount(n){
   selectedPlayerCount=n;
+  var tables=Math.ceil(n/4);
+
+  // Highlight selected preset button
+  document.querySelectorAll('.pc-opt').forEach(el=>{
+    if(parseInt(el.dataset.pc)===n){
+      el.style.borderColor='var(--neon)';el.style.background='rgba(0,255,200,.08)';el.style.color='var(--neon)';
+    }else{
+      el.style.borderColor='#333';el.style.background='rgba(255,255,255,.03)';el.style.color='#888';
+    }
+  });
+
+  // Update pc-info with MTT info
+  var dur=selectedDuration||2;
+  var result=calcMTT(n, Math.floor(dur*60));
+  var info=document.getElementById('pc-info');
+  if(info)info.textContent=tables+'桌 · 学习15min → 热身'+result.warmupRounds+'轮 → 淘汰'+result.elimSteps+'轮 · 前'+result.advancers+'人晋级 · 约'+result.totalTime+'分钟';
+
+  // Sync sliders
+  var sp=document.getElementById('slider-players');if(sp)sp.value=n;
+  var sv=document.getElementById('slider-players-val');if(sv)sv.textContent=n+'人';
 
   // Rebuild table grid to match player count
   var g=document.getElementById('seat-grid');
