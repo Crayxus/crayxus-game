@@ -568,21 +568,37 @@ const DanDanAI = (function() {
     };
   }
 
+  let _preMatchVoice = null;
+  let _preMatchSfx = null;
+
   function _onScreenChange(screenId) {
     const fab = document.getElementById('dandan-fab');
     const face = document.getElementById('dandan-face');
     if (screenId === 'match') {
-      // Entering game — hide DanDan, stop voice input
+      // Entering game — hide DanDan, mute voice/sfx, stop mic
       if (fab) fab.style.display = 'none';
       if (face) face.style.display = 'none';
       closeFabPanel();
       if (typeof VoiceInput !== 'undefined' && VoiceInput.isListening) {
         VoiceInput.stop();
       }
+      // Mute voice during game (save previous state)
+      if (typeof VoiceSystem !== 'undefined') {
+        _preMatchVoice = VoiceSystem.enabled;
+        _preMatchSfx = VoiceSystem.sfxEnabled;
+        VoiceSystem.setEnabled(false);
+        VoiceSystem.setSfxEnabled(false);
+      }
     } else {
-      // Leaving game — show DanDan
+      // Leaving game — show DanDan, restore voice
       if (fab) fab.style.display = 'flex';
       if (face) face.style.display = '';
+      if (typeof VoiceSystem !== 'undefined' && _preMatchVoice !== null) {
+        VoiceSystem.setEnabled(_preMatchVoice);
+        VoiceSystem.setSfxEnabled(_preMatchSfx);
+        _preMatchVoice = null;
+        _preMatchSfx = null;
+      }
     }
   }
 

@@ -16,7 +16,7 @@
 const VoiceSystem = (function() {
 
   // ── State ──
-  let enabled = localStorage.getItem('voice_enabled') !== null ? localStorage.getItem('voice_enabled') === 'true' : false;
+  let enabled = localStorage.getItem('voice_enabled') !== null ? localStorage.getItem('voice_enabled') === 'true' : true;
   let volume = 0.8;
   let manifest = {};      // filename → url mapping
   let audioCache = {};    // filename → Audio element
@@ -24,7 +24,7 @@ const VoiceSystem = (function() {
   let speechQueue = [];
   let isSpeaking = false;
   let initialized = false;
-  let sfxEnabled = localStorage.getItem('sfx_enabled') !== null ? localStorage.getItem('sfx_enabled') === 'true' : false;
+  let sfxEnabled = localStorage.getItem('sfx_enabled') !== null ? localStorage.getItem('sfx_enabled') === 'true' : true;
 
   // ── SFX definitions (generated programmatically via Web Audio API) ──
   let audioCtx = null;
