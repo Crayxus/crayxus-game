@@ -94,7 +94,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear
 .lb-col-title .col-labels{margin-left:auto;display:flex;gap:8px;font-size:8px;letter-spacing:1px}
 
 /* 3-column grid */
-.lb-grid{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;overflow:hidden;min-height:0;padding:0 2px}
+.lb-grid{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px;overflow-y:auto;min-height:0;padding:0 2px}
 .lb-column{display:flex;flex-direction:column;min-height:0}
 
 /* Player row */
@@ -562,18 +562,25 @@ function renderLeaderboard(){
   let grid=document.getElementById('lbGrid');
   let html='';
 
-  // Adaptive columns: 1 col for <=8, 2 for <=20, 3 for more
-  let numCols=all.length<=8?1:all.length<=20?2:3;
+  // Adaptive columns based on player count
+  let numCols=all.length<=8?1:all.length<=20?2:all.length<=60?3:all.length<=120?4:5;
   let colSize=Math.ceil(all.length/numCols);
   let cols=[];
   for(let i=0;i<numCols;i++) cols.push(all.slice(i*colSize,(i+1)*colSize));
   grid.style.gridTemplateColumns='repeat('+numCols+',1fr)';
+  // Update header columns to match
+  let hdr=document.querySelector('.lb-header-row');
+  if(hdr){
+    hdr.style.gridTemplateColumns='repeat('+numCols+',1fr)';
+    let titles='';for(let i=0;i<numCols;i++)titles+='<div class="lb-col-title"><span>RANK</span><div class="col-labels"><span>MMR</span><span>PTS</span></div></div>';
+    hdr.innerHTML=titles;
+  }
 
-  // Scale row size for fewer players
-  let rowH=all.length<=16?38:all.length<=24?32:28;
-  let nameSize=all.length<=16?14:all.length<=24?12:11;
-  let rankSize=all.length<=16?13:all.length<=24?11:10;
-  let ptsSize=all.length<=16?14:all.length<=24?12:11;
+  // Scale row size — smaller for more players
+  let rowH=all.length<=16?38:all.length<=24?32:all.length<=48?28:all.length<=80?24:20;
+  let nameSize=all.length<=16?14:all.length<=24?12:all.length<=80?11:10;
+  let rankSize=all.length<=16?13:all.length<=24?11:all.length<=80?10:9;
+  let ptsSize=all.length<=16?14:all.length<=24?12:all.length<=80?11:10;
 
   for(let c=0;c<numCols;c++){
     html+='<div class="lb-column">';
