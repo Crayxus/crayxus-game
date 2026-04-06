@@ -65,6 +65,9 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .seat-slot.taken{border-color:var(--neon);color:var(--neon);background:rgba(0,255,200,0.1);cursor:default}
 .seat-slot.bot{border-color:#666;color:#888;border-style:dashed;cursor:default}
 .seat-label{font-size:9px;color:#555;margin-top:2px}
+.t-opt{padding:8px 16px;border-radius:10px;border:1px solid rgba(255,0,255,0.3);background:rgba(255,0,255,0.05);color:#ccc;font-size:13px;cursor:pointer;transition:all 0.2s}
+.t-opt:hover{border-color:#ff00ff;color:#ff00ff;background:rgba(255,0,255,0.1)}
+.t-opt.active{border-color:#ff00ff;color:#fff;background:rgba(255,0,255,0.25);font-weight:700}
 #game-ui{display:none;width:100%;height:100%}
 /* dashboard base overridden by .dash-* styles below */
 .rank-val{font-size:50px;font-weight:900}
@@ -1571,7 +1574,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <div class="dd-orb-name">训练</div>
     </div>
 
-    <div class="dd-orb" onclick="window.location.href='/tournament'"
+    <div class="dd-orb" onclick="switchScreen('tournament')"
       style="left:calc(50% + 220px);top:26%;background:rgba(255,0,255,0.12);border:2px solid #ff00ff;color:#ff00ff;
       animation:ddFloat 3.2s ease-in-out infinite;animation-delay:0.3s">
       <div class="dd-orb-icon">&#127942;</div>
@@ -1679,6 +1682,71 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <div style="color:#888;margin-top:10px;font-size:12px" id="match-timer">空位将由AI填充</div>
   <button id="btn-start-match" onclick="startMatch()" style="display:none;margin-top:20px;padding:15px 50px;border-radius:50px;border:none;background:linear-gradient(90deg,var(--neon),#00b8ff);color:#000;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 0 20px rgba(0,255,200,0.3)">开始游戏 (START)</button>
   <div id="match-wait-msg" style="display:none;margin-top:20px;color:#888;font-size:14px">等待房主开始游戏...</div>
+</div>
+
+<!-- ═══ Tournament Generator Screen ═══ -->
+<div id="tournament" class="screen">
+  <div style="max-width:520px;width:90%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,0,255,0.2);
+    border-radius:20px;padding:40px;backdrop-filter:blur(10px)">
+    <div style="font-size:28px;margin-bottom:6px;color:#ff00ff">&#127942; 自定义赛事</div>
+    <div style="font-size:13px;color:#888;margin-bottom:24px">设置参数，AI自动生成赛程</div>
+
+    <!-- Player Count -->
+    <div style="margin-bottom:20px">
+      <label style="color:#ccc;font-size:13px;display:block;margin-bottom:8px">参赛人数</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="t-player-btns">
+        <button class="t-opt" onclick="setTPlayers(8)" data-v="8">8人</button>
+        <button class="t-opt active" onclick="setTPlayers(16)" data-v="16">16人</button>
+        <button class="t-opt" onclick="setTPlayers(32)" data-v="32">32人</button>
+        <button class="t-opt" onclick="setTPlayers(64)" data-v="64">64人</button>
+        <button class="t-opt" onclick="setTPlayers(128)" data-v="128">128人</button>
+        <input type="number" id="t-player-custom" min="4" max="256" placeholder="自定义"
+          style="width:80px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,0,255,0.3);
+          background:rgba(255,0,255,0.05);color:#fff;font-size:13px;text-align:center"
+          oninput="setTPlayers(Number(this.value))">
+      </div>
+    </div>
+
+    <!-- Duration -->
+    <div style="margin-bottom:20px">
+      <label style="color:#ccc;font-size:13px;display:block;margin-bottom:8px">预期时长</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="t-duration-btns">
+        <button class="t-opt" onclick="setTDuration(1)" data-v="1">1小时</button>
+        <button class="t-opt active" onclick="setTDuration(2)" data-v="2">2小时</button>
+        <button class="t-opt" onclick="setTDuration(3)" data-v="3">3小时</button>
+        <button class="t-opt" onclick="setTDuration(4)" data-v="4">半天</button>
+        <button class="t-opt" onclick="setTDuration(8)" data-v="8">全天</button>
+      </div>
+    </div>
+
+    <!-- Format -->
+    <div style="margin-bottom:24px">
+      <label style="color:#ccc;font-size:13px;display:block;margin-bottom:8px">赛制</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="t-format-btns">
+        <button class="t-opt active" onclick="setTFormat('swiss')" data-v="swiss">瑞士制</button>
+        <button class="t-opt" onclick="setTFormat('elimination')" data-v="elimination">淘汰制</button>
+        <button class="t-opt" onclick="setTFormat('roundrobin')" data-v="roundrobin">循环制</button>
+      </div>
+    </div>
+
+    <!-- Generate Button -->
+    <button onclick="generateTournament()" style="width:100%;padding:15px;border-radius:50px;border:none;
+      background:linear-gradient(90deg,#ff00ff,#ff6b35);color:#fff;font-size:18px;font-weight:900;
+      cursor:pointer;box-shadow:0 0 20px rgba(255,0,255,0.3);margin-bottom:16px;transition:all 0.3s"
+      onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+      生成赛程
+    </button>
+
+    <!-- Generated Schedule -->
+    <div id="t-result" style="display:none;text-align:left;margin-top:16px;
+      background:rgba(0,0,0,0.3);border-radius:12px;padding:20px;max-height:300px;overflow-y:auto">
+    </div>
+
+    <!-- Back button -->
+    <div style="margin-top:16px;text-align:center">
+      <a onclick="switchScreen('mode-select')" style="color:#888;cursor:pointer;font-size:13px">← 返回首页</a>
+    </div>
+  </div>
 </div>
 
 <div id="game-ui">
@@ -2817,6 +2885,108 @@ socket.on('playerLeft',d=>{
   if(!botSeats.includes(d.seat))botSeats.push(d.seat);
 });
 
+// ===== TOURNAMENT GENERATOR =====
+let tPlayers=16, tDuration=2, tFormat='swiss';
+function setTPlayers(n){
+  if(!n||n<4)n=4; if(n>256)n=256;
+  tPlayers=n;
+  document.querySelectorAll('#t-player-btns .t-opt').forEach(b=>b.classList.toggle('active',Number(b.dataset.v)===n));
+}
+function setTDuration(h){
+  tDuration=h;
+  document.querySelectorAll('#t-duration-btns .t-opt').forEach(b=>b.classList.toggle('active',Number(b.dataset.v)===h));
+}
+function setTFormat(f){
+  tFormat=f;
+  document.querySelectorAll('#t-format-btns .t-opt').forEach(b=>b.classList.toggle('active',b.dataset.v===f));
+}
+function generateTournament(){
+  const n=tPlayers, dur=tDuration, fmt=tFormat;
+  // Calculate tables needed (4 players per table)
+  const tables=Math.ceil(n/4);
+  // Avg game time ~20min
+  const gameTime=20;
+  const totalSlots=Math.floor(dur*60/gameTime);
+
+  let rounds, gamesPerRound, schedule;
+  if(fmt==='elimination'){
+    // Single elimination: teams of 2, pairs compete
+    rounds=Math.ceil(Math.log2(n/2));
+    let remaining=n;
+    schedule=[];
+    for(let r=0;r<rounds;r++){
+      const pairs=Math.floor(remaining/4);
+      schedule.push({round:r+1,name:`第${r+1}轮 淘汰赛`,tables:pairs,players:remaining,
+        desc:r===rounds-1?'决赛':'淘汰 '+pairs+' 桌'});
+      remaining=Math.ceil(remaining/2);
+    }
+  }else if(fmt==='roundrobin'){
+    // Round robin: every pair plays every other pair
+    const teams=Math.ceil(n/2);
+    rounds=teams-1;
+    gamesPerRound=Math.floor(teams/2);
+    schedule=[];
+    for(let r=0;r<Math.min(rounds,totalSlots);r++){
+      schedule.push({round:r+1,name:`第${r+1}轮 循环赛`,tables:Math.min(gamesPerRound,tables),
+        players:n,desc:gamesPerRound+' 桌同时进行'});
+    }
+  }else{
+    // Swiss: sqrt(n) rounds, everyone plays each round
+    rounds=Math.max(3,Math.min(Math.ceil(Math.sqrt(n)),totalSlots));
+    schedule=[];
+    for(let r=0;r<rounds;r++){
+      schedule.push({round:r+1,name:`第${r+1}轮 瑞士轮`,tables:tables,players:n,
+        desc:r===0?'随机配对':('按积分配对 · '+tables+' 桌')});
+    }
+  }
+
+  const totalTime=schedule.length*gameTime;
+  const h=Math.floor(totalTime/60), m=totalTime%60;
+
+  // Render result
+  const el=document.getElementById('t-result');
+  el.style.display='block';
+  let html=`<div style="color:#ff00ff;font-weight:700;font-size:15px;margin-bottom:12px">
+    &#127942; 赛程方案</div>
+    <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="background:rgba(255,0,255,0.1);padding:8px 14px;border-radius:8px;font-size:12px;color:#ccc">
+        <span style="color:#ff00ff;font-weight:700">${n}</span> 人参赛</div>
+      <div style="background:rgba(255,0,255,0.1);padding:8px 14px;border-radius:8px;font-size:12px;color:#ccc">
+        <span style="color:#ff00ff;font-weight:700">${schedule.length}</span> 轮</div>
+      <div style="background:rgba(255,0,255,0.1);padding:8px 14px;border-radius:8px;font-size:12px;color:#ccc">
+        预计 <span style="color:#ff00ff;font-weight:700">${h>0?h+'小时':''}${m>0?m+'分钟':''}</span></div>
+      <div style="background:rgba(255,0,255,0.1);padding:8px 14px;border-radius:8px;font-size:12px;color:#ccc">
+        <span style="color:#ff00ff;font-weight:700">${tables}</span> 桌</div>
+    </div>`;
+
+  html+=`<div style="border-left:2px solid rgba(255,0,255,0.3);padding-left:16px">`;
+  schedule.forEach((s,i)=>{
+    const time=i*gameTime;
+    const th=Math.floor(time/60), tm=time%60;
+    html+=`<div style="margin-bottom:12px;position:relative">
+      <div style="position:absolute;left:-24px;top:2px;width:12px;height:12px;border-radius:50%;
+        background:${i===0?'#ff00ff':'rgba(255,0,255,0.4)'};border:2px solid #ff00ff"></div>
+      <div style="font-size:13px;color:#fff;font-weight:600">${s.name}</div>
+      <div style="font-size:11px;color:#888;margin-top:2px">
+        +${th>0?th+'h':''}${tm}min · ${s.tables}桌 · ${s.desc}</div>
+    </div>`;
+  });
+  html+=`</div>`;
+
+  // Scoring rules
+  const fmtNames={swiss:'瑞士制',elimination:'淘汰制',roundrobin:'循环制'};
+  html+=`<div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,0,255,0.15)">
+    <div style="font-size:12px;color:#ff00ff;font-weight:600;margin-bottom:6px">计分规则 (${fmtNames[fmt]})</div>
+    <div style="font-size:11px;color:#888;line-height:1.6">
+      ${fmt==='swiss'?'胜: +3分 · 头游: +1分 · 负: 0分 · 双上: +5分<br>积分相同按对手强度排序 (布赫兹分)':
+        fmt==='elimination'?'每轮赢者晋级，输者淘汰<br>头游: +1附加分 (决赛加赛用)':
+        '胜: +2分 · 平: +1分 · 负: 0分<br>总积分排名，同分比较小分'}
+    </div>
+  </div>`;
+
+  el.innerHTML=html;
+}
+
 // Apply upgrade result from server (multiplayer upgrade mode)
 function _applyServerUpgradeResult(ur){
   if(!ur)return;
@@ -3407,7 +3577,7 @@ async function modelPickMove(seat,hand){
     }
     if(moves.length===0)return null;
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
-    let sv=v5Mode?encodeStateV5(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
+    let sv=v5Mode?(v8Mode?encodeStateV8:encodeStateV5)(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
     let mvs=moves.map(m=>cardsToVec54(m));
     let res=await Promise.race([
       runModelBatch(sv,mvs,seat),
@@ -3494,7 +3664,7 @@ async function beamPickMove(seat,hand){
     if(moves.length===0)return null;
     if(moves.length===1)return moves[0];
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
-    let sv=v5Mode?encodeStateV5(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
+    let sv=v5Mode?(v8Mode?encodeStateV8:encodeStateV5)(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
     let mvs=moves.map(m=>cardsToVec54(m));
     let res=await Promise.race([runModelBatch(sv,mvs,seat),new Promise(r=>setTimeout(()=>r(null),5000))]);
     if(!res)return undefined;
@@ -3549,7 +3719,7 @@ async function beamPickMove(seat,hand){
       }else if(newHand&&newHand.length>0){
         let newMoves=genMoves(newHand,simLH,seat,simFO);
         if(newMoves.length>0){
-          let newSv=v5Mode?encodeStateV5(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1,tMoveHistory):encodeState322(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1);
+          let newSv=v5Mode?(v8Mode?encodeStateV8:encodeStateV5)(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1,tMoveHistory):encodeState322(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1);
           let newMvs=newMoves.map(m=>cardsToVec54(m));
           let newRes=await Promise.race([runModelBatch(newSv,newMvs,seat),new Promise(r=>setTimeout(()=>r(null),3000))]);
           if(newRes){
@@ -4669,10 +4839,12 @@ let tPlayedCards={};
 let tBombCounts=[0,0,0,0];
 let onnxSession=null;
 let dmcMode=false; // true if using DMC dual-input model
-let v5Mode=false;  // true if using V5 714-dim state encoder
+let v5Mode=false;  // true if using V5+ state encoder (714 or 716 dim)
+let v8Mode=false;  // true if using V8 716-dim state encoder
 let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool, handType:obj} for history encoding
+const ONNX_MODEL_URL_V8='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8_best_step3810k_wr585.onnx';
 const ONNX_MODEL_URL_V5='https://huggingface.co/iluman/guandan-ai/resolve/main/guandan_dmc_v5.onnx';
-const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/guandan_dmc_v5.onnx';
+const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8_best_step3810k_wr585.onnx';
 const MCTS_API='http://localhost:8000';
 let mctsAvailable=false; // detected at startup
 
@@ -5485,7 +5657,76 @@ function uidToSuitVal(uid){
   return[suit,val];
 }
 
+/* ===== M-VALUE: min plays to empty hand (JS port of hand_decomposer_fast.py) ===== */
+function _handToGroups(hv){
+  // hv = 54-dim array. Returns 15-dim power groups [power3..power15(=2), SmJk, BgJk]
+  const g=new Int8Array(15);
+  for(let uid=0;uid<52;uid++){if(!hv[uid])continue;g[uid%13]+=hv[uid]}
+  g[13]+=hv[52]||0; g[14]+=hv[53]||0;
+  return g;
+}
+function _rmStraights(g){let p=0,ch=true;while(ch){ch=false;for(let s=0;s<=7;s++){if(g[s]>=1&&g[s+1]>=1&&g[s+2]>=1&&g[s+3]>=1&&g[s+4]>=1){g[s]--;g[s+1]--;g[s+2]--;g[s+3]--;g[s+4]--;p++;ch=true;break}}}return p}
+function _rmPlates(g){let p=0,ch=true;while(ch){ch=false;for(let s=0;s<=10;s++){if(g[s]>=3&&g[s+1]>=3){g[s]-=3;g[s+1]-=3;p++;ch=true;break}}}return p}
+function _rmTubes(g){let p=0,ch=true;while(ch){ch=false;for(let l of[5,4,3]){for(let s=0;s<=11-l;s++){let ok=true;for(let i=0;i<l;i++){if(g[s+i]<2){ok=false;break}}if(ok){for(let i=0;i<l;i++)g[s+i]-=2;p++;ch=true;break}}if(ch)break}}return p}
+function _rmFullhouses(g){let p=0,ch=true;while(ch){ch=false;for(let t=0;t<15;t++){if(g[t]<3)continue;for(let q=0;q<15;q++){if(q===t||g[q]<2)continue;g[t]-=3;g[q]-=2;p++;ch=true;break}if(ch)break}}return p}
+function _rmBombs(g){let p=0;for(let i=0;i<15;i++){if(g[i]>=4){g[i]-=4;p++}}return p}
+function _rmTriples(g){let p=0;for(let i=0;i<15;i++){while(g[i]>=3){g[i]-=3;p++}}return p}
+function _rmPairs(g){let p=0;for(let i=0;i<15;i++){while(g[i]>=2){g[i]-=2;p++}}return p}
+function _greedyPlays(g,strat){
+  let p=0;
+  const fns=[[_rmStraights,_rmPlates,_rmTubes,_rmFullhouses,_rmBombs,_rmTriples,_rmPairs],
+             [_rmPlates,_rmTubes,_rmStraights,_rmFullhouses,_rmBombs,_rmTriples,_rmPairs],
+             [_rmFullhouses,_rmStraights,_rmPlates,_rmTubes,_rmBombs,_rmTriples,_rmPairs],
+             [_rmTubes,_rmPlates,_rmFullhouses,_rmStraights,_rmBombs,_rmTriples,_rmPairs]][strat];
+  for(const fn of fns)p+=fn(g);
+  let rem=0;for(let i=0;i<15;i++)rem+=g[i];
+  return p+rem;
+}
+function computeMinPlays(hv){
+  const g0=_handToGroups(hv);
+  let s=0;for(let i=0;i<15;i++)s+=g0[i]; if(s===0)return 0;
+  let best=999;
+  for(let st=0;st<4;st++){const gc=new Int8Array(g0);const r=_greedyPlays(gc,st);if(r<best)best=r}
+  return best;
+}
+
+/* ===== POWER: count of control cards ===== */
+function computePower(hv){
+  let power=0;
+  const groups={};
+  for(let uid=0;uid<54;uid++){
+    if(!hv[uid])continue;
+    let p;
+    if(uid===52)p=16; else if(uid===53)p=17;
+    else p=(uid%13)+3;
+    groups[p]=(groups[p]||0)+hv[uid];
+  }
+  for(const pk in groups){const cnt=groups[pk];const p=Number(pk);
+    if(cnt>=4)power+=1.5;
+    else if(cnt>=3&&p>=14)power+=0.5;
+  }
+  for(const p of[14,15,16,17])power+=(groups[p]||0)*0.3;
+  if((groups[16]||0)>=1&&(groups[17]||0)>=1)power+=1.0;
+  return power;
+}
+
+/* ===== V8 STATE ENCODER (716 dims = V5 714 + M-value + Power) ===== */
+function encodeStateV8(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory){
+  const v5=encodeStateV5_base(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory);
+  const v=new Float32Array(716);
+  v.set(v5,0);
+  // Build 54-dim hand vector for M-value/Power
+  const hv=new Float32Array(54);
+  for(const c of handCards){if(c&&c.id!==undefined)hv[c.id]=1}
+  v[714]=computeMinPlays(hv)/14.0;
+  v[715]=computePower(hv)/8.0;
+  return v;
+}
+
 function encodeStateV5(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory){
+  return encodeStateV5_base(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory);
+}
+function encodeStateV5_base(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory){
   const v=new Float32Array(714);
   // === V1 Base (326 dims) ===
   const base=encodeState322(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner);
@@ -5915,7 +6156,7 @@ async function runModelBatch(sv,mvs,observerSeat){
   const n=mvs.length;
   if(dmcMode){
     // DMC dual-input: history (n,15,62) + state_action (n, stateDim+54)
-    const stateDim=v5Mode?714:326;
+    const stateDim=v8Mode?716:v5Mode?714:326;
     const saDim=stateDim+54;
     const hBuf=new Float32Array(n*15*62);
     const hist=encodeHistoryTensor(observerSeat!==undefined?observerSeat:mySeat);
@@ -5992,7 +6233,8 @@ async function _recordHumanDecision(actionType, selectedCards) {
 
     // Encode current state (same as model uses)
     const lo=(seat+1)%4, pa=(seat+2)%4, ro=(seat+3)%4;
-    const sv = encodeStateV5(hand, tPlayedCards[seat], tPlayedCards[lo],
+    const encodeFn = v8Mode ? encodeStateV8 : encodeStateV5;
+    const sv = encodeFn(hand, tPlayedCards[seat], tPlayedCards[lo],
       tPlayedCards[pa], tPlayedCards[ro], lastHand, [...counts], seat,
       finishOrder, [...tBombCounts], lastHand?.owner??-1, tMoveHistory);
     const histArr = encodeHistoryTensor(seat);
@@ -6040,7 +6282,7 @@ async function _recordHumanDecision(actionType, selectedCards) {
       ts: Date.now(),
       seat: seat,
       cardsLeft: hand.length,
-      stateVec: Array.from(sv),           // 714-dim float array
+      stateVec: Array.from(sv),           // 716-dim float array (V8)
       historyArr: Array.from(histArr),     // 15*62=930 float array
       humanAction: Array.from(humanVec),   // 54-dim (human's choice)
       aiAction: Array.from(aiVec),         // 54-dim (AI's choice)
@@ -6167,15 +6409,16 @@ async function loadOnnxModel(){
     }
   }
   try{
-    setProgress(0,'Downloading AI model...');
-    const buf5=await loadModelWithCache(ONNX_MODEL_URL_V5, 'dmc_v7_human_926');
-    setProgress(92,'Initializing AI engine...');
-    onnxSession=await ort.InferenceSession.create(buf5,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
-    dmcMode=true;v5Mode=true;
+    setProgress(0,'Downloading V8 AI model (716-dim)...');
+    const buf8=await loadModelWithCache(ONNX_MODEL_URL_V8, 'dmc_v8_best_585');
+    setProgress(92,'Initializing V8 AI engine...');
+    onnxSession=await ort.InferenceSession.create(buf8,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
+    dmcMode=true;v5Mode=true;v8Mode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ V7 AI model loaded (92.6% WR, 714-dim state encoder)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V7 AI模型已加载 (92.6%)';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V7 92.6% ✓';if(badge)badge.style.color='var(--neon)';
+    console.log('%c✅ V8 AI model loaded (58.5% vs Champion, 72% vs V1, 716-dim state encoder, Step 3810K)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    console.log('%c   Model: v8_best_step3810k_wr585.onnx | Architecture: LSTM+ResNet | State: 716-dim (714+M-value+Power)', 'color:#0af');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V8 AI模型已加载 (58.5% vs Champion)';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V8 58.5% ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e5){
     console.warn('AI model download failed after retries:',e5.message);
     onnxSession=null;dmcMode=false;v5Mode=false;
@@ -6269,7 +6512,7 @@ async function getCoachSuggestions(hand,prevLastHand,prePlayedSnap,preBombSnap){
       let lo=(mySeat+1)%4,pa=(mySeat+2)%4,ro=(mySeat+3)%4;
       let preC=[...counts];preC[mySeat]=h.length;
       let bc=preBombSnap||tBombCounts;
-      let sv=v5Mode?encodeStateV5(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1,tMoveHistory):encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1);
+      let sv=v5Mode?(v8Mode?encodeStateV8:encodeStateV5)(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1,tMoveHistory):encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1);
       let mvs=moves.map(m=>cardsToVec54(m.cards));
       let res=await runModelBatch(sv,mvs,mySeat);
       if(res){for(let i=0;i<moves.length;i++)moves[i].winRate=Math.round(Math.max(0,Math.min(100,res[i].wr*100)))}
