@@ -157,6 +157,10 @@ const DanDanAI = (function() {
     if (fab) { fab.style.opacity = '1'; fab.style.filter = ''; }
     const speech = document.getElementById('dd-speech');
     if (speech) { speech.style.opacity = '1'; }
+    // Start XfyunASR when activated (if Google blocked)
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.available && !XfyunASR.isListening) {
+      XfyunASR.start();
+    }
     // Greet on activation
     if (typeof VoiceSystem !== 'undefined') VoiceSystem.say('welcome');
     _resetIdleTimer();
@@ -168,6 +172,10 @@ const DanDanAI = (function() {
     if (_idleTimer) { clearTimeout(_idleTimer); _idleTimer = null; }
     console.log('[DanDan] Deactivated (idle)');
     closeFabPanel();
+    // Stop XfyunASR to prevent "叮叮" noise
+    if (typeof XfyunASR !== 'undefined' && XfyunASR.isListening) {
+      XfyunASR.stop();
+    }
     const face = document.getElementById('dandan-face');
     if (face) { face.style.opacity = '0.3'; face.style.filter = 'grayscale(0.8)'; }
     const fab = document.getElementById('dandan-fab');

@@ -62,11 +62,8 @@ const VoiceInput = (function() {
       if (event.error === 'network') {
         if (!webSpeechFailed) {
           webSpeechFailed = true;
-          console.log('[VoiceInput] Google blocked, switching to XfyunASR');
-          // Start讯飞 as fallback
-          if (typeof XfyunASR !== 'undefined' && XfyunASR.available && !XfyunASR.isListening) {
-            XfyunASR.start();
-          }
+          console.log('[VoiceInput] Google blocked, XfyunASR on standby (activates when DanDan wakes)');
+          // Don't auto-start XfyunASR — wait for DanDan to be activated
         }
       }
     };

@@ -99,19 +99,22 @@ const Demo = (function() {
       },
       voice: 'welcome_1',
       subtitle: '你好！我是蛋蛋，你的AI掼蛋助手',
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'intro',
       voice: 'welcome_2',
       subtitle: '我会陪你一起学习掼蛋，从新手到高手',
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'home_explain',
       speak: '这是主界面。左边两个圆球是对战和训练，右边是赛事和大屏控制。现在我带你体验一局完整的掼蛋。',
       subtitle: '左边：对战·训练 | 右边：赛事·大屏',
-      hint: '点击进入对战演示',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === ENTER GAME ===
@@ -123,7 +126,8 @@ const Demo = (function() {
       voice: 'game_start_1',
       subtitle: '新的一局开始了，祝你好运！',
       delay: 500,
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'deal',
@@ -133,7 +137,8 @@ const Demo = (function() {
       voice: 'dealing_done',
       subtitle: '发牌完成，看看你的手牌吧',
       delay: 800,
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === HAND EVALUATION ===
@@ -144,7 +149,8 @@ const Demo = (function() {
       },
       voice: 'hand_bomb',
       subtitle: '手里有炸弹！四个7，关键时刻再用',
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'hand_eval2',
@@ -154,7 +160,8 @@ const Demo = (function() {
       },
       speak: '还有大小王，这手牌很强！可以打得积极一些。',
       subtitle: '大小王在手，可以打得积极',
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === YOUR TURN - FREE PLAY ===
@@ -166,7 +173,8 @@ const Demo = (function() {
       },
       voice: 'your_turn_free',
       subtitle: '自由出牌，你想出什么都行',
-      hint: '点击出牌',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'play_pair',
@@ -202,7 +210,8 @@ const Demo = (function() {
       speak: '右边对手出了一对9，比你的5大。',
       subtitle: '对手出了一对9',
       delay: 300,
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === PASS ===
@@ -214,7 +223,8 @@ const Demo = (function() {
       voice: 'pass_teammate',
       subtitle: '队友过了',
       delay: 300,
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'opp2_pass',
@@ -228,7 +238,8 @@ const Demo = (function() {
       speak: '左边对手也过了。对手拿到牌权，出了一张Q。',
       subtitle: '对手拿到牌权，出了♠Q',
       delay: 600,
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === AI COACH ===
@@ -239,7 +250,8 @@ const Demo = (function() {
       },
       speak: '现在轮到你了。不知道出什么？可以呼叫AI教练帮你分析。',
       subtitle: '不知道出什么？呼叫AI教练！',
-      hint: '点击查看AI建议',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'coach_show',
@@ -248,7 +260,8 @@ const Demo = (function() {
       },
       voice: 'coach_recommend',
       subtitle: 'AI教练建议你这样出牌',
-      hint: '点击关闭教练面板',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'coach_play',
@@ -285,7 +298,8 @@ const Demo = (function() {
       voice: 'bomb_played_by_opponent',
       subtitle: '对手出了炸弹！四个K！',
       delay: 800,
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === VICTORY ===
@@ -297,7 +311,8 @@ const Demo = (function() {
       voice: 'win_1',
       subtitle: '恭喜你赢了！表现非常出色',
       delay: 500,
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === BACK TO HOME ===
@@ -309,7 +324,8 @@ const Demo = (function() {
       speak: '对战演示结束。接下来看看训练模式。',
       subtitle: '接下来体验训练模式',
       delay: 500,
-      hint: '点击进入训练演示',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === QUIZ ===
@@ -321,7 +337,8 @@ const Demo = (function() {
       voice: 'rank_start',
       subtitle: '欢迎参加段位测评',
       delay: 300,
-      hint: '点击选择答案',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'quiz_answer',
@@ -331,7 +348,8 @@ const Demo = (function() {
       voice: 'quiz_correct',
       subtitle: '回答正确！',
       delay: 500,
-      hint: '点击查看解析',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'quiz_explain',
@@ -340,7 +358,8 @@ const Demo = (function() {
       },
       speak: FAKE_QUIZ.options[0].explain,
       subtitle: 'AI推荐：用K压Q，保留A控制',
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === CERTIFICATE ===
@@ -352,7 +371,8 @@ const Demo = (function() {
       },
       voice: 'rank_gold',
       subtitle: '黄金段位！你已经是有经验的玩家了',
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === TOURNAMENT ===
@@ -364,7 +384,8 @@ const Demo = (function() {
       },
       speak: '达到黄金段位以上，就可以报名参加我们的线下掼蛋比赛了！',
       subtitle: '黄金段位以上可参加线下比赛！',
-      hint: '点击查看报名',
+      hint: '',
+      autoAdvance: 3000,
     },
     {
       id: 'tournament_signup',
@@ -373,7 +394,8 @@ const Demo = (function() {
       },
       speak: '选择赛事，填写信息，支付报名费，就能参加比赛了。我们在杭州等你！',
       subtitle: '选择赛事 → 填写信息 → 完成报名',
-      hint: '点击继续',
+      hint: '',
+      autoAdvance: 3000,
     },
 
     // === DONE ===
@@ -387,7 +409,8 @@ const Demo = (function() {
       },
       voice: 'guide_done',
       subtitle: '教程完成！开始你的掼蛋之旅吧！',
-      hint: '点击结束演示',
+      hint: '',
+      autoAdvance: 3000,
     },
   ];
 
