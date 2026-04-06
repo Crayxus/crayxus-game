@@ -2891,15 +2891,15 @@ function setTDuration(h){
 function generateTournament(){
   const n=tPlayers, dur=tDuration;
   const tables=Math.ceil(n/4);
-  const gameMin=15; // avg per round
+  const gameMin=5; // 掼蛋一局约5分钟
   const totalMin=Math.floor(dur*60);
 
-  // Phase allocation: learn 10-15min, warmup ~30%, break 10-15min, elimination ~55%
-  const learnMin=Math.min(15, Math.max(10, Math.round(totalMin*0.08)));
-  const breakMin=Math.min(15, Math.max(10, Math.round(totalMin*0.08)));
+  // Fixed phases: 学习15min + 休息15min = 30min overhead
+  const learnMin=15;
+  const breakMin=15;
   const playMin=totalMin-learnMin-breakMin;
-  // Split play time: ~35% warmup (swiss), ~65% elimination
-  const warmupMin=Math.round(playMin*0.35);
+  // Split play time: ~1/3 warmup, ~2/3 elimination
+  const warmupMin=Math.round(playMin/3);
   const elimMin=playMin-warmupMin;
   const warmupRounds=Math.max(2, Math.floor(warmupMin/gameMin));
   const elimRounds=Math.max(2, Math.floor(elimMin/gameMin));
