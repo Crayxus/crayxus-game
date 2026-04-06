@@ -68,6 +68,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .t-opt{padding:8px 16px;border-radius:10px;border:1px solid rgba(255,0,255,0.3);background:rgba(255,0,255,0.05);color:#ccc;font-size:13px;cursor:pointer;transition:all 0.2s}
 .t-opt:hover{border-color:#ff00ff;color:#ff00ff;background:rgba(255,0,255,0.1)}
 .t-opt.active{border-color:#ff00ff;color:#fff;background:rgba(255,0,255,0.25);font-weight:700}
+.t-stat{background:rgba(255,0,255,0.08);padding:10px 14px;border-radius:10px;text-align:center;flex:1;min-width:60px;border:1px solid rgba(255,0,255,0.1)}
 #game-ui{display:none;width:100%;height:100%}
 /* dashboard base overridden by .dash-* styles below */
 .rank-val{font-size:50px;font-weight:900}
@@ -1574,7 +1575,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <div class="dd-orb-name">训练</div>
     </div>
 
-    <div class="dd-orb" onclick="switchScreen('tournament')"
+    <div class="dd-orb" onclick="window.location.href='/tournament'"
       style="left:calc(50% + 220px);top:26%;background:rgba(255,0,255,0.12);border:2px solid #ff00ff;color:#ff00ff;
       animation:ddFloat 3.2s ease-in-out infinite;animation-delay:0.3s">
       <div class="dd-orb-icon">&#127942;</div>
@@ -1689,18 +1690,19 @@ body.view-table .holo-hex-grid{opacity:0.05}
   <div style="max-width:520px;width:90%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,0,255,0.2);
     border-radius:20px;padding:40px;backdrop-filter:blur(10px)">
     <div style="font-size:28px;margin-bottom:6px;color:#ff00ff">&#127942; 自定义赛事</div>
-    <div style="font-size:13px;color:#888;margin-bottom:24px">设置参数，AI自动生成赛程</div>
+    <div style="font-size:12px;color:#888;margin-bottom:24px">MTT 多桌锦标赛 · 学习→热身→休息→淘汰</div>
 
     <!-- Player Count -->
     <div style="margin-bottom:20px">
       <label style="color:#ccc;font-size:13px;display:block;margin-bottom:8px">参赛人数</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap" id="t-player-btns">
         <button class="t-opt" onclick="setTPlayers(8)" data-v="8">8人</button>
-        <button class="t-opt active" onclick="setTPlayers(16)" data-v="16">16人</button>
-        <button class="t-opt" onclick="setTPlayers(32)" data-v="32">32人</button>
+        <button class="t-opt" onclick="setTPlayers(16)" data-v="16">16人</button>
+        <button class="t-opt" onclick="setTPlayers(24)" data-v="24">24人</button>
+        <button class="t-opt active" onclick="setTPlayers(48)" data-v="48">48人</button>
         <button class="t-opt" onclick="setTPlayers(64)" data-v="64">64人</button>
         <button class="t-opt" onclick="setTPlayers(128)" data-v="128">128人</button>
-        <input type="number" id="t-player-custom" min="4" max="256" placeholder="自定义"
+        <input type="number" id="t-player-custom" min="8" max="256" placeholder="自定义"
           style="width:80px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,0,255,0.3);
           background:rgba(255,0,255,0.05);color:#fff;font-size:13px;text-align:center"
           oninput="setTPlayers(Number(this.value))">
@@ -1708,24 +1710,14 @@ body.view-table .holo-hex-grid{opacity:0.05}
     </div>
 
     <!-- Duration -->
-    <div style="margin-bottom:20px">
-      <label style="color:#ccc;font-size:13px;display:block;margin-bottom:8px">预期时长</label>
+    <div style="margin-bottom:24px">
+      <label style="color:#ccc;font-size:13px;display:block;margin-bottom:8px">预期总时长</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap" id="t-duration-btns">
-        <button class="t-opt" onclick="setTDuration(1)" data-v="1">1小时</button>
+        <button class="t-opt" onclick="setTDuration(1.5)" data-v="1.5">1.5小时</button>
         <button class="t-opt active" onclick="setTDuration(2)" data-v="2">2小时</button>
         <button class="t-opt" onclick="setTDuration(3)" data-v="3">3小时</button>
         <button class="t-opt" onclick="setTDuration(4)" data-v="4">半天</button>
         <button class="t-opt" onclick="setTDuration(8)" data-v="8">全天</button>
-      </div>
-    </div>
-
-    <!-- Format -->
-    <div style="margin-bottom:24px">
-      <label style="color:#ccc;font-size:13px;display:block;margin-bottom:8px">赛制</label>
-      <div style="display:flex;gap:8px;flex-wrap:wrap" id="t-format-btns">
-        <button class="t-opt active" onclick="setTFormat('swiss')" data-v="swiss">瑞士制</button>
-        <button class="t-opt" onclick="setTFormat('elimination')" data-v="elimination">淘汰制</button>
-        <button class="t-opt" onclick="setTFormat('roundrobin')" data-v="roundrobin">循环制</button>
       </div>
     </div>
 
@@ -1739,7 +1731,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
     <!-- Generated Schedule -->
     <div id="t-result" style="display:none;text-align:left;margin-top:16px;
-      background:rgba(0,0,0,0.3);border-radius:12px;padding:20px;max-height:300px;overflow-y:auto">
+      background:rgba(0,0,0,0.3);border-radius:12px;padding:20px;max-height:400px;overflow-y:auto">
     </div>
 
     <!-- Back button -->
@@ -2885,10 +2877,10 @@ socket.on('playerLeft',d=>{
   if(!botSeats.includes(d.seat))botSeats.push(d.seat);
 });
 
-// ===== TOURNAMENT GENERATOR =====
-let tPlayers=16, tDuration=2, tFormat='swiss';
+// ===== TOURNAMENT GENERATOR (MTT: 学习→热身→休息→淘汰) =====
+let tPlayers=48, tDuration=2;
 function setTPlayers(n){
-  if(!n||n<4)n=4; if(n>256)n=256;
+  if(!n||n<8)n=8; if(n>256)n=256;
   tPlayers=n;
   document.querySelectorAll('#t-player-btns .t-opt').forEach(b=>b.classList.toggle('active',Number(b.dataset.v)===n));
 }
@@ -2896,91 +2888,121 @@ function setTDuration(h){
   tDuration=h;
   document.querySelectorAll('#t-duration-btns .t-opt').forEach(b=>b.classList.toggle('active',Number(b.dataset.v)===h));
 }
-function setTFormat(f){
-  tFormat=f;
-  document.querySelectorAll('#t-format-btns .t-opt').forEach(b=>b.classList.toggle('active',b.dataset.v===f));
-}
 function generateTournament(){
-  const n=tPlayers, dur=tDuration, fmt=tFormat;
-  // Calculate tables needed (4 players per table)
+  const n=tPlayers, dur=tDuration;
   const tables=Math.ceil(n/4);
-  // Avg game time ~20min
-  const gameTime=20;
-  const totalSlots=Math.floor(dur*60/gameTime);
+  const gameMin=15; // avg per round
+  const totalMin=Math.floor(dur*60);
 
-  let rounds, gamesPerRound, schedule;
-  if(fmt==='elimination'){
-    // Single elimination: teams of 2, pairs compete
-    rounds=Math.ceil(Math.log2(n/2));
-    let remaining=n;
-    schedule=[];
-    for(let r=0;r<rounds;r++){
-      const pairs=Math.floor(remaining/4);
-      schedule.push({round:r+1,name:`第${r+1}轮 淘汰赛`,tables:pairs,players:remaining,
-        desc:r===rounds-1?'决赛':'淘汰 '+pairs+' 桌'});
-      remaining=Math.ceil(remaining/2);
-    }
-  }else if(fmt==='roundrobin'){
-    // Round robin: every pair plays every other pair
-    const teams=Math.ceil(n/2);
-    rounds=teams-1;
-    gamesPerRound=Math.floor(teams/2);
-    schedule=[];
-    for(let r=0;r<Math.min(rounds,totalSlots);r++){
-      schedule.push({round:r+1,name:`第${r+1}轮 循环赛`,tables:Math.min(gamesPerRound,tables),
-        players:n,desc:gamesPerRound+' 桌同时进行'});
-    }
-  }else{
-    // Swiss: sqrt(n) rounds, everyone plays each round
-    rounds=Math.max(3,Math.min(Math.ceil(Math.sqrt(n)),totalSlots));
-    schedule=[];
-    for(let r=0;r<rounds;r++){
-      schedule.push({round:r+1,name:`第${r+1}轮 瑞士轮`,tables:tables,players:n,
-        desc:r===0?'随机配对':('按积分配对 · '+tables+' 桌')});
-    }
+  // Phase allocation: learn 10-15min, warmup ~30%, break 10-15min, elimination ~55%
+  const learnMin=Math.min(15, Math.max(10, Math.round(totalMin*0.08)));
+  const breakMin=Math.min(15, Math.max(10, Math.round(totalMin*0.08)));
+  const playMin=totalMin-learnMin-breakMin;
+  // Split play time: ~35% warmup (swiss), ~65% elimination
+  const warmupMin=Math.round(playMin*0.35);
+  const elimMin=playMin-warmupMin;
+  const warmupRounds=Math.max(2, Math.floor(warmupMin/gameMin));
+  const elimRounds=Math.max(2, Math.floor(elimMin/gameMin));
+  // How many advance from warmup to elimination? top 50% (min 8)
+  const advancers=Math.max(8, Math.ceil(n*0.5/4)*4); // round to multiple of 4
+  const elimTables=Math.ceil(advancers/4);
+
+  // Build timeline
+  const timeline=[];
+  let t=0;
+
+  // Phase 0: 学习
+  timeline.push({phase:'learn',name:'学习阶段',icon:'&#128218;',color:'#4fc3f7',
+    time:t, dur:learnMin, desc:'规则讲解 · 练习牌局 · 熟悉操作',
+    detail:`${learnMin}分钟`});
+  t+=learnMin;
+
+  // Phase 1: 热身 (Swiss)
+  for(let r=0;r<warmupRounds;r++){
+    timeline.push({phase:'warmup',name:`热身 第${r+1}轮`,icon:'&#128293;',color:'#ffd700',
+      time:t, dur:gameMin, desc:r===0?`瑞士制 · 随机配对 · ${tables}桌`:`瑞士制 · 按积分配对 · ${tables}桌`,
+      detail:`${tables}桌同时`});
+    t+=gameMin;
   }
 
-  const totalTime=schedule.length*gameTime;
-  const h=Math.floor(totalTime/60), m=totalTime%60;
+  // Phase 2: 休息
+  timeline.push({phase:'break',name:'中场休息',icon:'&#9749;',color:'#78909c',
+    time:t, dur:breakMin, desc:`休整 · 公布热身排名 · 前${advancers}人晋级淘汰赛`,
+    detail:`${breakMin}分钟`});
+  t+=breakMin;
 
-  // Render result
+  // Phase 3: 淘汰赛
+  let remaining=advancers;
+  for(let r=0;r<elimRounds&&remaining>=4;r++){
+    const curTables=Math.ceil(remaining/4);
+    const isFinal=remaining<=4;
+    const isSemi=remaining<=8&&!isFinal;
+    const rName=isFinal?'决赛':isSemi?'半决赛':`淘汰赛 第${r+1}轮`;
+    timeline.push({phase:'elim',name:rName,icon:isFinal?'&#127942;':'&#9876;',color:'#ff00ff',
+      time:t, dur:gameMin+(isFinal?5:0), desc:`${curTables}桌 · ${remaining}人 · 败者淘汰`,
+      detail:isFinal?'冠军诞生！':`淘汰${Math.floor(remaining/2)}人`});
+    t+=gameMin+(isFinal?5:0);
+    remaining=Math.ceil(remaining/2);
+    if(remaining<4)remaining=4;
+  }
+
+  const totalTime=t;
+  const th=Math.floor(totalTime/60), tm=totalTime%60;
+
+  // Render
   const el=document.getElementById('t-result');
   el.style.display='block';
-  let html=`<div style="color:#ff00ff;font-weight:700;font-size:15px;margin-bottom:12px">
-    &#127942; 赛程方案</div>
-    <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="background:rgba(255,0,255,0.1);padding:8px 14px;border-radius:8px;font-size:12px;color:#ccc">
-        <span style="color:#ff00ff;font-weight:700">${n}</span> 人参赛</div>
-      <div style="background:rgba(255,0,255,0.1);padding:8px 14px;border-radius:8px;font-size:12px;color:#ccc">
-        <span style="color:#ff00ff;font-weight:700">${schedule.length}</span> 轮</div>
-      <div style="background:rgba(255,0,255,0.1);padding:8px 14px;border-radius:8px;font-size:12px;color:#ccc">
-        预计 <span style="color:#ff00ff;font-weight:700">${h>0?h+'小时':''}${m>0?m+'分钟':''}</span></div>
-      <div style="background:rgba(255,0,255,0.1);padding:8px 14px;border-radius:8px;font-size:12px;color:#ccc">
-        <span style="color:#ff00ff;font-weight:700">${tables}</span> 桌</div>
+
+  let html=`<div style="color:#ff00ff;font-weight:700;font-size:16px;margin-bottom:14px">
+    &#127942; MTT 赛程方案</div>
+    <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <div class="t-stat"><span style="color:#ff00ff;font-weight:700;font-size:16px">${n}</span><br><span style="font-size:10px;color:#888">参赛人数</span></div>
+      <div class="t-stat"><span style="color:#ffd700;font-weight:700;font-size:16px">${warmupRounds}</span><br><span style="font-size:10px;color:#888">热身轮次</span></div>
+      <div class="t-stat"><span style="color:#ff00ff;font-weight:700;font-size:16px">${elimRounds}</span><br><span style="font-size:10px;color:#888">淘汰轮次</span></div>
+      <div class="t-stat"><span style="color:#4fc3f7;font-weight:700;font-size:16px">${th>0?th+'h':''}${tm}m</span><br><span style="font-size:10px;color:#888">总时长</span></div>
+      <div class="t-stat"><span style="color:#ccc;font-weight:700;font-size:16px">${tables}</span><br><span style="font-size:10px;color:#888">最大桌数</span></div>
     </div>`;
 
-  html+=`<div style="border-left:2px solid rgba(255,0,255,0.3);padding-left:16px">`;
-  schedule.forEach((s,i)=>{
-    const time=i*gameTime;
-    const th=Math.floor(time/60), tm=time%60;
-    html+=`<div style="margin-bottom:12px;position:relative">
-      <div style="position:absolute;left:-24px;top:2px;width:12px;height:12px;border-radius:50%;
-        background:${i===0?'#ff00ff':'rgba(255,0,255,0.4)'};border:2px solid #ff00ff"></div>
-      <div style="font-size:13px;color:#fff;font-weight:600">${s.name}</div>
-      <div style="font-size:11px;color:#888;margin-top:2px">
-        +${th>0?th+'h':''}${tm}min · ${s.tables}桌 · ${s.desc}</div>
+  // Timeline
+  html+=`<div style="border-left:3px solid rgba(255,0,255,0.2);padding-left:18px">`;
+  const phaseColors={learn:'#4fc3f7',warmup:'#ffd700',break:'#78909c',elim:'#ff00ff'};
+  let prevPhase='';
+  timeline.forEach((s,i)=>{
+    // Phase header
+    if(s.phase!==prevPhase){
+      const phaseLabels={learn:'Phase 0 · 学习',warmup:'Phase 1 · 热身赛 (瑞士制)',break:'中场',elim:'Phase 2 · 淘汰赛'};
+      if(s.phase!=='break'){
+        html+=`<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:${phaseColors[s.phase]};
+          margin:${i>0?'16px':'0'} 0 8px;text-transform:uppercase">${phaseLabels[s.phase]}</div>`;
+      }
+      prevPhase=s.phase;
+    }
+    const tH=Math.floor(s.time/60), tM=s.time%60;
+    const timeStr=`+${tH>0?tH+'h':''}${tM}m`;
+    const dotColor=phaseColors[s.phase];
+    html+=`<div style="margin-bottom:10px;position:relative">
+      <div style="position:absolute;left:-26px;top:3px;width:12px;height:12px;border-radius:50%;
+        background:${s.phase==='break'?'transparent':dotColor};border:2px solid ${dotColor};
+        ${s.phase==='break'?'border-style:dashed':''}"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font-size:13px;color:#fff;font-weight:600">${s.icon} ${s.name}</div>
+        <div style="font-size:10px;color:#666;flex-shrink:0;margin-left:8px">${timeStr}</div>
+      </div>
+      <div style="font-size:11px;color:#888;margin-top:2px">${s.desc}</div>
     </div>`;
   });
   html+=`</div>`;
 
-  // Scoring rules
-  const fmtNames={swiss:'瑞士制',elimination:'淘汰制',roundrobin:'循环制'};
-  html+=`<div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,0,255,0.15)">
-    <div style="font-size:12px;color:#ff00ff;font-weight:600;margin-bottom:6px">计分规则 (${fmtNames[fmt]})</div>
-    <div style="font-size:11px;color:#888;line-height:1.6">
-      ${fmt==='swiss'?'胜: +3分 · 头游: +1分 · 负: 0分 · 双上: +5分<br>积分相同按对手强度排序 (布赫兹分)':
-        fmt==='elimination'?'每轮赢者晋级，输者淘汰<br>头游: +1附加分 (决赛加赛用)':
-        '胜: +2分 · 平: +1分 · 负: 0分<br>总积分排名，同分比较小分'}
+  // Scoring
+  html+=`<div style="margin-top:16px;padding:14px;background:rgba(255,0,255,0.05);border:1px solid rgba(255,0,255,0.15);border-radius:10px">
+    <div style="font-size:12px;color:#ff00ff;font-weight:700;margin-bottom:8px">计分规则</div>
+    <div style="font-size:11px;color:#888;line-height:1.8">
+      <b style="color:#ffd700">热身赛（瑞士制）</b><br>
+      胜: +3分 · 头游: +1分 · 双上: +5分 · 负: 0分<br>
+      积分前 ${advancers} 名晋级淘汰赛（同分按布赫兹分排序）<br><br>
+      <b style="color:#ff00ff">淘汰赛</b><br>
+      每轮败者淘汰 · 头游+1附加分（决赛加赛用）<br>
+      半决赛/决赛采用三局两胜制
     </div>
   </div>`;
 
