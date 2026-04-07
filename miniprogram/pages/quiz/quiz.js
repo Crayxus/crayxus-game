@@ -35,7 +35,7 @@ Page({
     const lessonIdx = options.lessonIdx || '0'
     const lessonName = options.lessonName ? decodeURIComponent(options.lessonName) : ''
     try {
-      const sys = wx.getWindowInfo()
+      const sys = wx.getSystemInfoSync()
       this.setData({ statusBarHeight: sys.statusBarHeight || 44, mode, lessonDim, courseId, lessonIdx, lessonName })
     } catch(e) {
       this.setData({ mode, lessonDim, courseId, lessonIdx, lessonName })
