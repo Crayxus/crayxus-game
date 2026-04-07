@@ -5,7 +5,7 @@
   <!-- 顶部导航 -->
   <view class="nav-bar">
     <view class="nav-back" bindtap="goBack">←</view>
-    <text class="nav-title">{{mode === 'danli' ? '段位测评' : '每日做题'}}</text>
+    <text class="nav-title">{{mode === 'danli' ? '段位测评' : mode === 'lesson' ? lessonName : '每日做题'}}</text>
     <view class="nav-right">
       <text class="nav-progress" wx:if="{{started}}">{{currentIndex + 1}}/{{questions.length}}</text>
     </view>
@@ -13,10 +13,13 @@
 
   <!-- 开始页 -->
   <view class="start-page" wx:if="{{!started && !finished}}">
-    <view class="start-icon">{{mode === 'danli' ? '🎯' : '📝'}}</view>
-    <view class="start-title">{{mode === 'danli' ? '段位测评' : '每日做题'}}</view>
+    <view class="start-icon">{{mode === 'danli' ? '🎯' : mode === 'lesson' ? '📖' : '📝'}}</view>
+    <view class="start-title">{{mode === 'danli' ? '段位测评' : mode === 'lesson' ? lessonName : '每日做题'}}</view>
     <view class="start-desc" wx:if="{{mode === 'danli'}}">
       20道真实牌局，V8 超冠军级AI出题\n随机题目，每次不同\n组牌 · 大牌 · 时机 · 配合 · 炸弹 · 终局
+    </view>
+    <view class="start-desc" wx:elif="{{mode === 'lesson'}}">
+      {{lessonDim}} · 5道题 · 60分及格解锁下一课\n满分额外奖励蛋力Token
     </view>
     <view class="start-desc" wx:else>
       每天3道精选题目，坚持练习提升实力
@@ -103,8 +106,27 @@
   <!-- 结果页：证书风格 -->
   <view class="result-page" wx:if="{{finished}}">
 
+    <!-- 课程答题结果 -->
+    <view wx:if="{{mode === 'lesson'}}" style="text-align:center;padding-top:80rpx">
+      <view style="font-size:80rpx;margin-bottom:20rpx">{{result.passed ? '🎉' : '😅'}}</view>
+      <text class="result-score" style="font-size:96rpx;color:{{result.passed ? '#58cc02' : '#ff4444'}}">{{result.pct}}</text>
+      <text class="result-max" style="font-size:36rpx;color:#888">分</text>
+      <view style="margin-top:16rpx;font-size:30rpx;color:#ccc">{{result.lessonName}} · {{result.dim}}</view>
+      <view style="margin-top:12rpx;font-size:26rpx;color:{{result.passed ? '#58cc02' : '#ff4444'}}">
+        {{result.passed ? '通过！' : '未及格，60分通过'}} · {{result.correct}}/{{result.total}}题正确
+      </view>
+      <view wx:if="{{result.passed && result.bonus > 0}}" style="margin-top:20rpx;font-size:28rpx;color:#ffc800">
+        🥚 +{{result.bonus}} 蛋力Token {{result.pct === 100 ? '· 满分奖励！' : ''}}
+      </view>
+      <view class="result-actions" style="margin-top:60rpx">
+        <view class="result-btn primary" bindtap="{{result.passed ? 'goBack' : 'retryQuiz'}}">
+          {{result.passed ? '返回课程' : '再试一次'}}
+        </view>
+      </view>
+    </view>
+
     <!-- 每日做题简单结果 -->
-    <view wx:if="{{mode !== 'danli'}}" style="text-align:center;padding-top:120rpx">
+    <view wx:if="{{mode !== 'danli' && mode !== 'lesson'}}" style="text-align:center;padding-top:120rpx">
       <text class="result-score" style="font-size:96rpx">{{result.correct}}</text>
       <text class="result-max">/{{result.total}}</text>
       <text class="result-correct" style="display:block;margin-top:20rpx">答对 {{result.correct}} 题</text>

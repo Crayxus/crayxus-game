@@ -30,11 +30,15 @@ Page({
 
   onLoad(options) {
     const mode = options.mode || 'danli'
+    const lessonDim = options.dim ? decodeURIComponent(options.dim) : ''
+    const courseId = options.courseId || ''
+    const lessonIdx = options.lessonIdx || '0'
+    const lessonName = options.lessonName ? decodeURIComponent(options.lessonName) : ''
     try {
       const sys = wx.getSystemInfoSync()
-      this.setData({ statusBarHeight: sys.statusBarHeight || 44, mode })
+      this.setData({ statusBarHeight: sys.statusBarHeight || 44, mode, lessonDim, courseId, lessonIdx, lessonName })
     } catch(e) {
-      this.setData({ mode })
+      this.setData({ mode, lessonDim, courseId, lessonIdx, lessonName })
     }
     this.loadPool()
   },
@@ -134,7 +138,18 @@ Page({
     }
 
     let questions
-    if (this.data.mode === 'danli') {
+    if (this.data.mode === 'lesson') {
+      // 课程模式：从指定维度抽5题
+      const dim = this.data.lessonDim
+      const dimPool = this.data.pool.filter(q => q.dim === dim)
+      if (dimPool.length === 0) {
+        // 该维度没题，从全库随机抽
+        questions = this._pickRandom(5)
+      } else {
+        this._shuffle(dimPool)
+        questions = dimPool.slice(0, 5)
+      }
+    } else if (this.data.mode === 'danli') {
       // 段位测评：从大题库随机抽20题（每维度至少2题）
       questions = this._pickBalanced(20)
     } else {
@@ -337,6 +352,50 @@ Page({
           score: totalScore, rating, correct, total, pct,
           rank: rankObj.name, rankIcon: rankObj.icon, rankColor: rankObj.color,
           dims, certNo, certDate, weakest: weakest.name
+        }
+      })
+    } else if (mode === 'lesson') {
+      // 课程答题完成
+      const correct = answers.filter(a => a.correct).length
+      const total = answers.length
+      const pct = Math.round(correct / total * 100)
+      const passed = pct >= 60 // 60%及格
+
+      if (passed) {
+        // 标记课程完成
+        const progress = wx.getStorageSync('crayxus_academy') || {}
+        const courseId = this.data.courseId
+        const lessonIdx = this.data.lessonIdx
+        if (!progress[courseId]) progress[courseId] = {}
+        progress[courseId][String(lessonIdx)] = 'done'
+        wx.setStorageSync('crayxus_academy', progress)
+
+        // 奖励蛋力Token
+        const egg = wx.getStorageSync('crayxus_egg') || { balance: 100, history: [] }
+        const bonus = pct === 100 ? 15 : pct >= 80 ? 10 : 5
+        egg.balance += bonus
+        egg.history.unshift({ type: 'earn', amount: bonus, reason: this.data.lessonName + (pct === 100 ? ' 满分!' : ''), time: Date.now() })
+        wx.setStorageSync('crayxus_egg', egg)
+
+        // 同步到服务器
+        const uid = wx.getStorageSync('crayxus_uid') || ''
+        if (uid) {
+          wx.request({
+            url: app.globalData.serverUrl + '/api/progress',
+            method: 'POST',
+            header: { 'content-type': 'application/json' },
+            data: { userId: uid, data: { courses: progress, egg, source: 'miniprogram' } }
+          })
+        }
+      }
+
+      this.setData({
+        finished: true,
+        result: {
+          correct, total, pct, passed,
+          bonus: passed ? (pct === 100 ? 15 : pct >= 80 ? 10 : 5) : 0,
+          lessonName: this.data.lessonName,
+          dim: this.data.lessonDim
         }
       })
     } else {

@@ -215,25 +215,20 @@ Page({
       return
     }
 
-    // 标记完成并保存
-    const progress = wx.getStorageSync('crayxus_academy') || {}
-    if (!progress[course.id]) progress[course.id] = {}
-    progress[course.id][String(lessonIdx)] = 'done'
-    wx.setStorageSync('crayxus_academy', progress)
+    // 维度映射: courseId → quiz dimension name
+    const dimMap = {
+      decompose: '组牌分解',
+      power: '大牌控制',
+      timing: '出牌时机',
+      teamwork: '队友配合',
+      bomb: '炸弹使用',
+      endgame: '终局处理'
+    }
+    const dim = dimMap[course.id] || course.name
 
-    // 奖励蛋力Token
-    const egg = wx.getStorageSync('crayxus_egg') || { balance: 100, history: [] }
-    egg.balance += 5
-    egg.history.unshift({ type: 'earn', amount: 5, reason: course.name + ' · ' + lesson.name, time: Date.now() })
-    wx.setStorageSync('crayxus_egg', egg)
-
-    wx.showToast({ title: '完成 +5蛋力', icon: 'success' })
-
-    // 同步到服务器
-    this.syncToServer()
-    this.loadProgress()
-    // 刷新选中课程
-    const updated = this.data.courses.find(c => c.id === course.id)
-    this.setData({ selectedCourse: updated })
+    // 跳转到quiz页面，lesson模式：从该维度抽5题
+    wx.navigateTo({
+      url: `/pages/quiz/quiz?mode=lesson&dim=${encodeURIComponent(dim)}&courseId=${course.id}&lessonIdx=${lessonIdx}&lessonName=${encodeURIComponent(lesson.name)}`
+    })
   }
 })
