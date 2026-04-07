@@ -18,7 +18,7 @@
     <view class="start-desc" wx:if="{{mode === 'danli'}}">
       20道真实牌局，V8 超冠军级AI出题\n随机题目，每次不同\n组牌 · 大牌 · 时机 · 配合 · 炸弹 · 终局
     </view>
-    <view class="start-desc" wx:elif="{{mode === 'lesson'}}">
+    <view class="start-desc" wx:if="{{mode === 'lesson'}}">
       {{lessonDim}} · 5道题 · 60分及格解锁下一课\n满分额外奖励蛋力Token
     </view>
     <view class="start-desc" wx:else>

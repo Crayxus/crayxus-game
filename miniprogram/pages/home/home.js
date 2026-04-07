@@ -22,7 +22,7 @@ Page({
 
   onLoad() {
     try {
-      const sys = wx.getSystemInfoSync()
+      const sys = wx.getWindowInfo()
       this.setData({ statusBarHeight: sys.statusBarHeight || 44 })
     } catch(e) {}
   },
