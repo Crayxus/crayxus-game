@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="30">
+<title>DMC V8 Training Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0e1a; color: #e0e0e0; padding: 20px; }
+h1 { text-align: center; color: #22c55e; margin-bottom: 5px; font-size: 1.8em; }
+.subtitle { text-align: center; color: #888; margin-bottom: 20px; font-size: 0.9em; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1200px; margin: 0 auto; }
+.card { background: #151a2e; border-radius: 12px; padding: 20px; border: 1px solid #1e2642; }
+.card.full { grid-column: 1 / -1; }
+.card h2 { color: #22c55e; font-size: 1.1em; margin-bottom: 12px; }
+.stat-row { display: flex; justify-content: space-between; margin: 8px 0; }
+.stat-label { color: #888; }
+.stat-value { color: #fff; font-weight: bold; }
+.stat-value.green { color: #4ade80; }
+.progress-bar { width: 100%; height: 24px; background: #1e2642; border-radius: 12px; overflow: hidden; margin: 10px 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #166534, #22c55e); border-radius: 12px; transition: width 0.5s; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; min-width: 40px; }
+canvas { width: 100%; height: 280px; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75em; margin-left: 8px; }
+.tag.v8 { background: #22c55e33; color: #4ade80; border: 1px solid #22c55e55; }
+.tag.m { background: #f59e0b33; color: #fbbf24; border: 1px solid #f59e0b55; }
+.tag.bc { background: #8b5cf633; color: #a78bfa; border: 1px solid #8b5cf655; }
+#lastUpdate { text-align: center; color: #555; font-size: 0.8em; margin-top: 15px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+th { color: #22c55e; text-align: left; padding: 8px 6px; border-bottom: 2px solid #22c55e44; }
+td { padding: 8px 6px; border-bottom: 1px solid #1e2642; }
+</style>
+</head>
+<body>
+<h1>DMC V8 Training <span class="tag v8">V8</span> <span class="tag m">M-Value</span> <span class="tag bc">Phase 2</span></h1>
+<p class="subtitle">716-dim (714 + M值 + Power) | Phase 2: 从60.5%暖重启 | LR 3e-5 | Target Net + Dense Rewards</p>
+
+<div class="grid">
+  <div class="card full">
+    <h2>Training Progress</h2>
+    <div class="progress-bar"><div class="progress-fill" id="progBar">0%</div></div>
+    <div style="display:flex; justify-content:space-around; margin-top:10px; flex-wrap:wrap; gap:8px;">
+      <div><span class="stat-label">Step</span><br><span class="stat-value" id="curStep">-</span></div>
+      <div><span class="stat-label">Speed</span><br><span class="stat-value" id="speed">-</span></div>
+      <div><span class="stat-label">Elapsed</span><br><span class="stat-value" id="elapsed">-</span></div>
+      <div><span class="stat-label">ETA</span><br><span class="stat-value" id="eta">-</span></div>
+      <div><span class="stat-label">Loss</span><br><span class="stat-value" style="color:#60a5fa" id="curLoss">-</span></div>
+      <div><span class="stat-label">Best WR</span><br><span class="stat-value green" id="bestWR">-</span></div>
+    </div>
+  </div>
+  <div class="card"><h2>Loss Curve</h2><canvas id="lossChart"></canvas></div>
+  <div class="card"><h2>Win Rate (vs Champion + vs RuleAgent)</h2><canvas id="wrChart"></canvas></div>
+  <div class="card">
+    <h2>V8 vs V7 对比</h2>
+    <table>
+      <tr><th>特性</th><th>V7</th><th>V8</th></tr>
+      <tr><td>State维度</td><td>714</td><td style="color:#4ade80">716 (+M值+Power)</td></tr>
+      <tr><td>M值特征</td><td style="color:#f87171">无</td><td style="color:#4ade80">最少出牌次数/14</td></tr>
+      <tr><td>Power特征</td><td style="color:#f87171">无</td><td style="color:#4ade80">大牌控制力/8</td></tr>
+      <tr><td>热启动</td><td>SWA 79%</td><td style="color:#4ade80">Human BC 92.6%</td></tr>
+      <tr><td>胜率判定</td><td style="color:#f87171">sum bug</td><td style="color:#4ade80">头游判定</td></tr>
+      <tr><td>Target Net</td><td colspan="2" style="color:#4ade80;text-align:center">τ=0.005 ✓</td></tr>
+      <tr><td>Dense Rewards</td><td colspan="2" style="color:#4ade80;text-align:center">✓</td></tr>
+      <tr><td>训练速度</td><td>4.7 step/s</td><td style="color:#4ade80">5.3 step/s</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Phase 1 最终成绩 ✅</h2>
+    <table>
+      <tr><th>指标</th><th>数值</th></tr>
+      <tr><td>vs Champion最高</td><td style="color:#4ade80;font-weight:bold">60.5% (Step 4,960K)</td></tr>
+      <tr><td>vs Rule最高</td><td style="color:#60a5fa;font-weight:bold">96.5% (Step 4,850K)</td></tr>
+      <tr><td>vs V1上古大神</td><td style="color:#fbbf24;font-weight:bold">73.2% (500局)</td></tr>
+      <tr><td>总步数</td><td>5,000,000 (100%)</td></tr>
+      <tr><td>训练时间</td><td>~11天</td></tr>
+      <tr><td>崩盘次数</td><td style="color:#4ade80">0</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Eval History</h2>
+    <div id="evalList" style="font-size:0.88em;max-height:300px;overflow-y:auto;">
+      <div style="color:#555;text-align:center;">Waiting for first eval...</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>模型天梯</h2>
+    <table>
+      <tr><th>模型</th><th>vs Champion</th><th>vs Rule</th></tr>
+      <tr style="color:#ff6b35;font-weight:bold"><td>V8 Phase 2 (训练中)</td><td id="v8WR">?</td><td>-</td></tr>
+      <tr style="color:#4ade80"><td>V8 Phase 1 (60.5%)</td><td>60.5%</td><td>96.5%</td></tr>
+      <tr><td>V7 Human BC</td><td>-</td><td>92.6%</td></tr>
+      <tr><td>V1 上古大神</td><td>-</td><td>83.0%</td></tr>
+      <tr><td>V5 SWA</td><td>-</td><td>85.8%</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>M值 (Harrington M)</h2>
+    <div style="font-size:0.85em;line-height:1.8;color:#ccc">
+      <div><strong>M = 手牌最少出牌次数</strong></div>
+      <div>M≤6: 极好牌 (1.5%)</div>
+      <div>M=7-8: 好牌 (19.5%)</div>
+      <div>M=9-10: 普通牌 (57.2%)</div>
+      <div>M=11-12: 差牌 (20.1%)</div>
+      <div>M≥13: 极差牌 (1.7%)</div>
+      <div style="color:#fbbf24;margin-top:8px">平均M=9.5</div>
+    </div>
+  </div>
+</div>
+<p id="lastUpdate"></p>
+<script>
+// Try Phase 2 first, fall back to Phase 1
+const METRICS_P2='dmc_checkpoints_v8p2/training_metrics.json';
+const METRICS_P1='dmc_checkpoints_v8/training_metrics.json';
+let METRICS_URL=METRICS_P2;
+const TOTAL_STEPS=5000000;
+function fmt(s){if(!s||s<=0)return'-';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>0?h+'h'+String(m).padStart(2,'0')+'m':m+'m';}
+class Ch{constructor(id){this.c=document.getElementById(id);this.x=this.c.getContext('2d');}draw(ds,o={}){const c=this.c,d=window.devicePixelRatio||1,r=c.getBoundingClientRect();c.width=r.width*d;c.height=r.height*d;const x=this.x;x.scale(d,d);const W=r.width,H=r.height,p={t:20,r:15,b:30,l:55},pW=W-p.l-p.r,pH=H-p.t-p.b;x.fillStyle='#0d1120';x.fillRect(0,0,W,H);if(!ds.length||!ds[0].data.length){x.fillStyle='#555';x.font='14px sans-serif';x.textAlign='center';x.fillText('Waiting...',W/2,H/2);return;}let aX=[],aY=[];ds.forEach(s=>s.data.forEach(q=>{aX.push(q.x);aY.push(q.y);}));let xn=Math.min(...aX),xx=Math.max(...aX)||1,yn=o.yMin!==undefined?o.yMin:Math.min(...aY),yx=o.yMax!==undefined?o.yMax:Math.max(...aY);if(yx===yn){yx+=1;yn-=1;}const sx=v=>p.l+(v-xn)/(xx-xn)*pW,sy=v=>p.t+(1-(v-yn)/(yx-yn))*pH;x.strokeStyle='#1e2642';x.lineWidth=1;for(let i=0;i<=4;i++){const y=p.t+pH*i/4;x.beginPath();x.moveTo(p.l,y);x.lineTo(W-p.r,y);x.stroke();x.fillStyle='#666';x.font='11px sans-serif';x.textAlign='right';x.fillText(o.yFmt?o.yFmt(yx-(yx-yn)*i/4):(yx-(yx-yn)*i/4).toFixed(3),p.l-6,y+4);}x.textAlign='center';for(let i=0;i<=4;i++){const v=p.l+pW*i/4;x.fillText(o.xFmt?o.xFmt(xn+(xx-xn)*i/4):Math.round(xn+(xx-xn)*i/4).toLocaleString(),v,H-8);}if(o.target!==undefined){x.strokeStyle='#fbbf2455';x.lineWidth=1;x.setLineDash([6,4]);const ty=sy(o.target);x.beginPath();x.moveTo(p.l,ty);x.lineTo(W-p.r,ty);x.stroke();x.setLineDash([]);x.fillStyle='#fbbf24';x.font='10px sans-serif';x.textAlign='right';x.fillText(o.targetLabel||'',W-p.r,ty-5);}ds.forEach(s=>{if(s.data.length<1)return;x.strokeStyle=s.color||'#22c55e';x.lineWidth=s.width||2;x.setLineDash(s.dash||[]);x.beginPath();s.data.forEach((q,i)=>{const px=sx(q.x),py=sy(q.y);if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});x.stroke();x.setLineDash([]);const l=s.data[s.data.length-1];x.fillStyle=s.color||'#22c55e';x.beginPath();x.arc(sx(l.x),sy(l.y),4,0,Math.PI*2);x.fill();if(s.label){x.font='11px sans-serif';x.textAlign='left';x.fillText(s.label+' '+(o.yFmt?o.yFmt(l.y):l.y.toFixed(3)),sx(l.x)+8,sy(l.y)+4);}});}}
+const lc=new Ch('lossChart'),wc=new Ch('wrChart');
+async function update(){try{let r=await fetch(METRICS_P2+'?t='+Date.now());if(!r.ok){r=await fetch(METRICS_P1+'?t='+Date.now());}if(!r.ok)return;const d=await r.json(),m=d.metrics||[],tr=m.filter(x=>x.loss!==undefined),ev=m.filter(x=>x.win_rate!==undefined);if(tr.length>0){const l=tr[tr.length-1],pct=l.step/TOTAL_STEPS*100;document.getElementById('progBar').style.width=pct+'%';document.getElementById('progBar').textContent=pct.toFixed(1)+'%';document.getElementById('curStep').textContent=l.step.toLocaleString()+'/'+TOTAL_STEPS.toLocaleString();document.getElementById('speed').textContent=(l.speed||'-')+' step/s';document.getElementById('elapsed').textContent=fmt(l.elapsed);document.getElementById('eta').textContent=fmt(l.eta);document.getElementById('curLoss').textContent=l.loss!==undefined?l.loss.toFixed(4):'-';}lc.draw([{data:tr.filter(x=>x.loss>0).map(x=>({x:x.step,y:x.loss})),color:'#22c55e',label:'V8'}],{xFmt:v=>(v/1000).toFixed(0)+'K'});const wd=ev.map(x=>({x:x.step,y:x.win_rate}));const wr=ev.filter(x=>x.wr_rule).map(x=>({x:x.step,y:x.wr_rule}));const bl=[{x:0,y:0.50},{x:TOTAL_STEPS,y:0.50}];const ds2=[{data:bl,color:'#fbbf2444',width:1,dash:[6,4],label:'50%=Champion'},{data:wd,color:'#22c55e',width:2.5,label:'vs Champ'}];if(wr.length>0)ds2.push({data:wr,color:'#60a5fa',width:2,label:'vs Rule'});wc.draw(ds2,{yMin:0.0,yMax:1.0,yFmt:v=>(v*100).toFixed(0)+'%',xFmt:v=>(v/1000).toFixed(0)+'K',target:0.70,targetLabel:'70%=Phase 2 target'});if(ev.length>0){const b=ev.reduce((a,c)=>a.win_rate>c.win_rate?a:c);document.getElementById('bestWR').textContent=(b.win_rate*100).toFixed(1)+'%';document.getElementById('v8WR').textContent=(ev[ev.length-1].win_rate*100).toFixed(1)+'%';let h='';ev.slice(-15).reverse().forEach(e=>{const c=e.win_rate>=0.50?'#4ade80':e.win_rate>=0.40?'#fbbf24':'#f87171';const rr=e.wr_rule?(` <span style="color:#60a5fa">${(e.wr_rule*100).toFixed(0)}%R</span>`):'';h+=`<div style="display:flex;justify-content:space-between;margin:3px 0"><span>Step ${(e.step/1000).toFixed(0)}K</span><span><span style="color:${c};font-weight:bold">${(e.win_rate*100).toFixed(1)}%C</span>${rr}</span></div>`;});document.getElementById('evalList').innerHTML=h;}}catch(e){}document.getElementById('lastUpdate').textContent='Last update: '+new Date().toLocaleTimeString();}
+update();setInterval(update,30000);
+</script>
+</body>
+</html>

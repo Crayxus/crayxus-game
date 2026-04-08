@@ -15,7 +15,7 @@ SWA_RESULT=$?
 
 # Determine starting checkpoint
 SWA_PATH="dmc_checkpoints_v8/dmc_v8_swa_top3.pt"
-BEST_SINGLE="dmc_checkpoints_v8/dmc_step3810000_wr0.585.pt"
+BEST_SINGLE="dmc_checkpoints_v8/dmc_step4960000_wr0.605.pt"
 
 if [ $SWA_RESULT -eq 0 ] && [ -f "$SWA_PATH" ]; then
     START_CKPT="$SWA_PATH"
