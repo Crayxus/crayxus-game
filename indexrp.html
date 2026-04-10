@@ -3768,7 +3768,7 @@ async function modelPickMove(seat,hand){
     }
     if(moves.length===0)return null;
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
-    let sv=v5Mode?encodeStateV5(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
+    let sv=v5Mode?(v8Mode?encodeStateV8:encodeStateV5)(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
     let mvs=moves.map(m=>cardsToVec54(m));
     let res=await Promise.race([
       runModelBatch(sv,mvs,seat),
@@ -3855,7 +3855,7 @@ async function beamPickMove(seat,hand){
     if(moves.length===0)return null;
     if(moves.length===1)return moves[0];
     let lo=(seat+1)%4,pa=(seat+2)%4,ro=(seat+3)%4;
-    let sv=v5Mode?encodeStateV5(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
+    let sv=v5Mode?(v8Mode?encodeStateV8:encodeStateV5)(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1,tMoveHistory):encodeState322(hand,tPlayedCards[seat],tPlayedCards[lo],tPlayedCards[pa],tPlayedCards[ro],lastHand,[...counts],seat,finishOrder,[...tBombCounts],lastHand?.owner??-1);
     let mvs=moves.map(m=>cardsToVec54(m));
     let res=await Promise.race([runModelBatch(sv,mvs,seat),new Promise(r=>setTimeout(()=>r(null),5000))]);
     if(!res)return undefined;
@@ -3910,7 +3910,7 @@ async function beamPickMove(seat,hand){
       }else if(newHand&&newHand.length>0){
         let newMoves=genMoves(newHand,simLH,seat,simFO);
         if(newMoves.length>0){
-          let newSv=v5Mode?encodeStateV5(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1,tMoveHistory):encodeState322(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1);
+          let newSv=v5Mode?(v8Mode?encodeStateV8:encodeStateV5)(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1,tMoveHistory):encodeState322(newHand,simPl[seat],simPl[lo],simPl[pa],simPl[ro],simLH,simCnts,seat,simFO,simBC,simLH?.owner??-1);
           let newMvs=newMoves.map(m=>cardsToVec54(m));
           let newRes=await Promise.race([runModelBatch(newSv,newMvs,seat),new Promise(r=>setTimeout(()=>r(null),3000))]);
           if(newRes){
@@ -5030,10 +5030,12 @@ let tPlayedCards={};
 let tBombCounts=[0,0,0,0];
 let onnxSession=null;
 let dmcMode=false; // true if using DMC dual-input model
-let v5Mode=false;  // true if using V5 714-dim state encoder
+let v5Mode=false;  // true if using V5+ state encoder
+let v8Mode=false;  // true if using V8 716-dim state encoder
 let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool, handType:obj} for history encoding
+const ONNX_MODEL_URL_V8='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8p2b_best_wr625.onnx';
 const ONNX_MODEL_URL_V5='https://huggingface.co/iluman/guandan-ai/resolve/main/guandan_dmc_v5.onnx';
-const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/guandan_dmc_v5.onnx';
+const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8p2b_best_wr625.onnx';
 const MCTS_API='http://localhost:8000';
 let mctsAvailable=false; // detected at startup
 
@@ -5846,6 +5848,25 @@ function uidToSuitVal(uid){
   return[suit,val];
 }
 
+/* ===== M-VALUE + POWER + V8 ENCODER (716 dims) ===== */
+function _handToGroups(hv){const g=new Int8Array(15);for(let uid=0;uid<52;uid++){if(!hv[uid])continue;g[uid%13]+=hv[uid]}g[13]+=hv[52]||0;g[14]+=hv[53]||0;return g;}
+function _rmStraights(g){let p=0,ch=true;while(ch){ch=false;for(let s=0;s<=7;s++){if(g[s]>=1&&g[s+1]>=1&&g[s+2]>=1&&g[s+3]>=1&&g[s+4]>=1){g[s]--;g[s+1]--;g[s+2]--;g[s+3]--;g[s+4]--;p++;ch=true;break}}}return p}
+function _rmPlates(g){let p=0,ch=true;while(ch){ch=false;for(let s=0;s<=10;s++){if(g[s]>=3&&g[s+1]>=3){g[s]-=3;g[s+1]-=3;p++;ch=true;break}}}return p}
+function _rmTubes(g){let p=0,ch=true;while(ch){ch=false;for(let l of[5,4,3]){for(let s=0;s<=11-l;s++){let ok=true;for(let i=0;i<l;i++){if(g[s+i]<2){ok=false;break}}if(ok){for(let i=0;i<l;i++)g[s+i]-=2;p++;ch=true;break}}if(ch)break}}return p}
+function _rmFullhouses(g){let p=0,ch=true;while(ch){ch=false;for(let t=0;t<15;t++){if(g[t]<3)continue;for(let q=0;q<15;q++){if(q===t||g[q]<2)continue;g[t]-=3;g[q]-=2;p++;ch=true;break}if(ch)break}}return p}
+function _rmBombs(g){let p=0;for(let i=0;i<15;i++){if(g[i]>=4){g[i]-=4;p++}}return p}
+function _rmTriples(g){let p=0;for(let i=0;i<15;i++){while(g[i]>=3){g[i]-=3;p++}}return p}
+function _rmPairs(g){let p=0;for(let i=0;i<15;i++){while(g[i]>=2){g[i]-=2;p++}}return p}
+function _greedyPlays(g,strat){let p=0;const fns=[[_rmStraights,_rmPlates,_rmTubes,_rmFullhouses,_rmBombs,_rmTriples,_rmPairs],[_rmPlates,_rmTubes,_rmStraights,_rmFullhouses,_rmBombs,_rmTriples,_rmPairs],[_rmFullhouses,_rmStraights,_rmPlates,_rmTubes,_rmBombs,_rmTriples,_rmPairs],[_rmTubes,_rmPlates,_rmFullhouses,_rmStraights,_rmBombs,_rmTriples,_rmPairs]][strat];for(const fn of fns)p+=fn(g);let rem=0;for(let i=0;i<15;i++)rem+=g[i];return p+rem;}
+function computeMinPlays(hv){const g0=_handToGroups(hv);let s=0;for(let i=0;i<15;i++)s+=g0[i];if(s===0)return 0;let best=999;for(let st=0;st<4;st++){const gc=new Int8Array(g0);const r=_greedyPlays(gc,st);if(r<best)best=r}return best;}
+function computePower(hv){let power=0;const groups={};for(let uid=0;uid<54;uid++){if(!hv[uid])continue;let p;if(uid===52)p=16;else if(uid===53)p=17;else p=(uid%13)+3;groups[p]=(groups[p]||0)+hv[uid];}for(const pk in groups){const cnt=groups[pk];const p=Number(pk);if(cnt>=4)power+=1.5;else if(cnt>=3&&p>=14)power+=0.5;}for(const p of[14,15,16,17])power+=(groups[p]||0)*0.3;if((groups[16]||0)>=1&&(groups[17]||0)>=1)power+=1.0;return power;}
+function encodeStateV8(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory){
+  const v5=encodeStateV5(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory);
+  const v=new Float32Array(716);v.set(v5,0);
+  const hv=new Float32Array(54);for(const c of handCards){if(c&&c.id!==undefined)hv[c.id]=1}
+  v[714]=computeMinPlays(hv)/14.0;v[715]=computePower(hv)/8.0;return v;
+}
+
 function encodeStateV5(handCards,myPl,loPl,paPl,roPl,lh,cnts,seat,finOrd,bCnts,lhOwner,gameHistory){
   const v=new Float32Array(714);
   // === V1 Base (326 dims) ===
@@ -6276,7 +6297,7 @@ async function runModelBatch(sv,mvs,observerSeat){
   const n=mvs.length;
   if(dmcMode){
     // DMC dual-input: history (n,15,62) + state_action (n, stateDim+54)
-    const stateDim=v5Mode?714:326;
+    const stateDim=v8Mode?716:v5Mode?714:326;
     const saDim=stateDim+54;
     const hBuf=new Float32Array(n*15*62);
     const hist=encodeHistoryTensor(observerSeat!==undefined?observerSeat:mySeat);
@@ -6405,14 +6426,14 @@ async function loadOnnxModel(){
 
   try{
     setProgress(0,'Loading V5 AI model...');
-    const buf5=await loadModelWithCache(ONNX_MODEL_URL_V5, 'dmc_v5');
-    setProgress(92,'Initializing V5 AI...');
-    onnxSession=await ort.InferenceSession.create(buf5,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
-    dmcMode=true;v5Mode=true;
+    const buf8=await loadModelWithCache(ONNX_MODEL_URL_V8, 'dmc_v8p2b_625');
+    setProgress(92,'Initializing V8 AI...');
+    onnxSession=await ort.InferenceSession.create(buf8,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
+    dmcMode=true;v5Mode=true;v8Mode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ V7 AI model loaded (92.6% WR, 714-dim state encoder)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V7 AI模型已加载 (92.6%)';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V7 92.6% ✓';if(badge)badge.style.color='var(--neon)';
+    console.log('%c✅ V8 AI model loaded (62.5% vs Champion, 73% vs V1, 716-dim)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V8 AI模型已加载 (62.5% vs Champion)';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V8 62.5% ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e5){
     console.warn('V5 model not available, trying V4 DMC:',e5.message);
     try{
@@ -6521,7 +6542,7 @@ async function getCoachSuggestions(hand,prevLastHand,prePlayedSnap,preBombSnap){
       let lo=(mySeat+1)%4,pa=(mySeat+2)%4,ro=(mySeat+3)%4;
       let preC=[...counts];preC[mySeat]=h.length;
       let bc=preBombSnap||tBombCounts;
-      let sv=v5Mode?encodeStateV5(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1,tMoveHistory):encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1);
+      let sv=v5Mode?(v8Mode?encodeStateV8:encodeStateV5)(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1,tMoveHistory):encodeState322(h,prePlayedSnap[mySeat],prePlayedSnap[lo],prePlayedSnap[pa],prePlayedSnap[ro],lh,preC,mySeat,finishOrder,bc,lh?.owner??-1);
       let mvs=moves.map(m=>cardsToVec54(m.cards));
       let res=await runModelBatch(sv,mvs,mySeat);
       if(res){for(let i=0;i<moves.length;i++)moves[i].winRate=Math.round(Math.max(0,Math.min(100,res[i].wr*100)))}

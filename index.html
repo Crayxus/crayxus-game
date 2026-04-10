@@ -4864,9 +4864,9 @@ let dmcMode=false; // true if using DMC dual-input model
 let v5Mode=false;  // true if using V5+ state encoder (714 or 716 dim)
 let v8Mode=false;  // true if using V8 716-dim state encoder
 let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool, handType:obj} for history encoding
-const ONNX_MODEL_URL_V8='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8_best_step3810k_wr585.onnx';
+const ONNX_MODEL_URL_V8='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8p2b_best_wr625.onnx';
 const ONNX_MODEL_URL_V5='https://huggingface.co/iluman/guandan-ai/resolve/main/guandan_dmc_v5.onnx';
-const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8_best_step3810k_wr585.onnx';
+const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8p2b_best_wr625.onnx';
 const MCTS_API='http://localhost:8000';
 let mctsAvailable=false; // detected at startup
 
@@ -6432,15 +6432,15 @@ async function loadOnnxModel(){
   }
   try{
     setProgress(0,'Downloading V8 AI model (716-dim)...');
-    const buf8=await loadModelWithCache(ONNX_MODEL_URL_V8, 'dmc_v8_best_585');
+    const buf8=await loadModelWithCache(ONNX_MODEL_URL_V8, 'dmc_v8p2b_625');
     setProgress(92,'Initializing V8 AI engine...');
     onnxSession=await ort.InferenceSession.create(buf8,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;v5Mode=true;v8Mode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ V8 AI model loaded (58.5% vs Champion, 72% vs V1, 716-dim state encoder, Step 3810K)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    console.log('%c   Model: v8_best_step3810k_wr585.onnx | Architecture: LSTM+ResNet | State: 716-dim (714+M-value+Power)', 'color:#0af');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V8 AI模型已加载 (58.5% vs Champion)';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V8 58.5% ✓';if(badge)badge.style.color='var(--neon)';
+    console.log('%c✅ V8 AI model loaded (62.5% vs Champion, 73% vs V1, 716-dim state encoder, Phase 2b)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    console.log('%c   Model: v8p2b_best_wr625.onnx | Architecture: LSTM+ResNet | State: 716-dim (714+M-value+Power)', 'color:#0af');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V8 AI模型已加载 (62.5% vs Champion)';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V8 62.5% ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e5){
     console.warn('AI model download failed after retries:',e5.message);
     onnxSession=null;dmcMode=false;v5Mode=false;
