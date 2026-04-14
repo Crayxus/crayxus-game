@@ -4864,9 +4864,9 @@ let dmcMode=false; // true if using DMC dual-input model
 let v5Mode=false;  // true if using V5+ state encoder (714 or 716 dim)
 let v8Mode=false;  // true if using V8 716-dim state encoder
 let tMoveHistory=[]; // array of {seat, cards:[], isBomb:bool, handType:obj} for history encoding
-const ONNX_MODEL_URL_V8='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8p2b_best_wr625.onnx';
+const ONNX_MODEL_URL_V8='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8p2b_best_step850k_wr640.onnx';
 const ONNX_MODEL_URL_V5='https://huggingface.co/iluman/guandan-ai/resolve/main/guandan_dmc_v5.onnx';
-const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8p2b_best_wr625.onnx';
+const ONNX_MODEL_URL_DMC='https://huggingface.co/iluman/guandan-ai/resolve/main/models/v8p2b_best_step850k_wr640.onnx';
 const MCTS_API='http://localhost:8000';
 let mctsAvailable=false; // detected at startup
 
@@ -6391,33 +6391,56 @@ async function loadOnnxModel(){
   async function loadModelWithCache(url, cacheKey){
     let cached=await getCachedModel(cacheKey);
     if(cached){
-      setProgress(80,'Loading cached AI model...');
-      console.log('✅ AI model loaded from cache');
+      const mb=(cached.byteLength/1024/1024).toFixed(1);
+      setProgress(85,`从缓存加载 ${mb}MB...`);
+      console.log(`%c⚡ AI模型从缓存加载 (${mb}MB) - 跳过下载`, 'color:#0af;font-weight:bold');
       return cached;
     }
-    setProgress(0,'Downloading AI model...');
+    setProgress(0,'准备下载AI模型...');
+    console.log(`%c📥 开始下载AI模型: ${url.split('/').pop()}`, 'color:#fa0;font-weight:bold');
+    const t0=Date.now();
     const buf=await fetchWithProgress(url);
+    const dt=((Date.now()-t0)/1000).toFixed(1);
+    const mb=(buf.byteLength/1024/1024).toFixed(1);
+    const speed=(buf.byteLength/1024/1024/(dt||1)).toFixed(2);
+    console.log(`%c💾 AI模型下载完成 ${mb}MB / ${dt}s (avg ${speed} MB/s)`, 'color:#0f0;font-weight:bold');
     await setCachedModel(cacheKey, buf);
-    console.log('💾 AI model cached');
+    console.log('%c💽 模型已缓存到IndexedDB，下次秒开', 'color:#888');
     return buf;
   }
 
   async function fetchWithProgress(url, maxRetries=3){
     for(let attempt=1;attempt<=maxRetries;attempt++){
       try{
-        setProgress(0, attempt>1?`Retry ${attempt}/${maxRetries}...`:'Downloading AI model...');
+        setProgress(0, attempt>1?`重试 ${attempt}/${maxRetries}...`:'连接 HuggingFace...');
+        const t0=Date.now();
         const response=await fetch(url);
         if(!response.ok) throw new Error('HTTP '+response.status);
         const total=parseInt(response.headers.get('content-length')||'0');
+        const totalMB=(total/1024/1024).toFixed(1);
+        console.log(`%c📦 模型大小: ${totalMB} MB`, 'color:#0af');
         const reader=response.body.getReader();
         const chunks=[];
         let loaded=0;
+        let lastLog=0;
         while(true){
           const {done,value}=await reader.read();
           if(done) break;
           chunks.push(value);
           loaded+=value.byteLength;
-          if(total) setProgress(Math.round(loaded/total*90), attempt>1?`Retry ${attempt} downloading...`:'Downloading AI model...');
+          if(total){
+            const pct=Math.round(loaded/total*90);
+            const loadedMB=(loaded/1024/1024).toFixed(1);
+            const dt=(Date.now()-t0)/1000;
+            const speed=(loaded/1024/1024/(dt||1)).toFixed(2);
+            const eta=Math.max(0,Math.round((total-loaded)/(loaded/(dt||1))));
+            setProgress(pct, `下载中 ${loadedMB}/${totalMB}MB · ${speed} MB/s · ETA ${eta}s`);
+            // 每10%打印一次到console
+            if(pct - lastLog >= 10){
+              console.log(`%c   ⬇ ${pct}% · ${loadedMB}/${totalMB} MB · ${speed} MB/s`, 'color:#888');
+              lastLog=pct;
+            }
+          }
         }
         const buf=new Uint8Array(loaded);
         let off=0;
@@ -6432,15 +6455,15 @@ async function loadOnnxModel(){
   }
   try{
     setProgress(0,'Downloading V8 AI model (716-dim)...');
-    const buf8=await loadModelWithCache(ONNX_MODEL_URL_V8, 'dmc_v8p2b_625');
+    const buf8=await loadModelWithCache(ONNX_MODEL_URL_V8, 'dmc_v8p2b_850k_640');
     setProgress(92,'Initializing V8 AI engine...');
     onnxSession=await ort.InferenceSession.create(buf8,{executionProviders:['wasm'],graphOptimizationLevel:'all'});
     dmcMode=true;v5Mode=true;v8Mode=true;
     setProgress(100,'AI Ready ✓');
-    console.log('%c✅ V8 AI model loaded (62.5% vs Champion, 73% vs V1, 716-dim state encoder, Phase 2b)', 'color:#00ffcc;font-size:14px;font-weight:bold');
-    console.log('%c   Model: v8p2b_best_wr625.onnx | Architecture: LSTM+ResNet | State: 716-dim (714+M-value+Power)', 'color:#0af');
-    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V8 AI模型已加载 (62.5% vs Champion)';
-    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V8 62.5% ✓';if(badge)badge.style.color='var(--neon)';
+    console.log('%c✅ V8 AI model loaded (64.0% vs Champion, 74.5% vs V1, 716-dim state encoder, Phase 2b Step 850K)', 'color:#00ffcc;font-size:14px;font-weight:bold');
+    console.log('%c   Model: v8p2b_best_step850k_wr640.onnx | Architecture: LSTM+ResNet | State: 716-dim (714+M-value+Power)', 'color:#0af');
+    let cn=document.getElementById('coach-note');if(cn)cn.innerText='V8 AI模型已加载 (64.0% vs Champion)';
+    let badge=document.getElementById('ai-model-badge');if(badge)badge.innerText='AI: V8 64.0% ✓';if(badge)badge.style.color='var(--neon)';
   }catch(e5){
     console.warn('AI model download failed after retries:',e5.message);
     onnxSession=null;dmcMode=false;v5Mode=false;
