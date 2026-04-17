@@ -2655,15 +2655,8 @@ function startCasualMode(sub){
   }else{
     currentWildValue='2';
   }
-  // Connect socket and enter lobby for multiplayer casual
   gameMode='casual';
-  if(!socket.connected) socket.connect();
-  // Update lobby UI for casual mode
-  document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText=sub==='upgrade'?'升级模式':'定蛋模式';
-  document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='休闲对战 · 1-4人';
-  var eloRow=document.getElementById('lobby-elo');
-  if(eloRow)eloRow.parentElement.parentElement.style.display='none';
-  switchScreen('lobby');
+  startTrainingGame();
 }
 function closeCasualPopup(){
   document.getElementById('casual-popup').style.display='none';
