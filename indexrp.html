@@ -3080,7 +3080,7 @@ function _doEnterGame(d){
   let _handDock=document.getElementById('hand-dock');if(_handDock)_handDock.style.display='flex';
   updateAvatarLabels();initLadder(!_autoContinue);renderUI();checkTurn();
   if(window._applyWeChatProfile)window._applyWeChatProfile();
-  const afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='block';
+  const afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='';
   afkEnabled=false;clearTimeout(afkTimer);
   const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='hd-btn hd-afk';afkbtn.innerHTML='<span class="hd-icon">🤖</span><span class="hd-label">离座代打</span>';}
   const afkbadge=document.getElementById('afk-badge');if(afkbadge)afkbadge.style.display='none';
@@ -4700,10 +4700,11 @@ function repositionButtons(){
   if(ctrls) ctrls.style.bottom = btnBottom + 'px';
   if(pme)   pme.style.bottom   = (btnBottom + 4) + 'px';
   if(!document.body.classList.contains('view-touch')){
-    const afkBtn=document.getElementById('afk-btn');
+    // hand-dock 已统一定位 afk + 智能理牌 + 恢复手牌, 不再单独覆盖 afk-btn
     const afkBadge=document.getElementById('afk-badge');
-    if(afkBtn){afkBtn.style.bottom=(handBottom+Math.round(newHandH/2)-15)+'px';afkBtn.style.right='10px'}
     if(afkBadge){afkBadge.style.bottom=(handBottom+newHandH-5)+'px';afkBadge.style.right='8px'}
+    const handDock=document.getElementById('hand-dock');
+    if(handDock){handDock.style.bottom=Math.max(16,handBottom-8)+'px'}
   }
 }
 window.addEventListener('resize', ()=>{
