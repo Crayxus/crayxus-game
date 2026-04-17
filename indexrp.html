@@ -3714,26 +3714,63 @@ function sendPass(){
   socket.emit('action',{seat:mySeat,type:'pass'});
 }
 
-// 独立 SF 扫描器 (不依赖 analyzeHand, 作为兜底确保方片等也能识别)
+// 独立 SF 扫描器 (自然 + wild-augmented, 含 A-low)
 function _scanAllStraightFlushes(cards){
   const _SR={'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
   const results=[];
+  const wilds=cards.filter(c=>isWildCard(c));
+  const nonJk=cards.filter(c=>c.s!=='JOKER'&&_SR[c.v]&&!isWildCard(c));
+  const nw=wilds.length;
+  const seen=new Set();
+  const pushSeq=seq=>{
+    const ids=seq.map(c=>c.id).sort().join('|');
+    if(seen.has(ids))return;
+    seen.add(ids);results.push(seq);
+  };
   for(const suit of ['♠','♥','♣','♦']){
-    const sc=cards.filter(c=>c.s===suit&&_SR[c.v]);
-    if(sc.length<5)continue;
+    const sc=nonJk.filter(c=>c.s===suit);
     const bySR={};
     sc.forEach(c=>{const sr=_SR[c.v];if(!bySR[sr])bySR[sr]=c});
     const srs=Object.keys(bySR).map(Number).sort((a,b)=>a-b);
+    // 自然 5 连
     for(let i=0;i<=srs.length-5;i++){
-      let ok=true;
-      for(let j=0;j<4;j++){if(srs[i+j+1]!==srs[i+j]+1){ok=false;break}}
+      let ok=true;for(let j=0;j<4;j++){if(srs[i+j+1]!==srs[i+j]+1){ok=false;break}}
       if(ok){
         const seq=[];for(let j=0;j<5;j++)seq.push(bySR[srs[i+j]]);
-        results.push(seq);
+        pushSeq(seq);
       }
     }
+    // 自然 A-low
     if(bySR[14]&&[2,3,4,5].every(v=>bySR[v])){
-      results.push([bySR[14],bySR[2],bySR[3],bySR[4],bySR[5]]);
+      pushSeq([bySR[14],bySR[2],bySR[3],bySR[4],bySR[5]]);
+    }
+    // Wild-augmented: start 2..10, 每段需 5 张, 自然+wild 能凑齐即算
+    if(nw>0){
+      for(let start=2;start<=10;start++){
+        const needed=[start,start+1,start+2,start+3,start+4];
+        const haveNatural=needed.filter(v=>bySR[v]).length;
+        const gaps=5-haveNatural;
+        if(gaps>0&&gaps<=nw){
+          const seq=[];let wi=0;
+          for(const v of needed){
+            if(bySR[v])seq.push(bySR[v]);
+            else seq.push(wilds[wi++]);
+          }
+          pushSeq(seq);
+        }
+      }
+      // Wild A-low
+      const aLow=[14,2,3,4,5];
+      const haveNat=aLow.filter(v=>bySR[v]).length;
+      const gaps=5-haveNat;
+      if(gaps>0&&gaps<=nw){
+        const seq=[];let wi=0;
+        for(const v of aLow){
+          if(bySR[v])seq.push(bySR[v]);
+          else seq.push(wilds[wi++]);
+        }
+        pushSeq(seq);
+      }
     }
   }
   return results;
