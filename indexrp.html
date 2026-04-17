@@ -88,10 +88,11 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .p-left{top:40%;left:20px;transform:translateY(-50%)}
 .p-right{top:40%;right:calc(20px + env(safe-area-inset-right,0px));transform:translateY(-50%)}
 .timer-ring{width:84px;height:84px;border-radius:50%;display:flex;justify-content:center;align-items:center}
-.av{width:76px;height:76px;border-radius:50%;background:linear-gradient(145deg,#1e1a14,#0e0c08);border:3px solid #6b5a3a;display:flex;justify-content:center;align-items:center;font-size:12px;font-weight:bold;color:#c0a878;box-shadow:0 4px 12px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,220,120,0.06)}
-.av.active{border-color:#c8a84e;color:#f0d888;box-shadow:0 0 16px rgba(200,168,78,0.4),0 4px 12px rgba(0,0,0,0.6)}
-.av.finished{border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 15px var(--gold),0 4px 12px rgba(0,0,0,0.6)!important}
-.av.human-player{background:linear-gradient(145deg,#201a10,#140e06)}
+.av{width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#3a2f1e 0%,#1e1a14 45%,#0a0804 100%);border:2px solid #a08050;display:flex;justify-content:center;align-items:center;font-size:12px;font-weight:bold;color:#f0d888;box-shadow:0 4px 12px rgba(0,0,0,0.65),inset 0 2px 2px rgba(255,220,140,0.18),inset 0 -2px 3px rgba(0,0,0,0.4),0 0 0 1px rgba(0,0,0,0.5);text-shadow:0 1px 2px rgba(0,0,0,0.7);font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:1px;position:relative}
+.av::before{content:'';position:absolute;inset:-1px;border-radius:50%;padding:1px;background:linear-gradient(145deg,rgba(255,220,140,0.8),rgba(160,128,80,0.2) 40%,rgba(60,40,20,0.6) 70%,rgba(255,220,140,0.5));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.av.active{border-color:#f0d888;color:#fff4c8;box-shadow:0 0 20px rgba(240,216,136,0.55),0 4px 12px rgba(0,0,0,0.65),inset 0 2px 3px rgba(255,240,180,0.3),inset 0 -2px 3px rgba(120,80,20,0.3)}
+.av.finished{border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 18px var(--gold),0 4px 12px rgba(0,0,0,0.65),inset 0 2px 3px rgba(255,240,180,0.25)!important}
+.av.human-player{background:radial-gradient(circle at 30% 25%,#4a3822 0%,#251c10 50%,#0a0604 100%)}
 .badge-n{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:none;justify-content:center;align-items:center;border:2px solid #fff;font-size:12px;font-weight:bold;z-index:10}
 .badge-n.big-count{width:32px;height:32px;font-size:16px;font-weight:900;top:-8px;right:-8px;border-width:2px;box-shadow:0 2px 6px rgba(0,0,0,0.4)}
 .badge-finish{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:1px 8px;border-radius:8px;font-size:10px;font-weight:bold;display:none;z-index:10;white-space:nowrap}
@@ -721,12 +722,15 @@ to{transform:rotate(360deg)}}
 50%{transform:scale(1.15);opacity:1}}
 .casual-avatar-img{
   width:60px;height:60px;margin:6px;border-radius:50%;
-  background:linear-gradient(135deg,#1a1a3e,#0a0a1e);
-  border:2px solid rgba(0,255,255,0.4);
+  background:radial-gradient(circle at 30% 25%,#1e2850 0%,#121833 50%,#050712 100%);
+  border:2px solid rgba(0,255,255,0.55);
   display:flex;align-items:center;justify-content:center;
-  font-size:24px;
+  font-size:24px;font-weight:800;
+  color:#b8f0ff;
   position:relative;z-index:2;
-  box-shadow:0 0 15px rgba(0,255,255,0.2);
+  box-shadow:0 0 15px rgba(0,255,255,0.25),inset 0 2px 3px rgba(120,220,255,0.25),inset 0 -2px 3px rgba(0,0,0,0.4);
+  text-shadow:0 1px 2px rgba(0,0,0,0.7);
+  font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:1px;
 }
 .casual-stats{display:flex;flex-direction:column;gap:4px}
 .casual-name{
@@ -1505,7 +1509,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <!-- Logged in: show avatar -->
       <div id="home-profile-section" style="display:none;align-items:center;gap:16px">
         <div style="position:relative">
-          <div id="home-avatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(145deg,#1e1a14,#0e0c08);border:2px solid #6b5a3a;display:flex;align-items:center;justify-content:center;font-size:24px;color:#c8a84e;box-shadow:0 3px 10px rgba(0,0,0,0.5);overflow:hidden">P1</div>
+          <div id="home-avatar" style="width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#3a2f1e 0%,#1e1a14 45%,#0a0804 100%);border:2px solid #a08050;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#f0d888;box-shadow:0 4px 14px rgba(0,0,0,0.6),inset 0 2px 3px rgba(255,220,140,0.22),inset 0 -2px 3px rgba(0,0,0,0.4),0 0 0 1px rgba(0,0,0,0.4);text-shadow:0 1px 2px rgba(0,0,0,0.7);font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:1px;overflow:hidden">P1</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:4px">
           <div id="home-nickname" style="font-size:16px;font-weight:800;color:#e0d0a0;letter-spacing:1px">PLAYER</div>
@@ -1519,7 +1523,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
     <!-- Mode buttons -->
     <div class="holo-btns" id="holo-btns">
-      <div class="holo-btn casual-btn" onclick="selectMode('casual')" data-mode="casual" onmouseenter="showModeInfo('casual')" onmouseleave="showModeInfo(null)">
+      <div class="holo-btn casual-btn" onclick="window.location.href='/index.html'" data-mode="casual" onmouseenter="showModeInfo('casual')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9827;</div>
         <div class="h-name">休闲模式</div>
         <div class="h-desc">定蛋 / 升级玩法<br>1-4人 · 段位晋升</div>
