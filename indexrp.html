@@ -2638,6 +2638,7 @@ function selectMode(mode){
     document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='2V2 排位 · 1-4 人';
     var eloRow=document.getElementById('lobby-elo');
     if(eloRow)eloRow.parentElement.parentElement.style.display='';
+    _setup48MatchUI();
     switchScreen('lobby');
   }else if(mode==='casual'){
     gameMode='casual';
@@ -2646,6 +2647,45 @@ function selectMode(mode){
   }else{
     startTrainingGame();
   }
+}
+
+function _setup48MatchUI(){
+  const g=document.getElementById('seat-grid');
+  if(!g)return;
+  g.style.cssText='display:grid!important;grid-template-columns:repeat(4,130px)!important;gap:14px;justify-content:center';
+  g.innerHTML='';
+  for(let t=0;t<12;t++){
+    const base=t*4;
+    const card=document.createElement('div');
+    card.className='table-card';
+    card.id='table-'+t;
+    card.innerHTML=
+      '<div class="seat-slot table-seat-top" id="slot-'+base+'">空</div>'+
+      '<div class="seat-slot table-seat-left" id="slot-'+(base+1)+'">空</div>'+
+      '<div class="table-mid"><span class="table-mid-label">T'+(t+1)+'</span></div>'+
+      '<div class="seat-slot table-seat-right" id="slot-'+(base+2)+'">空</div>'+
+      '<div class="seat-slot table-seat-bot" id="slot-'+(base+3)+'">空</div>';
+    g.appendChild(card);
+  }
+  const show=id=>{const el=document.getElementById(id);if(el)el.style.display='';};
+  show('player-count-select');show('tournament-config');show('pc-info');
+}
+
+function _setupCasualMatchUI(){
+  // Rebuild seat-grid to 4 simple seats (index.html style, NOT 48-player MTT)
+  const g=document.getElementById('seat-grid');
+  if(g){
+    g.style.cssText='display:grid;grid-template-columns:repeat(4,80px);gap:10px;margin:20px 0;justify-content:center';
+    g.innerHTML=
+      '<div class="seat-slot" id="slot-0" onclick="requestSeat&&requestSeat(0)"><span>空位</span><span class="seat-label">1号位</span></div>'+
+      '<div class="seat-slot" id="slot-1" onclick="requestSeat&&requestSeat(1)"><span>空位</span><span class="seat-label">2号位</span></div>'+
+      '<div class="seat-slot" id="slot-2" onclick="requestSeat&&requestSeat(2)"><span>空位</span><span class="seat-label">3号位</span></div>'+
+      '<div class="seat-slot" id="slot-3" onclick="requestSeat&&requestSeat(3)"><span>空位</span><span class="seat-label">4号位</span></div>';
+  }
+  // Hide MTT-specific panels
+  const hide=id=>{const el=document.getElementById(id);if(el)el.style.display='none';};
+  hide('player-count-select');hide('tournament-config');hide('mtt-detail');hide('pc-info');
+  const mt=document.getElementById('match-timer');if(mt)mt.innerText='空位将由AI填充';
 }
 
 function startCasualMode(sub){
@@ -2665,6 +2705,7 @@ function startCasualMode(sub){
   document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='休闲对战 · 1-4人';
   var eloRow=document.getElementById('lobby-elo');
   if(eloRow)eloRow.parentElement.parentElement.style.display='none';
+  _setupCasualMatchUI();
   switchScreen('lobby');
 }
 function closeCasualPopup(){
