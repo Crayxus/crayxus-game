@@ -3099,6 +3099,7 @@ function _doEnterGame(d){
   let hpn=document.getElementById('holo-player-name');
   if(arenaName&&hpn)arenaName.innerText=hpn.innerText;
 
+  let _sortDock=document.getElementById('sort-dock');if(_sortDock)_sortDock.style.display='flex';
   updateAvatarLabels();initLadder(!_autoContinue);renderUI();checkTurn();
   if(window._applyWeChatProfile)window._applyWeChatProfile();
   const afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='block';
@@ -3564,7 +3565,7 @@ function handleSync(d){
         let txt=c.s==='JOKER'?'':c.v;
         let ico=c.s==='JOKER'?'':c.s;
         if(isWildCard(c))cl+=' c-wild';
-        if(gameMode==='casual'||gameMode==='arena'){if(c.s==='♥')cl+=' c-heart';else if(c.s==='♦')cl+=' c-diamond';else if(c.s==='♣')cl+=' c-club';else if(c.s==='♠')cl+=' c-spade';else if(c.s==='JOKER')cl+=c.v==='Bg'?' c-joker-big':' c-joker-small';}
+        if(c.s==='♥')cl+=' c-heart';else if(c.s==='♦')cl+=' c-diamond';else if(c.s==='♣')cl+=' c-club';else if(c.s==='♠')cl+=' c-spade';else if(c.s==='JOKER')cl+=c.v==='Bg'?' c-joker-big':' c-joker-small';
         div.className='card c-mini card-appear '+cl;
         div.style.animationDelay=idx*50+'ms';
         if(c.s==='JOKER'){let jSize=36;div.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden"><div style="font-size:'+jSize+'px;line-height:1">★</div><div style="font-size:9px;font-weight:900;letter-spacing:0.5px;font-family:Arial,sans-serif;margin-top:-2px">JOKER</div></div>';}
@@ -4523,15 +4524,13 @@ function renderHand(isDealing=false){
       stackCard.style.cssText = `top:${topPos}px;width:${CW}px;height:${clipH}px;z-index:${ci+1};`;
       const isRed = ['♥','♦'].includes(c.s) || c.v==='Bg';
       const colorClass = isRed ? 'c-red' : 'c-blk';
-      // 4-color suit class for casual/arena mode
+      // 4-color suit class (全模式生效)
       let suitColorClass = '';
-      if(gameMode==='casual'||gameMode==='arena'){
-        if(c.s==='♥') suitColorClass = ' c-heart';
-        else if(c.s==='♦') suitColorClass = ' c-diamond';
-        else if(c.s==='♣') suitColorClass = ' c-club';
-        else if(c.s==='♠') suitColorClass = ' c-spade';
-        else if(c.s==='JOKER') suitColorClass = c.v==='Bg' ? ' c-joker-big' : ' c-joker-small';
-      }
+      if(c.s==='♥') suitColorClass = ' c-heart';
+      else if(c.s==='♦') suitColorClass = ' c-diamond';
+      else if(c.s==='♣') suitColorClass = ' c-club';
+      else if(c.s==='♠') suitColorClass = ' c-spade';
+      else if(c.s==='JOKER') suitColorClass = c.v==='Bg' ? ' c-joker-big' : ' c-joker-small';
       const isWild = isWildCard(c);
       const isJoker = c.s==='JOKER';
       let dispVal, dispSuit;
@@ -5345,12 +5344,8 @@ function startTrainingGame(isContinue){
   let dash = document.querySelector('.dashboard');
   if(dash) dash.style.display='none';
   let viewEl = document.getElementById('view');
-  // Dark card styling for casual + arena
-  if(gameMode==='casual'||gameMode==='arena'){
-    if(viewEl) viewEl.classList.add('casual-mode');
-  }else{
-    if(viewEl) viewEl.classList.remove('casual-mode');
-  }
+  // Unified styling: dark cards + 4-color for all play modes
+  if(viewEl) viewEl.classList.add('casual-mode');
   // Show casual HUD or arena HUD
   let casualHud = document.getElementById('casual-hud');
   let arenaHud = document.getElementById('arena-hud');
@@ -5775,7 +5770,7 @@ function tProcessAction(d){
           let txt=c.s==='JOKER'?'':c.v;
           let ico=c.s==='JOKER'?'':c.s;
           if(isWildCard(c))cl+=' c-wild';
-          if(gameMode==='casual'||gameMode==='arena'){if(c.s==='♥')cl+=' c-heart';else if(c.s==='♦')cl+=' c-diamond';else if(c.s==='♣')cl+=' c-club';else if(c.s==='♠')cl+=' c-spade';else if(c.s==='JOKER')cl+=c.v==='Bg'?' c-joker-big':' c-joker-small';}
+          if(c.s==='♥')cl+=' c-heart';else if(c.s==='♦')cl+=' c-diamond';else if(c.s==='♣')cl+=' c-club';else if(c.s==='♠')cl+=' c-spade';else if(c.s==='JOKER')cl+=c.v==='Bg'?' c-joker-big':' c-joker-small';
           div.className='card c-mini card-appear '+cl;
           div.style.animationDelay=idx*50+'ms';
           if(c.s==='JOKER'){let jSize=36;let jCls=c.v==='Bg'?'joker-rainbow-wrap':'joker-grey-wrap';div.innerHTML='<div class="'+jCls+'" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;color:inherit"><div style="font-size:'+jSize+'px;line-height:1;color:inherit">★</div><div style="font-size:9px;font-weight:900;letter-spacing:0.5px;font-family:Arial,sans-serif;margin-top:-2px;color:inherit">JOKER</div></div>';}
@@ -6713,7 +6708,7 @@ async function showCoachPanel(lastAction,preHand,preLastHand,prePlayedSnap,preBo
         let txt=c.s==='JOKER'?'':c.v;
         let ico=c.s==='JOKER'?'':c.s;
         if(isWildCard(c))cl+=' c-wild';
-        if(gameMode==='casual'||gameMode==='arena'){if(c.s==='♥')cl+=' c-heart';else if(c.s==='♦')cl+=' c-diamond';else if(c.s==='♣')cl+=' c-club';else if(c.s==='♠')cl+=' c-spade';else if(c.s==='JOKER')cl+=c.v==='Bg'?' c-joker-big':' c-joker-small';}
+        if(c.s==='♥')cl+=' c-heart';else if(c.s==='♦')cl+=' c-diamond';else if(c.s==='♣')cl+=' c-club';else if(c.s==='♠')cl+=' c-spade';else if(c.s==='JOKER')cl+=c.v==='Bg'?' c-joker-big':' c-joker-small';
         if(c.s==='JOKER'){cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;position:relative"><div style="font-size:28px;line-height:1;margin-top:-2px">★</div><div style="position:absolute;bottom:1px;font-size:5px;font-weight:900;letter-spacing:0.3px;font-family:Arial,sans-serif">JOKER</div></div></div>';}
         else{cardsHtml+='<div class="card c-mini '+cl+'" style="width:36px;height:50px"><div class="val-txt" style="font-size:10px;padding:2px">'+txt+'</div><div class="center-icon" style="font-size:14px">'+ico+'</div></div>';}
       });
