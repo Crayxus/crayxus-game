@@ -175,30 +175,29 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 #tribute-pick-bar .tpb-btn:disabled{opacity:0.3;cursor:not-allowed}
 .tag{position:absolute;top:-35px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.94);border:1px solid var(--gold);color:var(--gold);padding:4px 12px;border-radius:12px;font-size:12px;z-index:201;white-space:nowrap}
 .ctrls{position:absolute;bottom:320px;left:50%;transform:translateX(-50%);display:none;gap:20px;z-index:500;transition:bottom 0.2s ease}
-#afk-btn{
-  position:absolute;bottom:30px;right:16px;z-index:500;
-  padding:14px 28px;border-radius:16px;
-  border:1px solid rgba(0,255,255,0.15);
-  background:rgba(5,5,15,0.95);
-  color:rgba(255,255,255,0.4);
-  font-size:14px;font-weight:700;
-  cursor:pointer;transition:all 0.3s;display:none;
-  font-family:'Orbitron','Segoe UI',sans-serif;
-  letter-spacing:2px;
-  
-  box-shadow:0 0 30px rgba(0,255,255,0.04),inset 0 0 30px rgba(0,255,255,0.02);
-  
+/* 手牌 dock: 智能理牌/恢复/代打 - 统一横排 */
+.hd-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 16px;border-radius:12px;
+  border:1px solid rgba(180,150,80,0.25);
+  background:linear-gradient(180deg,rgba(30,26,18,0.96),rgba(14,10,4,0.96));
+  color:#d8c68a;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+  font-family:'Segoe UI','Microsoft YaHei',sans-serif;letter-spacing:1px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,220,140,0.08);
+  min-width:110px;justify-content:center;white-space:nowrap;
 }
-#afk-btn:hover{
-  border-color:rgba(0,255,255,0.35);color:rgba(255,255,255,0.7);
-  box-shadow:0 0 30px rgba(0,255,255,0.12),inset 0 0 30px rgba(0,255,255,0.04);
-}
-#afk-btn.afk-on{
-  background:rgba(0,255,255,0.06);color:var(--cyan);
-  border-color:rgba(0,255,255,0.35);
-  box-shadow:0 0 30px rgba(0,255,255,0.15),inset 0 0 30px rgba(0,255,255,0.04);
-  
-}
+.hd-btn .hd-icon{font-size:16px}
+.hd-btn .hd-label{font-size:13px}
+.hd-btn:hover{border-color:rgba(255,220,140,0.4);color:#f0d888;transform:translateY(-1px)}
+.hd-btn:active{transform:translateY(0)}
+.hd-smart{border-color:rgba(255,215,0,0.35);color:#ffd700}
+.hd-smart:hover{border-color:rgba(255,215,0,0.6);color:#fff0a0;box-shadow:0 4px 16px rgba(255,215,0,0.2),inset 0 1px 0 rgba(255,220,140,0.15)}
+.hd-restore{border-color:rgba(120,180,220,0.3);color:#88b8d8}
+.hd-restore:hover{border-color:rgba(120,180,220,0.55);color:#b0d8ee;box-shadow:0 4px 16px rgba(120,180,220,0.18),inset 0 1px 0 rgba(140,180,220,0.15)}
+.hd-afk{border-color:rgba(0,255,255,0.2);color:rgba(255,255,255,0.5)}
+.hd-afk:hover{border-color:rgba(0,255,255,0.5);color:rgba(255,255,255,0.85);box-shadow:0 4px 16px rgba(0,255,255,0.18)}
+#afk-btn.afk-on{background:linear-gradient(180deg,rgba(0,255,255,0.12),rgba(0,180,200,0.06))!important;border-color:rgba(0,255,255,0.55)!important;color:var(--cyan)!important;box-shadow:0 0 20px rgba(0,255,255,0.25),inset 0 1px 0 rgba(0,255,255,0.12)!important}
 .elo-float{position:absolute;z-index:600;font-size:20px;font-weight:900;pointer-events:none;opacity:0;text-shadow:0 0 8px currentColor;left:50%;transform:translateX(-50%)}
 @keyframes eloUp{0%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-50px)}}
 /* EVO Hand Power Display */
@@ -691,8 +690,9 @@ to{transform:rotate(360deg)}}
 /* === Casual Mode Player HUD (holo_main style, next to cards) === */
 #casual-hud{
   position:absolute;
-  bottom:30px;
-  left:16px;
+  top:14px;
+  left:14px;
+  bottom:auto;
   z-index:400;
   pointer-events:none;
 }
@@ -840,47 +840,17 @@ to{transform:rotate(360deg)}}
 .arena-score-line.negative{color:#d05050}
 .arena-score-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase}
 
-/* === Hearthstone Card Style (casual mode) === */
-.casual-mode .grp-col .stack-card .card{
-  background:linear-gradient(170deg,#1c1a14 0%,#141210 50%,#0e0c08 100%) !important;
-  border:1.5px solid rgba(180,150,80,0.25) !important;
-  box-shadow:0 3px 12px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,220,120,0.06);
-  border-radius:6px;
-}
-.casual-mode .grp-col .stack-card .card .peek-val,
-.casual-mode .grp-col .stack-card .card .peek-suit{
-}
-.casual-mode .grp-col .stack-card .card.c-red,
-.casual-mode .grp-col .stack-card .card .c-red{
-  color:#ff3b3b;
-}
-.casual-mode .grp-col .stack-card .card.c-blk,
-.casual-mode .c-blk{
-  color:rgba(255,255,255,0.85);
-}
+/* === 统一浅色卡面: 手牌 / 出牌区 一致 === */
 .casual-mode .grp-col .stack-card:hover .card{
-  border-color:rgba(220,180,80,0.5) !important;
-  box-shadow:0 0 12px rgba(220,180,60,0.2),0 4px 15px rgba(0,0,0,0.5) !important;
-  filter:none;
+  border-color:#888 !important;
+  box-shadow:2px 2px 12px rgba(0,0,0,0.4) !important;
+  filter:brightness(1.05);
 }
 .casual-mode .grp-col .stack-card.sel .card{
-  background:linear-gradient(170deg,#1c1a14,#0e0c08) !important;
-  border-color:#c8a84e !important;
-  box-shadow:0 0 16px rgba(200,168,78,0.5),0 0 32px rgba(200,168,78,0.15) !important;
+  background:#e4fff8 !important;
+  border-color:var(--neon) !important;
+  box-shadow:0 0 0 3px var(--neon),0 0 16px rgba(0,255,200,0.4) !important;
 }
-.casual-mode .grp-col .stack-card .card.c-wild{
-  border:2px solid #c8a84e !important;
-  background:linear-gradient(170deg,#201a0a,#140f05) !important;
-  box-shadow:0 0 12px rgba(200,168,78,0.35) !important;
-}
-/* Out zone cards */
-.casual-mode .out .card{
-  background:linear-gradient(170deg,#1c1a14,#0e0c08) !important;
-  border-color:rgba(180,150,80,0.3) !important;
-  box-shadow:0 0 8px rgba(180,150,60,0.15) !important;
-}
-.casual-mode .out .card.c-red{color:#e84040}
-.casual-mode .out .card.c-blk{color:rgba(240,230,210,0.9)}
 /* Action buttons holo style in casual */
 .casual-mode .b-pass{
   background:linear-gradient(180deg,#3a3528,#2a2518);border:1.5px solid rgba(180,150,80,0.2);
@@ -1704,10 +1674,16 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <div class="hc-title" id="hc-title">翻牌定先手</div>
     </div>
     <div class="training-badge" id="training-badge">🎓 TRAINING</div>
-    <button id="afk-btn" onclick="toggleAFK()">🤖 代打</button>
-    <div id="sort-dock" style="position:absolute;bottom:110px;right:16px;z-index:500;display:none;flex-direction:column;gap:8px">
-      <button id="btn-smart-sort" onclick="smartSortHand()" title="智能理牌: 同花顺→炸弹" style="width:48px;height:48px;border-radius:12px;border:1px solid rgba(255,215,0,0.35);background:rgba(20,18,8,0.85);color:#ffd700;font-size:20px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,220,120,0.1);transition:transform 0.1s">🎯</button>
-      <button id="btn-restore-hand" onclick="restoreHand()" title="恢复手牌" style="width:48px;height:48px;border-radius:12px;border:1px solid rgba(120,180,220,0.3);background:rgba(10,15,25,0.85);color:#8ac;font-size:20px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.5),inset 0 1px 0 rgba(140,170,200,0.1);transition:transform 0.1s">↺</button>
+    <div id="hand-dock" style="position:absolute;bottom:24px;right:16px;z-index:500;display:none;flex-direction:row;gap:10px">
+      <button class="hd-btn hd-smart" onclick="smartSortHand()" title="同花顺→炸弹 优先">
+        <span class="hd-icon">🎯</span><span class="hd-label">智能理牌</span>
+      </button>
+      <button class="hd-btn hd-restore" onclick="restoreHand()" title="恢复默认排序">
+        <span class="hd-icon">↺</span><span class="hd-label">恢复手牌</span>
+      </button>
+      <button class="hd-btn hd-afk" id="afk-btn" onclick="toggleAFK()">
+        <span class="hd-icon">🤖</span><span class="hd-label">离座代打</span>
+      </button>
     </div>
     <button id="training-mode-btn" onclick="AITraining.showAssessmentIntro()" style="position:absolute;top:10px;right:180px;z-index:501;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:#4ade80;font-size:11px;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Segoe UI',sans-serif;backdrop-filter:blur(6px)">🎓 训练</button>
     <div id="ai-training-badge" style="position:absolute;top:38px;right:180px;z-index:501;font-size:10px;color:#888"></div>
@@ -3101,12 +3077,12 @@ function _doEnterGame(d){
   let hpn=document.getElementById('holo-player-name');
   if(arenaName&&hpn)arenaName.innerText=hpn.innerText;
 
-  let _sortDock=document.getElementById('sort-dock');if(_sortDock)_sortDock.style.display='flex';
+  let _handDock=document.getElementById('hand-dock');if(_handDock)_handDock.style.display='flex';
   updateAvatarLabels();initLadder(!_autoContinue);renderUI();checkTurn();
   if(window._applyWeChatProfile)window._applyWeChatProfile();
   const afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='block';
   afkEnabled=false;clearTimeout(afkTimer);
-  const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='';afkbtn.innerHTML='🤖 代打';}
+  const afkbtn=document.getElementById('afk-btn');if(afkbtn){afkbtn.className='hd-btn hd-afk';afkbtn.innerHTML='<span class="hd-icon">🤖</span><span class="hd-label">离座代打</span>';}
   const afkbadge=document.getElementById('afk-badge');if(afkbadge)afkbadge.style.display='none';
   sessionEloChange=0;lastMoveWasTimeout=false;
   let de=document.getElementById('disp-elo');if(de)de.innerText=myElo;
@@ -3738,40 +3714,76 @@ function sendPass(){
   socket.emit('action',{seat:mySeat,type:'pass'});
 }
 
-// === 智能理牌: 同花顺优先 -> 炸弹次之 (贪心非重叠提取) ===
+// 独立 SF 扫描器 (不依赖 analyzeHand, 作为兜底确保方片等也能识别)
+function _scanAllStraightFlushes(cards){
+  const _SR={'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+  const results=[];
+  for(const suit of ['♠','♥','♣','♦']){
+    const sc=cards.filter(c=>c.s===suit&&_SR[c.v]);
+    if(sc.length<5)continue;
+    const bySR={};
+    sc.forEach(c=>{const sr=_SR[c.v];if(!bySR[sr])bySR[sr]=c});
+    const srs=Object.keys(bySR).map(Number).sort((a,b)=>a-b);
+    for(let i=0;i<=srs.length-5;i++){
+      let ok=true;
+      for(let j=0;j<4;j++){if(srs[i+j+1]!==srs[i+j]+1){ok=false;break}}
+      if(ok){
+        const seq=[];for(let j=0;j<5;j++)seq.push(bySR[srs[i+j]]);
+        results.push(seq);
+      }
+    }
+    if(bySR[14]&&[2,3,4,5].every(v=>bySR[v])){
+      results.push([bySR[14],bySR[2],bySR[3],bySR[4],bySR[5]]);
+    }
+  }
+  return results;
+}
+
+function _scanAllBombs(cards){
+  const byP={};
+  cards.filter(c=>c.s!=='JOKER').forEach(c=>{(byP[c.p]=byP[c.p]||[]).push(c)});
+  const results=[];
+  for(const p in byP){
+    if(byP[p].length>=4)results.push(byP[p].slice());
+  }
+  const jokers=cards.filter(c=>c.s==='JOKER');
+  if(jokers.length===4)results.push(jokers.slice());
+  return results;
+}
+
+// === 智能理牌: 同花顺优先 -> 炸弹次之 (独立扫描 + 贪心非重叠) ===
 function smartSortHand(){
   if(!myCards||!myCards.length){return toast("暂无手牌")}
-  // Clear existing smart tags
   myCards.forEach(c=>{delete c._sortGrp;delete c._sortPri});
-  let info;
-  try{info=analyzeHand(myCards)}catch(e){return toast("理牌失败")}
-  const used=new Set();
-  let gi=0;
-  // Straight flushes first (sorted by highest rank desc)
-  const sfs=(info.straight_flushes||[]).slice().sort((a,b)=>{
+  const allSFs=_scanAllStraightFlushes(myCards);
+  const allBombs=_scanAllBombs(myCards);
+  // 同花顺按最高牌 desc 排序
+  allSFs.sort((a,b)=>{
     const maxA=Math.max(...a.map(x=>x.p));const maxB=Math.max(...b.map(x=>x.p));
     return maxB-maxA;
   });
-  for(const sf of sfs){
+  // 炸弹按张数 desc, 然后 rank desc
+  allBombs.sort((a,b)=>(b.length-a.length)||(b[0].p-a[0].p));
+  const used=new Set();
+  let gi=0;
+  let sfCount=0,bmCount=0;
+  for(const sf of allSFs){
     if(sf.some(c=>used.has(c.id)))continue;
     const tag='sf_'+String(gi).padStart(3,'0');
     sf.forEach(c=>{c._sortGrp=tag;c._sortPri=0;used.add(c.id)});
-    gi++;
+    gi++;sfCount++;
   }
-  // Bombs next (sort largest/highest first)
-  const bombs=(info.bombs||[]).slice().sort((a,b)=>{
-    if(b.length!==a.length)return b.length-a.length;
-    return b[0].p-a[0].p;
-  });
-  for(const b of bombs){
+  for(const b of allBombs){
     if(b.some(c=>used.has(c.id)))continue;
     const tag='bm_'+String(gi).padStart(3,'0');
     b.forEach(c=>{c._sortGrp=tag;c._sortPri=1;used.add(c.id)});
-    gi++;
+    gi++;bmCount++;
   }
   renderHand();
-  const n=(sfs.filter(s=>s.every(c=>used.has(c.id))).length)+(bombs.filter(b=>b.every(c=>used.has(c.id))).length);
-  toast(n?('已理 '+n+' 组强牌'):'未发现炸弹/同花顺');
+  let msg='';
+  if(sfCount)msg+=sfCount+' 个同花顺';
+  if(bmCount)msg+=(msg?' / ':'')+bmCount+' 个炸弹';
+  toast(msg?('已理出 '+msg):'未发现同花顺/炸弹');
   AudioSys.play('click');
 }
 
@@ -4670,14 +4682,14 @@ function toggleAFK(){
   const btn = document.getElementById('afk-btn');
   const badge = document.getElementById('afk-badge');
   if(afkEnabled){
-    btn.className = 'afk-on';
-    btn.innerHTML = '🤖 代打 <span style="color:#0f0">ON</span>';
+    btn.classList.add('afk-on');
+    btn.innerHTML = '<span class="hd-icon">🤖</span><span class="hd-label">离座代打 <span style="color:#0f0">ON</span></span>';
     badge.style.display = 'block';
     toast('代打已开启');
     if(isMyTurn) scheduleAFK();
   } else {
-    btn.className = '';
-    btn.innerHTML = '🤖 代打';
+    btn.classList.remove('afk-on');
+    btn.innerHTML = '<span class="hd-icon">🤖</span><span class="hd-label">离座代打</span>';
     badge.style.display = 'none';
     clearTimeout(afkTimer);
     toast('代打已关闭');
@@ -5382,7 +5394,7 @@ function startTrainingGame(isContinue){
   let tb=document.getElementById('training-badge');if(tb)tb.style.display=(gameMode==='training'?'block':'none');
   // Show AFK in training mode too
   let afkb=document.getElementById('afk-btn');if(afkb)afkb.style.display='';
-  let sortDock=document.getElementById('sort-dock');if(sortDock)sortDock.style.display='flex';
+  let handDock=document.getElementById('hand-dock');if(handDock)handDock.style.display='flex';
   let afkbadge=document.getElementById('afk-badge');if(afkbadge)afkbadge.style.display='none';
   // Coach panel hidden
   document.getElementById('coach-panel').style.display='none';
