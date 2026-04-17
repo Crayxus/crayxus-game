@@ -105,9 +105,9 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .o-l{top:40%;left:160px;transform:translateY(-50%)}
 .o-r{top:40%;right:160px;transform:translateY(-50%)}
 .o-m{bottom:320px;left:50%;transform:translateX(-50%)}
-.card{width:100px;height:140px;background:#f0f0f0;border-radius:8px;box-shadow:2px 2px 10px rgba(0,0,0,0.5);position:relative;display:flex;flex-direction:column;border:1px solid #ccc}
-.val-txt{font-size:24px;font-weight:900;padding:5px;font-family:Arial}
-.center-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:50px}
+.card{width:100px;height:140px;background:linear-gradient(155deg,#fefefe 0%,#f2f2f2 45%,#e4e4e4 100%);border-radius:8px;box-shadow:2px 2px 10px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.8),inset 0 -2px 4px rgba(0,0,0,0.05);position:relative;display:flex;flex-direction:column;border:1px solid #c4c4c4}
+.val-txt{font-size:30px;font-weight:900;padding:5px;font-family:Georgia,'Times New Roman',serif;text-shadow:0 1px 0 rgba(255,255,255,0.9)}
+.center-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:62px;text-shadow:0 2px 3px rgba(0,0,0,0.15)}
 .c-red{color:#d00}.c-blk{color:#111}
 .c-wild{border:2px solid var(--gold);background:#fffdf0;box-shadow:0 0 10px var(--gold)}
 .c-wild::after{content:'\2605';position:absolute;top:2px;right:2px;color:var(--gold);font-size:14px}
@@ -143,10 +143,10 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .grp-col{position:relative;flex-shrink:0}
 .grp-col .stack-card{position:absolute;left:0;overflow:hidden;border-radius:5px;transition:transform 0.12s ease;cursor:pointer}
 .grp-col .stack-card.card-bottom{overflow:visible}
-.grp-col .stack-card .card{border-radius:5px;box-shadow:1px 2px 6px rgba(0,0,0,0.5);transition:box-shadow 0.12s ease, background 0.12s ease;background:#f5f5f5;position:relative;border:1px solid #ccc}
-.grp-col .stack-card .card .peek-label{position:absolute;top:3px;left:4px;display:flex;flex-direction:column;align-items:flex-start;gap:0px;font-family:Arial,sans-serif;font-weight:900;line-height:1;pointer-events:none}
-.grp-col .stack-card .card .peek-val{font-size:16px;font-weight:900;line-height:1}
-.grp-col .stack-card .card .peek-suit{font-size:13px;line-height:1}
+.grp-col .stack-card .card{border-radius:5px;box-shadow:1px 2px 6px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.75),inset 0 -1px 2px rgba(0,0,0,0.06);transition:box-shadow 0.12s ease, background 0.12s ease;background:linear-gradient(160deg,#fefefe 0%,#f1f1f1 50%,#e2e2e2 100%);position:relative;border:1px solid #bfbfbf}
+.grp-col .stack-card .card .peek-label{position:absolute;top:3px;left:4px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;font-family:Georgia,'Times New Roman',serif;font-weight:900;line-height:1;pointer-events:none;text-shadow:0 1px 0 rgba(255,255,255,0.8)}
+.grp-col .stack-card .card .peek-val{font-size:22px;font-weight:900;line-height:1;letter-spacing:-0.5px}
+.grp-col .stack-card .card .peek-suit{font-size:19px;line-height:1}
 .grp-col .stack-card .card .card-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
 .grp-col .stack-card.sel .card{box-shadow:0 0 0 3px var(--neon),0 0 16px rgba(0,255,200,0.5);background:#e4fff8}
 .grp-col .stack-card.sel{transform:translateY(-14px)}
@@ -285,6 +285,14 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .holo-btn .h-name{color:var(--cyan);text-shadow:0 0 15px var(--cyan)}
 .holo-btn.training-btn .h-name{color:var(--gold);text-shadow:0 0 15px var(--gold)}
 .holo-btn.arena-btn .h-name{color:var(--magenta);text-shadow:0 0 15px var(--magenta)}
+.holo-btn.casual-btn .h-name{color:#2ed573;text-shadow:0 0 15px rgba(46,213,115,0.6)}
+.holo-btn.casual-btn:hover{border-color:rgba(46,213,115,0.5);
+  box-shadow:0 20px 60px rgba(46,213,115,0.15),0 0 40px rgba(46,213,115,0.05),
+    0 0 20px rgba(46,213,115,0.4),0 0 40px rgba(46,213,115,0.2),0 0 80px rgba(46,213,115,0.1)}
+.holo-btn.casual-btn:hover::after{background:radial-gradient(circle,rgba(46,213,115,0.1) 0%,transparent 50%)}
+.holo-btns{flex-wrap:wrap;justify-content:center;max-width:min(1180px,96vw)}
+@media(max-width:1200px){.holo-btn{width:180px;padding:22px 14px}.holo-btn .h-icon{font-size:44px}.holo-btn .h-name{font-size:15px;letter-spacing:2px}.holo-btns{gap:16px}}
+@media(max-width:900px){.holo-btn{width:150px;padding:18px 10px}.holo-btn .h-icon{font-size:36px}.holo-btn .h-name{font-size:13px;letter-spacing:1px}.holo-btn .h-desc{font-size:9px}.holo-btns{gap:12px}}
 .holo-btn .h-desc{font-size:10px;color:rgba(255,255,255,0.4);text-align:center;line-height:1.6;letter-spacing:1px;font-family:'Segoe UI',sans-serif}
 .holo-btn .h-tag{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:12px;font-size:9px;letter-spacing:2px;font-weight:700}
 .holo-btn.training-btn:hover{border-color:rgba(255,215,0,0.5);
@@ -927,7 +935,7 @@ body.light-theme .lobby-seats .seat.filled{border-color:#8b7355 !important}
 body.light-theme #btn-start-match{background:linear-gradient(90deg,#8b7355,#a0885c) !important;color:#fff !important}
 /* Light theme: game view */
 body.light-theme #view{background:radial-gradient(circle,#2d7a3e 0%,#1a5a28 100%) !important}
-body.light-theme .casual-mode .grp-col .stack-card .card{background:#f5f5f5 !important;border-color:#ccc !important;box-shadow:2px 2px 10px rgba(0,0,0,0.3) !important}
+body.light-theme .casual-mode .grp-col .stack-card .card{background:linear-gradient(160deg,#fefefe 0%,#f1f1f1 50%,#e2e2e2 100%) !important;border-color:#bfbfbf !important;box-shadow:2px 2px 10px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.75) !important}
 body.light-theme .casual-mode .grp-col .stack-card .card.c-red,
 body.light-theme .casual-mode .grp-col .stack-card .card .c-red{color:#cc0000 !important}
 body.light-theme .casual-mode .grp-col .stack-card .card.c-blk,
@@ -1457,7 +1465,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
   
   <div class="logo">AI 掼蛋大师</div>
   <div class="boot-subtitle">A I 掼 蛋 · 以AI之智 行大师之道</div>
-  <div style="color:var(--gold);margin-top:10px;font-size:20px;font-weight:bold;position:relative;z-index:10;letter-spacing:2px">48人锦标赛 · 人机大乱斗</div>
+  <div style="color:var(--gold);margin-top:10px;font-size:20px;font-weight:bold;position:relative;z-index:10;letter-spacing:2px">48人锦标赛 · 多人赛事</div>
   <div id="boot-loading" style="margin-top:28px;width:260px;text-align:center">
     <div id="boot-load-text" style="color:#888;font-size:13px;margin-bottom:10px">Loading AI model...</div>
     <div style="width:100%;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden">
@@ -1511,9 +1519,15 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
     <!-- Mode buttons -->
     <div class="holo-btns" id="holo-btns">
+      <div class="holo-btn casual-btn" onclick="selectMode('casual')" data-mode="casual" onmouseenter="showModeInfo('casual')" onmouseleave="showModeInfo(null)">
+        <div class="h-icon" style="font-style:normal">&#9827;</div>
+        <div class="h-name">休闲模式</div>
+        <div class="h-desc">定蛋 / 升级玩法<br>1-4人 · 段位晋升</div>
+        <div class="h-tag" style="background:rgba(46,213,115,0.1);color:#2ed573;border:1px solid rgba(46,213,115,0.3)">CASUAL</div>
+      </div>
       <div class="holo-btn" onclick="selectMode('arena')" data-mode="arena" onmouseenter="showModeInfo('arena')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9654;</div>
-        <div class="h-name">大乱斗</div>
+        <div class="h-name">多人赛事</div>
         <div class="h-desc">人机混战 2V2<br>ELO 排位赛</div>
         <div class="h-tag" style="background:rgba(0,255,255,0.1);color:#00ffff;border:1px solid rgba(0,255,255,0.3)">开始对战</div>
       </div>
@@ -1525,8 +1539,8 @@ body.view-table .holo-hex-grid{opacity:0.05}
       </div>
       <div class="holo-btn arena-btn" onclick="window.location.href='/tournament'" data-mode="tournament" onmouseenter="showModeInfo('tournament')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9733;</div>
-        <div class="h-name">MTT</div>
-        <div class="h-desc">48人锦标赛<br>多桌淘汰 · AI大乱斗</div>
+        <div class="h-name">赛事报名</div>
+        <div class="h-desc">48人多桌锦标赛<br>淘汰晋级 · 多人赛事</div>
         <div class="h-tag" style="background:rgba(255,0,255,0.1);color:#ff00ff;border:1px solid rgba(255,0,255,0.3)">锦标赛</div>
       </div>
       <div class="holo-btn training-btn" onclick="window.location.href='/dashboard'" data-mode="dashboard" onmouseenter="showModeInfo('dashboard')" onmouseleave="showModeInfo(null)">
@@ -4378,9 +4392,9 @@ function renderHand(isDealing=false){
       PEEK = Math.max(PEEK, 16); // minimum peek to still see rank label
     }
   }
-  const fVal  = Math.max(10, Math.round(CW * 18/66));
-  const fSuit = Math.max(9, Math.round(CW * 15/66));
-  const fCenter = Math.max(14, Math.round(CW * 32/66));
+  const fVal  = Math.max(13, Math.round(CW * 23/66));
+  const fSuit = Math.max(11, Math.round(CW * 19/66));
+  const fCenter = Math.max(18, Math.round(CW * 40/66));
 
   groups.forEach((gr, gi)=>{
     const n = gr.cards.length;
