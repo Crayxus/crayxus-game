@@ -88,10 +88,11 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .p-left{top:40%;left:20px;transform:translateY(-50%)}
 .p-right{top:40%;right:calc(20px + env(safe-area-inset-right,0px));transform:translateY(-50%)}
 .timer-ring{width:84px;height:84px;border-radius:50%;display:flex;justify-content:center;align-items:center}
-.av{width:76px;height:76px;border-radius:50%;background:#111;border:3px solid #444;display:flex;justify-content:center;align-items:center;font-size:12px;font-weight:bold;color:#aaa}
-.av.active{border-color:var(--neon);color:#fff;box-shadow:0 0 15px var(--neon)}
-.av.finished{border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 15px var(--gold)!important}
-.av.human-player{background:#1a1a1a}
+.av{width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#2a2a3a 0%,#141420 55%,#080810 100%);border:2px solid #5a5a6a;display:flex;justify-content:center;align-items:center;font-size:22px;font-weight:bold;color:#c8c8d4;box-shadow:0 3px 10px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 2px rgba(0,0,0,0.4);position:relative;overflow:hidden}
+.av::before{content:'';position:absolute;inset:2px;border-radius:50%;background:linear-gradient(145deg,rgba(255,255,255,0.04),transparent 60%);pointer-events:none}
+.av.active{border-color:var(--neon);color:#fff;box-shadow:0 0 16px rgba(0,255,200,0.55),0 3px 10px rgba(0,0,0,0.55),inset 0 1px 0 rgba(0,255,200,0.2)}
+.av.finished{border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 18px var(--gold),0 3px 10px rgba(0,0,0,0.55)!important}
+.av.human-player{background:radial-gradient(circle at 30% 25%,#3a3020 0%,#1c1610 55%,#080604 100%);border-color:#8a7340;color:#e8d8a0}
 .badge-n{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:none;justify-content:center;align-items:center;border:2px solid #fff;font-size:12px;font-weight:bold;z-index:10}
 .badge-n.big-count{width:32px;height:32px;font-size:16px;font-weight:900;top:-8px;right:-8px;border-width:2px;box-shadow:0 2px 6px rgba(0,0,0,0.4)}
 .badge-finish{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:1px 8px;border-radius:8px;font-size:10px;font-weight:bold;display:none;z-index:10;white-space:nowrap}
@@ -578,10 +579,11 @@ to{transform:rotate(360deg)}}
 #ai-help-btn.used .ai-help-count{color:#333}
 
 /* PokerStars 4-Color in casual mode */
-.casual-mode .c-heart{color:#ff3b3b !important}
-.casual-mode .c-diamond{color:#4488ff !important}
-.casual-mode .c-club{color:#22cc44 !important}
-.casual-mode .c-spade{color:#e0e0e0 !important}
+/* 四色牌 - 全局生效，最高优先级 */
+.c-heart,.card.c-heart,.card .c-heart{color:#ff3b3b !important}
+.c-diamond,.card.c-diamond,.card .c-diamond{color:#2288ff !important}
+.c-club,.card.c-club,.card .c-club{color:#22aa44 !important}
+.c-spade,.card.c-spade,.card .c-spade{color:#1a1a1a !important}
 /* Big Joker: RGB rainbow — applied via .joker-rainbow-wrap on the content div */
 .joker-rainbow-wrap{
   color:#ff3b3b;
@@ -970,10 +972,10 @@ body.light-theme .cpb-name{color:#2a2520 !important}
 body.light-theme .cpb-desc{color:#777 !important}
 body.light-theme .casual-popup-back{color:#888 !important}
 /* Light theme: c-heart/diamond/club/spade overrides */
-body.light-theme .casual-mode .c-heart{color:#cc0000 !important}
-body.light-theme .casual-mode .c-diamond{color:#0055cc !important}
-body.light-theme .casual-mode .c-club{color:#007722 !important}
-body.light-theme .casual-mode .c-spade{color:#222 !important}
+body.light-theme .c-heart,body.light-theme .card.c-heart,body.light-theme .card .c-heart{color:#cc0000 !important}
+body.light-theme .c-diamond,body.light-theme .card.c-diamond,body.light-theme .card .c-diamond{color:#0055cc !important}
+body.light-theme .c-club,body.light-theme .card.c-club,body.light-theme .card .c-club{color:#007722 !important}
+body.light-theme .c-spade,body.light-theme .card.c-spade,body.light-theme .card .c-spade{color:#222 !important}
 /* Light theme: game UI misc */
 body.light-theme #game-theme-btn{background:rgba(255,255,255,0.7) !important;color:#555 !important;border-color:rgba(0,0,0,0.12) !important}
 body.light-theme #afk-btn{background:rgba(255,255,255,0.7) !important;color:#555 !important;border-color:rgba(0,0,0,0.12) !important}
@@ -3384,7 +3386,7 @@ function updateAvatarLabels(){
       continue;
     }
     if(botSeats.includes(seat)){
-      av.innerHTML='BOT';av.classList.remove('human-player');
+      av.innerHTML='🤖';av.classList.remove('human-player');
       if(tb){tb.style.display='block';tb.className='badge-type bot-badge';tb.innerText='🤖 AI'}
     }else{
       // Human player - show avatar if available
