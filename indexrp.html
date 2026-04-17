@@ -1523,7 +1523,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
 
     <!-- Mode buttons -->
     <div class="holo-btns" id="holo-btns">
-      <div class="holo-btn casual-btn" onclick="window.location.href='/index.html'" data-mode="casual" onmouseenter="showModeInfo('casual')" onmouseleave="showModeInfo(null)">
+      <div class="holo-btn casual-btn" onclick="selectMode('casual')" data-mode="casual" onmouseenter="showModeInfo('casual')" onmouseleave="showModeInfo(null)">
         <div class="h-icon" style="font-style:normal">&#9827;</div>
         <div class="h-name">休闲模式</div>
         <div class="h-desc">定蛋 / 升级玩法<br>1-4人 · 段位晋升</div>
@@ -2660,7 +2660,12 @@ function startCasualMode(sub){
     currentWildValue='2';
   }
   gameMode='casual';
-  startTrainingGame();
+  if(!socket.connected) socket.connect();
+  document.querySelector('#lobby .lobby-card > div:nth-child(2)').innerText=sub==='upgrade'?'升级模式':'定蛋模式';
+  document.querySelector('#lobby .lobby-card > div:nth-child(3)').innerText='休闲对战 · 1-4人';
+  var eloRow=document.getElementById('lobby-elo');
+  if(eloRow)eloRow.parentElement.parentElement.style.display='none';
+  switchScreen('lobby');
 }
 function closeCasualPopup(){
   document.getElementById('casual-popup').style.display='none';
