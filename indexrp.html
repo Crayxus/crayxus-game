@@ -731,14 +731,13 @@ to{transform:rotate(360deg)}}
 .chud-rank-row .arena-r-name,.chud-rank-row .ps-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,0.75);font-size:9px;letter-spacing:0.5px}
 .chud-rank-row.me .arena-r-name,.chud-rank-row.me .ps-name{color:var(--cyan)}
 .chud-rank-row .ps-pts{display:inline-flex;align-items:center;justify-content:center;min-width:14px;height:14px;padding:0 4px;border-radius:7px;background:rgba(255,215,0,0.2);color:var(--gold);font-weight:900;font-size:9px;border:1px solid rgba(255,215,0,0.35)}
-
-  50%{border-color:rgba(0,255,255,0.3);box-shadow:0 0 50px rgba(0,255,255,0.12),inset 0 0 40px rgba(0,255,255,0.04)}
-}
 .casual-avatar-ring{
-  position:relative;width:80px;height:80px;flex-shrink:0;
+  position:relative;width:80px!important;height:80px!important;flex-shrink:0;flex-grow:0;
+  overflow:visible;box-sizing:border-box;
 }
 .casual-avatar-ring svg{
-  position:absolute;inset:0;width:100%;height:100%;
+  position:absolute!important;inset:0!important;width:80px!important;height:80px!important;
+  display:block;
 }
 .casual-avatar-glow{
   position:absolute;inset:-12px;border-radius:50%;
