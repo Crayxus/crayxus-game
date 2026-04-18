@@ -710,26 +710,35 @@ to{transform:rotate(360deg)}}
   50%{border-color:rgba(0,255,255,0.3);box-shadow:0 0 50px rgba(0,255,255,0.12),inset 0 0 40px rgba(0,255,255,0.04)}
 }
 .casual-avatar-ring{
-  position:relative;width:72px;height:72px;flex-shrink:0;
+  position:relative;width:80px;height:80px;flex-shrink:0;
 }
 .casual-avatar-ring svg{
   position:absolute;inset:0;width:100%;height:100%;
-  
 }
 .casual-avatar-glow{
   position:absolute;inset:-12px;border-radius:50%;
-  background:radial-gradient(circle,rgba(0,255,255,0.15) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(0,255,255,0.18) 0%,transparent 70%);
   pointer-events:none;
 }
-50%{transform:scale(1.15);opacity:1}}
 .casual-avatar-img{
-  width:60px;height:60px;margin:6px;border-radius:50%;
+  width:66px;height:66px;margin:7px;border-radius:50%;
   background:linear-gradient(135deg,#1a1a3e,#0a0a1e);
-  border:2px solid rgba(0,255,255,0.4);
+  border:2px solid rgba(0,255,255,0.5);
   display:flex;align-items:center;justify-content:center;
-  font-size:24px;
+  font-size:26px;font-weight:900;color:#e8f8ff;
   position:relative;z-index:2;
-  box-shadow:0 0 15px rgba(0,255,255,0.2);
+  box-shadow:0 0 18px rgba(0,255,255,0.25),inset 0 2px 3px rgba(120,220,255,0.18);
+  font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:1px;
+}
+/* indexrp: 不随视窗高度缩小 HUD, 保持 index.html 对战视觉 */
+@media(max-height:800px){
+  #casual-hud.hud-keep-big .casual-avatar-ring{width:80px!important;height:80px!important}
+  #casual-hud.hud-keep-big .casual-avatar-img{width:66px!important;height:66px!important;margin:7px!important;font-size:26px!important}
+  #casual-hud.hud-keep-big .casual-name{font-size:16px!important;letter-spacing:2px!important}
+  #casual-hud.hud-keep-big .casual-rank-badge{font-size:10px!important;padding:2px 10px!important}
+  #casual-hud.hud-keep-big .casual-rank-stars{font-size:14px!important}
+  #casual-hud.hud-keep-big .kda-val{font-size:16px!important}
+  #casual-hud.hud-keep-big .kda-label{font-size:8px!important}
 }
 .casual-stats{display:flex;flex-direction:column;gap:4px}
 .casual-name{
@@ -1674,7 +1683,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <div class="hc-title" id="hc-title">翻牌定先手</div>
     </div>
     <div class="training-badge" id="training-badge">🎓 TRAINING</div>
-    <div id="hand-dock" style="position:absolute;bottom:24px;right:16px;z-index:500;display:none;flex-direction:row;gap:10px">
+    <div id="hand-dock" style="position:absolute;bottom:24px;right:16px;z-index:500;display:none;flex-direction:column;gap:8px;align-items:stretch">
       <button class="hd-btn hd-smart" onclick="smartSortHand()" title="同花顺→炸弹 优先">
         <span class="hd-icon">🎯</span><span class="hd-label">智能理牌</span>
       </button>
@@ -1713,7 +1722,7 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <button class="btn b-play" onclick="sendPlay()">出牌</button>
     </div>
     <div id="evo-bar"><span class="evo-icon">⚡</span><span class="evo-score" id="evo-score">--</span><span class="evo-tier" id="evo-tier">EVO</span><span class="evo-detail" id="evo-detail"></span></div>
-    <div id="casual-hud" style="display:none">
+    <div id="casual-hud" class="hud-keep-big" style="display:none">
       <div class="casual-hud-inner">
         <div class="casual-avatar-ring">
           <div class="casual-avatar-glow"></div>
@@ -4721,7 +4730,7 @@ function toggleAFK(){
   const badge = document.getElementById('afk-badge');
   if(afkEnabled){
     btn.classList.add('afk-on');
-    btn.innerHTML = '<span class="hd-icon">🤖</span><span class="hd-label">离座代打 <span style="color:#0f0">ON</span></span>';
+    btn.innerHTML = '<span class="hd-icon">🤖</span><span class="hd-label">代打中</span>';
     badge.style.display = 'block';
     toast('代打已开启');
     if(isMyTurn) scheduleAFK();
