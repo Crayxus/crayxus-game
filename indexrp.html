@@ -4700,11 +4700,11 @@ function repositionButtons(){
   if(ctrls) ctrls.style.bottom = btnBottom + 'px';
   if(pme)   pme.style.bottom   = (btnBottom + 4) + 'px';
   if(!document.body.classList.contains('view-touch')){
-    // hand-dock 已统一定位 afk + 智能理牌 + 恢复手牌, 不再单独覆盖 afk-btn
+    // hand-dock 位于手牌上沿 + ctrls 按钮同高附近, 右侧
     const afkBadge=document.getElementById('afk-badge');
     if(afkBadge){afkBadge.style.bottom=(handBottom+newHandH-5)+'px';afkBadge.style.right='8px'}
     const handDock=document.getElementById('hand-dock');
-    if(handDock){handDock.style.bottom=Math.max(16,handBottom-8)+'px'}
+    if(handDock){handDock.style.bottom=(btnBottom)+'px';handDock.style.right='16px'}
   }
 }
 window.addEventListener('resize', ()=>{
