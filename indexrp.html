@@ -697,16 +697,40 @@ to{transform:rotate(360deg)}}
   pointer-events:none;
 }
 .casual-hud-inner{
-  display:flex;align-items:center;gap:14px;
-  padding:14px 20px 14px 14px;
+  display:flex;flex-direction:column;gap:8px;
+  padding:14px 18px;
   background:rgba(5,5,15,0.88);
-  border:1px solid rgba(0,255,255,0.18);
+  border:1px solid rgba(0,255,255,0.15);
   border-radius:16px;
   backdrop-filter:blur(12px);
-  box-shadow:0 4px 24px rgba(0,0,0,0.6),0 0 30px rgba(0,255,255,0.08),inset 0 0 30px rgba(0,255,255,0.03);
+  box-shadow:0 4px 24px rgba(0,0,0,0.6),0 0 30px rgba(0,255,255,0.06),inset 0 0 30px rgba(0,255,255,0.02);
   font-family:'Orbitron','Segoe UI',sans-serif;
-  min-width:260px;
+  min-width:320px;
 }
+.chud-top{display:flex;align-items:center;gap:14px}
+.chud-info{display:flex;flex-direction:column;gap:2px}
+.chud-big-rank{display:flex;align-items:baseline;line-height:1}
+.chud-rank-num{font-size:36px;font-weight:900;color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,0.4);font-family:'Orbitron','Segoe UI',sans-serif}
+.chud-rank-total{font-size:14px;font-weight:700;color:rgba(255,255,255,0.25);margin-left:1px}
+.chud-elo-line{display:flex;align-items:center;gap:4px}
+.chud-elo-icon{font-size:12px;line-height:1}
+.chud-elo-val{font-size:16px;font-weight:900;color:var(--cyan);text-shadow:0 0 10px rgba(0,255,255,0.3);font-family:'Orbitron','Segoe UI',sans-serif}
+.chud-mid{display:flex;align-items:center;gap:12px;padding-top:6px;border-top:1px solid rgba(0,255,255,0.08)}
+.chud-team{display:flex;align-items:center;gap:5px}
+.chud-t-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px}
+.chud-t-score{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 7px;border-radius:11px;font-size:13px;font-weight:900;line-height:1}
+.chud-team.us .chud-t-score{background:rgba(0,255,204,0.18);color:var(--neon);border:1px solid rgba(0,255,204,0.35);text-shadow:0 0 6px rgba(0,255,204,0.4)}
+.chud-team.them .chud-t-score{background:rgba(255,80,80,0.18);color:#ff6b6b;border:1px solid rgba(255,80,80,0.4);text-shadow:0 0 6px rgba(255,80,80,0.3)}
+.chud-vs{color:#333;font-size:14px}
+.chud-ranking{display:flex;gap:4px;padding-top:6px;border-top:1px solid rgba(0,255,255,0.08)}
+.chud-rank-row{flex:1;display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:5px;background:rgba(255,255,255,0.02);font-size:9px;min-width:0}
+.chud-rank-row.me{background:rgba(0,255,255,0.06);border:1px solid rgba(0,255,255,0.18)}
+.chud-rank-row.partner{background:rgba(0,255,204,0.04);border:1px solid rgba(0,255,204,0.1)}
+.chud-rank-row.leading{box-shadow:0 0 8px rgba(255,215,0,0.15)}
+.chud-rank-row .arena-r-pos{font-weight:900;color:rgba(255,255,255,0.28);font-size:9px}
+.chud-rank-row .arena-r-name,.chud-rank-row .ps-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,0.75);font-size:9px;letter-spacing:0.5px}
+.chud-rank-row.me .arena-r-name,.chud-rank-row.me .ps-name{color:var(--cyan)}
+.chud-rank-row .ps-pts{display:inline-flex;align-items:center;justify-content:center;min-width:14px;height:14px;padding:0 4px;border-radius:7px;background:rgba(255,215,0,0.2);color:var(--gold);font-weight:900;font-size:9px;border:1px solid rgba(255,215,0,0.35)}
 
   50%{border-color:rgba(0,255,255,0.3);box-shadow:0 0 50px rgba(0,255,255,0.12),inset 0 0 40px rgba(0,255,255,0.04)}
 }
@@ -1723,37 +1747,39 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <button class="btn b-play" onclick="sendPlay()">出牌</button>
     </div>
     <div id="evo-bar"><span class="evo-icon">⚡</span><span class="evo-score" id="evo-score">--</span><span class="evo-tier" id="evo-tier">EVO</span><span class="evo-detail" id="evo-detail"></span></div>
-    <div id="casual-hud" class="hud-keep-big" style="display:none">
+    <div id="casual-hud" style="display:none">
       <div class="casual-hud-inner">
-        <div class="casual-avatar-ring">
-          <div class="casual-avatar-glow"></div>
-          <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#hudGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="hudGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
-          <div class="casual-avatar-img" id="casual-avatar">P1</div>
+        <!-- Row 1: 头像 + 排名 + ELO -->
+        <div class="chud-top">
+          <div class="casual-avatar-ring">
+            <div class="casual-avatar-glow"></div>
+            <svg viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="40" stroke="url(#hudGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/><defs><linearGradient id="hudGrad" x1="0" y1="0" x2="84" y2="84"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg>
+            <div class="casual-avatar-img" id="casual-avatar">P1</div>
+          </div>
+          <div class="chud-info">
+            <div class="chud-big-rank"><span class="chud-rank-num" id="casual-pos">1</span><span class="chud-rank-total">/4</span></div>
+            <div class="chud-elo-line"><span class="chud-elo-icon">⚡</span><span class="chud-elo-val" id="disp-elo">1500</span></div>
+          </div>
         </div>
-        <div class="casual-stats">
-          <div class="casual-name" id="casual-name">PLAYER_ONE</div>
-          <div class="casual-rank-row">
-            <span class="casual-rank-badge">BRONZE V</span>
-            <div class="casual-rank-stars" id="casual-stars"></div>
-          </div>
-          <!-- Team score -->
-          <div class="casual-team-score">
-            <span class="cts-label">US</span><span class="cts-val" id="casual-team-my" style="color:var(--neon)">0</span>
-            <span class="cts-vs">·</span>
-            <span class="cts-label">THEM</span><span class="cts-val" id="casual-team-op" style="color:var(--red)">0</span>
-          </div>
-          <!-- 定蛋 stats -->
-          <div class="casual-kda" id="fixed-stats">
-            <div class="kda-item"><span class="kda-val" id="casual-winrate">0%</span><span class="kda-label">胜率</span></div>
-            <div class="kda-item gold"><span class="kda-val" id="casual-games">0</span><span class="kda-label">对局</span></div>
-            <div class="kda-item"><span class="kda-val" id="casual-streak">0</span><span class="kda-label">STREAK</span></div>
-          </div>
-          <!-- 升级 level display -->
-          <div class="casual-kda" id="upgrade-stats" style="display:none">
-            <div class="kda-item"><span class="kda-val" id="up-my-lvl" style="color:var(--cyan);text-shadow:0 0 8px var(--cyan)">2</span><span class="kda-label">我方</span></div>
-            <div class="kda-item"><span class="kda-val" style="color:var(--gold);text-shadow:0 0 8px var(--gold)">♥<span id="up-wild-val">2</span></span><span class="kda-label">蛋牌</span></div>
-            <div class="kda-item"><span class="kda-val" id="up-op-lvl" style="color:#ff6b6b;">2</span><span class="kda-label">对方</span></div>
-          </div>
+        <!-- Row 2: 队伍得分 -->
+        <div class="chud-mid">
+          <div class="chud-team us"><span class="chud-t-label">US</span><span class="chud-t-score" id="casual-team-my">0</span></div>
+          <span class="chud-vs">·</span>
+          <div class="chud-team them"><span class="chud-t-label">THEM</span><span class="chud-t-score" id="casual-team-op">0</span></div>
+        </div>
+        <!-- Row 3: 4 人排名 -->
+        <div class="chud-ranking" id="player-scores">
+          <div class="chud-rank-row me" id="ps-0"><span class="arena-r-pos">#1</span><span class="arena-r-name ps-name">YOU</span><span class="arena-r-pts ps-pts">0</span></div>
+          <div class="chud-rank-row" id="ps-1"><span class="arena-r-pos">#2</span><span class="arena-r-name ps-name">BOT RIGHT</span><span class="arena-r-pts ps-pts">0</span></div>
+          <div class="chud-rank-row partner" id="ps-2"><span class="arena-r-pos">#3</span><span class="arena-r-name ps-name">PARTNER</span><span class="arena-r-pts ps-pts">0</span></div>
+          <div class="chud-rank-row" id="ps-3"><span class="arena-r-pos">#4</span><span class="arena-r-name ps-name">BOT LEFT</span><span class="arena-r-pts ps-pts">0</span></div>
+        </div>
+        <!-- 隐藏保留的升级数据绑定 (代码仍读, UI 不展示) -->
+        <div id="upgrade-stats" style="display:none">
+          <span id="up-my-lvl"></span><span id="up-wild-val"></span><span id="up-op-lvl"></span>
+        </div>
+        <div id="fixed-stats" style="display:none">
+          <span id="casual-winrate"></span><span id="casual-games"></span><span id="casual-streak"></span>
         </div>
       </div>
     </div>
@@ -4173,6 +4199,24 @@ function joinGame(){
   }
 }
 
+// ===== 选座 (仅休闲 4 人, 对齐 index.html) =====
+function requestSeat(targetSeat){
+  if(mySeat<0)return;
+  if(targetSeat===mySeat)return;
+  const sl=document.getElementById('slot-'+targetSeat);
+  if(sl&&sl.classList.contains('taken'))return;
+  socket.emit('requestSeat',{seat:targetSeat});
+}
+socket.on('seatSwapped',d=>{
+  mySeat=Number(d.seat);
+  for(let i=0;i<4;i++){
+    const sl=document.getElementById('slot-'+i);
+    if(!sl)continue;
+    if(i===mySeat){sl.className='seat-slot taken';sl.innerHTML='<span>YOU</span><span class="seat-label">'+['1号位','2号位','3号位','4号位'][i]+'</span>';}
+    else{sl.className='seat-slot';sl.innerHTML='<span>空位</span><span class="seat-label">'+['1号位','2号位','3号位','4号位'][i]+'</span>';}
+  }
+});
+
 // ===== KEYBOARD GRID RENDERER (touch mode) =====
 const KB_RANKS = ['2','A','K','Q','J','10','9','8','7','6','5','4','3'];
 const KB_SUITS = ['♠','♥','♣','♦'];
@@ -5141,6 +5185,10 @@ function renderScoreboard(){
     ranked.push({i,seat,score:playerScores[seat]});
   }
   ranked.sort((a,b)=>b.score-a.score);
+  // 我的排名 (casual-hud 左上大数字)
+  let myRankIdx=ranked.findIndex(r=>r.i===0);
+  let casualPos=document.getElementById('casual-pos');
+  if(casualPos)casualPos.innerText=(myRankIdx>=0?myRankIdx+1:1);
   let container=document.getElementById('player-scores');
   if(container){
     for(let rank=0;rank<ranked.length;rank++){
