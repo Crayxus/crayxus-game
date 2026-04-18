@@ -21,8 +21,16 @@
       </view>
       <text class="danli-rank">{{danli.rank || '尚未测评'}}</text>
     </view>
+    <!-- 等级徽章: 六边形, 按 tier 颜色 -->
+    <view class="rank-badge tier-{{tierInfo.key}}" wx:if="{{tierInfo.key}}">
+      <view class="rank-badge-hex rank-badge-outer"></view>
+      <view class="rank-badge-hex rank-badge-inner"></view>
+      <view class="rank-badge-content">
+        <text class="rank-badge-tier">{{tierInfo.name}}</text>
+        <text class="rank-badge-sub">{{tierInfo.sub}}</text>
+      </view>
+    </view>
     <view class="danli-right">
-      <canvas canvas-id="radar" id="radar" style="width:140rpx;height:140rpx"></canvas>
       <text class="danli-test-btn" wx:if="{{!danli.score}}">立即测评 →</text>
       <text class="danli-test-btn" wx:else>重新测评 →</text>
     </view>

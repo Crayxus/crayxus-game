@@ -47,6 +47,61 @@ page { background: #0a0e1a; }
 .danli-max { font-size: 24rpx; color: rgba(255,255,255,.25); }
 .danli-rank { font-size: 24rpx; color: #00d4aa; font-weight: 600; margin-top: 4rpx; }
 .danli-right { display: flex; flex-direction: column; align-items: center; gap: 8rpx; }
+
+/* 等级徽章 — 六边形, 按 tier 变色, 克制不花哨 */
+.rank-badge {
+  position: relative;
+  width: 120rpx;
+  height: 136rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 20rpx;
+  flex-shrink: 0;
+}
+.rank-badge-hex {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 2%, 96% 26%, 96% 74%, 50% 98%, 4% 74%, 4% 26%);
+}
+.rank-badge-outer {
+  background: linear-gradient(135deg, var(--tier-hi, #8b95a8) 0%, var(--tier-lo, #3d4556) 100%);
+  filter: drop-shadow(0 4rpx 10rpx var(--tier-glow, rgba(139,149,168,0.35)));
+}
+.rank-badge-inner {
+  inset: 4rpx;
+  background: linear-gradient(160deg, #1a1f2e 0%, #0a0e18 100%);
+  clip-path: polygon(50% 2%, 96% 26%, 96% 74%, 50% 98%, 4% 74%, 4% 26%);
+}
+.rank-badge-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+  line-height: 1;
+}
+.rank-badge-tier {
+  font-size: 26rpx;
+  font-weight: 900;
+  color: var(--tier-hi, #c7cfdb);
+  letter-spacing: 2rpx;
+  text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.5);
+}
+.rank-badge-sub {
+  font-size: 18rpx;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1rpx;
+}
+/* tier 配色 */
+.tier-bronze { --tier-hi: #e6a86b; --tier-lo: #7a4a1f; --tier-glow: rgba(205,127,50,0.35); }
+.tier-silver { --tier-hi: #dce4f0; --tier-lo: #5d6578; --tier-glow: rgba(192,202,220,0.3); }
+.tier-gold { --tier-hi: #ffe066; --tier-lo: #b88a1a; --tier-glow: rgba(255,215,0,0.4); }
+.tier-platinum { --tier-hi: #7eecff; --tier-lo: #0e8aa8; --tier-glow: rgba(0,229,255,0.4); }
+.tier-diamond { --tier-hi: #d4b3ff; --tier-lo: #6436b8; --tier-glow: rgba(179,136,255,0.4); }
+.tier-king { --tier-hi: #ff6b6b; --tier-lo: #8b1a1a; --tier-glow: rgba(255,80,80,0.4); }
 .danli-test-btn {
   font-size: 20rpx; color: #00d4aa;
   padding: 6rpx 16rpx;

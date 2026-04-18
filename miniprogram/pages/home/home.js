@@ -1,9 +1,28 @@
 const app = getApp()
 
+// tier name → key 映射 (青铜/白银/黄金/铂金/钻石)
+const TIER_MAP = {
+  '青铜': 'bronze',
+  '白银': 'silver',
+  '黄金': 'gold',
+  '铂金': 'platinum',
+  '钻石': 'diamond',
+  '王者': 'king'
+}
+function parseTier(rankStr){
+  if(!rankStr) return { key:'', name:'', sub:'' }
+  const parts = String(rankStr).split(/[·•・]/)
+  const name = (parts[0] || '').trim()
+  const sub = (parts[1] || '').trim()
+  const key = TIER_MAP[name] || ''
+  return { key, name, sub }
+}
+
 Page({
   data: {
     statusBarHeight: 44,
     danli: { score: 0, rank: '' },
+    tierInfo: { key:'', name:'', sub:'' },
     mtt: { totalEvents: 0, bestRank: '--', itm: 0, totalScore: 0 },
     dims: [],
     aiSchedule: [],
@@ -66,7 +85,8 @@ Page({
     const todayIdx = dow === 0 ? 6 : dow - 1
     const aiSchedule = schedule.map((s, i) => ({ ...s, isToday: i === todayIdx }))
 
-    this.setData({ danli, mtt, dims, aiSchedule })
+    const tierInfo = parseTier(danli.rank)
+    this.setData({ danli, mtt, dims, aiSchedule, tierInfo })
 
     // Load recent events
     this.loadRecentEvents()
