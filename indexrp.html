@@ -87,14 +87,32 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .p-top{top:20px;left:50%;transform:translateX(-50%)}
 .p-left{top:40%;left:20px;transform:translateY(-50%)}
 .p-right{top:40%;right:calc(20px + env(safe-area-inset-right,0px));transform:translateY(-50%)}
-.timer-ring{width:84px;height:84px;border-radius:50%;display:flex;justify-content:center;align-items:center}
+.timer-ring{width:84px;height:84px;border-radius:50%;display:flex;justify-content:center;align-items:center;position:relative}
+/* 对手回合倒计时徽章 (右上角时钟) */
+.opp-timer-badge{
+  position:absolute;top:-10px;right:-10px;z-index:12;
+  min-width:40px;height:40px;padding:0 8px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  font-size:22px;font-weight:900;color:#fff;
+  background:linear-gradient(145deg,#ffb347,#ff7b00);
+  border:2px solid #fff;
+  box-shadow:0 2px 10px rgba(255,123,0,0.5),inset 0 1px 0 rgba(255,255,255,0.25);
+  font-family:'Orbitron','Segoe UI',sans-serif;
+  text-shadow:0 1px 2px rgba(0,0,0,0.4);
+  pointer-events:none;
+}
+.opp-timer-badge.active{display:flex}
+.opp-timer-badge.warn{background:linear-gradient(145deg,#ff5252,#c62828);box-shadow:0 2px 12px rgba(255,82,82,0.6),inset 0 1px 0 rgba(255,255,255,0.3);animation:clockPulse 0.6s ease-in-out infinite}
+@keyframes clockPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 .av{width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#2a2a3a 0%,#141420 55%,#080810 100%);border:2px solid #5a5a6a;display:flex;justify-content:center;align-items:center;font-size:22px;font-weight:bold;color:#c8c8d4;box-shadow:0 3px 10px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 2px rgba(0,0,0,0.4);position:relative;overflow:hidden}
 .av::before{content:'';position:absolute;inset:2px;border-radius:50%;background:linear-gradient(145deg,rgba(255,255,255,0.04),transparent 60%);pointer-events:none}
 .av.active{border-color:var(--neon);color:#fff;box-shadow:0 0 16px rgba(0,255,200,0.55),0 3px 10px rgba(0,0,0,0.55),inset 0 1px 0 rgba(0,255,200,0.2)}
 .av.finished{border-color:var(--gold)!important;color:var(--gold)!important;box-shadow:0 0 18px var(--gold),0 3px 10px rgba(0,0,0,0.55)!important}
 .av.human-player{background:radial-gradient(circle at 30% 25%,#3a3020 0%,#1c1610 55%,#080604 100%);border-color:#8a7340;color:#e8d8a0}
-.badge-n{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:none;justify-content:center;align-items:center;border:2px solid #fff;font-size:12px;font-weight:bold;z-index:10}
-.badge-n.big-count{width:32px;height:32px;font-size:16px;font-weight:900;top:-8px;right:-8px;border-width:2px;box-shadow:0 2px 6px rgba(0,0,0,0.4)}
+.badge-n{position:absolute;top:-8px;right:-8px;background:var(--red);color:#fff;width:38px;height:38px;border-radius:50%;display:none;justify-content:center;align-items:center;border:2px solid #fff;font-size:19px;font-weight:900;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,0.5);font-family:'Orbitron','Segoe UI',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,0.4)}
+.badge-n.big-count{width:44px;height:44px;font-size:22px;font-weight:900;top:-10px;right:-10px;border-width:2px;box-shadow:0 2px 10px rgba(0,0,0,0.5)}
+/* 剩余张数 ≤ 5 时变黄警告 */
+.badge-n.low{background:linear-gradient(145deg,#ffa726,#f57c00);box-shadow:0 2px 10px rgba(255,167,38,0.5)}
 .badge-finish{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:1px 8px;border-radius:8px;font-size:10px;font-weight:bold;display:none;z-index:10;white-space:nowrap}
 .badge-type{position:absolute;top:-8px;left:50%;transform:translateX(-50%);padding:1px 6px;border-radius:6px;font-size:9px;font-weight:bold;display:none;z-index:10;white-space:nowrap}
 .badge-type.bot-badge{background:#555;color:#ccc}
@@ -217,7 +235,7 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 .b-pass:hover{border-color:rgba(180,150,80,0.4);color:#e0d0a0}
 .b-hint{background:linear-gradient(180deg,#4a8060,#2a5838,#1e4028);color:#d0f0d8;border:1px solid rgba(100,180,120,0.3);box-shadow:0 2px 12px rgba(40,120,60,0.3),inset 0 1px 0 rgba(255,255,255,0.08)}
 .b-play{background:linear-gradient(180deg,#d4a530,#b8891a,#9a7010);color:#1a1400;border:1px solid rgba(255,220,120,0.3);box-shadow:0 2px 12px rgba(200,160,30,0.4),inset 0 1px 0 rgba(255,240,180,0.3);text-shadow:0 1px 0 rgba(255,255,255,0.2)}
-.timer-txt{position:absolute;top:-40px;width:100%;text-align:center;color:var(--gold);font-size:16px;font-weight:bold;display:none}
+.timer-txt{position:absolute;top:-46px;width:100%;text-align:center;color:var(--gold);font-size:26px;font-weight:900;display:none;font-family:'Orbitron','Segoe UI',sans-serif;text-shadow:0 2px 4px rgba(0,0,0,0.5),0 0 10px rgba(255,215,0,0.4)}
 .toast{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(180deg,rgba(30,26,18,0.96),rgba(14,10,4,0.98));padding:10px 30px;border-radius:8px;border:1px solid rgba(180,150,80,0.3);z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;color:#e0d0a0;box-shadow:0 4px 16px rgba(0,0,0,0.6)}
 .mobile-score{display:none;position:absolute;top:0;left:0;right:0;height:28px;background:rgba(0,0,0,0.7);z-index:450;padding:0 10px;align-items:center;justify-content:space-between;font-size:11px;color:#aaa;border-bottom:1px solid #333}
 .mobile-score .ms-val{color:var(--gold);font-weight:bold}
@@ -1730,9 +1748,9 @@ body.view-table .holo-hex-grid{opacity:0.05}
       <span>ELO <span class="ms-val" id="ms-elo" style="color:var(--neon)">1500</span></span>
     </div>
     <div class="deck-center" id="deck-center"></div>
-    <div class="p-zone p-top"><div class="badge-type" id="type-2"></div><div class="timer-ring" id="tr-2"><div class="av" id="av-2">PARTNER</div></div><div class="badge-n" id="n-2">27</div><div class="badge-finish" id="f-2"></div></div>
-    <div class="p-zone p-left"><div class="badge-type" id="type-3"></div><div class="timer-ring" id="tr-3"><div class="av" id="av-3">LEFT</div></div><div class="badge-n" id="n-3">27</div><div class="badge-finish" id="f-3"></div></div>
-    <div class="p-zone p-right"><div class="badge-type" id="type-1"></div><div class="timer-ring" id="tr-1"><div class="av" id="av-1">RIGHT</div></div><div class="badge-n" id="n-1">27</div><div class="badge-finish" id="f-1"></div></div>
+    <div class="p-zone p-top"><div class="badge-type" id="type-2"></div><div class="timer-ring" id="tr-2"><div class="av" id="av-2">PARTNER</div><div class="opp-timer-badge" id="ot-2"></div></div><div class="badge-n" id="n-2">27</div><div class="badge-finish" id="f-2"></div></div>
+    <div class="p-zone p-left"><div class="badge-type" id="type-3"></div><div class="timer-ring" id="tr-3"><div class="av" id="av-3">LEFT</div><div class="opp-timer-badge" id="ot-3"></div></div><div class="badge-n" id="n-3">27</div><div class="badge-finish" id="f-3"></div></div>
+    <div class="p-zone p-right"><div class="badge-type" id="type-1"></div><div class="timer-ring" id="tr-1"><div class="av" id="av-1">RIGHT</div><div class="opp-timer-badge" id="ot-1"></div></div><div class="badge-n" id="n-1">27</div><div class="badge-finish" id="f-1"></div></div>
     <div class="p-zone p-me" id="pzone-me"><div class="holo-av-glow"></div><div class="holo-av-ring"><svg viewBox="0 0 66 66" fill="none"><circle cx="33" cy="33" r="31" stroke="url(#avGrad)" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.6"/><defs><linearGradient id="avGrad" x1="0" y1="0" x2="66" y2="66"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff00ff"/></linearGradient></defs></svg></div><div class="av" id="av-0" style="width:50px;height:50px;font-size:10px;border-width:2px">YOU</div><div class="badge-finish" id="f-0"></div></div>
     <div class="out o-t" id="out-2"></div>
     <div class="out o-l" id="out-3"></div>
@@ -2324,6 +2342,7 @@ function renderUI(){
       let cnt=seat===mySeat?myCards.length:counts[seat];
       nb.innerText=cnt;
       nb.style.display=(cnt>0&&cnt<=10)?'flex':'none';
+      if(cnt<=5)nb.classList.add('low');else nb.classList.remove('low');
       nb.classList.toggle('big-count',cnt>0&&cnt<=10);
     }
     let av=document.getElementById('av-'+v);
@@ -2340,6 +2359,7 @@ function renderUI(){
 
 function startTimer(){
   stopTimer();
+  stopOpponentTimer();
   const TIMER_TOTAL = 25;
   timeLeft=TIMER_TOTAL;
   let tt=document.getElementById('my-timer-txt');
@@ -2373,15 +2393,42 @@ function stopTimer(){
   _updateTimerBar(0, 1);
 }
 
+let oppTimerInterval=null;
 function startOpponentTimer(){
+  stopOpponentTimer();
+  let activeV=-1;
   for(let v=1;v<=3;v++){
     let seat=(mySeat+v)%4;
     let tr=document.getElementById('tr-'+v);
+    let ot=document.getElementById('ot-'+v);
     if(tr){
       tr.style.borderColor=seat===turn?'var(--neon)':'transparent';
       tr.style.borderWidth=seat===turn?'3px':'0';
       tr.style.borderStyle='solid';
     }
+    if(ot){
+      if(seat===turn){activeV=v;ot.classList.add('active');ot.classList.remove('warn');ot.innerText='25'}
+      else{ot.classList.remove('active','warn');ot.innerText=''}
+    }
+  }
+  if(activeV<0)return;
+  const OPP_TOTAL=25;
+  let left=OPP_TOTAL;
+  const badge=document.getElementById('ot-'+activeV);
+  if(badge)badge.innerText=left;
+  oppTimerInterval=setInterval(()=>{
+    left--;
+    if(!badge||turn===mySeat||gameOver){stopOpponentTimer();return}
+    if(left<=0){stopOpponentTimer();return}
+    badge.innerText=left;
+    if(left<=8)badge.classList.add('warn');else badge.classList.remove('warn');
+  },1000);
+}
+function stopOpponentTimer(){
+  if(oppTimerInterval){clearInterval(oppTimerInterval);oppTimerInterval=null}
+  for(let v=1;v<=3;v++){
+    const ot=document.getElementById('ot-'+v);
+    if(ot){ot.classList.remove('active','warn');ot.innerText=''}
   }
 }
 
