@@ -893,24 +893,48 @@ to{transform:rotate(360deg)}}
 .arena-score-line.negative{color:#d05050}
 .arena-score-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase}
 
-/* === 统一浅色卡面: 手牌 / 出牌区 一致 === */
+/* === Holographic 深色卡面 (对齐 index.html 对战) === */
+.casual-mode .grp-col .stack-card .card{
+  background:#0a0a14 !important;
+  border:1.5px solid rgba(255,255,255,0.12) !important;
+  box-shadow:0 2px 10px rgba(0,0,0,0.6);
+}
+.casual-mode .grp-col .stack-card .card.c-red,
+.casual-mode .grp-col .stack-card .card .c-red{color:#ff3b3b}
+.casual-mode .grp-col .stack-card .card.c-blk,
+.casual-mode .c-blk{color:rgba(255,255,255,0.85)}
+/* 深色卡面上 4 色 (♠ 改白以免消失) */
+.casual-mode .c-spade,.casual-mode .card.c-spade,.casual-mode .card .c-spade{color:#e0e0e0 !important}
 .casual-mode .grp-col .stack-card:hover .card{
-  border-color:#888 !important;
-  box-shadow:2px 2px 12px rgba(0,0,0,0.4) !important;
-  filter:brightness(1.05);
+  border-color:rgba(0,255,255,0.4) !important;
+  box-shadow:0 0 15px rgba(0,255,255,0.2),0 4px 15px rgba(0,0,0,0.5) !important;
+  filter:none;
 }
 .casual-mode .grp-col .stack-card.sel .card{
-  background:#e4fff8 !important;
-  border-color:var(--neon) !important;
-  box-shadow:0 0 0 3px var(--neon),0 0 16px rgba(0,255,200,0.4) !important;
+  background:#0a0a14 !important;
+  border-color:var(--gold) !important;
+  box-shadow:0 0 20px rgba(255,215,0,0.4),0 0 40px rgba(255,215,0,0.1) !important;
 }
-/* Action buttons holo style in casual */
+.casual-mode .grp-col .stack-card .card.c-wild{
+  border:2px solid var(--gold) !important;
+  background:rgba(20,18,5,0.95) !important;
+  box-shadow:0 0 12px rgba(255,215,0,0.3) !important;
+}
+/* 出牌区也用深色 */
+.casual-mode .out .card{
+  background:#0a0a14 !important;
+  border-color:rgba(0,255,255,0.25) !important;
+  box-shadow:0 0 10px rgba(0,255,255,0.15) !important;
+}
+.casual-mode .out .card.c-red{color:#ff3b3b}
+.casual-mode .out .card.c-blk{color:rgba(255,255,255,0.85)}
+/* 操作按钮全息风 */
 .casual-mode .b-pass{
-  background:linear-gradient(180deg,#3a3528,#2a2518);border:1.5px solid rgba(180,150,80,0.2);
-  color:#b0a080;border-radius:8px;
-  letter-spacing:2px;
+  background:transparent;border:1.5px solid rgba(255,255,255,0.2);
+  color:rgba(255,255,255,0.5);border-radius:30px;
+  font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:2px;
 }
-.casual-mode .b-pass:hover{border-color:rgba(180,150,80,0.4);color:#d0c0a0}
+.casual-mode .b-pass:hover{border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.7)}
 .casual-mode .b-hint{
   background:transparent;border:1.5px solid var(--neon);color:var(--neon);
   border-radius:30px;font-family:'Orbitron','Segoe UI',sans-serif;letter-spacing:2px;
