@@ -2895,23 +2895,26 @@ function _kbRegisterHandler() {
       const row = parseInt(token[1], 16);
       const col = parseInt(token[2], 16);
 
-      // Row 0 = 列选 (选中整列该点数的牌)
+      // Row 0 = 列选 (切换: 全选 <-> 全取消)
       if (row === 0) {
-        // 找这列对应的点数
         const rankIdx = col - 2;
         const rankNames = ['2','A','K','Q','J','10','9','8','7','6','5','4','3'];
         if (rankIdx >= 0 && rankIdx < rankNames.length) {
           const rank = rankNames[rankIdx];
           const cardsInRank = (myCards || []).filter(c => c.v === rank);
           if (cardsInRank.length > 0) {
-            cardsInRank.forEach(c => c.sel = true);
+            // 判断: 若全选中则反选 (全部取消), 否则全选
+            const allSelected = cardsInRank.every(c => c.sel);
+            const newSel = !allSelected;
+            cardsInRank.forEach(c => c.sel = newSel);
             if (typeof renderHand === 'function') renderHand();
-            KB.colFlash(col);
-            // 更新所有这些位置到 selected
+            if (newSel) KB.colFlash(col);
+            // 更新所有这些位置 LED
             for (const [k, card] of Object.entries(KB._getPosMap())) {
               const [r, c] = k.split(',').map(Number);
-              if (c === col && card.v === rank) KB.selPos(r, c, true);
+              if (c === col && card.v === rank) KB.selPos(r, c, newSel);
             }
+            console.log('[KB] 列选', rank, newSel ? '全选' : '全取消');
           }
         }
         return;
@@ -3761,6 +3764,10 @@ function handleSync(d){
       myCards.forEach(c=>c.sel=false);
       window._pendingPlay=null;
       renderHand();
+      // 键盘灯光: 出牌动画结束后重新下落剩余牌
+      if (typeof KB !== 'undefined') {
+        setTimeout(() => KB.layout(myCards), 700);
+      }
       let eloDelta=evaluateMove('play',d.cards,d.handType,lastMoveWasTimeout);
       applyElo(eloDelta);showEloFloat(eloDelta);
       lastMoveWasTimeout=false;
