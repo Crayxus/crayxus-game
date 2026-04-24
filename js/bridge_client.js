@@ -1,91 +1,119 @@
 /**
- * CRAYXUS 掼蛋键盘桥接客户端 (浏览器端, Windows + Linux 都用这个)
+ * CRAYXUS 掼蛋键盘桥接 v3 (动态位置映射)
  *
- * 架构:
- *   浏览器 KeyboardEvent  -> KB.onKey 回调 (键盘按键)
- *   KB.deal/sort/... API  -> WebSocket -> Python 桥接 -> USB 串口 -> Pico
+ * 浏览器 → 键盘:
+ *   KB.dealStart()                    - 发牌开始 (全键盘 dim 白)
+ *   KB.layout(myCards)                - 根据手牌算出每张牌位置并全部点亮
+ *   KB.ledAt(row, col, suit)          - 单个位置亮灯 (爆白闪 → 花色色)
+ *   KB.ledOff(row, col)               - 关单个位置
+ *   KB.selPos(row, col, on)           - 选中/取消位置
+ *   KB.colFlash(col)                  - 整列闪电
+ *   KB.playPos(posArray)              - 出牌动画, posArray = [[r,c],...]
+ *   KB.pass() / KB.clear() / KB.idle()
  *
- * 用法:
- *   粘贴到 indexrp.html 的 <script> 里, 或单独保存用 <script src="bridge_client.js"></script>
+ * 键盘 → 浏览器:
+ *   KB.onKey(fn)   -> fn(token)
+ *   token: 'P73' (row 7 col 3) / 'PLAY' / 'PASS' / 'MODE' / 'BJ' / 'SJ'
  *
- *   KB.deal('S2');              // 发一张 ♠2
- *   KB.deal(['S2','HA','CK']);  // 批量发牌
- *   KB.sort();                   // 发完后触发下落动画
- *   KB.select('SA', true);       // 选中 ♠A
- *   KB.select('SA', false);      // 取消选中
- *   KB.columnFlash('A');         // A 点数整列闪 + 选中
- *   KB.play(['S2','HA']);        // 出牌 (上飞动画)
- *   KB.pass();                   // 过牌效果
- *   KB.clear();                  // 清空所有, 回 IDLE
- *
- *   KB.onKey((token) => {
- *     // token: 'S2' / 'HA' / 'BJ' / 'SJ' / 'PLAY' / 'PASS' / 'MODE' / 'COL_A' 等
- *   });
+ * 动态映射查询:
+ *   KB.posToCard(row, col)   // -> card 对象或 null
  */
 (function(global){
   const WS_URL = 'ws://localhost:8765';
 
+  // 游戏层规约 (和 indexrp.html 里 _findKbKey 完全一致)
+  const KB_SUITS = ['♠','♥','♣','♦'];
+  const KB_VAL_MAP = {'2':0,'A':1,'K':2,'Q':3,'J':4,'10':5,'9':6,'8':7,'7':8,'6':9,'5':10,'4':11,'3':12};
+  const SUIT_TO_CODE = {'♠':'S','♥':'H','♣':'C','♦':'D'};
+
   let ws = null;
   let reconnectTimer = null;
   let keyHandlers = [];
+  let posMap = {};    // "r,c" -> card 对象
 
   // ============================================================
-  // 浏览器原生按键监听 (替代 Linux 的 evdev HID 监听)
-  // 键盘发出 'S', '2', Enter 三次 keydown, 我们累积成 'S2'
+  // 键盘按键监听 (位置 token "P<row><col_hex>" + 固定 token)
   // ============================================================
   let kbBuffer = '';
   let kbEnabled = true;
+  let kbFlushTimer = null;
+
+  function _splitTokens(buf) {
+    const patterns = [
+      /^(PLAY|PASS|MODE|BJ|SJ)/,
+      /^P[0-7][0-9A-E]/,
+    ];
+    const out = [];
+    while (buf.length > 0) {
+      let matched = null;
+      for (const p of patterns) {
+        const m = buf.match(p);
+        if (m) { matched = m[0]; break; }
+      }
+      if (!matched) {
+        buf = buf.substring(1);
+        continue;
+      }
+      out.push(matched);
+      buf = buf.substring(matched.length);
+    }
+    return out;
+  }
+
+  function _flush() {
+    if (!kbBuffer) return;
+    const raw = kbBuffer;
+    kbBuffer = '';
+    const tokens = _splitTokens(raw);
+    for (const t of tokens) {
+      console.log('[KB] 按键', t);
+      keyHandlers.forEach(h => {
+        try { h(t); } catch(err) { console.error(err); }
+      });
+    }
+  }
+
+  function _scheduleFlush() {
+    if (kbFlushTimer) clearTimeout(kbFlushTimer);
+    kbFlushTimer = setTimeout(_flush, 150);
+  }
 
   document.addEventListener('keydown', (e) => {
     if (!kbEnabled) return;
-
-    // 忽略修饰键
     if (e.ctrlKey || e.altKey || e.metaKey) return;
 
-    // Enter = 提交 token
-    if (e.key === 'Enter') {
-      if (kbBuffer) {
-        const token = kbBuffer;
-        kbBuffer = '';
-        // 只有符合掼蛋键盘格式的才派发
-        if (/^(S|H|C|D)[0-9AKQJT]+$/.test(token) ||    // 牌: S2, HA ...
-            token === 'BJ' || token === 'SJ' ||         // 大小王
-            token === 'PLAY' || token === 'PASS' || token === 'MODE' ||
-            /^COL_[0-9AKQJT]+$/.test(token)) {          // 列: COL_A 等
-          keyHandlers.forEach(h => {
-            try { h(token); } catch(err) { console.error(err); }
-          });
-          e.preventDefault();  // 阻止默认 Enter 行为
-        }
-      }
+    const code = e.code || '';
+    if (code === 'Enter' || e.key === 'Enter') {
+      _flush();
+      e.preventDefault();
       return;
     }
 
-    // 普通字符累积
-    if (e.key.length === 1) {
-      kbBuffer += e.key.toUpperCase();
-      // 防止键盘输入跑到输入框里 (可选, 按需开关)
-      if (document.activeElement &&
-          (document.activeElement.tagName === 'INPUT' ||
-           document.activeElement.tagName === 'TEXTAREA')) {
-        // 输入框聚焦时不拦截, 让用户正常输入
-      } else {
+    let ch = '';
+    if (code.startsWith('Key')) ch = code.substring(3);
+    else if (code.startsWith('Digit')) ch = code.substring(5);
+    else if (code === 'Minus') ch = '_';
+    else if (e.key && e.key.length === 1) ch = e.key.toUpperCase();
+
+    if (ch) {
+      kbBuffer += ch;
+      _scheduleFlush();
+      if (!(document.activeElement &&
+            (document.activeElement.tagName === 'INPUT' ||
+             document.activeElement.tagName === 'TEXTAREA'))) {
         e.preventDefault();
       }
     }
   });
 
-  // 切换是否拦截按键 (比如聊天输入时可禁用)
   function setKeyboardEnabled(on) { kbEnabled = on; }
 
   // ============================================================
-  // WebSocket (game -> pico 灯光命令)
+  // WebSocket
   // ============================================================
   function connect() {
-    try {
-      ws = new WebSocket(WS_URL);
-    } catch(e) {
-      console.warn('[KB] WebSocket 创建失败', e);
+    try { ws = new WebSocket(WS_URL); }
+    catch(e) {
       reconnectTimer = setTimeout(connect, 3000);
       return;
     }
@@ -101,37 +129,122 @@
   }
 
   function send(cmd, arg) {
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-      console.warn('[KB] 命令未发送 (未连接):', cmd, arg);
-      return;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify({cmd, arg: arg == null ? '' : String(arg)}));
+  }
+
+  // ============================================================
+  // 计算手牌的物理位置 (与游戏 _findKbKey + _kbApplySort 完全一致)
+  // 返回 { "row,col": card }
+  // ============================================================
+  function _computeLayout(myCards) {
+    const initial = {};   // "row,col" -> card
+    const placed = {};
+    const sorted = [...myCards].sort((a, b) => b.p - a.p);
+
+    for (const c of sorted) {
+      let row, col;
+      if (c.s === 'JOKER') {
+        col = c.v === 'Bg' ? 0 : 1;
+        const pkey = `joker-${c.v}`;
+        const count = placed[pkey] || 0;
+        placed[pkey] = count + 1;
+        row = 6 + count;
+        if (row > 7) continue;
+      } else {
+        const colIdx = KB_VAL_MAP[c.v];
+        if (colIdx === undefined) continue;
+        col = colIdx + 2;
+        const suitIdx = KB_SUITS.indexOf(c.s);
+        if (suitIdx < 0) continue;
+        const baseRow = suitIdx * 2;
+        const pkey = `${c.s}-${c.v}`;
+        const count = placed[pkey] || 0;
+        placed[pkey] = count + 1;
+        row = baseRow + count;
+        if (row > baseRow + 1) continue;
+      }
+      initial[`${row},${col}`] = c;
     }
-    ws.send(JSON.stringify({cmd, arg: arg || ''}));
+
+    // 重力排序: 每列 lit 沉底, 保持行顺序
+    const finalMap = {};
+    for (let col = 0; col < 15; col++) {
+      const cardsInCol = [];
+      for (let row = 0; row < 8; row++) {
+        const key = `${row},${col}`;
+        if (initial[key]) cardsInCol.push({row, card: initial[key]});
+      }
+      cardsInCol.sort((a, b) => a.row - b.row);
+      cardsInCol.forEach((item, i) => {
+        const finalRow = 8 - cardsInCol.length + i;
+        finalMap[`${finalRow},${col}`] = item.card;
+      });
+    }
+    return finalMap;
   }
 
   // ============================================================
   // 对外 API
   // ============================================================
   const KB = {
-    // 灯光命令
-    deal(cards, intervalMs = 200) {
-      if (Array.isArray(cards)) {
-        cards.forEach((c, i) => setTimeout(() => send('DEAL', c), i * intervalMs));
+    // 原始命令
+    raw(cmd, arg) { send(cmd, arg); },
+
+    // 发牌开始 - 整键盘 dim 白
+    dealStart() { send('DEAL_START'); },
+
+    // 根据手牌重建映射 + 点亮所有位置
+    // 可选 animated=true 会逐张发, 否则一次性点亮
+    layout(myCards, animated = false, interval = 200) {
+      const finalMap = _computeLayout(myCards);
+      posMap = finalMap;
+      // 先清 LED (保留 dim 白底)
+      send('LED_CLEAR');
+      const entries = Object.entries(finalMap);
+      if (animated) {
+        entries.forEach(([key, card], i) => {
+          setTimeout(() => {
+            const [r, c] = key.split(',').map(Number);
+            const suit = SUIT_TO_CODE[card.s] || 'S';
+            send('LED', `${r},${c},${suit}`);
+            // 最后一张发完后关 dim 白底
+            if (i === entries.length - 1) {
+              setTimeout(() => send('LAYOUT_DONE'), 300);
+            }
+          }, i * interval);
+        });
       } else {
-        send('DEAL', cards);
+        for (const [key, card] of entries) {
+          const [r, c] = key.split(',').map(Number);
+          const suit = SUIT_TO_CODE[card.s] || 'S';
+          send('LED', `${r},${c},${suit}`);
+        }
+        send('LAYOUT_DONE');
       }
     },
-    sort() { send('SORT'); },
-    select(card, on = true) { send(on ? 'SEL' : 'UNSEL', card); },
-    columnFlash(rank) { send('COL_FLASH', rank); },
-    play(cards) {
-      const list = Array.isArray(cards) ? cards.join(',') : cards;
-      send('PLAY', list);
+
+    // 动态映射: 查询位置对应的 card
+    posToCard(row, col) {
+      return posMap[`${row},${col}`] || null;
+    },
+
+    // 单个位置操作
+    ledAt(row, col, suit) { send('LED', `${row},${col},${suit}`); },
+    ledOff(row, col) { send('LED_OFF', `${row},${col}`); },
+    selPos(row, col, on = true) { send(on ? 'SEL' : 'UNSEL', `${row},${col}`); },
+    colFlash(col) { send('COL_FLASH', col); },
+    playPos(positions) {
+      const s = positions.map(([r, c]) => `${r},${c}`).join(';');
+      send('PLAY', s);
     },
     pass() { send('PASS'); },
-    clear() { send('CLEAR'); },
-    mode(name) { send('MODE', name); },
+    clear() {
+      posMap = {};
+      send('CLEAR');
+    },
+    idle() { send('IDLE'); },
 
-    // 按键事件订阅
     onKey(handler) {
       keyHandlers.push(handler);
       return () => {
@@ -140,16 +253,14 @@
       };
     },
 
-    // 暂停/恢复按键拦截 (比如弹出聊天输入框时)
     setKeyboardEnabled,
+    isConnected() { return ws && ws.readyState === WebSocket.OPEN; },
 
-    // 连接状态
-    isConnected() {
-      return ws && ws.readyState === WebSocket.OPEN;
-    },
+    // 测试用: 返回当前映射
+    _getPosMap() { return posMap; },
   };
 
   connect();
   global.KB = KB;
-  console.log('[KB] 桥接客户端已加载. 使用 KB.deal / KB.sort / KB.onKey 等');
+  console.log('[KB] 桥接客户端 v3 (位置映射) 已加载');
 })(window);
