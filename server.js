@@ -3066,14 +3066,20 @@ function callVolcTTS(text, voiceType) {
         const reqid = 'crayxus_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
         let ws;
         try {
-            ws = new WebSocket(VOLC_TTS_WS_URL, {
-                headers: {
-                    'X-Api-App-Id':      VOLC_TTS_APP_ID,
-                    'X-Api-Access-Key':  VOLC_TTS_ACCESS_KEY,
-                    'X-Api-Resource-Id': VOLC_TTS_RESOURCE,
-                    'X-Api-Request-Id':  reqid
-                }
-            });
+            // Seed-TTS 2.0 要求 X-Api-App-Id + X-Api-Access-Key + X-Api-Resource-Id
+            const headers = {
+                'X-Api-App-Id':      VOLC_TTS_APP_ID,
+                'X-Api-Access-Key':  VOLC_TTS_ACCESS_KEY,
+                'X-Api-Resource-Id': VOLC_TTS_RESOURCE,
+                'X-Api-Request-Id':  reqid
+            };
+            console.log('[TTS] Connecting with headers:', JSON.stringify({
+                APP_ID_len: VOLC_TTS_APP_ID.length,
+                ACCESS_KEY_prefix: VOLC_TTS_ACCESS_KEY.slice(0, 8),
+                RESOURCE: VOLC_TTS_RESOURCE,
+                URL: VOLC_TTS_WS_URL
+            }));
+            ws = new WebSocket(VOLC_TTS_WS_URL, { headers });
         } catch (e) {
             return reject(e);
         }
