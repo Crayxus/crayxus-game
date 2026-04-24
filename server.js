@@ -3129,6 +3129,57 @@ async function callVolcTTS(text, voiceType) {
     return Buffer.from(data.data, 'base64');
 }
 
+// ================================================================
+// 🎓 AI 错题讲解 · 根据学生的错选给出个性化分析
+// ================================================================
+app.post('/api/ai/ielts/explain-wrong', async (req, res) => {
+    try {
+        const { q, options = [], correctAnswer, userAnswer, dim = '', solution = '' } = req.body || {};
+        if (!q || !Array.isArray(options) || options.length < 4) {
+            return res.status(200).json({ ok: false, error: 'invalid_question' });
+        }
+        const letters = ['A', 'B', 'C', 'D'];
+        const correctIdx = Math.max(0, Math.min(3, Number(correctAnswer) || 0));
+        const userIdx = Math.max(0, Math.min(3, Number(userAnswer) || 0));
+
+        const prompt = `你是一位资深雅思 (IELTS) 教师。一名学生做错了下面这道 ${dim || '雅思'} 题，请给出专属的错题分析。
+
+【题目】
+${q}
+
+【选项】
+A. ${options[0]}
+B. ${options[1]}
+C. ${options[2]}
+D. ${options[3]}
+
+【正确答案】${letters[correctIdx]}
+【学生选了】${letters[userIdx]}
+${solution ? '【标准解析】' + solution + '\n' : ''}
+【任务要求】
+用 150-220 字，分三部分（必须都包含）：
+① 为什么 ${letters[correctIdx]} 是对的（2 句话讲透关键点）
+② 学生选 ${letters[userIdx]} 的思维陷阱（诊断错因，不要泛泛而谈）
+③ 一个实用记忆技巧或避坑口诀（让学生下次能秒杀）
+
+语气要亲切鼓励，像你当面辅导一样，用中文。不要加标题，一段话自然流畅写。
+
+【输出 JSON】
+{"explanation": "你的分析..."}`;
+
+        const parsed = await callDeepSeek(prompt, 1200, 0.9);
+        const explanation = String(parsed.explanation || '').trim();
+        if (!explanation) {
+            return res.status(200).json({ ok: false, error: 'empty_explanation' });
+        }
+        gameLog(`[AI-EXPLAIN] generated ${explanation.length} chars for dim=${dim}`);
+        res.json({ ok: true, explanation });
+    } catch (err) {
+        console.error('[AI-EXPLAIN] Error:', err.message);
+        res.status(200).json({ ok: false, error: 'failed', message: err.message });
+    }
+});
+
 app.post('/api/ai/ielts/tts', async (req, res) => {
     try {
         const { text, voice = 'zh-female' } = req.body || {};
