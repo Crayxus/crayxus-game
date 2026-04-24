@@ -2741,6 +2741,21 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
         const dimDesc = IELTS_DIMS[dim];
         const band = mastery < 40 ? '5.0-5.5' : mastery < 60 ? '5.5-6.5' : mastery < 80 ? '6.5-7.5' : '7.5-8.5';
 
+        const isListening = (dim === 'listening');
+        const listeningNote = isListening ? `
+
+【特别要求 · 听力题必须符合真实考试形式】
+- 必须包含 audio_script 字段：一段要朗读的英文对白或独白（40-100 词），模拟雅思听力音频
+- q 字段只写问题本身，禁止写"You hear a conversation about..."或复述音频内容
+- 选项不要透露音频内容，必须让学生真正听音频才能答对
+- audio_script 要自然对话或独白，不要舞台说明文字` : '';
+
+        const schemaField = isListening ?
+            `"audio_script": "40-100 词的英文对白/独白，将被 TTS 朗读",
+      "audio_speaker": "single | dialogue",
+      "audio_duration": 12,
+      ` : '';
+
         const prompt = `你是雅思考试 (IELTS Academic) 资深命题专家。请生成 ${count} 道**高质量的雅思训练题**。
 
 【要求】
@@ -2748,20 +2763,20 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
 - 难度等级：${difficulty} (1=基础, 2=中等, 3=进阶)
 - 学员当前水平：Band ${band}（掌握度 ${mastery}/100）
 - 每题 4 个选项（A/B/C/D），只有一个正确
-- 避免和标准题库重复，出题角度要新颖
+- 避免和标准题库重复，出题角度要新颖${listeningNote}
 
-【输出 JSON 格式】（严格按此结构，禁止额外字段）
+【输出 JSON 格式】（严格按此结构）
 {
   "questions": [
     {
       "id": "ai_${Date.now()}_1",
       "dim": "${dim}",
-      "lesson": "简短考点标签，如 'Section 1 · Form Filling'",
+      "lesson": "简短考点标签",
       "difficulty": ${difficulty},
-      "q": "题干，英文主体，必要时用中文补充说明",
+      ${schemaField}"q": "题干，听力题写问题本身不要复述音频",
       "options": ["选项A", "选项B", "选项C", "选项D"],
       "answer": 0,
-      "solution": "中文讲解，2-3 句，解释正确答案的推理 + 常见错选陷阱"
+      "solution": "中文讲解 2-3 句"
     }
   ]
 }
@@ -2809,17 +2824,25 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
         }
 
         // 补全缺失字段 + 去除危险字段
-        const clean = questions.map((q, i) => ({
-            id: q.id || `ai_${Date.now()}_${i}`,
-            dim: dim,
-            lesson: String(q.lesson || '').slice(0, 40),
-            difficulty: Number(q.difficulty) || difficulty,
-            q: String(q.q || '').slice(0, 500),
-            options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).slice(0, 200)) : [],
-            answer: Math.max(0, Math.min(3, Number(q.answer) || 0)),
-            solution: String(q.solution || '').slice(0, 400),
-            aiGenerated: true
-        })).filter(q => q.q && q.options.length === 4);
+        const clean = questions.map((q, i) => {
+            const obj = {
+                id: q.id || `ai_${Date.now()}_${i}`,
+                dim: dim,
+                lesson: String(q.lesson || '').slice(0, 40),
+                difficulty: Number(q.difficulty) || difficulty,
+                q: String(q.q || '').slice(0, 500),
+                options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).slice(0, 200)) : [],
+                answer: Math.max(0, Math.min(3, Number(q.answer) || 0)),
+                solution: String(q.solution || '').slice(0, 400),
+                aiGenerated: true
+            };
+            if (dim === 'listening' && q.audio_script) {
+                obj.audio_script = String(q.audio_script).slice(0, 600);
+                obj.audio_speaker = (q.audio_speaker === 'dialogue') ? 'dialogue' : 'single';
+                obj.audio_duration = Math.max(8, Math.min(40, Number(q.audio_duration) || 12));
+            }
+            return obj;
+        }).filter(q => q.q && q.options.length === 4);
 
         gameLog(`[AI-IELTS] Generated ${clean.length} questions for dim=${dim} band=${band} mastery=${mastery}`);
         res.json({ ok: true, questions: clean, model: DEEPSEEK_MODEL, band });
@@ -2868,6 +2891,13 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
 - 每题 4 个选项，只有一个正确
 - 出题角度要新颖、多样，覆盖典型考点
 
+【听力题特殊要求】
+- listening 维度的题必须附带 audio_script 字段：40-100 词的英文对白或独白（模拟真实音频）
+- q 字段只写问题本身，不要复述音频内容
+- 选项不要透露音频内容，学生必须真正"听"音频才能答对
+- audio_speaker: "single" 或 "dialogue"
+- audio_duration: 预计朗读秒数（10-30）
+
 【维度提示】
 - listening: Form filling / Map labelling / MCQ / Note completion
 - speaking: Part 1/2/3 · Coherence / Lexical / Fluency
@@ -2876,7 +2906,7 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
 - vocabulary: Academic Word List / Collocations
 - grammar: Tense / Voice / Relative clauses / Conditionals
 
-【输出 JSON 格式】严格按此结构：
+【输出 JSON 格式】严格：
 {
   "questions": [
     {
@@ -2884,6 +2914,9 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
       "dim": "listening|speaking|reading|writing|vocabulary|grammar",
       "lesson": "简短考点标签",
       "difficulty": 1,
+      "audio_script": "仅 listening 题需要，其他科目省略此字段",
+      "audio_speaker": "single",
+      "audio_duration": 12,
       "q": "题干",
       "options": ["A", "B", "C", "D"],
       "answer": 0,
@@ -2898,17 +2931,26 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
         const questions = Array.isArray(parsed.questions) ? parsed.questions : [];
 
         const validDims = ['listening','speaking','reading','writing','vocabulary','grammar'];
-        const clean = questions.map((q, i) => ({
-            id: q.id || `ai_assess_${Date.now()}_${i}`,
-            dim: validDims.includes(q.dim) ? q.dim : 'listening',
-            lesson: String(q.lesson || '').slice(0, 40),
-            difficulty: Math.max(1, Math.min(3, Number(q.difficulty) || 2)),
-            q: String(q.q || '').slice(0, 500),
-            options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).slice(0, 200)) : [],
-            answer: Math.max(0, Math.min(3, Number(q.answer) || 0)),
-            solution: String(q.solution || '').slice(0, 400),
-            aiGenerated: true
-        })).filter(q => q.q && q.options.length === 4);
+        const clean = questions.map((q, i) => {
+            const dim = validDims.includes(q.dim) ? q.dim : 'listening';
+            const obj = {
+                id: q.id || `ai_assess_${Date.now()}_${i}`,
+                dim: dim,
+                lesson: String(q.lesson || '').slice(0, 40),
+                difficulty: Math.max(1, Math.min(3, Number(q.difficulty) || 2)),
+                q: String(q.q || '').slice(0, 500),
+                options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).slice(0, 200)) : [],
+                answer: Math.max(0, Math.min(3, Number(q.answer) || 0)),
+                solution: String(q.solution || '').slice(0, 400),
+                aiGenerated: true
+            };
+            if (dim === 'listening' && q.audio_script) {
+                obj.audio_script = String(q.audio_script).slice(0, 600);
+                obj.audio_speaker = (q.audio_speaker === 'dialogue') ? 'dialogue' : 'single';
+                obj.audio_duration = Math.max(8, Math.min(40, Number(q.audio_duration) || 12));
+            }
+            return obj;
+        }).filter(q => q.q && q.options.length === 4);
 
         gameLog(`[AI-IELTS-ASSESS] Generated ${clean.length}/20 questions`);
         res.json({ ok: true, questions: clean, model: DEEPSEEK_MODEL });
@@ -2972,7 +3014,118 @@ app.post('/api/ai/ielts/match', async (req, res) => {
 });
 
 // ================================================================
+// 🔊 Volcengine TTS · 雅思听力音频生成
+// ================================================================
+const VOLC_TTS_APPID  = process.env.VOLC_TTS_APPID  || '';
+const VOLC_TTS_TOKEN  = process.env.VOLC_TTS_TOKEN  || '';
+const VOLC_TTS_CLUSTER = process.env.VOLC_TTS_CLUSTER || 'volcano_tts';
+const VOLC_TTS_URL = 'https://openspeech.bytedance.com/api/v1/tts';
+
+// 内存 LRU 缓存：同一段文字只生成一次
+const ttsCache = new Map();
+const TTS_CACHE_MAX = 200;
+
+function ttsCacheKey(text, voice) { return voice + ':' + text; }
+function ttsCacheGet(key) {
+    if (!ttsCache.has(key)) return null;
+    const v = ttsCache.get(key);
+    ttsCache.delete(key); ttsCache.set(key, v); // LRU touch
+    return v;
+}
+function ttsCacheSet(key, val) {
+    if (ttsCache.size >= TTS_CACHE_MAX) {
+        const firstKey = ttsCache.keys().next().value;
+        ttsCache.delete(firstKey);
+    }
+    ttsCache.set(key, val);
+}
+
+// 音色映射（Volcengine 音色）
+const TTS_VOICES = {
+    'en-male':   'en_male_adam_mars_bigtts',      // 英音男
+    'en-female': 'en_female_emily_mars_bigtts',   // 英音女
+    'us-male':   'en_male_jason_mars_bigtts',     // 美音男
+    'us-female': 'en_female_sarah_mars_bigtts'    // 美音女
+};
+const TTS_FALLBACK_VOICE = 'en_female_sarah_mars_bigtts';
+
+app.post('/api/ai/ielts/tts', async (req, res) => {
+    try {
+        const { text, voice = 'us-female' } = req.body || {};
+        if (!text || typeof text !== 'string' || text.length < 5) {
+            return res.status(400).json({ error: 'invalid_text' });
+        }
+        if (text.length > 600) {
+            return res.status(400).json({ error: 'text_too_long', max: 600 });
+        }
+
+        const voiceType = TTS_VOICES[voice] || TTS_FALLBACK_VOICE;
+        const cacheKey = ttsCacheKey(text, voiceType);
+        const cached = ttsCacheGet(cacheKey);
+        if (cached) {
+            return res.json({ ok: true, audio: cached, cached: true });
+        }
+
+        if (!VOLC_TTS_APPID || !VOLC_TTS_TOKEN) {
+            return res.status(503).json({
+                error: 'tts_not_configured',
+                hint: '需要在 Render 环境变量添加 VOLC_TTS_APPID 和 VOLC_TTS_TOKEN'
+            });
+        }
+
+        const reqid = 'crayxus_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+        const body = {
+            app: {
+                appid: VOLC_TTS_APPID,
+                token: VOLC_TTS_TOKEN,
+                cluster: VOLC_TTS_CLUSTER
+            },
+            user: { uid: 'crayxus' },
+            audio: {
+                voice_type: voiceType,
+                encoding: 'mp3',
+                speed_ratio: 1.0,
+                volume_ratio: 1.0,
+                pitch_ratio: 1.0
+            },
+            request: {
+                reqid,
+                text,
+                text_type: 'plain',
+                operation: 'query'
+            }
+        };
+
+        const r = await fetch(VOLC_TTS_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer;' + VOLC_TTS_TOKEN,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        const data = await r.json();
+        if (!r.ok || data.code !== 3000 || !data.data) {
+            console.error('[TTS] Volc error:', r.status, data.code, data.message);
+            return res.status(502).json({ error: 'tts_failed', code: data.code, msg: data.message });
+        }
+
+        // data.data 是 base64 编码的 MP3
+        const audioBase64 = data.data;
+        const dataUri = 'data:audio/mp3;base64,' + audioBase64;
+        ttsCacheSet(cacheKey, dataUri);
+
+        gameLog(`[TTS] Generated ${text.length} chars · voice=${voiceType} · size=${audioBase64.length}`);
+        res.json({ ok: true, audio: dataUri, cached: false });
+    } catch (err) {
+        console.error('[TTS] Error:', err.message);
+        res.status(500).json({ error: 'internal_error', message: err.message });
+    }
+});
+
+// ================================================================
 
 http.listen(PORT, () => {
-    gameLog(`Crayxus V43 (Tournament + ASR + IELTS-AI-Full ${DEEPSEEK_MODEL}) Running on port ${PORT}`);
+    gameLog(`Crayxus V43 (Tournament + ASR + IELTS-AI-Full + TTS ${DEEPSEEK_MODEL}) Running on port ${PORT}`);
 });
