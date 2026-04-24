@@ -2855,6 +2855,73 @@ socket.on('connect',()=>{
   document.getElementById('conn-status').style.color="#0f0";
   let b=document.getElementById('find-btn');if(!b._demoMode){b.innerText="FIND MATCH";}b.disabled=false;
 });
+
+// ============================================================
+// 掼蛋键盘桥接: 物理键盘按键 -> 游戏动作
+// ============================================================
+function _kbFindCardByToken(token) {
+  // 根据 'SA', 'H2', 'BJ', 'SJ' 等找 myCards 中第一张匹配且未选中的牌
+  if (!myCards) return null;
+  if (token === 'BJ') return myCards.find(c => c.s === 'JOKER' && c.p > 15 && !c.sel);
+  if (token === 'SJ') return myCards.find(c => c.s === 'JOKER' && c.p <= 15 && !c.sel);
+  const suitMap = {'S':'♠','H':'♥','C':'♣','D':'♦'};
+  const suit = suitMap[token[0]];
+  if (!suit) return null;
+  const v = token.substring(1) === 'T' ? '10' : token.substring(1);
+  return myCards.find(c => c.s === suit && c.v === v && !c.sel);
+}
+
+function _kbFindCardsByRank(rank) {
+  // 按点数找 myCards 里所有该点数的牌
+  if (!myCards) return [];
+  const v = rank === 'T' ? '10' : rank;
+  return myCards.filter(c => c.v === v);
+}
+
+if (typeof KB !== 'undefined') {
+  KB.onKey((token) => {
+    if (token === 'PLAY') {
+      if (typeof sendPlay === 'function') sendPlay();
+    } else if (token === 'PASS') {
+      if (typeof sendPass === 'function') sendPass();
+    } else if (token === 'MODE') {
+      // 模式键暂未绑定功能
+    } else if (token.startsWith('COL_')) {
+      // 顶行按键 = 整列该点数全选
+      const rank = token.substring(4);
+      const cards = _kbFindCardsByRank(rank);
+      cards.forEach(c => c.sel = true);
+      if (typeof renderHand === 'function') renderHand();
+      KB.columnFlash(rank);
+    } else if (/^(S|H|C|D)[0-9AKQJT]+$/.test(token)) {
+      // 单张牌: 切换选中
+      const card = _kbFindCardByToken(token);
+      if (card) {
+        card.sel = !card.sel;
+        if (typeof renderHand === 'function') renderHand();
+        KB.select(token, card.sel);
+      } else {
+        // 没找到未选中的 = 可能所有该牌都已选中, 取消第一张
+        const suitMap = {'S':'♠','H':'♥','C':'♣','D':'♦'};
+        const suit = suitMap[token[0]];
+        const v = token.substring(1) === 'T' ? '10' : token.substring(1);
+        const sel = myCards.find(c => c.s === suit && c.v === v && c.sel);
+        if (sel) {
+          sel.sel = false;
+          if (typeof renderHand === 'function') renderHand();
+          KB.select(token, false);
+        }
+      }
+    } else if (token === 'BJ' || token === 'SJ') {
+      const card = _kbFindCardByToken(token);
+      if (card) {
+        card.sel = !card.sel;
+        if (typeof renderHand === 'function') renderHand();
+        KB.select(token, card.sel);
+      }
+    }
+  });
+}
 // Notify server immediately when browser tab is closed/refreshed
 window.addEventListener('beforeunload',()=>{
   if(!gameOver){return;}
@@ -3485,18 +3552,34 @@ socket.on('dealCards',d=>{
   if(dealCardsTimeout){clearTimeout(dealCardsTimeout);dealCardsTimeout=null}
   if(!d.cards||!Array.isArray(d.cards)||d.cards.length===0)return;
   myCards=d.cards.sort((a,b)=>b.p-a.p);
+  // 键盘灯光: 逐张点亮发牌 + 发完下落
+  if (typeof KB !== 'undefined') {
+    const kbTokens = myCards.map(c => {
+      if (c.s === 'JOKER') return c.p > 15 ? 'BJ' : 'SJ';
+      const suit = {'♠':'S','♥':'H','♣':'C','♦':'D'}[c.s] || 'S';
+      const rank = c.v === '10' ? 'T' : c.v;
+      return suit + rank;
+    });
+    KB.clear();
+    KB.deal(kbTokens, 150);
+    setTimeout(() => KB.sort(), kbTokens.length * 150 + 300);
+  }
   document.getElementById('deck-center').style.display='block';
   setTimeout(()=>{
     renderHand(true);
     let cards=document.querySelectorAll('#hand .stack-card .card'),i=0;
+    // 键盘联动时 150ms 同步灯光, 否则 40ms 原速
+    const _kbSync = (typeof KB!=='undefined' && KB.isConnected());
+    const _dealItv = _kbSync ? 150 : 40;
+    const _soundEvery = _kbSync ? 2 : 3;
     let di=setInterval(()=>{
       if(i>=cards.length){clearInterval(di);document.getElementById('deck-center').style.display='none';return}
       cards[i].classList.add('anim-deal');
-      if(i%3===0)AudioSys.play('deal');
+      if(i%_soundEvery===0)AudioSys.play('deal');
       i++;
-    },40);
+    },_dealItv);
     // Show EVO after deal animation (not in arena)
-    if(gameMode!=='arena') setTimeout(()=>showEVO(myCards),cards.length*40+200);
+    if(gameMode!=='arena') setTimeout(()=>showEVO(myCards),cards.length*_dealItv+200);
     // Calculate M value
     updateMValue();
   },500);
@@ -3810,12 +3893,24 @@ function sendPlay(){
   let cs=sel.map(c=>({s:c.s,v:c.v,p:c.p,seq:c.seq,id:c.id}));
   socket.emit('action',{seat:mySeat,type:'play',cards:cs,handType:type});
   window._pendingPlay={ids:sel.map(c=>c.id)};
+  // 键盘灯效: 选中牌上飞 + 熄灭
+  if (typeof KB !== 'undefined') {
+    const kbTokens = sel.map(c => {
+      if (c.s === 'JOKER') return c.p > 15 ? 'BJ' : 'SJ';
+      const suit = {'♠':'S','♥':'H','♣':'C','♦':'D'}[c.s] || 'S';
+      const rank = c.v === '10' ? 'T' : c.v;
+      return suit + rank;
+    });
+    KB.play(kbTokens);
+  }
 }
 
 function sendPass(){
   if(!isMyTurn){return toast("还没轮到你");}
   hintOptions=[];hintIndex=0;
   socket.emit('action',{seat:mySeat,type:'pass'});
+  // 键盘灯效: 过牌脉冲
+  if (typeof KB !== 'undefined') KB.pass();
 }
 
 // 独立 SF 扫描器 (自然 + wild-augmented, 含 A-low)
@@ -5588,12 +5683,16 @@ function startTrainingGame(isContinue){
   setTimeout(()=>{
     renderHand(true);
     let cards=document.querySelectorAll('#hand .stack-card .card'),i=0;
+    // 键盘联动时 150ms 同步灯光, 否则 40ms 原速
+    const _kbSync = (typeof KB!=='undefined' && KB.isConnected());
+    const _dealItv = _kbSync ? 150 : 40;
+    const _soundEvery = _kbSync ? 2 : 3;
     let di=setInterval(()=>{
       if(i>=cards.length){clearInterval(di);document.getElementById('deck-center').style.display='none';return}
       cards[i].classList.add('anim-deal');
-      if(i%3===0)AudioSys.play('deal');
+      if(i%_soundEvery===0)AudioSys.play('deal');
       i++;
-    },40);
+    },_dealItv);
   },300);
 
   if(doHighCard&&highCards){
@@ -7308,6 +7407,7 @@ setTimeout(updateHomeLoginState,1000);
 <script src="/js/ai-quiz.js"></script>
 <script src="/js/ai-courses.js"></script>
 <script src="/js/egg-token.js"></script>
+<script src="/js/bridge_client.js"></script>
 <script>
 // M Algorithm integration
 function updateMValue(){
