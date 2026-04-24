@@ -2731,6 +2731,21 @@ const IELTS_DIMS = {
     grammar:    '语法 (Grammar) · Tense / Voice / Relative clauses / Conditionals'
 };
 
+// 随机主题库（确保每次 prompt 不同）
+const RANDOM_TOPICS = [
+    '校园生活 (campus life)', '学术讲座 (academic lecture)', '图书馆 (library)',
+    '住宿 (accommodation)', '旅游 (travel)', '健康 (health)', '科技 (technology)',
+    '环境 (environment)', '艺术 (arts)', '历史 (history)',
+    '商业 (business)', '食物 (food)', '交通 (transport)', '体育 (sports)',
+    '教育 (education)', '家庭 (family)', '职业 (career)', '购物 (shopping)',
+    '媒体 (media)', '音乐 (music)', '电影 (film)', '书籍 (books)',
+    '心理学 (psychology)', '社会 (society)', '全球化 (globalization)'
+];
+function randomTopics(n) {
+    const shuffled = [...RANDOM_TOPICS].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, n).join(' / ');
+}
+
 app.post('/api/ai/ielts/generate', async (req, res) => {
     try {
         const { dim = 'listening', difficulty = 2, count = 5, mastery = 50 } = req.body || {};
@@ -2740,6 +2755,8 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
 
         const dimDesc = IELTS_DIMS[dim];
         const band = mastery < 40 ? '5.0-5.5' : mastery < 60 ? '5.5-6.5' : mastery < 80 ? '6.5-7.5' : '7.5-8.5';
+        const topics = randomTopics(3);
+        const randomSeed = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
         const isListening = (dim === 'listening');
         const listeningNote = isListening ? `
@@ -2758,11 +2775,15 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
 
         const prompt = `你是雅思考试 (IELTS Academic) 资深命题专家。请生成 ${count} 道**高质量的雅思训练题**。
 
+【本次侧重场景 · 请围绕这些主题出题】${topics}
+【随机种子 · 确保与之前不同】${randomSeed}
+
 【要求】
 - 维度：${dimDesc}
 - 难度等级：${difficulty} (1=基础, 2=中等, 3=进阶)
 - 学员当前水平：Band ${band}（掌握度 ${mastery}/100）
 - 每题 4 个选项（A/B/C/D），只有一个正确
+- **每次生成的题目内容必须和之前不同**，不要重复使用相同的场景/人物/数字
 - 避免和标准题库重复，出题角度要新颖${listeningNote}
 
 【输出 JSON 格式】（严格按此结构）
@@ -2792,7 +2813,7 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
             body: JSON.stringify({
                 model: DEEPSEEK_MODEL,
                 messages: [{ role: 'user', content: prompt }],
-                temperature: 0.85,
+                temperature: 1.05,
                 response_format: { type: 'json_object' },
                 max_tokens: 2400
             })
@@ -2853,7 +2874,7 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
 });
 
 // 🧠 DeepSeek 通用调用辅助
-async function callDeepSeek(prompt, maxTokens = 3000, temperature = 0.85) {
+async function callDeepSeek(prompt, maxTokens = 3000, temperature = 1.05) {
     const r = await fetch(DEEPSEEK_URL, {
         method: 'POST',
         headers: {
@@ -2883,12 +2904,19 @@ async function callDeepSeek(prompt, maxTokens = 3000, temperature = 0.85) {
 // ================================================================
 app.post('/api/ai/ielts/assess', async (req, res) => {
     try {
+        const topics = randomTopics(5);
+        const randomSeed = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
         const prompt = `你是雅思考试 (IELTS Academic) 资深命题专家。请生成 **20 道定级测评题**，用于快速判定学员水平。
+
+【本次场景主题 · 平均分配到 20 道题中】${topics}
+【随机种子 · 保证本次输出和之前完全不同】${randomSeed}
 
 【要求】
 - 6 个维度均衡覆盖（每维至少 3 题）：listening / speaking / reading / writing / vocabulary / grammar
 - 难度混合：6 道简单(difficulty=1)、10 道中等(difficulty=2)、4 道进阶(difficulty=3)
 - 每题 4 个选项，只有一个正确
+- **每次生成的题目必须是全新的**，避免重复的人物/地点/数字/情境
 - 出题角度要新颖、多样，覆盖典型考点
 
 【听力题特殊要求】
@@ -2965,7 +2993,11 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
 // ================================================================
 app.post('/api/ai/ielts/match', async (req, res) => {
     try {
+        const randomSeed = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
         const prompt = `你是 Crayxus AI 教育心理学家。生成 **10 道匹配度测评题**，判定一位准备考雅思的学生的学习人格和系统匹配度。
+
+【随机种子 · 保证本次输出和之前完全不同】${randomSeed}
 
 【要求】
 - 每题围绕一个维度：学习动机 / 时间投入 / 自驱力 / 专注耐力 / 竞争意识 / 奖励敏感 / 计划性 / 数据倾向 / 纠错执行 / 长期承诺
@@ -2973,6 +3005,7 @@ app.post('/api/ai/ielts/match', async (req, res) => {
 - 每题 4 个选项，按"匹配度高低"排序打分（5/4/3/2）
 - 题目简短直白，每题 20-40 字
 - 选项生动具体，不要"同意/不同意"这种敷衍选项
+- **每次生成要换切入角度**：有时问学习动机，有时问时间安排，有时问压力应对，避免题目重复
 
 【输出 JSON 格式】严格：
 {
@@ -3039,14 +3072,14 @@ function ttsCacheSet(key, val) {
     ttsCache.set(key, val);
 }
 
-// 音色映射（Volcengine v1 音色 ID）
+// 音色映射（Volcengine v1 原生英文音色 · 口音更正）
 const TTS_VOICES = {
-    'en-female': 'BV421_streaming',     // 英文女声 Anna
-    'en-male':   'BV422_streaming',     // 英文男声 Adam
-    'us-female': 'BV421_streaming',
-    'us-male':   'BV422_streaming'
+    'en-female': 'BV503_streaming',     // Anna 英音女声（纯英训练）
+    'en-male':   'BV504_streaming',     // Jackson 英音男声
+    'us-female': 'BV075_streaming',     // Stefan 美音女声
+    'us-male':   'BV074_streaming'      // Jason 美音男声
 };
-const TTS_FALLBACK_VOICE = 'BV421_streaming';
+const TTS_FALLBACK_VOICE = 'BV503_streaming';
 
 // 核心：调用 Volc TTS v1 HTTP POST 返回完整 MP3
 async function callVolcTTS(text, voiceType) {
