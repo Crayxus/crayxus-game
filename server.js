@@ -3066,14 +3066,14 @@ function callVolcTTS(text, voiceType) {
         const reqid = 'crayxus_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
         let ws;
         try {
+            // 新版控制台只需 X-Api-Key 鉴权（文档明确："新版控制台只需要 X-Api-Key 即可"）
             const headers = {
-                'X-Api-App-Id':      VOLC_TTS_APP_ID,
-                'X-Api-Access-Key':  VOLC_TTS_ACCESS_KEY,
+                'X-Api-Key':         VOLC_TTS_ACCESS_KEY,
                 'X-Api-Resource-Id': VOLC_TTS_RESOURCE,
                 'X-Api-Request-Id':  reqid
             };
             console.log('[TTS] Connect URL:', VOLC_TTS_WS_URL);
-            console.log('[TTS] Headers:', JSON.stringify(headers));
+            console.log('[TTS] Headers:', JSON.stringify({ ...headers, 'X-Api-Key': VOLC_TTS_ACCESS_KEY.slice(0,8)+'...' }));
             ws = new WebSocket(VOLC_TTS_WS_URL, { headers });
 
             // 捕获握手阶段的完整 HTTP 响应（关键诊断信息）
