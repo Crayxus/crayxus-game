@@ -3017,7 +3017,7 @@ app.post('/api/ai/ielts/match', async (req, res) => {
 // 🔊 Volcengine Seed-TTS 2.0 · 雅思听力音频生成（v3 bidirectional WS）
 // ================================================================
 const VOLC_TTS_APP_ID     = process.env.VOLC_TTS_APP_ID     || '2111776371';
-const VOLC_TTS_ACCESS_KEY = process.env.VOLC_TTS_ACCESS_KEY || '8280548b-9c87-424c-ba77-238ea3d9f806';
+const VOLC_TTS_ACCESS_KEY = process.env.VOLC_TTS_ACCESS_KEY || '718510c3-3096-460d-9973-5d15f8c9e372';
 const VOLC_TTS_WS_URL     = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection';
 const VOLC_TTS_RESOURCE   = 'seed-tts-2.0';
 
