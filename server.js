@@ -3072,14 +3072,16 @@ function ttsCacheSet(key, val) {
     ttsCache.set(key, val);
 }
 
-// 音色映射（Volcengine v1 原生英文音色 · 口音更正）
+// 音色映射（用已验证可用的 v1 音色 ID，别乱猜导致 502）
 const TTS_VOICES = {
-    'en-female': 'BV503_streaming',     // Anna 英音女声（纯英训练）
-    'en-male':   'BV504_streaming',     // Jackson 英音男声
-    'us-female': 'BV075_streaming',     // Stefan 美音女声
-    'us-male':   'BV074_streaming'      // Jason 美音男声
+    'zh-female': 'BV001_streaming',     // 通用女声（中文 - AI 助手用）
+    'zh-male':   'BV002_streaming',     // 通用男声
+    'en-female': 'BV421_streaming',     // Anna（英文女声，有轻微中国腔但能用）
+    'en-male':   'BV422_streaming',     // Adam（英文男声）
+    'us-female': 'BV421_streaming',
+    'us-male':   'BV422_streaming'
 };
-const TTS_FALLBACK_VOICE = 'BV503_streaming';
+const TTS_FALLBACK_VOICE = 'BV001_streaming';
 
 // 核心：调用 Volc TTS v1 HTTP POST 返回完整 MP3
 async function callVolcTTS(text, voiceType) {
@@ -3129,12 +3131,12 @@ async function callVolcTTS(text, voiceType) {
 
 app.post('/api/ai/ielts/tts', async (req, res) => {
     try {
-        const { text, voice = 'us-female' } = req.body || {};
-        if (!text || typeof text !== 'string' || text.length < 5) {
-            return res.status(400).json({ error: 'invalid_text' });
+        const { text, voice = 'zh-female' } = req.body || {};
+        if (!text || typeof text !== 'string' || text.length < 2) {
+            return res.status(200).json({ ok: false, error: 'invalid_text' });
         }
         if (text.length > 600) {
-            return res.status(400).json({ error: 'text_too_long', max: 600 });
+            return res.status(200).json({ ok: false, error: 'text_too_long', max: 600 });
         }
 
         const voiceType = TTS_VOICES[voice] || TTS_FALLBACK_VOICE;
@@ -3144,23 +3146,24 @@ app.post('/api/ai/ielts/tts', async (req, res) => {
             return res.json({ ok: true, audio: cached, cached: true });
         }
 
-        if (!VOLC_TTS_APP_ID || !VOLC_TTS_ACCESS_KEY) {
-            return res.status(503).json({
-                error: 'tts_not_configured',
-                hint: '需要在 Render 环境变量添加 VOLC_TTS_APP_ID 和 VOLC_TTS_ACCESS_KEY'
-            });
+        if (!VOLC_TTS_ACCESS_KEY) {
+            return res.status(200).json({ ok: false, error: 'tts_not_configured' });
         }
 
-        const mp3Buf = await callVolcTTS(text, voiceType);
-        const audioBase64 = mp3Buf.toString('base64');
-        const dataUri = 'data:audio/mp3;base64,' + audioBase64;
-        ttsCacheSet(cacheKey, dataUri);
-
-        gameLog(`[TTS] Generated ${text.length} chars · voice=${voiceType} · mp3=${mp3Buf.length}B`);
-        res.json({ ok: true, audio: dataUri, cached: false });
+        try {
+            const mp3Buf = await callVolcTTS(text, voiceType);
+            const audioBase64 = mp3Buf.toString('base64');
+            const dataUri = 'data:audio/mp3;base64,' + audioBase64;
+            ttsCacheSet(cacheKey, dataUri);
+            gameLog(`[TTS] OK ${text.length}c voice=${voiceType} mp3=${mp3Buf.length}B`);
+            return res.json({ ok: true, audio: dataUri, cached: false });
+        } catch (inner) {
+            console.error('[TTS] callVolcTTS err:', inner.message, 'voice=', voiceType, 'textLen=', text.length, 'preview=', text.slice(0, 50));
+            return res.status(200).json({ ok: false, error: 'tts_failed', message: inner.message });
+        }
     } catch (err) {
-        console.error('[TTS] Error:', err.message);
-        res.status(502).json({ error: 'tts_failed', message: err.message });
+        console.error('[TTS] handler crash:', err.message);
+        return res.status(200).json({ ok: false, error: 'internal_error', message: err.message });
     }
 });
 
