@@ -3066,20 +3066,30 @@ function callVolcTTS(text, voiceType) {
         const reqid = 'crayxus_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
         let ws;
         try {
-            // Seed-TTS 2.0 要求 X-Api-App-Id + X-Api-Access-Key + X-Api-Resource-Id
             const headers = {
                 'X-Api-App-Id':      VOLC_TTS_APP_ID,
                 'X-Api-Access-Key':  VOLC_TTS_ACCESS_KEY,
                 'X-Api-Resource-Id': VOLC_TTS_RESOURCE,
                 'X-Api-Request-Id':  reqid
             };
-            console.log('[TTS] Connecting with headers:', JSON.stringify({
-                APP_ID_len: VOLC_TTS_APP_ID.length,
-                ACCESS_KEY_prefix: VOLC_TTS_ACCESS_KEY.slice(0, 8),
-                RESOURCE: VOLC_TTS_RESOURCE,
-                URL: VOLC_TTS_WS_URL
-            }));
+            console.log('[TTS] Connect URL:', VOLC_TTS_WS_URL);
+            console.log('[TTS] Headers:', JSON.stringify(headers));
             ws = new WebSocket(VOLC_TTS_WS_URL, { headers });
+
+            // 捕获握手阶段的完整 HTTP 响应（关键诊断信息）
+            ws.on('unexpected-response', (req, response) => {
+                let body = '';
+                response.on('data', (chunk) => { body += chunk.toString(); });
+                response.on('end', () => {
+                    console.error('[TTS] 401 response headers:', JSON.stringify(response.headers));
+                    console.error('[TTS] 401 response body:', body.slice(0, 500));
+                    if (!finished) {
+                        finished = true;
+                        clearTimeout(timer);
+                        reject(new Error(`volc_${response.statusCode}: ${body.slice(0, 200)}`));
+                    }
+                });
+            });
         } catch (e) {
             return reject(e);
         }
