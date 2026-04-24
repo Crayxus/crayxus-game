@@ -2829,8 +2829,150 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
     }
 });
 
+// 🧠 DeepSeek 通用调用辅助
+async function callDeepSeek(prompt, maxTokens = 3000, temperature = 0.85) {
+    const r = await fetch(DEEPSEEK_URL, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + DEEPSEEK_KEY,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: DEEPSEEK_MODEL,
+            messages: [{ role: 'user', content: prompt }],
+            temperature,
+            response_format: { type: 'json_object' },
+            max_tokens: maxTokens
+        })
+    });
+    if (!r.ok) {
+        const txt = await r.text();
+        throw new Error(`DeepSeek HTTP ${r.status}: ${txt.slice(0, 200)}`);
+    }
+    const data = await r.json();
+    const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (!content) throw new Error('empty_completion');
+    return JSON.parse(content);
+}
+
+// ================================================================
+// 🎯 雅思 · 定级测评 · 20 题覆盖 6 维
+// ================================================================
+app.post('/api/ai/ielts/assess', async (req, res) => {
+    try {
+        const prompt = `你是雅思考试 (IELTS Academic) 资深命题专家。请生成 **20 道定级测评题**，用于快速判定学员水平。
+
+【要求】
+- 6 个维度均衡覆盖（每维至少 3 题）：listening / speaking / reading / writing / vocabulary / grammar
+- 难度混合：6 道简单(difficulty=1)、10 道中等(difficulty=2)、4 道进阶(difficulty=3)
+- 每题 4 个选项，只有一个正确
+- 出题角度要新颖、多样，覆盖典型考点
+
+【维度提示】
+- listening: Form filling / Map labelling / MCQ / Note completion
+- speaking: Part 1/2/3 · Coherence / Lexical / Fluency
+- reading: TFNG / Matching Headings / Paraphrasing
+- writing: Task 1 图表 / Task 2 议论 · Structure
+- vocabulary: Academic Word List / Collocations
+- grammar: Tense / Voice / Relative clauses / Conditionals
+
+【输出 JSON 格式】严格按此结构：
+{
+  "questions": [
+    {
+      "id": "ai_assess_1",
+      "dim": "listening|speaking|reading|writing|vocabulary|grammar",
+      "lesson": "简短考点标签",
+      "difficulty": 1,
+      "q": "题干",
+      "options": ["A", "B", "C", "D"],
+      "answer": 0,
+      "solution": "中文讲解 2-3 句"
+    }
+  ]
+}
+
+只输出 JSON，不要额外文字。`;
+
+        const parsed = await callDeepSeek(prompt, 4800, 0.85);
+        const questions = Array.isArray(parsed.questions) ? parsed.questions : [];
+
+        const validDims = ['listening','speaking','reading','writing','vocabulary','grammar'];
+        const clean = questions.map((q, i) => ({
+            id: q.id || `ai_assess_${Date.now()}_${i}`,
+            dim: validDims.includes(q.dim) ? q.dim : 'listening',
+            lesson: String(q.lesson || '').slice(0, 40),
+            difficulty: Math.max(1, Math.min(3, Number(q.difficulty) || 2)),
+            q: String(q.q || '').slice(0, 500),
+            options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).slice(0, 200)) : [],
+            answer: Math.max(0, Math.min(3, Number(q.answer) || 0)),
+            solution: String(q.solution || '').slice(0, 400),
+            aiGenerated: true
+        })).filter(q => q.q && q.options.length === 4);
+
+        gameLog(`[AI-IELTS-ASSESS] Generated ${clean.length}/20 questions`);
+        res.json({ ok: true, questions: clean, model: DEEPSEEK_MODEL });
+    } catch (err) {
+        console.error('[AI-IELTS-ASSESS] Error:', err.message);
+        res.status(500).json({ error: 'internal_error', message: err.message });
+    }
+});
+
+// ================================================================
+// 🎯 雅思 · 匹配度测评 · 10 题学习人格
+// ================================================================
+app.post('/api/ai/ielts/match', async (req, res) => {
+    try {
+        const prompt = `你是 Crayxus AI 教育心理学家。生成 **10 道匹配度测评题**，判定一位准备考雅思的学生的学习人格和系统匹配度。
+
+【要求】
+- 每题围绕一个维度：学习动机 / 时间投入 / 自驱力 / 专注耐力 / 竞争意识 / 奖励敏感 / 计划性 / 数据倾向 / 纠错执行 / 长期承诺
+- 题目要**针对雅思备考场景**（而不是泛泛而谈），让学生感到"这题懂我"
+- 每题 4 个选项，按"匹配度高低"排序打分（5/4/3/2）
+- 题目简短直白，每题 20-40 字
+- 选项生动具体，不要"同意/不同意"这种敷衍选项
+
+【输出 JSON 格式】严格：
+{
+  "questions": [
+    {
+      "id": "ai_match_1",
+      "dim": "学习动机",
+      "title": "题干（雅思场景化）",
+      "options": [
+        { "text": "选项 A", "score": 5 },
+        { "text": "选项 B", "score": 4 },
+        { "text": "选项 C", "score": 3 },
+        { "text": "选项 D", "score": 2 }
+      ]
+    }
+  ]
+}
+
+10 个维度每题一个，顺序对应。只输出 JSON，不要额外文字。`;
+
+        const parsed = await callDeepSeek(prompt, 3200, 0.85);
+        const questions = Array.isArray(parsed.questions) ? parsed.questions : [];
+
+        const clean = questions.map((q, i) => ({
+            dim: String(q.dim || '').slice(0, 20),
+            title: String(q.title || '').slice(0, 200),
+            options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => ({
+                text: String(o.text || o).slice(0, 120),
+                score: Math.max(1, Math.min(5, Number(o.score) || 3))
+            })) : []
+        })).filter(q => q.title && q.options.length === 4);
+
+        gameLog(`[AI-IELTS-MATCH] Generated ${clean.length}/10 questions`);
+        res.json({ ok: true, questions: clean, model: DEEPSEEK_MODEL });
+    } catch (err) {
+        console.error('[AI-IELTS-MATCH] Error:', err.message);
+        res.status(500).json({ error: 'internal_error', message: err.message });
+    }
+});
+
 // ================================================================
 
 http.listen(PORT, () => {
-    gameLog(`Crayxus V43 (Tournament + ASR + IELTS-AI ${DEEPSEEK_MODEL}) Running on port ${PORT}`);
+    gameLog(`Crayxus V43 (Tournament + ASR + IELTS-AI-Full ${DEEPSEEK_MODEL}) Running on port ${PORT}`);
 });
