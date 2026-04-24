@@ -2715,6 +2715,122 @@ wss.on('connection', (clientWs) => {
     });
 });
 
+// ================================================================
+// 🧠 DeepSeek V4 · IELTS AI 题库生成（Crayxus AI 提分系统）
+// ================================================================
+const DEEPSEEK_KEY = process.env.DEEPSEEK_KEY || 'sk-276a520fe06a4d12a5480b20ea8ee1d7';
+const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
+const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-chat';  // 最新 V4
+
+const IELTS_DIMS = {
+    listening:  '听力 (Listening) · Form filling / Map labelling / MCQ / Note completion',
+    speaking:   '口语 (Speaking) · Part 1/2/3 · Coherence / Lexical Resource / Fluency',
+    reading:    '阅读 (Reading) · True-False-Not Given / Matching Headings / Paraphrasing',
+    writing:    '写作 (Writing) · Task 1 图表描述 / Task 2 议论文 · Structure / Cohesion',
+    vocabulary: '词汇 (Vocabulary) · Academic Word List / Collocations / Register',
+    grammar:    '语法 (Grammar) · Tense / Voice / Relative clauses / Conditionals'
+};
+
+app.post('/api/ai/ielts/generate', async (req, res) => {
+    try {
+        const { dim = 'listening', difficulty = 2, count = 5, mastery = 50 } = req.body || {};
+        if (!IELTS_DIMS[dim]) {
+            return res.status(400).json({ error: 'invalid dim', valid: Object.keys(IELTS_DIMS) });
+        }
+
+        const dimDesc = IELTS_DIMS[dim];
+        const band = mastery < 40 ? '5.0-5.5' : mastery < 60 ? '5.5-6.5' : mastery < 80 ? '6.5-7.5' : '7.5-8.5';
+
+        const prompt = `你是雅思考试 (IELTS Academic) 资深命题专家。请生成 ${count} 道**高质量的雅思训练题**。
+
+【要求】
+- 维度：${dimDesc}
+- 难度等级：${difficulty} (1=基础, 2=中等, 3=进阶)
+- 学员当前水平：Band ${band}（掌握度 ${mastery}/100）
+- 每题 4 个选项（A/B/C/D），只有一个正确
+- 避免和标准题库重复，出题角度要新颖
+
+【输出 JSON 格式】（严格按此结构，禁止额外字段）
+{
+  "questions": [
+    {
+      "id": "ai_${Date.now()}_1",
+      "dim": "${dim}",
+      "lesson": "简短考点标签，如 'Section 1 · Form Filling'",
+      "difficulty": ${difficulty},
+      "q": "题干，英文主体，必要时用中文补充说明",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "answer": 0,
+      "solution": "中文讲解，2-3 句，解释正确答案的推理 + 常见错选陷阱"
+    }
+  ]
+}
+
+只输出 JSON，不要额外文字。`;
+
+        const r = await fetch(DEEPSEEK_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + DEEPSEEK_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: DEEPSEEK_MODEL,
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.85,
+                response_format: { type: 'json_object' },
+                max_tokens: 2400
+            })
+        });
+
+        if (!r.ok) {
+            const txt = await r.text();
+            console.error('[DeepSeek] HTTP', r.status, txt.slice(0, 300));
+            return res.status(502).json({ error: 'deepseek_http_error', status: r.status });
+        }
+
+        const data = await r.json();
+        const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        if (!content) {
+            return res.status(502).json({ error: 'empty_completion' });
+        }
+
+        let parsed;
+        try {
+            parsed = JSON.parse(content);
+        } catch (e) {
+            console.error('[DeepSeek] JSON parse fail:', content.slice(0, 300));
+            return res.status(502).json({ error: 'bad_json', raw: content.slice(0, 400) });
+        }
+
+        const questions = Array.isArray(parsed.questions) ? parsed.questions : [];
+        if (questions.length === 0) {
+            return res.status(502).json({ error: 'no_questions' });
+        }
+
+        // 补全缺失字段 + 去除危险字段
+        const clean = questions.map((q, i) => ({
+            id: q.id || `ai_${Date.now()}_${i}`,
+            dim: dim,
+            lesson: String(q.lesson || '').slice(0, 40),
+            difficulty: Number(q.difficulty) || difficulty,
+            q: String(q.q || '').slice(0, 500),
+            options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).slice(0, 200)) : [],
+            answer: Math.max(0, Math.min(3, Number(q.answer) || 0)),
+            solution: String(q.solution || '').slice(0, 400),
+            aiGenerated: true
+        })).filter(q => q.q && q.options.length === 4);
+
+        gameLog(`[AI-IELTS] Generated ${clean.length} questions for dim=${dim} band=${band} mastery=${mastery}`);
+        res.json({ ok: true, questions: clean, model: DEEPSEEK_MODEL, band });
+    } catch (err) {
+        console.error('[AI-IELTS] Error:', err.message);
+        res.status(500).json({ error: 'internal_error', message: err.message });
+    }
+});
+
+// ================================================================
+
 http.listen(PORT, () => {
-    gameLog(`Crayxus V43 (Tournament System + Dashboard + ASR Proxy) Running on port ${PORT}`);
+    gameLog(`Crayxus V43 (Tournament + ASR + IELTS-AI ${DEEPSEEK_MODEL}) Running on port ${PORT}`);
 });
