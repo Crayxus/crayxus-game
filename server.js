@@ -3014,22 +3014,21 @@ app.post('/api/ai/ielts/match', async (req, res) => {
 });
 
 // ================================================================
-// 🔊 Volcengine TTS · 雅思听力音频生成
+// 🔊 Volcengine Seed-TTS 2.0 · 雅思听力音频生成（v3 bidirectional WS）
 // ================================================================
-const VOLC_TTS_APPID  = process.env.VOLC_TTS_APPID  || '';
-const VOLC_TTS_TOKEN  = process.env.VOLC_TTS_TOKEN  || '';
-const VOLC_TTS_CLUSTER = process.env.VOLC_TTS_CLUSTER || 'volcano_tts';
-const VOLC_TTS_URL = 'https://openspeech.bytedance.com/api/v1/tts';
+const VOLC_TTS_APP_ID     = process.env.VOLC_TTS_APP_ID     || '';
+const VOLC_TTS_ACCESS_KEY = process.env.VOLC_TTS_ACCESS_KEY || '';
+const VOLC_TTS_WS_URL     = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection';
+const VOLC_TTS_RESOURCE   = 'seed-tts-2.0';
 
-// 内存 LRU 缓存：同一段文字只生成一次
+// 内存 LRU 缓存
 const ttsCache = new Map();
 const TTS_CACHE_MAX = 200;
-
 function ttsCacheKey(text, voice) { return voice + ':' + text; }
 function ttsCacheGet(key) {
     if (!ttsCache.has(key)) return null;
     const v = ttsCache.get(key);
-    ttsCache.delete(key); ttsCache.set(key, v); // LRU touch
+    ttsCache.delete(key); ttsCache.set(key, v);
     return v;
 }
 function ttsCacheSet(key, val) {
@@ -3040,14 +3039,135 @@ function ttsCacheSet(key, val) {
     ttsCache.set(key, val);
 }
 
-// 音色映射（Volcengine 音色）
+// 音色映射（Volcengine 音色 ID，中文音色 + explicit_language=en 可输出英文）
 const TTS_VOICES = {
-    'en-male':   'en_male_adam_mars_bigtts',      // 英音男
-    'en-female': 'en_female_emily_mars_bigtts',   // 英音女
-    'us-male':   'en_male_jason_mars_bigtts',     // 美音男
-    'us-female': 'en_female_sarah_mars_bigtts'    // 美音女
+    'en-female': 'zh_female_shuangkuaisisi_moon_bigtts',
+    'en-male':   'zh_male_M392_conversation_wvae_bigtts',
+    'us-female': 'zh_female_shuangkuaisisi_moon_bigtts',
+    'us-male':   'zh_male_M392_conversation_wvae_bigtts'
 };
-const TTS_FALLBACK_VOICE = 'en_female_sarah_mars_bigtts';
+const TTS_FALLBACK_VOICE = 'zh_female_shuangkuaisisi_moon_bigtts';
+
+// 构造 Volc 二进制帧：[11][type][ser|comp][rsv][size:4][payload]
+function buildFrame(msgTypeFlags, payload) {
+    const header = Buffer.from([0x11, msgTypeFlags, 0x10, 0x00]); // ver1, JSON ser, no compress
+    const payloadBuf = Buffer.isBuffer(payload) ? payload : Buffer.from(payload);
+    const sizeBuf = Buffer.alloc(4);
+    sizeBuf.writeUInt32BE(payloadBuf.length);
+    return Buffer.concat([header, sizeBuf, payloadBuf]);
+}
+
+// 核心：调用 Volc TTS WebSocket 返回完整 MP3
+function callVolcTTS(text, voiceType) {
+    return new Promise((resolve, reject) => {
+        if (!VOLC_TTS_APP_ID || !VOLC_TTS_ACCESS_KEY) {
+            return reject(new Error('tts_not_configured'));
+        }
+        const reqid = 'crayxus_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+        let ws;
+        try {
+            ws = new WebSocket(VOLC_TTS_WS_URL, {
+                headers: {
+                    'X-Api-App-Id':      VOLC_TTS_APP_ID,
+                    'X-Api-Access-Key':  VOLC_TTS_ACCESS_KEY,
+                    'X-Api-Resource-Id': VOLC_TTS_RESOURCE,
+                    'X-Api-Request-Id':  reqid
+                }
+            });
+        } catch (e) {
+            return reject(e);
+        }
+
+        const audioChunks = [];
+        let finished = false;
+        const timer = setTimeout(() => {
+            if (!finished) {
+                finished = true;
+                try { ws.close(); } catch(e){}
+                reject(new Error('tts_timeout'));
+            }
+        }, 45000);
+
+        ws.on('open', () => {
+            const payload = JSON.stringify({
+                user: { uid: 'crayxus' },
+                event: 100,
+                req_params: {
+                    text,
+                    speaker: voiceType,
+                    audio_params: { format: 'mp3', sample_rate: 24000 },
+                    additions: { explicit_language: 'en' }
+                }
+            });
+            ws.send(buildFrame(0x10, payload));
+        });
+
+        ws.on('message', (data) => {
+            try {
+                const buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
+                if (buf.length < 8) return;
+                // 解析头部
+                const msgType = buf[1];
+                const serType = (buf[2] >> 4) & 0x0f;
+                // const size = buf.readUInt32BE(4);  // payload size, not always needed
+                const payload = buf.slice(8);
+
+                // 0x20-0x2F = server response（含事件号）
+                // 音频帧通常是 serType == 0 (binary) 的消息
+                if (serType === 0) {
+                    // 二进制音频块
+                    audioChunks.push(payload);
+                } else {
+                    // JSON 消息（task started / finished / error）
+                    const json = JSON.parse(payload.toString('utf8'));
+                    const event = json.event;
+                    if (event === 353 || event === 152) {
+                        // 任务完成
+                        if (!finished) {
+                            finished = true;
+                            clearTimeout(timer);
+                            try { ws.close(); } catch(e){}
+                            if (audioChunks.length === 0) {
+                                return reject(new Error('no_audio_received'));
+                            }
+                            resolve(Buffer.concat(audioChunks));
+                        }
+                    } else if (event >= 400) {
+                        // 错误
+                        if (!finished) {
+                            finished = true;
+                            clearTimeout(timer);
+                            try { ws.close(); } catch(e){}
+                            reject(new Error('volc_event_' + event + ': ' + (json.message || 'unknown')));
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('[TTS] parse error:', e.message);
+            }
+        });
+
+        ws.on('error', (err) => {
+            if (!finished) {
+                finished = true;
+                clearTimeout(timer);
+                reject(err);
+            }
+        });
+
+        ws.on('close', () => {
+            if (!finished) {
+                finished = true;
+                clearTimeout(timer);
+                if (audioChunks.length > 0) {
+                    resolve(Buffer.concat(audioChunks));
+                } else {
+                    reject(new Error('ws_closed_without_audio'));
+                }
+            }
+        });
+    });
+}
 
 app.post('/api/ai/ielts/tts', async (req, res) => {
     try {
@@ -3066,61 +3186,23 @@ app.post('/api/ai/ielts/tts', async (req, res) => {
             return res.json({ ok: true, audio: cached, cached: true });
         }
 
-        if (!VOLC_TTS_APPID || !VOLC_TTS_TOKEN) {
+        if (!VOLC_TTS_APP_ID || !VOLC_TTS_ACCESS_KEY) {
             return res.status(503).json({
                 error: 'tts_not_configured',
-                hint: '需要在 Render 环境变量添加 VOLC_TTS_APPID 和 VOLC_TTS_TOKEN'
+                hint: '需要在 Render 环境变量添加 VOLC_TTS_APP_ID 和 VOLC_TTS_ACCESS_KEY'
             });
         }
 
-        const reqid = 'crayxus_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-        const body = {
-            app: {
-                appid: VOLC_TTS_APPID,
-                token: VOLC_TTS_TOKEN,
-                cluster: VOLC_TTS_CLUSTER
-            },
-            user: { uid: 'crayxus' },
-            audio: {
-                voice_type: voiceType,
-                encoding: 'mp3',
-                speed_ratio: 1.0,
-                volume_ratio: 1.0,
-                pitch_ratio: 1.0
-            },
-            request: {
-                reqid,
-                text,
-                text_type: 'plain',
-                operation: 'query'
-            }
-        };
-
-        const r = await fetch(VOLC_TTS_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer;' + VOLC_TTS_TOKEN,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        });
-
-        const data = await r.json();
-        if (!r.ok || data.code !== 3000 || !data.data) {
-            console.error('[TTS] Volc error:', r.status, data.code, data.message);
-            return res.status(502).json({ error: 'tts_failed', code: data.code, msg: data.message });
-        }
-
-        // data.data 是 base64 编码的 MP3
-        const audioBase64 = data.data;
+        const mp3Buf = await callVolcTTS(text, voiceType);
+        const audioBase64 = mp3Buf.toString('base64');
         const dataUri = 'data:audio/mp3;base64,' + audioBase64;
         ttsCacheSet(cacheKey, dataUri);
 
-        gameLog(`[TTS] Generated ${text.length} chars · voice=${voiceType} · size=${audioBase64.length}`);
+        gameLog(`[TTS] Generated ${text.length} chars · voice=${voiceType} · mp3=${mp3Buf.length}B`);
         res.json({ ok: true, audio: dataUri, cached: false });
     } catch (err) {
         console.error('[TTS] Error:', err.message);
-        res.status(500).json({ error: 'internal_error', message: err.message });
+        res.status(502).json({ error: 'tts_failed', message: err.message });
     }
 });
 
