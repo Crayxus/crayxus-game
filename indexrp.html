@@ -2866,10 +2866,9 @@ function _kbRegisterHandler() {
     return;
   }
   console.log('[KB] 注册游戏按键处理');
-  // 工具: 是否在牌桌中 (有手牌且游戏未结束)
+  // 工具: 是否在牌桌中 (有手牌且游戏未结束, 无需检查具体 screen id, 有手牌就是在打牌)
   function _kbInGame() {
-    return Array.isArray(myCards) && myCards.length > 0 && !gameOver
-        && document.getElementById('game-table') && document.getElementById('game-table').classList.contains('active');
+    return Array.isArray(myCards) && myCards.length > 0 && !gameOver;
   }
   // 工具: TAB 风格切换焦点 (高亮直到下一次切换)
   let _kbLastFocused = null;
