@@ -2871,23 +2871,71 @@ function _kbRegisterHandler() {
     return Array.isArray(myCards) && myCards.length > 0 && !gameOver
         && document.getElementById('game-table') && document.getElementById('game-table').classList.contains('active');
   }
-  // 工具: TAB 风格切换焦点
-  function _kbCycleFocus() {
-    const all = document.querySelectorAll('button, [role="button"], a, input, select, [tabindex]:not([tabindex="-1"])');
-    const visible = Array.from(all).filter(el =>
-      el.offsetParent !== null && !el.disabled && getComputedStyle(el).visibility !== 'hidden'
-    );
-    if (!visible.length) return;
-    const idx = visible.indexOf(document.activeElement);
-    const next = visible[(idx + 1) % visible.length];
-    if (next) {
-      next.focus();
-      next.scrollIntoView({block:'nearest', behavior:'smooth'});
-      // 可选: 加个临时高亮便于看见
-      next.style.outline = '3px solid #00ffc0';
-      setTimeout(() => { if (next) next.style.outline = ''; }, 1500);
+  // 工具: TAB 风格切换焦点 (高亮直到下一次切换)
+  let _kbLastFocused = null;
+  function _kbClearHighlight() {
+    if (_kbLastFocused) {
+      _kbLastFocused.classList.remove('kb-focused');
+      _kbLastFocused = null;
     }
   }
+  function _kbCycleFocus() {
+    // 候选: 大区块按钮优先 (.holo-btn / .holo-avatar / .deal-btn / .b-play / .b-pass / .pc-opt / 其他可见 button)
+    const selectors = [
+      '.holo-btn:not([disabled])',
+      '.holo-avatar-section',
+      '.deal-btn:not([disabled])',
+      '.btn:not([disabled])',
+      '.pc-opt',
+      '#mode-select .mode-select-wrap > *',
+      'button:not([disabled])',
+      '[role="button"]:not([disabled])',
+      'a[href]',
+    ];
+    const candidates = [];
+    selectors.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        if (candidates.indexOf(el) >= 0) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        if (el.offsetParent === null) return;
+        if (getComputedStyle(el).visibility === 'hidden') return;
+        candidates.push(el);
+      });
+    });
+    if (!candidates.length) return;
+    const cur = _kbLastFocused;
+    const idx = cur ? candidates.indexOf(cur) : -1;
+    const next = candidates[(idx + 1) % candidates.length];
+    _kbClearHighlight();
+    next.focus();
+    next.classList.add('kb-focused');
+    _kbLastFocused = next;
+    next.scrollIntoView({block:'center', behavior:'smooth'});
+  }
+  // 注入高亮样式 (仅一次)
+  if (!document.getElementById('kb-focus-style')) {
+    const sty = document.createElement('style');
+    sty.id = 'kb-focus-style';
+    sty.textContent = `
+      .kb-focused {
+        outline: 4px solid #00ffc0 !important;
+        outline-offset: 4px !important;
+        box-shadow: 0 0 24px 4px rgba(0,255,200,0.7), 0 0 60px 12px rgba(0,255,200,0.35) !important;
+        transition: transform 0.2s, box-shadow 0.2s !important;
+        z-index: 9999 !important;
+        position: relative;
+        animation: kbFocusPulse 1.4s ease-in-out infinite;
+      }
+      @keyframes kbFocusPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 24px 4px rgba(0,255,200,0.7), 0 0 60px 12px rgba(0,255,200,0.35); }
+        50%      { transform: scale(1.05); box-shadow: 0 0 36px 8px rgba(0,255,200,0.95), 0 0 90px 20px rgba(0,255,200,0.5); }
+      }
+    `;
+    document.head.appendChild(sty);
+  }
+  // 鼠标点击或其他焦点变化时清掉键盘高亮
+  document.addEventListener('mousedown', _kbClearHighlight, true);
   // 工具: ENTER 风格 - 点击当前焦点元素
   function _kbActivateFocused() {
     const el = document.activeElement;
