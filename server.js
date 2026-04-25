@@ -3130,6 +3130,76 @@ async function callVolcTTS(text, voiceType) {
 }
 
 // ================================================================
+// 🏷️ 法良 · AI 物料编码器（针对 11/16 会议痛点）
+// ================================================================
+app.post('/api/ai/falang/encode-material', async (req, res) => {
+    try {
+        const { description = '' } = req.body || {};
+        if (!description || description.length < 3) {
+            return res.status(200).json({ ok: false, error: 'invalid_input' });
+        }
+
+        const prompt = `你是法良时装的服装辅料编码专家。请把下面这段描述转换成 8 位标准物料编码，并给出每段编码的含义。
+
+【物料描述】
+${description}
+
+【编码规则 · 服装辅料按共性分类，按拉链举例】
+拉链编码格式：${'`类别-规格-开闭-拉头-工艺`'}
+例：YK-5C-OH-PL = YKK 5#闭口挂拉头普拉头
+
+【其他辅料类型同理按共性维度编码】
+- 拉链 zipper：[供应商][规格#][开闭 O/C][挂拉头 H/F][工艺 PL/AL/EL]
+- 扣子 button：[材质 P/M/W][直径 mm][孔数 2/4/T][工艺 D/M]
+- 棉羽 down：[品种 W/D][绒子含量%][充绒克重][产地]
+- 绣标 embroidery / 织标 woven label / 吊牌 hangtag / 压胶 等同理
+
+【任务】
+分析输入描述 → 识别辅料类型 → 提取关键参数 → 生成编码 → 解释每段含义。如果信息不全，做合理推断并标注。
+
+【输出 JSON 格式】
+{
+  "ok": true,
+  "type": "辅料类型（拉链/扣子/棉羽/...）",
+  "code": "8位编码",
+  "decoded": [
+    {"segment": "YK", "meaning": "供应商：YKK"},
+    {"segment": "5C", "meaning": "规格：5号 / 闭口"}
+  ],
+  "confidence": "高/中/低",
+  "missing": ["缺失参数 1", "缺失参数 2"],
+  "suggestion": "1-2 句改进建议",
+  "erp_record": {
+    "物料编码": "...",
+    "物料名称": "标准化中文名",
+    "供应商": "...",
+    "规格": "...",
+    "用途": "...建议归档到哪类"
+  }
+}
+
+只输出 JSON。`;
+
+        const parsed = await callDeepSeek(prompt, 1500, 0.55);
+        if (!parsed.code) return res.status(200).json({ ok: false, error: 'parse_failed', raw: parsed });
+        gameLog(`[FALANG-ENCODE] ${description.slice(0, 30)} → ${parsed.code}`);
+        res.json({
+            ok: true,
+            type: parsed.type || '辅料',
+            code: parsed.code,
+            decoded: Array.isArray(parsed.decoded) ? parsed.decoded.slice(0, 8) : [],
+            confidence: parsed.confidence || '中',
+            missing: Array.isArray(parsed.missing) ? parsed.missing : [],
+            suggestion: parsed.suggestion || '',
+            erp_record: parsed.erp_record || {}
+        });
+    } catch (err) {
+        console.error('[FALANG-ENCODE] err:', err.message);
+        res.status(200).json({ ok: false, error: err.message });
+    }
+});
+
+// ================================================================
 // 🎓 AI 错题讲解 · 根据学生的错选给出个性化分析
 // ================================================================
 app.post('/api/ai/ielts/explain-wrong', async (req, res) => {
