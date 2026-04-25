@@ -2866,13 +2866,62 @@ function _kbRegisterHandler() {
     return;
   }
   console.log('[KB] 注册游戏按键处理');
+  // 工具: 是否在牌桌中 (有手牌且游戏未结束)
+  function _kbInGame() {
+    return Array.isArray(myCards) && myCards.length > 0 && !gameOver
+        && document.getElementById('game-table') && document.getElementById('game-table').classList.contains('active');
+  }
+  // 工具: TAB 风格切换焦点
+  function _kbCycleFocus() {
+    const all = document.querySelectorAll('button, [role="button"], a, input, select, [tabindex]:not([tabindex="-1"])');
+    const visible = Array.from(all).filter(el =>
+      el.offsetParent !== null && !el.disabled && getComputedStyle(el).visibility !== 'hidden'
+    );
+    if (!visible.length) return;
+    const idx = visible.indexOf(document.activeElement);
+    const next = visible[(idx + 1) % visible.length];
+    if (next) {
+      next.focus();
+      next.scrollIntoView({block:'nearest', behavior:'smooth'});
+      // 可选: 加个临时高亮便于看见
+      next.style.outline = '3px solid #00ffc0';
+      setTimeout(() => { if (next) next.style.outline = ''; }, 1500);
+    }
+  }
+  // 工具: ENTER 风格 - 点击当前焦点元素
+  function _kbActivateFocused() {
+    const el = document.activeElement;
+    if (el && el !== document.body && typeof el.click === 'function') {
+      el.click();
+      return true;
+    }
+    return false;
+  }
+
   KB.onKey((token) => {
     if (token === 'PLAY') {
-      if (typeof sendPlay === 'function') sendPlay();
+      if (_kbInGame() && typeof sendPlay === 'function') {
+        sendPlay();
+      } else {
+        // 菜单中: ENTER = 点当前焦点
+        if (!_kbActivateFocused()) {
+          // 没焦点元素, 试着点第一个可见按钮
+          const btn = document.querySelector('.holo-btn, .deal-btn, button:not([disabled])');
+          if (btn && btn.offsetParent !== null) btn.click();
+        }
+      }
     } else if (token === 'PASS') {
-      if (typeof sendPass === 'function') sendPass();
+      if (_kbInGame() && typeof sendPass === 'function') {
+        sendPass();
+      } else {
+        // 菜单中: ESC = 触发返回 (找页面里的"返回""取消"按钮)
+        const back = document.querySelector('[onclick*="back"], .back-btn, [aria-label*="back"], [aria-label*="返回"]');
+        if (back) back.click();
+        else document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape', code:'Escape', bubbles:true}));
+      }
     } else if (token === 'MODE') {
-      // 预留模式键
+      // MODE = TAB (切换焦点), 任何场景都能用
+      _kbCycleFocus();
     } else if (token === 'BJ') {
       // 大王 (row 6 col 0)
       const card = myCards && myCards.find(c => c.s === 'JOKER' && c.v === 'Bg');
