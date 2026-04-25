@@ -2939,9 +2939,9 @@ function _kbRegisterHandler() {
   }
   // 鼠标点击或其他焦点变化时清掉键盘高亮
   document.addEventListener('mousedown', _kbClearHighlight, true);
-  // 工具: ENTER 风格 - 点击当前焦点元素
+  // 工具: ENTER 风格 - 点击当前键盘焦点 (优先用我们追踪的, 兜底用浏览器原生焦点)
   function _kbActivateFocused() {
-    const el = document.activeElement;
+    const el = _kbLastFocused || document.activeElement;
     if (el && el !== document.body && typeof el.click === 'function') {
       el.click();
       return true;
