@@ -2881,12 +2881,16 @@ function _kbRegisterHandler() {
   function _kbCycleFocus() {
     // 候选: 大区块按钮优先 (.holo-btn / .holo-avatar / .deal-btn / .b-play / .b-pass / .pc-opt / 其他可见 button)
     const selectors = [
+      '.casual-popup-btn',           // 休闲模式弹窗 (定蛋/升级)
+      '.casual-popup-back',
       '.holo-btn:not([disabled])',
       '.holo-avatar-section',
       '.deal-btn:not([disabled])',
       '.btn:not([disabled])',
       '.pc-opt',
+      '.cpb-name',                    // 弹窗按钮内文字
       '#mode-select .mode-select-wrap > *',
+      '[onclick]',                    // 任何带 onclick 的元素都能触发
       'button:not([disabled])',
       '[role="button"]:not([disabled])',
       'a[href]',
