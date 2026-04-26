@@ -2879,42 +2879,63 @@ function _kbRegisterHandler() {
     }
   }
   function _kbCycleFocus() {
-    // 候选: 大区块按钮优先 (.holo-btn / .holo-avatar / .deal-btn / .b-play / .b-pass / .pc-opt / 其他可见 button)
+    // 优先: 弹窗 > 当前活动 screen 内 > 全局
+    // 1. 找当前活动屏幕
+    const activeScreen = document.querySelector('.screen.active');
+    // 2. 找最顶层的可见弹窗 (.casual-popup-overlay 等高 z-index 容器)
+    const popups = Array.from(document.querySelectorAll(
+      '.casual-popup-overlay, .modal, .popup, .overlay, [class*="popup"], [class*="modal"]'
+    )).filter(el => {
+      if (el.offsetParent === null) return false;
+      const cs = getComputedStyle(el);
+      return cs.display !== 'none' && cs.visibility !== 'hidden';
+    });
+    const root = popups.length ? popups[popups.length - 1] : (activeScreen || document.body);
+
+    // 候选选择器 (在 root 范围内查)
     const selectors = [
-      '.casual-popup-btn',           // 休闲模式弹窗 (定蛋/升级)
-      '.casual-popup-back',
+      '.casual-popup-btn', '.casual-popup-back',
+      '.res-btn:not([disabled])',     // 局结束 (继续游戏 / 返回大厅)
       '.holo-btn:not([disabled])',
-      '.holo-avatar-section',
       '.deal-btn:not([disabled])',
       '.btn:not([disabled])',
       '.pc-opt',
-      '.cpb-name',                    // 弹窗按钮内文字
-      '#mode-select .mode-select-wrap > *',
-      '[onclick]',                    // 任何带 onclick 的元素都能触发
+      '.holo-avatar-section',
       'button:not([disabled])',
-      '[role="button"]:not([disabled])',
       'a[href]',
+      '[role="button"]:not([disabled])',
     ];
     const candidates = [];
     selectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
+      root.querySelectorAll(sel).forEach(el => {
         if (candidates.indexOf(el) >= 0) return;
+        // 排除手牌区域 (避免 27 张牌都被 TAB 切到)
+        if (el.closest('#hand, .stack-card, .grp-col, #touch-hud')) return;
+        // 必须可见
+        if (el.offsetParent === null) return;
         const rect = el.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) return;
-        if (el.offsetParent === null) return;
-        if (getComputedStyle(el).visibility === 'hidden') return;
+        const cs = getComputedStyle(el);
+        if (cs.visibility === 'hidden' || cs.display === 'none' || cs.opacity === '0') return;
+        // 必须在视口可见范围 (避免切到 -9999px 隐藏的)
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
         candidates.push(el);
       });
     });
-    if (!candidates.length) return;
+    if (!candidates.length) {
+      console.log('[KB] TAB: 找不到可切换元素');
+      return;
+    }
     const cur = _kbLastFocused;
-    const idx = cur ? candidates.indexOf(cur) : -1;
+    // 如果当前焦点不在新候选里 (比如换了屏), 从头开始
+    let idx = cur && candidates.indexOf(cur) >= 0 ? candidates.indexOf(cur) : -1;
     const next = candidates[(idx + 1) % candidates.length];
     _kbClearHighlight();
     next.focus();
     next.classList.add('kb-focused');
     _kbLastFocused = next;
     next.scrollIntoView({block:'center', behavior:'smooth'});
+    console.log('[KB] TAB ->', next.className || next.tagName, '(', candidates.length, '个候选)');
   }
   // 注入高亮样式 (仅一次)
   if (!document.getElementById('kb-focus-style')) {

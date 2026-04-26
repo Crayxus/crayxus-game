@@ -60,12 +60,29 @@
     return out;
   }
 
+  // 去重: 短时间内同一 token 只触发一次 (防 2x2 大键 4 颗轴重复触发)
+  const _kbDebounce = {};
+  function _kbShouldFire(token) {
+    // 这些 token 容易重复 (大键区), 去重 200ms
+    const debounceTokens = ['MODE', 'PLAY', 'PASS', 'BJ', 'SJ'];
+    if (debounceTokens.indexOf(token) < 0) return true;
+    const now = Date.now();
+    const last = _kbDebounce[token] || 0;
+    if (now - last < 200) {
+      console.log('[KB] 重复触发已忽略', token, '(', now - last, 'ms)');
+      return false;
+    }
+    _kbDebounce[token] = now;
+    return true;
+  }
+
   function _flush() {
     if (!kbBuffer) return;
     const raw = kbBuffer;
     kbBuffer = '';
     const tokens = _splitTokens(raw);
     for (const t of tokens) {
+      if (!_kbShouldFire(t)) continue;
       console.log('[KB] 按键', t);
       keyHandlers.forEach(h => {
         try { h(t); } catch(err) { console.error(err); }
