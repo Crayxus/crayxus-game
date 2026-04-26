@@ -2878,56 +2878,64 @@ function _kbRegisterHandler() {
       _kbLastFocused = null;
     }
   }
-  function _kbCycleFocus() {
-    // 优先: 弹窗 > 当前活动 screen 内 > 全局
-    // 1. 找当前活动屏幕
-    const activeScreen = document.querySelector('.screen.active');
-    // 2. 找最顶层的可见弹窗 (.casual-popup-overlay 等高 z-index 容器)
-    const popups = Array.from(document.querySelectorAll(
-      '.casual-popup-overlay, .modal, .popup, .overlay, [class*="popup"], [class*="modal"]'
-    )).filter(el => {
-      if (el.offsetParent === null) return false;
-      const cs = getComputedStyle(el);
-      return cs.display !== 'none' && cs.visibility !== 'hidden';
-    });
-    const root = popups.length ? popups[popups.length - 1] : (activeScreen || document.body);
+  // 检查元素是否真实可见
+  function _kbIsVisible(el) {
+    if (el.offsetParent === null) return false;
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 5 || rect.height < 5) return false;
+    if (rect.bottom < 0 || rect.top > window.innerHeight) return false;
+    if (rect.right < 0 || rect.left > window.innerWidth) return false;
+    let p = el;
+    while (p && p !== document.body) {
+      const cs = getComputedStyle(p);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false;
+      p = p.parentElement;
+    }
+    return true;
+  }
 
-    // 候选选择器 (在 root 范围内查)
+  function _kbCycleFocus() {
+    // 1. 优先找全屏弹窗 (result-modal / casual-popup) 当前可见的
+    const explicitPopups = ['#result-modal', '#casual-popup', '.casual-popup-overlay', '.modal'];
+    let root = null;
+    for (const sel of explicitPopups) {
+      const els = document.querySelectorAll(sel);
+      for (const el of els) {
+        if (_kbIsVisible(el)) { root = el; break; }
+      }
+      if (root) break;
+    }
+    // 2. 没弹窗就用当前活动屏幕
+    if (!root) root = document.querySelector('.screen.active') || document.body;
+
+    // 候选选择器
     const selectors = [
       '.casual-popup-btn', '.casual-popup-back',
-      '.res-btn:not([disabled])',     // 局结束 (继续游戏 / 返回大厅)
+      '.res-btn:not([disabled])',
       '.holo-btn:not([disabled])',
       '.deal-btn:not([disabled])',
       '.btn:not([disabled])',
       '.pc-opt',
-      '.holo-avatar-section',
       'button:not([disabled])',
       'a[href]',
       '[role="button"]:not([disabled])',
     ];
     const candidates = [];
+    const seen = new Set();
     selectors.forEach(sel => {
       root.querySelectorAll(sel).forEach(el => {
-        if (candidates.indexOf(el) >= 0) return;
-        // 排除手牌区域 (避免 27 张牌都被 TAB 切到)
+        if (seen.has(el)) return;
         if (el.closest('#hand, .stack-card, .grp-col, #touch-hud')) return;
-        // 必须可见
-        if (el.offsetParent === null) return;
-        const rect = el.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) return;
-        const cs = getComputedStyle(el);
-        if (cs.visibility === 'hidden' || cs.display === 'none' || cs.opacity === '0') return;
-        // 必须在视口可见范围 (避免切到 -9999px 隐藏的)
-        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+        if (!_kbIsVisible(el)) return;
+        seen.add(el);
         candidates.push(el);
       });
     });
     if (!candidates.length) {
-      console.log('[KB] TAB: 找不到可切换元素');
+      console.log('[KB] TAB: 找不到可切换元素 (root:', root.id || root.className, ')');
       return;
     }
     const cur = _kbLastFocused;
-    // 如果当前焦点不在新候选里 (比如换了屏), 从头开始
     let idx = cur && candidates.indexOf(cur) >= 0 ? candidates.indexOf(cur) : -1;
     const next = candidates[(idx + 1) % candidates.length];
     _kbClearHighlight();
@@ -2935,7 +2943,7 @@ function _kbRegisterHandler() {
     next.classList.add('kb-focused');
     _kbLastFocused = next;
     next.scrollIntoView({block:'center', behavior:'smooth'});
-    console.log('[KB] TAB ->', next.className || next.tagName, '(', candidates.length, '个候选)');
+    console.log('[KB] TAB ->', (next.className || next.tagName).substring(0,40), '(', candidates.length, '个候选)');
   }
   // 注入高亮样式 (仅一次)
   if (!document.getElementById('kb-focus-style')) {
