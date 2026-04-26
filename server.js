@@ -3106,11 +3106,129 @@ const TTS_VOICES = {
 };
 const TTS_FALLBACK_VOICE = 'BV001_streaming';
 
+// 阿拉伯数字 → 中文读法（让 BV001 不再吞数字）
+function _digitToCN(n) {
+    const D = '零一二三四五六七八九';
+    if (n === 0) return '零';
+    if (n < 10) return D[n];
+    if (n < 20) return n === 10 ? '十' : '十' + D[n - 10];
+    if (n < 100) {
+        const t = Math.floor(n / 10), o = n % 10;
+        return D[t] + '十' + (o ? D[o] : '');
+    }
+    if (n < 1000) {
+        const h = Math.floor(n / 100), r = n % 100;
+        let s = D[h] + '百';
+        if (r === 0) return s;
+        if (r < 10) return s + '零' + D[r];
+        return s + _digitToCN(r);
+    }
+    if (n < 10000) {
+        const k = Math.floor(n / 1000), r = n % 1000;
+        let s = D[k] + '千';
+        if (r === 0) return s;
+        if (r < 100) return s + '零' + _digitToCN(r);
+        return s + _digitToCN(r);
+    }
+    if (n < 100000000) {
+        const w = Math.floor(n / 10000), r = n % 10000;
+        let s = _digitToCN(w) + '万';
+        if (r === 0) return s;
+        if (r < 1000) return s + '零' + _digitToCN(r);
+        return s + _digitToCN(r);
+    }
+    return String(n).split('').map(d => D[parseInt(d)]).join('');
+}
+
+function normalizeForTTS(text) {
+    if (!text || typeof text !== 'string') return text;
+    // 年份逐字读
+    text = text.replace(/\b(19|20)(\d{2})\b/g, (m) => {
+        const D = '零一二三四五六七八九';
+        return [...m].map(c => /\d/.test(c) ? D[parseInt(c)] : c).join('');
+    });
+    // 区间优先：5-12 / 5~12 / 5至12 → 五到十二
+    text = text.replace(/(\d+)\s*[-–~至]\s*(\d+)\s*%/g, (m, a, b) => _digitToCN(parseInt(a)) + '到百分之' + _digitToCN(parseInt(b)));
+    text = text.replace(/(\d+)\s*[-–~至]\s*(\d+)/g, (m, a, b) => _digitToCN(parseInt(a)) + '到' + _digitToCN(parseInt(b)));
+    // 百分号
+    text = text.replace(/(-)(\d+(?:\.\d+)?)\s*%/g, (m, _s, n) => '负百分之' + _digitToCN(parseInt(n)));
+    text = text.replace(/(\d+(?:\.\d+)?)\s*%/g, (m, n) => {
+        return n.includes('.')
+            ? '百分之' + _digitToCN(parseInt(n.split('.')[0])) + '点' + n.split('.')[1].split('').map(d => '零一二三四五六七八九'[parseInt(d)]).join('')
+            : '百分之' + _digitToCN(parseInt(n));
+    });
+    // 普通整数 / 小数
+    text = text.replace(/-?\d+(?:\.\d+)?/g, (m) => {
+        const neg = m.startsWith('-');
+        const abs = neg ? m.slice(1) : m;
+        if (abs.includes('.')) {
+            const [intP, decP] = abs.split('.');
+            return (neg ? '负' : '') + _digitToCN(parseInt(intP)) + '点' + decP.split('').map(d => '零一二三四五六七八九'[parseInt(d)]).join('');
+        }
+        return (neg ? '负' : '') + _digitToCN(parseInt(abs));
+    });
+    return text;
+}
+
+// 英文数字 → 英文单词（让 BV421/422 不再吞数字）
+function _numToEN(n) {
+    if (n === 0) return 'zero';
+    const ones = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+    const tens = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+    if (n < 20) return ones[n];
+    if (n < 100) return tens[Math.floor(n/10)] + (n%10 ? '-' + ones[n%10] : '');
+    if (n < 1000) return ones[Math.floor(n/100)] + ' hundred' + (n%100 ? ' ' + _numToEN(n%100) : '');
+    if (n < 1000000) {
+        const k = Math.floor(n/1000), r = n%1000;
+        return _numToEN(k) + ' thousand' + (r ? ' ' + _numToEN(r) : '');
+    }
+    if (n < 1000000000) {
+        const m = Math.floor(n/1000000), r = n%1000000;
+        return _numToEN(m) + ' million' + (r ? ' ' + _numToEN(r) : '');
+    }
+    return String(n);
+}
+
+function normalizeForTTSEn(text) {
+    if (!text || typeof text !== 'string') return text;
+    // 年份 1990-2099 念 nineteen ninety / twenty twenty-five
+    text = text.replace(/\b(19|20)(\d{2})\b/g, (m, a, b) => {
+        const aa = parseInt(a), bb = parseInt(b);
+        if (bb === 0) return _numToEN(aa) + ' hundred';
+        if (bb < 10) return _numToEN(aa) + ' oh ' + _numToEN(bb);
+        return _numToEN(aa) + ' ' + _numToEN(bb);
+    });
+    // 百分比
+    text = text.replace(/(-)(\d+(?:\.\d+)?)\s*%/g, (m, _s, n) => 'minus ' + _numToEN(parseInt(n)) + ' percent');
+    text = text.replace(/(\d+(?:\.\d+)?)\s*%/g, (m, n) => {
+        if (n.includes('.')) {
+            const [i, d] = n.split('.');
+            return _numToEN(parseInt(i)) + ' point ' + d.split('').map(x => _numToEN(parseInt(x))).join(' ') + ' percent';
+        }
+        return _numToEN(parseInt(n)) + ' percent';
+    });
+    // 区间
+    text = text.replace(/(\d+)\s*[-–~]\s*(\d+)/g, (m, a, b) => _numToEN(parseInt(a)) + ' to ' + _numToEN(parseInt(b)));
+    // 普通整数 / 小数
+    text = text.replace(/-?\d+(?:\.\d+)?/g, (m) => {
+        const neg = m.startsWith('-');
+        const abs = neg ? m.slice(1) : m;
+        if (abs.includes('.')) {
+            const [i, d] = abs.split('.');
+            return (neg ? 'minus ' : '') + _numToEN(parseInt(i)) + ' point ' + d.split('').map(x => _numToEN(parseInt(x))).join(' ');
+        }
+        return (neg ? 'minus ' : '') + _numToEN(parseInt(abs));
+    });
+    return text;
+}
+
 // 核心：调用 Volc TTS v1 HTTP POST 返回完整 MP3
 async function callVolcTTS(text, voiceType) {
     if (!VOLC_TTS_ACCESS_KEY) {
         throw new Error('tts_not_configured');
     }
+    const isChinese = voiceType === 'BV001_streaming' || voiceType === 'BV002_streaming';
+    const ttsText = isChinese ? normalizeForTTS(text) : normalizeForTTSEn(text);
     const reqid = 'crayxus_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     const body = {
         app: { cluster: VOLC_TTS_CLUSTER },
@@ -3124,7 +3242,7 @@ async function callVolcTTS(text, voiceType) {
         },
         request: {
             reqid,
-            text,
+            text: ttsText,
             operation: 'query'
         }
     };
