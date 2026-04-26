@@ -2895,20 +2895,7 @@ function _kbRegisterHandler() {
   }
 
   function _kbCycleFocus() {
-    // 1. 优先找全屏弹窗 (result-modal / casual-popup) 当前可见的
-    const explicitPopups = ['#result-modal', '#casual-popup', '.casual-popup-overlay', '.modal'];
-    let root = null;
-    for (const sel of explicitPopups) {
-      const els = document.querySelectorAll(sel);
-      for (const el of els) {
-        if (_kbIsVisible(el)) { root = el; break; }
-      }
-      if (root) break;
-    }
-    // 2. 没弹窗就用当前活动屏幕
-    if (!root) root = document.querySelector('.screen.active') || document.body;
-
-    // 候选选择器
+    // 直接全局扫可见的可点击元素 (不依赖 root, 避免初始状态识别错误)
     const selectors = [
       '.casual-popup-btn', '.casual-popup-back',
       '.res-btn:not([disabled])',
@@ -2919,20 +2906,25 @@ function _kbRegisterHandler() {
       'button:not([disabled])',
       'a[href]',
       '[role="button"]:not([disabled])',
+      '[onclick]',
     ];
     const candidates = [];
     const seen = new Set();
     selectors.forEach(sel => {
-      root.querySelectorAll(sel).forEach(el => {
+      document.querySelectorAll(sel).forEach(el => {
         if (seen.has(el)) return;
-        if (el.closest('#hand, .stack-card, .grp-col, #touch-hud')) return;
+        // 排除手牌区
+        if (el.closest('#hand, .stack-card, .grp-col, #touch-hud, #hand-dock')) return;
+        // 排除明显非交互的容器 (.screen 本身, 等)
+        if (el.classList.contains('screen')) return;
+        // 严格可见性 (祖先链)
         if (!_kbIsVisible(el)) return;
         seen.add(el);
         candidates.push(el);
       });
     });
     if (!candidates.length) {
-      console.log('[KB] TAB: 找不到可切换元素 (root:', root.id || root.className, ')');
+      console.log('[KB] TAB: 找不到可切换元素');
       return;
     }
     const cur = _kbLastFocused;
@@ -2943,7 +2935,7 @@ function _kbRegisterHandler() {
     next.classList.add('kb-focused');
     _kbLastFocused = next;
     next.scrollIntoView({block:'center', behavior:'smooth'});
-    console.log('[KB] TAB ->', (next.className || next.tagName).substring(0,40), '(', candidates.length, '个候选)');
+    console.log('[KB] TAB ->', (next.id || next.className || next.tagName).substring(0,40), '(', candidates.length, '个候选)');
   }
   // 注入高亮样式 (仅一次)
   if (!document.getElementById('kb-focus-style')) {
