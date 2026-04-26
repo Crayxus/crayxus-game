@@ -75,10 +75,26 @@
     return true;
   }
 
+  // 首次按键时模拟一次用户激活, 让 focus()/autoplay 等 API 解锁
+  let _kbActivated = false;
+  function _kbEnsureActivation() {
+    if (_kbActivated) return;
+    try {
+      document.body.click();
+      document.body.focus();
+      // 触发一次合成 click 事件 (可能不算 user-activation 但试试)
+      const evt = new MouseEvent('click', {bubbles:true, cancelable:true});
+      document.body.dispatchEvent(evt);
+    } catch(e) {}
+    _kbActivated = true;
+    console.log('[KB] 首次激活页面交互');
+  }
+
   function _flush() {
     if (!kbBuffer) return;
     const raw = kbBuffer;
     kbBuffer = '';
+    _kbEnsureActivation();
     const tokens = _splitTokens(raw);
     for (const t of tokens) {
       if (!_kbShouldFire(t)) continue;
