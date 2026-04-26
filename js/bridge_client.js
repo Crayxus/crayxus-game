@@ -90,6 +90,18 @@
     console.log('[KB] 首次激活页面交互');
   }
 
+  // 浮动提示 (调试用, 显示 token 真的被接收到)
+  function _kbToast(text) {
+    let t = document.createElement('div');
+    t.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);' +
+      'background:rgba(0,200,150,0.9);color:white;padding:6px 18px;border-radius:8px;' +
+      'z-index:99999;font-size:16px;font-family:sans-serif;pointer-events:none;font-weight:bold;' +
+      'box-shadow:0 4px 12px rgba(0,0,0,0.4)';
+    t.textContent = '⌨ ' + text;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 800);
+  }
+
   function _flush() {
     if (!kbBuffer) return;
     const raw = kbBuffer;
@@ -99,6 +111,8 @@
     for (const t of tokens) {
       if (!_kbShouldFire(t)) continue;
       console.log('[KB] 按键', t);
+      // 关键键 (MODE/PLAY/PASS/BJ/SJ) 显示 toast
+      if (['MODE','PLAY','PASS','BJ','SJ'].indexOf(t) >= 0) _kbToast(t);
       keyHandlers.forEach(h => {
         try { h(t); } catch(err) { console.error(err); }
       });
