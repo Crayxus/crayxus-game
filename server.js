@@ -2786,6 +2786,17 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
 - **每次生成的题目内容必须和之前不同**，不要重复使用相同的场景/人物/数字
 - 避免和标准题库重复，出题角度要新颖${listeningNote}
 
+【⚠️ 关键 · 题目必须自包含（最重要）】
+学员看到的界面只有：题干文字 + 4 个选项 + （仅听力题）一个播放按钮。**不会显示任何外部段落、图表、图片、表格**。所以：
+- ❌ 严禁出现"According to the passage..."、"Read the text below"、"Refer to the paragraph"等引用外部段落的题
+- ❌ 严禁出现"The bar chart shows..."、"Look at the graph"、"The table compares..."等引用外部图表的题
+- ❌ 严禁出现"Listen to the audio"（除听力题外）、"Watch the video"等引用外部媒体的题
+- ✅ 阅读题（reading）：如果需要文本，**必须把整段文本写在 q 字段里**，格式：'Passage: "<2-4句英文段落>"  Question: <问题>'
+- ✅ 写作题（writing）：考写作技巧、句型转换、连接词、Task 2 论证逻辑等，**不要让学员"描述图表"**；若必须给数据，把数据用文字列在 q 里（如 "Given: 2010 sales = 30%, 2020 sales = 65%. Which sentence best..."）
+- ✅ 词汇/语法/口语：直接在 q 里给出完整语境（一个完整句子/对话），让学员选最佳答案
+- ✅ 听力题（listening）：audio_script 是音频内容，q 只写"What does the man suggest?"等问题
+- 每道题学员**仅凭 q + options** 就必须能独立作答，否则视为废题
+
 【输出 JSON 格式】（严格按此结构）
 {
   "questions": [
@@ -2918,6 +2929,18 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
 - 每题 4 个选项，只有一个正确
 - **每次生成的题目必须是全新的**，避免重复的人物/地点/数字/情境
 - 出题角度要新颖、多样，覆盖典型考点
+
+【⚠️ 关键 · 题目必须自包含（最重要）】
+学员看到的界面只有：题干文字 + 4 个选项 + （仅听力题）一个播放按钮。**不会显示任何外部段落、图表、图片、表格、数据**。所以：
+- ❌ 严禁出现"The line graph shows..."、"The bar chart compares..."、"The table below..."、"Look at the graph"、"Refer to the chart" 等引用外部图表的题
+- ❌ 严禁出现"According to the passage..."、"Read the text below"、"In the article..." 等引用外部段落的题
+- ❌ 严禁出现"Listen to the audio"（除 listening 题）、"Watch the video" 等引用外部媒体的题
+- ✅ reading 题：如果需要文本，**必须把整段 2-4 句英文文本写进 q 字段**，格式如：'Passage: "Globalization has reshaped..."  Question: According to this text, ...'
+- ✅ writing 题：考写作技巧、句型转换、连接词、Task 2 论证逻辑、改错等。**绝对不要让学员"描述图表/数据趋势"**。如果必须涉及数据描述题，把数据用文字写在 q 里（如 'Given: Visitors in Jan = 200, Jul = 800, Dec = 250. Which sentence best describes the trend?'）
+- ✅ vocabulary/grammar：q 字段就是一个完整的英文句子带空格或选项语境
+- ✅ speaking：考口语策略/连接词/答题结构（"Which response is most appropriate when asked about your hometown?"）
+- ✅ listening：audio_script 是音频内容，q 只写问题
+- 每道题学员**仅凭 q + options** 就必须能独立作答，否则视为废题
 
 【听力题特殊要求】
 - listening 维度的题必须附带 audio_script 字段：40-100 词的英文对白或独白（模拟真实音频）
