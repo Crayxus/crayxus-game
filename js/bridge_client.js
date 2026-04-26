@@ -124,11 +124,31 @@
     kbFlushTimer = setTimeout(_flush, 150);
   }
 
+  // F13-F17 单键码 -> 直接 fire (避开多字符宏在 Linux 易丢的问题)
+  const FN_TOKEN_MAP = {
+    'F13':'MODE', 'F14':'PASS', 'F15':'PLAY', 'F16':'BJ', 'F17':'SJ',
+  };
+
   document.addEventListener('keydown', (e) => {
     if (!kbEnabled) return;
     if (e.ctrlKey || e.altKey || e.metaKey) return;
 
     const code = e.code || '';
+
+    // 大键单键码: 直接派发, 无 buffer
+    if (FN_TOKEN_MAP[code]) {
+      const token = FN_TOKEN_MAP[code];
+      e.preventDefault();
+      _kbEnsureActivation();
+      if (!_kbShouldFire(token)) return;
+      console.log('[KB] 按键', token, '(F-key 单键码)');
+      _kbToast(token);
+      keyHandlers.forEach(h => {
+        try { h(token); } catch(err) { console.error(err); }
+      });
+      return;
+    }
+
     if (code === 'Enter' || e.key === 'Enter') {
       _flush();
       e.preventDefault();
