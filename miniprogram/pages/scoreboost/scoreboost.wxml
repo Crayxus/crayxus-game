@@ -1,0 +1,297 @@
+<!-- Crayxus AI 提分系统 · 6 科目 Hub (支持贝赛思组展开) -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- 顶部工具栏 -->
+  <view class="top-tools">
+    <view class="tool-btn ghost" wx:if="{{viewState === 'basis'}}" bindtap="backToTop">
+      <text>← 返回科目选择</text>
+    </view>
+    <view class="tool-btn teacher-btn" bindtap="gotoTeacherDashboard">
+      <text>🧑‍🏫 教师 Dashboard</text>
+    </view>
+    <view class="tool-btn" bindtap="resetProgress" wx:if="{{hasHistory && !currentSubject.isGroup}}">
+      <text>🗑 清除 {{currentSubject.shortName}} 进度</text>
+    </view>
+  </view>
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-orb"></view>
+    <view class="hero-inner">
+      <view class="hero-tag">CRAYXUS · 大模型自适应 · {{viewState === 'basis' ? '贝赛思 6 学科' : '6 大科目'}}</view>
+      <view class="hero-title">AI 提分系统</view>
+      <view class="hero-sub" wx:if="{{viewState === 'basis'}}">贝赛思课程 · 数学/物理/化学/生物/英语/历史</view>
+      <view class="hero-sub" wx:else>当前科目 · {{currentSubject.name}} · {{currentSubject.textbook.grade}}</view>
+
+      <!-- TWIN DRIVE · 简约圆弧双光球 -->
+      <view class="twin-drive-card">
+        <view class="td-scan"></view>
+        <view class="td-status-bar">
+          <view class="td-dot"></view>
+          <text class="td-sys-name">TWIN DRIVE SYSTEM</text>
+          <text class="td-sys-state">{{prescreen.done ? 'ONLINE' : 'STANDBY'}}</text>
+        </view>
+
+        <view class="td-hero">
+          <!-- 左圆弧光球 · MATCH -->
+          <view class="td-orb td-orb-left {{prescreen.done ? 'active' : ''}}" bindtap="launchMatchTest">
+            <text class="td-orb-mark">M</text>
+            <text class="td-orb-tag">MATCH</text>
+          </view>
+
+          <!-- 中间数据面板 -->
+          <view class="td-core">
+            <view class="td-metric">
+              <text class="td-m-lbl">匹配度</text>
+              <text class="td-m-val match-val">{{prescreen.done ? prescreen.score : '—'}}</text>
+            </view>
+            <view class="td-split"></view>
+            <view class="td-metric">
+              <text class="td-m-lbl">累计提分</text>
+              <text class="td-m-val boost-val">{{hasHistory ? '+' + stats.weekGain : '—'}}</text>
+            </view>
+          </view>
+
+          <!-- 右圆弧光球 · BOOST -->
+          <view class="td-orb td-orb-right {{hasHistory ? 'active' : ''}}" bindtap="launchBoostTest">
+            <text class="td-orb-mark">B</text>
+            <text class="td-orb-tag">BOOST</text>
+          </view>
+        </view>
+
+        <!-- 测评 CTA · 双胶囊 -->
+        <view class="td-cta-row">
+          <view class="td-cta-pill match-cta" bindtap="launchMatchTest">
+            <text>▶ 匹配测评</text>
+          </view>
+          <view class="td-cta-pill boost-cta" bindtap="launchBoostTest">
+            <text>▶ 提分测评</text>
+          </view>
+        </view>
+
+        <view class="td-foot" wx:if="{{prescreen.done}}">
+          <text>{{prescreen.personality}} · AI 推荐 {{prescreen.recommendPlan}}</text>
+        </view>
+      </view>
+
+      <!-- 账号状态卡 -->
+      <view class="account-card">
+        <view class="acc-left">
+          <view class="acc-row">
+            <text class="acc-status status-{{account.statusKey}}">{{account.statusText}}</text>
+            <text class="acc-type">{{account.planText}}</text>
+          </view>
+          <text class="acc-subjects" wx:if="{{account.subjectsText}}">{{account.subjectsText}}</text>
+          <text class="acc-school">{{account.school}} · {{account.className}}</text>
+          <text class="acc-expire" wx:if="{{account.expireText}}">{{account.expireText}}</text>
+        </view>
+        <view class="acc-right" wx:if="{{account.statusKey !== 'star'}}">
+          <text class="acc-upgrade" bindtap="upgradePlan">升级 ›</text>
+        </view>
+        <view class="acc-right star-badge" wx:if="{{account.statusKey === 'star'}}">
+          <text class="star-ic">🏆</text>
+          <text class="star-txt">月度之星</text>
+        </view>
+      </view>
+
+    </view>
+  </view>
+
+  <!-- 顶层：6 科目宫格 -->
+  <view class="section subject-picker" wx:if="{{viewState === 'top'}}">
+    <view class="section-title">
+      <text>📚 选择科目</text>
+      <text class="section-tip">六选一 · 独立进度</text>
+    </view>
+    <view class="subj-grid">
+      <view class="subj-card {{item.id === currentSubjectId ? 'active' : ''}} {{item.isGroup ? 'group' : ''}}"
+            wx:for="{{subjectList}}" wx:key="id"
+            bindtap="selectSubject" data-id="{{item.id}}"
+            style="{{item.id === currentSubjectId ? 'background:' + item.gradient + ';border-color:transparent;' : ''}}">
+        <text class="subj-tag">{{item.isGroup ? '6 学科' : item.tag}}</text>
+        <text class="subj-icon">{{item.icon}}</text>
+        <text class="subj-name">{{item.name}}</text>
+        <text class="subj-score" style="color:{{item.id === currentSubjectId ? '#fff' : item.color}}">{{item.score || '—'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 贝赛思子学科宫格 -->
+  <view class="section subject-picker basis-picker" wx:if="{{viewState === 'basis'}}">
+    <view class="section-title">
+      <text>🏛 贝赛思课程 · 6 学科</text>
+      <text class="section-tip">独立进度 · 全英授课</text>
+    </view>
+    <view class="subj-grid">
+      <view class="subj-card {{item.id === currentSubjectId ? 'active' : ''}}"
+            wx:for="{{basisChildren}}" wx:key="id"
+            bindtap="selectSubject" data-id="{{item.id}}"
+            style="{{item.id === currentSubjectId ? 'background:' + item.gradient + ';border-color:transparent;' : ''}}">
+        <text class="subj-tag">{{item.shortName}}</text>
+        <text class="subj-icon">{{item.icon}}</text>
+        <text class="subj-name">{{item.name}}</text>
+        <text class="subj-score" style="color:{{item.id === currentSubjectId ? '#fff' : item.color}}">{{item.score || '—'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 教材卡 (非组态) -->
+  <view class="textbook-card" wx:if="{{!currentSubject.isGroup}}" style="border-color:{{currentSubject.color}}44;background:linear-gradient(135deg,{{currentSubject.color}}1a,{{currentSubject.color}}08);">
+    <text class="tb-emoji">{{currentSubject.icon}}</text>
+    <view class="tb-info">
+      <text class="tb-title">{{currentSubject.textbook.title}}</text>
+      <text class="tb-meta">{{currentSubject.textbook.author}} · {{currentSubject.textbook.grade}} · {{currentSubject.textbook.lessons}} Lessons</text>
+    </view>
+    <view class="tb-badge" style="color:{{currentSubject.color}};background:{{currentSubject.color}}22;border-color:{{currentSubject.color}}44;">已加载</view>
+  </view>
+
+  <!-- 六维能力 · 测评维度 (抬到主科目之后第一位) -->
+  <view class="section" wx:if="{{hasHistory && !currentSubject.isGroup}}">
+    <view class="section-title">
+      <text>📊 六维能力诊断</text>
+      <text class="section-tip">{{currentSubject.shortName}} · Twin Drive 输出</text>
+    </view>
+    <view class="dim-list">
+      <view class="dim-row" wx:for="{{dims}}" wx:key="key">
+        <text class="dim-icon">{{item.icon}}</text>
+        <text class="dim-name">{{item.name}}</text>
+        <view class="dim-bar">
+          <view class="dim-fill" style="width:{{item.val}}%;background:{{item.color}}"></view>
+        </view>
+        <text class="dim-val" style="color:{{item.color}}">{{item.val}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 错题本入口 -->
+  <view class="wrongbook-entry" wx:if="{{!currentSubject.isGroup}}" bindtap="gotoWrongbook">
+    <view class="wb-ic">📚</view>
+    <view class="wb-center">
+      <text class="wb-t">错题本 · 艾宾浩斯复习</text>
+      <text class="wb-d">答错的题自动进入这里 · 点击查看</text>
+    </view>
+    <text class="wb-arrow">→</text>
+  </view>
+
+  <!-- 月度冲榜排行 -->
+  <view class="section monthly-rank" wx:if="{{!currentSubject.isGroup}}">
+    <view class="section-title">
+      <text>🏆 本月冲榜 · {{ranking.monthLabel}}</text>
+      <text class="section-tip">Top 3 免费 1 个月 · 剩余 {{ranking.daysLeft}} 天</text>
+    </view>
+
+    <view class="my-rank-card">
+      <view class="mr-left">
+        <text class="mr-lbl">我的本月排名</text>
+        <view class="mr-big">
+          <text class="mr-no">#{{ranking.myRank}}</text>
+          <text class="mr-of">/ {{ranking.totalStudents}}</text>
+        </view>
+      </view>
+      <view class="mr-right">
+        <text class="mr-gap-lbl">距 Top 3 还差</text>
+        <text class="mr-gap-val">{{ranking.gapToTop3}} 分</text>
+        <text class="mr-hint" wx:if="{{ranking.myRank <= 3}}">🎉 已进入免费名额</text>
+        <text class="mr-hint" wx:else>再做 {{ranking.questionsToGo}} 道高质量题可冲榜</text>
+      </view>
+    </view>
+
+    <view class="rank-list">
+      <view class="rank-row {{item.rank <= 3 ? 'top3' : ''}} {{item.isMe ? 'me' : ''}}"
+            wx:for="{{ranking.leaderboard}}" wx:key="rank">
+        <text class="rank-pos {{item.rank === 1 ? 'gold' : item.rank === 2 ? 'silver' : item.rank === 3 ? 'bronze' : ''}}">
+          {{item.rank <= 3 ? (item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉') : '#' + item.rank}}
+        </text>
+        <text class="rank-name {{item.isMe ? 'is-me' : ''}}">{{item.displayName}}</text>
+        <text class="rank-score">{{item.score}}</text>
+        <text class="rank-gain {{item.gain > 0 ? 'up' : ''}}">{{item.gain > 0 ? '+' + item.gain : item.gain}}</text>
+      </view>
+    </view>
+
+    <view class="rank-footer">
+      <text>每月 1 号重新开榜 · 当月 Top 3 次月免费使用</text>
+    </view>
+  </view>
+
+  <!-- 弱点分析 -->
+  <view class="section" wx:if="{{hasHistory && weakness.length > 0 && !currentSubject.isGroup}}">
+    <view class="section-title">
+      <text>🎯 AI 弱点诊断</text>
+      <text class="section-tip">大模型分析</text>
+    </view>
+    <view class="weak-list">
+      <view class="weak-row" wx:for="{{weakness}}" wx:key="key">
+        <view class="weak-head">
+          <text class="weak-topic">{{item.topic}}</text>
+          <text class="weak-tag tag-{{item.level}}">{{item.levelText}}</text>
+        </view>
+        <view class="weak-bar">
+          <view class="weak-fill" style="width:{{item.mastery}}%;background:{{item.color}}"></view>
+        </view>
+        <view class="weak-foot">
+          <text class="weak-meta">掌握度 {{item.mastery}}%</text>
+          <text class="weak-action" bindtap="practiceWeak" data-topic="{{item.topic}}">定向强化 →</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提分曲线 -->
+  <view class="section" wx:if="{{hasHistory && !currentSubject.isGroup}}">
+    <view class="section-title">
+      <text>📈 提分曲线</text>
+      <text class="section-tip">基准 {{stats.baseline}} → 最新 {{stats.latest}}</text>
+    </view>
+    <view class="chart">
+      <view class="chart-col" wx:for="{{curve}}" wx:key="index">
+        <text class="chart-val" wx:if="{{item.score > 0}}">{{item.score}}</text>
+        <view class="chart-bar" style="height:{{item.h}}%;background:linear-gradient(180deg,{{item.color}},{{item.color}}66)"></view>
+        <text class="chart-lbl">{{item.day}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 最近记录 -->
+  <view class="section" wx:if="{{recentHistory.length > 0 && !currentSubject.isGroup}}">
+    <view class="section-title">最近做题 · {{currentSubject.shortName}}</view>
+    <view class="hist-list">
+      <view class="hist-row" wx:for="{{recentHistory}}" wx:key="ts">
+        <view class="hist-left">
+          <text class="hist-mode">{{item.modeText}}</text>
+          <text class="hist-when">{{item.when}}</text>
+        </view>
+        <view class="hist-right">
+          <text class="hist-score" style="color:{{item.score >= 80 ? '#00d4aa' : item.score >= 60 ? '#ffd700' : '#ff6b6b'}}">{{item.score}}</text>
+          <text class="hist-sub">{{item.correct}}/{{item.total}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空态：引导开始 -->
+  <view class="section empty-state" wx:if="{{!hasHistory && !currentSubject.isGroup}}">
+    <text class="empty-icon">📋</text>
+    <text class="empty-title">开始 {{currentSubject.name}} 定级测评</text>
+    <text class="empty-desc">20 题 · 覆盖 {{currentSubject.shortName}} 六大维度 · 全程大模型解析</text>
+    <view class="empty-dims">
+      <view class="empty-dim-item" wx:for="{{dims}}" wx:key="key">
+        <text class="ed-icon">{{item.icon}}</text>
+        <text class="ed-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 贝赛思组态引导 -->
+  <view class="section empty-state" wx:if="{{viewState === 'basis' && currentSubject.isGroup}}">
+    <text class="empty-icon">🏛</text>
+    <text class="empty-title">请选择贝赛思子学科</text>
+    <text class="empty-desc">6 学科 × 20 题 · 独立进度 · 每科 6 大维度</text>
+  </view>
+
+  <view style="height:80rpx"></view>
+</view>
+
+<!-- AI 助手 · 四步向导循环（每次点击播放下一步）-->
+<ai-helper page-key="scoreboost" />
+

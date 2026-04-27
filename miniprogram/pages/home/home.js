@@ -47,6 +47,14 @@ Page({
   },
 
   onShow() {
+    // 🔒 拦截冷启动直接进"首页"的情况，强制回 landing
+    try {
+      if (app && app.__coldBoot) {
+        app.__coldBoot = false
+        wx.reLaunch({ url: '/pages/landing/landing' })
+        return
+      }
+    } catch(e) {}
     this.loadData()
     const theme = wx.getStorageSync('theme') || 'dark'
     this.setData({ isLight: theme === 'light' })
@@ -116,6 +124,11 @@ Page({
     wx.navigateTo({ url: '/pages/quiz/quiz?mode=danli' })
   },
 
+  // 返回 Crayxus 总首页 (landing 4 卡片)
+  backToLanding() {
+    wx.reLaunch({ url: '/pages/landing/landing' })
+  },
+
   // 蛋力学院
   goAcademy() {
     wx.navigateTo({ url: '/pages/academy/academy' })
@@ -135,7 +148,6 @@ Page({
   goTournament() {
     wx.navigateTo({ url: '/pages/tournament/tournament' })
   },
-
   // 扫码登录
   onScanLogin() {
     wx.scanCode({

@@ -1,0 +1,138 @@
+<!-- Crayxus · 错题本 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- 错题详情 overlay -->
+  <view class="wb-overlay" wx:if="{{detailOpen}}" catchtouchmove="_noop">
+    <view class="wb-mask" bindtap="closeDetail"></view>
+    <view class="wb-sheet">
+      <view class="wb-sheet-handle"></view>
+      <scroll-view class="wb-sheet-scroll" scroll-y="true">
+        <view class="wb-sheet-head">
+          <view class="wb-sheet-tag" style="background:{{detailItem.dimColor}}22;color:{{detailItem.dimColor}};border-color:{{detailItem.dimColor}}55;">
+            {{detailItem.dimName}}
+          </view>
+          <text class="wb-sheet-close" bindtap="closeDetail">✕</text>
+        </view>
+
+        <text class="wb-sheet-q">{{detailItem.q}}</text>
+
+        <view class="wb-sheet-opts">
+          <view class="wb-opt {{idx === detailItem.answer ? 'correct' : ''}} {{idx === detailItem.selected && idx !== detailItem.answer ? 'wrong' : ''}}"
+                wx:for="{{detailItem.options}}" wx:key="*this" wx:for-index="idx" wx:for-item="opt">
+            <text class="wb-opt-letter">{{['A','B','C','D'][idx]}}</text>
+            <text class="wb-opt-text">{{opt}}</text>
+            <text class="wb-opt-mark" wx:if="{{idx === detailItem.answer}}">✓ 正确</text>
+            <text class="wb-opt-mark wrong" wx:if="{{idx === detailItem.selected && idx !== detailItem.answer}}">✕ 你选的</text>
+          </view>
+        </view>
+
+        <view class="wb-sheet-sol" wx:if="{{detailItem.solution}}">
+          <text class="sol-label">💡 标准解析</text>
+          <text class="sol-text">{{detailItem.solution}}</text>
+        </view>
+
+        <!-- AI 个性化讲解 -->
+        <view class="ai-explain-zone">
+          <view class="ai-explain-btn {{aiExplainLoading ? 'loading' : ''}}" bindtap="askAIExplain" wx:if="{{!aiExplanation}}">
+            <text class="aie-icon">🤖</text>
+            <text class="aie-text">{{aiExplainLoading ? 'Crayxus AI 分析中...' : '🎯 找 AI 讲讲为什么错'}}</text>
+          </view>
+
+          <view class="ai-explain-result" wx:if="{{aiExplanation}}">
+            <view class="aie-header">
+              <view class="aie-badge">
+                <text class="aie-badge-dot"></text>
+                <text>CRAYXUS AI 个性化讲解</text>
+              </view>
+              <view class="aie-tts-btn {{aieTtsLoading ? 'loading' : ''}} {{aieTtsPlaying ? 'playing' : ''}}" bindtap="playAIExplainTTS">
+                <text>{{aieTtsLoading ? '⏳' : (aieTtsPlaying ? '⏸ 暂停' : '🔊 听语音')}}</text>
+              </view>
+            </view>
+            <text class="aie-content">{{aiExplanation}}</text>
+            <view class="aie-regen" bindtap="askAIExplain">
+              <text>🔄 换个讲法</text>
+            </view>
+          </view>
+        </view>
+
+        <view style="height:40rpx"></view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- Hero -->
+  <view class="wb-hero">
+    <view class="wb-tag">📚 ERROR REVIEW</view>
+    <view class="wb-title">错题本</view>
+    <view class="wb-sub">{{subjectName}} · 共 {{total}} 道错题 · 艾宾浩斯复习曲线</view>
+
+    <!-- 统计条 -->
+    <view class="wb-stats">
+      <view class="ws-cell">
+        <text class="ws-num">{{total}}</text>
+        <text class="ws-lbl">总数</text>
+      </view>
+      <view class="ws-cell ws-teal">
+        <text class="ws-num">{{todayReview}}</text>
+        <text class="ws-lbl">今日待复习</text>
+      </view>
+      <view class="ws-cell ws-gold">
+        <text class="ws-num">{{mastered}}</text>
+        <text class="ws-lbl">已掌握</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 维度分布 -->
+  <view class="section" wx:if="{{dimDist.length > 0}}">
+    <view class="section-title">
+      <text>🎯 错题维度分布</text>
+      <text class="section-tip">AI 已分析薄弱点</text>
+    </view>
+    <view class="dim-dist">
+      <view class="dd-row" wx:for="{{dimDist}}" wx:key="key">
+        <text class="dd-name">{{item.name}}</text>
+        <view class="dd-bar">
+          <view class="dd-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+        </view>
+        <text class="dd-cnt" style="color:{{item.color}}">{{item.count}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="wb-actions">
+    <view class="wb-btn ghost {{total === 0 ? 'disabled' : ''}}" bindtap="clearAll">
+      <text>清空错题</text>
+    </view>
+    <view class="wb-btn primary {{total === 0 ? 'disabled' : ''}}" bindtap="battleAgain">
+      <text>⚡ 再战一遍（10 题）</text>
+    </view>
+  </view>
+
+  <!-- 错题列表 -->
+  <view class="wb-list" wx:if="{{items.length > 0}}">
+    <view class="wb-item" wx:for="{{items}}" wx:key="id" bindtap="viewItem" data-idx="{{index}}">
+      <view class="wi-head">
+        <text class="wi-dim" style="color:{{item.dimColor}}">{{item.dimName}}</text>
+        <text class="wi-when">{{item.whenText}}</text>
+      </view>
+      <text class="wi-q">{{item.qShort}}</text>
+      <view class="wi-foot">
+        <text class="wi-attempts" wx:if="{{item.attempts > 1}}">错 {{item.attempts}} 次</text>
+        <text class="wi-review">查看解析 →</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="wb-empty" wx:if="{{items.length === 0}}">
+    <text class="emp-icon">🎉</text>
+    <text class="emp-title">目前没有错题</text>
+    <text class="emp-desc">做题时答错的会自动进入这里</text>
+  </view>
+
+  <view style="height:60rpx"></view>
+</view>
+
+<ai-helper page-key="wrongbook" />

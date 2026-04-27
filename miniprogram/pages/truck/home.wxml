@@ -1,0 +1,305 @@
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- Header -->
+  <view class="header">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-arrow">←</text>
+    </view>
+    <view class="header-center">
+      <text class="header-title">车·路·能·云</text>
+      <text class="header-sub">哈克雷斯智慧能源平台</text>
+    </view>
+    <view class="header-right">
+      <view class="status-dot online"></view>
+    </view>
+  </view>
+
+  <!-- 全局核心指标 -->
+  <view class="kpi-bar">
+    <view class="kpi-item">
+      <text class="kpi-val">{{totalStations}}</text>
+      <text class="kpi-label">站点</text>
+    </view>
+    <view class="kpi-divider"></view>
+    <view class="kpi-item">
+      <text class="kpi-val kpi-green">{{totalPiles}}</text>
+      <text class="kpi-label">充电桩</text>
+    </view>
+    <view class="kpi-divider"></view>
+    <view class="kpi-item">
+      <text class="kpi-val kpi-blue">{{totalTrucks}}</text>
+      <text class="kpi-label">运营车辆</text>
+    </view>
+    <view class="kpi-divider"></view>
+    <view class="kpi-item">
+      <text class="kpi-val kpi-yellow">{{todayRevenue}}</text>
+      <text class="kpi-label">今日收入(万)</text>
+    </view>
+  </view>
+
+  <!-- 全国项目地图 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">全国项目布局</text>
+      <text class="section-badge">{{regions.length}} 区域</text>
+    </view>
+    <view class="nation-map">
+      <!-- 中国地图轮廓示意 -->
+      <view class="map-bg">
+        <!-- 区域标记点 -->
+        <view class="map-point {{item.status}}" wx:for="{{mapPoints}}" wx:key="id"
+          style="left:{{item.x}}%;top:{{item.y}}%">
+          <view class="point-dot {{item.status === 'active' ? 'pulse-dot' : ''}}"></view>
+          <view class="point-label">
+            <text class="point-name">{{item.name}}</text>
+            <text class="point-count">{{item.count}}站</text>
+          </view>
+        </view>
+        <!-- 连接线 -->
+        <view class="map-line line-1"></view>
+        <view class="map-line line-2"></view>
+        <view class="map-line line-3"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 四大模块入口 -->
+  <view class="module-grid">
+    <view class="module-card mod-vehicle" bindtap="goModule" data-mod="vehicle">
+      <text class="mod-icon">🚛</text>
+      <text class="mod-title">车</text>
+      <text class="mod-desc">氢能重卡车队</text>
+      <text class="mod-num">{{totalTrucks}} 辆</text>
+    </view>
+    <view class="module-card mod-road" bindtap="goModule" data-mod="road">
+      <text class="mod-icon">🛣️</text>
+      <text class="mod-title">路</text>
+      <text class="mod-desc">干线运输路网</text>
+      <text class="mod-num">{{totalRoutes}} 条</text>
+    </view>
+    <view class="module-card mod-energy" bindtap="goModule" data-mod="energy">
+      <text class="mod-icon">⚡</text>
+      <text class="mod-title">能</text>
+      <text class="mod-desc">光储充综合体</text>
+      <text class="mod-num">{{totalStations}} 站</text>
+    </view>
+    <view class="module-card mod-cloud" bindtap="goModule" data-mod="cloud">
+      <text class="mod-icon">☁️</text>
+      <text class="mod-title">云</text>
+      <text class="mod-desc">智慧调度平台</text>
+      <text class="mod-num">实时在线</text>
+    </view>
+  </view>
+
+  <!-- 光储充综合体概览 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">光储充综合体</text>
+      <text class="section-badge">{{totalStations}} 站</text>
+    </view>
+    <!-- 能源三件套实时数据 -->
+    <view class="energy-trio">
+      <view class="trio-item trio-solar">
+        <text class="trio-icon">☀️</text>
+        <text class="trio-val">{{solarPower}}</text>
+        <text class="trio-unit">MW</text>
+        <text class="trio-label">光伏发电</text>
+      </view>
+      <view class="trio-item trio-storage">
+        <text class="trio-icon">🔋</text>
+        <text class="trio-val">{{storageSoc}}</text>
+        <text class="trio-unit">%</text>
+        <text class="trio-label">储能SOC</text>
+      </view>
+      <view class="trio-item trio-charge">
+        <text class="trio-icon">🔌</text>
+        <text class="trio-val">{{chargingPiles}}</text>
+        <text class="trio-unit">/ {{totalPiles}}</text>
+        <text class="trio-label">充电中</text>
+      </view>
+    </view>
+    <!-- 站点列表 -->
+    <view class="station-list">
+      <view class="station-item" wx:for="{{stations}}" wx:key="id">
+        <view class="station-left">
+          <view class="station-status-dot {{item.status}}"></view>
+          <view class="station-info">
+            <text class="station-name">{{item.name}}</text>
+            <text class="station-loc">{{item.location}}</text>
+          </view>
+        </view>
+        <view class="station-right">
+          <view class="station-metrics">
+            <text class="sm-val">{{item.piles}}桩</text>
+            <text class="sm-sep">·</text>
+            <text class="sm-val">{{item.usage}}%</text>
+          </view>
+          <text class="station-revenue">¥{{item.todayRevenue}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- EPC项目建设进度 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">EPC建设进度</text>
+      <text class="section-badge">{{epcTotal}} 站</text>
+    </view>
+    <view class="epc-summary">
+      <view class="epc-bar-bg">
+        <view class="epc-bar-fill" style="width:{{epcProgress}}%"></view>
+      </view>
+      <view class="epc-stats">
+        <text class="epc-stat">已完工 <text class="epc-num done">{{epcDone}}</text></text>
+        <text class="epc-stat">施工中 <text class="epc-num wip">{{epcWip}}</text></text>
+        <text class="epc-stat">待开工 <text class="epc-num pending">{{epcPending}}</text></text>
+      </view>
+    </view>
+    <view class="epc-list">
+      <view class="epc-item" wx:for="{{epcProjects}}" wx:key="id">
+        <view class="epc-left">
+          <text class="epc-name">{{item.name}}</text>
+          <text class="epc-stage">{{item.stage}}</text>
+        </view>
+        <view class="epc-right">
+          <view class="epc-prog-bar">
+            <view class="epc-prog-fill {{item.statusClass}}" style="width:{{item.progress}}%"></view>
+          </view>
+          <text class="epc-pct">{{item.progress}}%</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 氢能车队状态 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">氢能重卡车队</text>
+      <text class="section-badge">{{totalTrucks}} 辆</text>
+    </view>
+    <view class="fleet-stats">
+      <view class="fleet-stat">
+        <text class="fs-val fs-running">{{runningCount}}</text>
+        <text class="fs-label">运行</text>
+      </view>
+      <view class="fleet-divider"></view>
+      <view class="fleet-stat">
+        <text class="fs-val fs-charging">{{refuelingCount}}</text>
+        <text class="fs-label">加氢</text>
+      </view>
+      <view class="fleet-divider"></view>
+      <view class="fleet-stat">
+        <text class="fs-val fs-idle">{{idleCount}}</text>
+        <text class="fs-label">待命</text>
+      </view>
+      <view class="fleet-divider"></view>
+      <view class="fleet-stat">
+        <text class="fs-val fs-fault">{{maintCount}}</text>
+        <text class="fs-label">维保</text>
+      </view>
+    </view>
+    <view class="truck-grid">
+      <view class="truck-card {{item.status}}" wx:for="{{trucks}}" wx:key="id">
+        <view class="truck-top-row">
+          <view class="truck-icon-wrap {{item.status === 'running' ? 'shake' : item.status === 'refueling' ? 'pulse' : ''}}">
+            <text class="truck-emoji">🚛</text>
+          </view>
+          <view class="truck-status-dot {{item.status}}"></view>
+        </view>
+        <text class="truck-name">{{item.name}}</text>
+        <view class="truck-info">
+          <view class="info-row" wx:if="{{item.status === 'running'}}">
+            <text class="info-label">速度</text>
+            <text class="info-val speed-color">{{item.speed}} km/h</text>
+          </view>
+          <view class="info-row" wx:if="{{item.status === 'refueling'}}">
+            <text class="info-label">状态</text>
+            <text class="info-val charge-color">加氢中</text>
+          </view>
+          <view class="info-row" wx:if="{{item.status === 'idle'}}">
+            <text class="info-label">状态</text>
+            <text class="info-val idle-color">待命</text>
+          </view>
+          <view class="info-row" wx:if="{{item.status === 'maint'}}">
+            <text class="info-label">状态</text>
+            <text class="info-val fault-color">维保</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">氢量</text>
+            <text class="info-val">{{item.h2Level}}%</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">今日</text>
+            <text class="info-val">{{item.km}}km</text>
+          </view>
+        </view>
+        <view class="truck-battery-bar">
+          <view class="truck-battery-fill" style="width:{{item.h2Level}}%;background:{{item.h2Level > 20 ? '#00d4aa' : '#ff4444'}}"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 财务概览 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">财务概览</text>
+      <text class="section-badge">本月</text>
+    </view>
+    <view class="finance-grid">
+      <view class="fin-item">
+        <text class="fin-val">{{finCharge}}</text>
+        <text class="fin-label">充电收入(万)</text>
+      </view>
+      <view class="fin-item">
+        <text class="fin-val">{{finTransport}}</text>
+        <text class="fin-label">运输收入(万)</text>
+      </view>
+      <view class="fin-item">
+        <text class="fin-val">{{finSolar}}</text>
+        <text class="fin-label">光伏售电(万)</text>
+      </view>
+      <view class="fin-item">
+        <text class="fin-val">{{finEpc}}</text>
+        <text class="fin-label">EPC回款(万)</text>
+      </view>
+    </view>
+    <view class="fin-total-row">
+      <text class="fin-total-label">本月总营收</text>
+      <text class="fin-total-val">¥ {{finTotal}} 万</text>
+    </view>
+  </view>
+
+  <!-- 最近动态 -->
+  <view class="section" wx:if="{{alerts.length > 0}}">
+    <view class="section-title">最近动态</view>
+    <view class="alert-list">
+      <view class="alert-item {{item.level}}" wx:for="{{alerts}}" wx:key="id">
+        <text class="alert-icon">{{item.icon}}</text>
+        <view class="alert-content">
+          <text class="alert-msg">{{item.msg}}</text>
+          <text class="alert-time">{{item.time}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 合作伙伴 -->
+  <view class="section partner-section">
+    <view class="section-title">战略合作</view>
+    <view class="partner-row">
+      <view class="partner-tag">华为数字能源</view>
+      <view class="partner-tag">中国华能</view>
+      <view class="partner-tag">狮桥融资租赁</view>
+    </view>
+  </view>
+
+  <!-- 底部 -->
+  <view class="contact-section">
+    <text class="contact-brand">HACRES × CRAYXUS</text>
+    <text class="contact-email">general@crayxus.com.au</text>
+  </view>
+  <view style="height:60rpx"></view>
+</view>

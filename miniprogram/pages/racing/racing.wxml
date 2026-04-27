@@ -1,0 +1,160 @@
+<!-- Crayxus AI Racing — 自动驾驶赛车调校 -->
+<view class="page {{isLight ? 'light' : ''}}">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-bg"></view>
+    <view class="hero-content">
+      <view class="hero-tag">CRAYXUS · AUTONOMOUS</view>
+      <view class="hero-title">AI Racing</view>
+      <view class="hero-sub">神经网络驾驶 · 实时调校 · 赛道竞技</view>
+      <view class="hero-stats">
+        <view class="hs-item">
+          <text class="hs-val">{{car.topSpeed}}</text>
+          <text class="hs-lbl">km/h</text>
+        </view>
+        <view class="hs-divider"></view>
+        <view class="hs-item">
+          <text class="hs-val">{{car.lapBest}}</text>
+          <text class="hs-lbl">最佳圈速</text>
+        </view>
+        <view class="hs-divider"></view>
+        <view class="hs-item">
+          <text class="hs-val">{{car.elo}}</text>
+          <text class="hs-lbl">ELO</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 赛车选择 -->
+  <view class="section">
+    <view class="section-title">
+      <text>选择战车</text>
+      <text class="section-tip">{{cars.length}}台</text>
+    </view>
+    <scroll-view scroll-x class="car-scroll" enhanced show-scrollbar="{{false}}">
+      <view class="car-card {{selectedCar === idx ? 'active' : ''}}"
+            wx:for="{{cars}}" wx:for-index="idx" wx:key="id"
+            bindtap="selectCar" data-idx="{{idx}}">
+        <view class="car-emoji">{{item.emoji}}</view>
+        <text class="car-name">{{item.name}}</text>
+        <text class="car-class">{{item.class}}</text>
+        <view class="car-power-row">
+          <view class="car-power-bar">
+            <view class="car-power-fill" style="width:{{item.power}}%;background:{{item.color}}"></view>
+          </view>
+          <text class="car-power-val">{{item.power}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 调校面板 -->
+  <view class="section tune-section">
+    <view class="section-title">
+      <text>神经调校</text>
+      <text class="section-tip" bindtap="resetTune">重置</text>
+    </view>
+
+    <view class="tune-row" wx:for="{{tunes}}" wx:key="key">
+      <view class="tune-head">
+        <text class="tune-icon">{{item.icon}}</text>
+        <text class="tune-name">{{item.name}}</text>
+        <text class="tune-val" style="color:{{item.color}}">{{item.val}}</text>
+      </view>
+      <slider class="tune-slider" min="0" max="100" value="{{item.val}}"
+              activeColor="{{item.color}}" backgroundColor="rgba(255,255,255,.06)"
+              block-size="20" block-color="{{item.color}}"
+              data-key="{{item.key}}" bindchange="onTuneChange"/>
+      <text class="tune-desc">{{item.desc}}</text>
+    </view>
+  </view>
+
+  <!-- 实时遥测 -->
+  <view class="section">
+    <view class="section-title">实时遥测</view>
+    <view class="telemetry-grid">
+      <view class="telem-cell">
+        <text class="telem-icon">⚡</text>
+        <text class="telem-val" style="color:#00d4aa">{{telemetry.speed}}</text>
+        <text class="telem-lbl">km/h</text>
+      </view>
+      <view class="telem-cell">
+        <text class="telem-icon">🌀</text>
+        <text class="telem-val" style="color:#ffd700">{{telemetry.rpm}}k</text>
+        <text class="telem-lbl">RPM</text>
+      </view>
+      <view class="telem-cell">
+        <text class="telem-icon">🎯</text>
+        <text class="telem-val" style="color:#ff6b6b">{{telemetry.gforce}}</text>
+        <text class="telem-lbl">G-Force</text>
+      </view>
+      <view class="telem-cell">
+        <text class="telem-icon">🧠</text>
+        <text class="telem-val" style="color:#7c4dff">{{telemetry.confidence}}%</text>
+        <text class="telem-lbl">AI 信心</text>
+      </view>
+    </view>
+    <!-- 速度条 -->
+    <view class="speed-bar-wrap">
+      <view class="speed-bar-fill" style="width:{{telemetry.throttle}}%"></view>
+      <text class="speed-bar-label">THROTTLE {{telemetry.throttle}}%</text>
+    </view>
+  </view>
+
+  <!-- 赛道地图 / 弯道分析 -->
+  <view class="section">
+    <view class="section-title">
+      <text>赛道分析 · {{currentTrack.name}}</text>
+      <text class="section-tip" bindtap="changeTrack">切换</text>
+    </view>
+    <view class="track-map">
+      <view class="track-emoji">{{currentTrack.emoji}}</view>
+      <view class="track-info">
+        <view class="track-row"><text class="tk-l">长度</text><text class="tk-v">{{currentTrack.length}}km</text></view>
+        <view class="track-row"><text class="tk-l">弯道</text><text class="tk-v">{{currentTrack.corners}}</text></view>
+        <view class="track-row"><text class="tk-l">难度</text><text class="tk-v" style="color:#ff6b6b">{{currentTrack.difficulty}}</text></view>
+      </view>
+    </view>
+    <view class="sector-row">
+      <view class="sector-bar" wx:for="{{currentTrack.sectors}}" wx:key="i">
+        <view class="sector-fill" style="height:{{item}}%;background:{{item > 70 ? '#00d4aa' : item > 40 ? '#ffd700' : '#ff6b6b'}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 排行榜 -->
+  <view class="section">
+    <view class="section-title">
+      <text>赛事排行</text>
+      <text class="section-tip">本周</text>
+    </view>
+    <view class="leaderboard">
+      <view class="lb-row" wx:for="{{leaderboard}}" wx:key="rank">
+        <text class="lb-rank rank-{{item.rank}}">#{{item.rank}}</text>
+        <text class="lb-emoji">{{item.emoji}}</text>
+        <view class="lb-info">
+          <text class="lb-name">{{item.name}}</text>
+          <text class="lb-team">{{item.team}}</text>
+        </view>
+        <text class="lb-time">{{item.time}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 启动按钮 -->
+  <view class="launch-row">
+    <view class="launch-btn ghost" bindtap="goTraining">
+      <text class="launch-icon">🧠</text>
+      <text class="launch-txt">训练模式</text>
+    </view>
+    <view class="launch-btn primary" bindtap="startRace">
+      <text class="launch-icon">🏁</text>
+      <text class="launch-txt">START RACE</text>
+    </view>
+  </view>
+
+  <view style="height:120rpx"></view>
+</view>

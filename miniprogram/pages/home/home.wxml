@@ -4,6 +4,7 @@
 
   <!-- Header -->
   <view class="header">
+    <view class="back-arrow" bindtap="backToLanding">←</view>
     <text class="header-title">AI 掼蛋大师</text>
     <view class="header-right">
       <view class="scan-btn" bindtap="onScanLogin">

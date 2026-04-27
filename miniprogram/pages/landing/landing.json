@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "Crayxus",
+  "navigationBarBackgroundColor": "#0a0e1a",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "ai-helper": "/components/ai-helper/ai-helper"
+  }
+}

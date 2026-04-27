@@ -1,0 +1,124 @@
+<!-- Crayxus · 教师 Dashboard -->
+<view class="page">
+
+  <!-- 顶部信息 -->
+  <view class="header">
+    <view class="h-left">
+      <text class="h-tag">TEACHER DASHBOARD</text>
+      <text class="h-title">{{teacher.name}} · {{teacher.subject}} 老师</text>
+      <text class="h-sub">{{teacher.school}}</text>
+    </view>
+    <view class="h-avatar">{{teacher.avatar}}</view>
+  </view>
+
+  <!-- 班级切换 -->
+  <scroll-view class="class-switch" scroll-x="true">
+    <view class="cls-tab {{item.id === currentClass.id ? 'active' : ''}}"
+          wx:for="{{classes}}" wx:key="id"
+          bindtap="selectClass" data-id="{{item.id}}">
+      <text>{{item.name}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- 班级概览 4 宫格 · Twin Drive 双指标 -->
+  <view class="grid-4">
+    <view class="kpi-card">
+      <text class="kpi-num">{{stats.total}}</text>
+      <text class="kpi-lbl">班级人数</text>
+    </view>
+    <view class="kpi-card kpi-teal">
+      <text class="kpi-num">{{stats.active}}</text>
+      <text class="kpi-lbl">本月活跃</text>
+    </view>
+    <view class="kpi-card kpi-match">
+      <text class="kpi-mark">M</text>
+      <text class="kpi-num">{{stats.avgMatch}}</text>
+      <text class="kpi-lbl">匹配度均值</text>
+    </view>
+    <view class="kpi-card kpi-boost">
+      <text class="kpi-mark">B</text>
+      <text class="kpi-num">+{{stats.avgGain}}</text>
+      <text class="kpi-lbl">提分均值</text>
+    </view>
+  </view>
+
+  <!-- 六维能力雷达（班级整体） -->
+  <view class="section">
+    <view class="section-title">
+      <text>📊 班级六维能力平均值</text>
+      <text class="section-tip">AI 匹配度引擎输出</text>
+    </view>
+    <view class="dim-list">
+      <view class="dim-row" wx:for="{{classDims}}" wx:key="key">
+        <text class="dim-name">{{item.name}}</text>
+        <view class="dim-bar">
+          <view class="dim-fill" style="width:{{item.val}}%;background:{{item.color}}"></view>
+        </view>
+        <text class="dim-val">{{item.val}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 月度 Top 3 -->
+  <view class="section top3-section">
+    <view class="section-title">
+      <text>🏆 本月 Top 3 · {{stats.monthLabel}}</text>
+      <text class="section-tip">次月免费 · 自动颁发证书</text>
+    </view>
+    <view class="top3-grid">
+      <view class="top3-card {{item.rank === 1 ? 'gold' : item.rank === 2 ? 'silver' : 'bronze'}}"
+            wx:for="{{top3}}" wx:key="rank">
+        <text class="t3-medal">{{item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉'}}</text>
+        <text class="t3-name">{{item.name}}</text>
+        <text class="t3-score">{{item.score}} 分</text>
+        <text class="t3-gain">本月提分 +{{item.gain}}</text>
+      </view>
+    </view>
+    <view class="cert-action" bindtap="issueCerts">
+      <text>🎓 为 Top 3 一键发放免费月度使用权</text>
+    </view>
+  </view>
+
+  <!-- 全班排名表 -->
+  <view class="section">
+    <view class="section-title">
+      <text>📋 全班排名</text>
+      <text class="section-tip">点击查看学生详情</text>
+    </view>
+    <view class="roster">
+      <view class="roster-head">
+        <text class="rh-rank">#</text>
+        <text class="rh-name">姓名</text>
+        <text class="rh-type">账号</text>
+        <text class="rh-match">M 匹配</text>
+        <text class="rh-gain">B 提分</text>
+        <text class="rh-score">最新</text>
+      </view>
+      <view class="roster-row {{item.rank <= 3 ? 'top3' : ''}}"
+            wx:for="{{roster}}" wx:key="id"
+            bindtap="viewStudent" data-id="{{item.id}}">
+        <text class="rr-rank">{{item.rank}}</text>
+        <text class="rr-name">{{item.name}}</text>
+        <text class="rr-type type-{{item.plan}}">{{item.planText}}</text>
+        <text class="rr-match {{item.match >= 80 ? 'high' : item.match >= 65 ? 'mid' : 'low'}}">{{item.match}}</text>
+        <text class="rr-gain {{item.gain > 0 ? 'up' : 'flat'}}">{{item.gain > 0 ? '+' + item.gain : item.gain}}</text>
+        <text class="rr-score">{{item.score}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作栏 -->
+  <view class="action-row">
+    <view class="act-btn ghost" bindtap="exportReport">
+      <text>📄 导出班级报告</text>
+    </view>
+    <view class="act-btn primary" bindtap="startTest">
+      <text>📝 发起班级月度测评</text>
+    </view>
+  </view>
+
+  <view style="height:60rpx"></view>
+</view>
+
+<ai-helper page-key="teacher-dashboard" />
+

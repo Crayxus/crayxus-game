@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "ScoreBoost",
+  "navigationBarBackgroundColor": "#05070d",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#05070d",
+  "usingComponents": {
+    "ai-helper": "/components/ai-helper/ai-helper"
+  }
+}

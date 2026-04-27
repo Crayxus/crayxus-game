@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "Twin Drive 匹配度评估",
+  "navigationBarBackgroundColor": "#001a2e",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#000814",
+  "usingComponents": {
+    "ai-helper": "/components/ai-helper/ai-helper"
+  }
+}

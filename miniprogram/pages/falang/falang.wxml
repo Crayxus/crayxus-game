@@ -1,0 +1,287 @@
+<!-- 法良时装 · AAAS 智能体平台 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- 顶部品牌头 -->
+  <view class="brand-bar">
+    <view class="brand-left">
+      <view class="brand-fj">FJ</view>
+      <view class="brand-text">
+        <text class="brand-cn">法 良 时 装</text>
+        <text class="brand-en">FRAN-DRESSIE FASHION</text>
+      </view>
+    </view>
+    <view class="brand-back" bindtap="goBack">←</view>
+  </view>
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-deco"></view>
+    <view class="hero-tag">AAAS · AI AS A SERVICE</view>
+    <view class="hero-title">法良智能体<text class="ht-accent">中台</text></view>
+    <view class="hero-sub">棉羽专家 · 智能制造 · 服务 26 个国际品牌 21 年</view>
+
+    <!-- 关键数据 -->
+    <view class="hero-stats">
+      <view class="stat">
+        <text class="stat-num">26</text>
+        <text class="stat-lbl">国际品牌</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">3<text class="stat-unit">亿</text></text>
+        <text class="stat-lbl">2025 营收</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">6<text class="stat-unit">厂</text></text>
+        <text class="stat-lbl">智能工厂</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">1680<text class="stat-unit">人</text></text>
+        <text class="stat-lbl">总规模</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 四大智能体 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">四大 AI 智能体</text>
+      <text class="st-en">CORE AGENTS</text>
+    </view>
+
+    <view class="agents-grid">
+      <view class="agent-card a1" bindtap="openAgent" data-key="design">
+        <view class="ac-num">01</view>
+        <view class="ac-icon">✂️</view>
+        <view class="ac-name">智能选款官</view>
+        <view class="ac-desc">26 品牌历史款式 AI 训练 · 设计师 80 人产能 × 5 倍</view>
+        <view class="ac-tag">FOR · 设计部</view>
+      </view>
+
+      <view class="agent-card a2" bindtap="openAgent" data-key="schedule">
+        <view class="ac-num">02</view>
+        <view class="ac-icon">🏭</view>
+        <view class="ac-name">产能调度大脑</view>
+        <view class="ac-desc">6 工厂实时产能 · AI 自动分单 · 三化（数字/自动/可视）</view>
+        <view class="ac-tag">FOR · 总部 + 工厂</view>
+      </view>
+
+      <view class="agent-card a3" bindtap="openAgent" data-key="quality">
+        <view class="ac-num">03</view>
+        <view class="ac-icon">🔍</view>
+        <view class="ac-name">AI 视觉质检</view>
+        <view class="ac-desc">棉羽绗缝/缝线/钉珠瑕疵 · 央采军采级品控自动化</view>
+        <view class="ac-tag">FOR · 品控 + BSCI/GRS</view>
+      </view>
+
+      <view class="agent-card a4" bindtap="openAgent" data-key="customer">
+        <view class="ac-num">04</view>
+        <view class="ac-icon">🌐</view>
+        <view class="ac-name">服装行业翻译官</view>
+        <view class="ac-desc">中英合并 · 行业垂域定制 · 比通用翻译便宜 80%</view>
+        <view class="ac-tag">FOR · 26 国际品牌</view>
+      </view>
+    </view>
+
+    <!-- 🆕 本周新增重磅模块 · 真功能 demo -->
+    <view class="spotlight-card">
+      <view class="sc-banner" bindtap="openAgent" data-key="coding">
+        <text class="sc-badge-new">🆕 LIVE DEMO</text>
+        <text class="sc-banner-text">直击 11 月会议三大痛点 · 现场可演示</text>
+      </view>
+      <view class="sc-body">
+        <view class="sc-icon">🏷️</view>
+        <view class="sc-content">
+          <view class="sc-title" bindtap="openAgent" data-key="coding">AI 物料编码器 · 实时演示</view>
+          <view class="sc-desc">输入任意辅料描述（拉链/扣子/棉羽…），AI 秒出 8 位标准编码 + ERP 结构化字段。</view>
+
+          <!-- 真交互式 demo -->
+          <view class="enc-demo">
+            <view class="enc-input-row">
+              <input class="enc-input" placeholder="例：YKK 5号 闭口 黑色 挂拉头 普拉头" value="{{encInput}}" bindinput="onEncInput" />
+              <view class="enc-btn {{encLoading ? 'loading' : ''}}" bindtap="runEncode">
+                <text wx:if="{{encLoading}}">⏳</text>
+                <text wx:else>▶</text>
+              </view>
+            </view>
+
+            <!-- 快捷示例 -->
+            <view class="enc-quick" wx:if="{{!encResult && !encLoading}}">
+              <text class="eq-lbl">试试：</text>
+              <text class="eq-pill" data-text="YKK 5号 闭口 挂拉头 普拉头 黑色" bindtap="useQuick">YKK 5#闭口拉链</text>
+              <text class="eq-pill" data-text="塑料钮扣 18mm 4孔 哑光黑" bindtap="useQuick">塑料钮扣</text>
+              <text class="eq-pill" data-text="白鸭绒 90% 充绒 120g" bindtap="useQuick">90 白鸭绒</text>
+            </view>
+
+            <!-- 结果展示 -->
+            <view class="enc-result" wx:if="{{encResult}}">
+              <view class="er-row-top">
+                <view class="er-type">{{encResult.type}}</view>
+                <view class="er-conf conf-{{encResult.confClass}}">置信度 · {{encResult.confidence}}</view>
+              </view>
+              <view class="er-code-box">
+                <text class="er-code-lbl">8 位标准编码</text>
+                <text class="er-code">{{encResult.code}}</text>
+              </view>
+
+              <view class="er-decode-list" wx:if="{{encResult.decoded.length > 0}}">
+                <text class="er-section-lbl">编码解析</text>
+                <view class="er-decode-row" wx:for="{{encResult.decoded}}" wx:key="segment">
+                  <text class="er-seg">{{item.segment}}</text>
+                  <text class="er-meaning">{{item.meaning}}</text>
+                </view>
+              </view>
+
+              <view class="er-erp" wx:if="{{encResult.erpKeys.length > 0}}">
+                <text class="er-section-lbl">直接写入 ERP（结构化字段）</text>
+                <view class="er-erp-row" wx:for="{{encResult.erpKeys}}" wx:key="*this">
+                  <text class="er-erp-key">{{item}}</text>
+                  <text class="er-erp-val">{{encResult.erp_record[item]}}</text>
+                </view>
+              </view>
+
+              <view class="er-suggest" wx:if="{{encResult.suggestion}}">
+                💡 {{encResult.suggestion}}
+              </view>
+
+              <view class="enc-again" bindtap="resetEncode">
+                <text>🔄 再试一次</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="sc-arrow" bindtap="openAgent" data-key="coding">查看完整方案 →</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 战略时间线 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">智能制造战略</text>
+      <text class="st-en">ROADMAP</text>
+    </view>
+
+    <view class="roadmap">
+      <view class="rm-row done">
+        <view class="rm-year">2022–2025</view>
+        <view class="rm-line"></view>
+        <view class="rm-text">总部 1 + 分厂 4 · 开拓创立模式</view>
+      </view>
+      <view class="rm-row current">
+        <view class="rm-year">2025–2027</view>
+        <view class="rm-line"></view>
+        <view class="rm-text">总部 1 + 分厂 8 · 黄冈/黄石智能制造基地 · 4000 人 / 棉羽 500 万件</view>
+      </view>
+      <view class="rm-row">
+        <view class="rm-year">2027–2030</view>
+        <view class="rm-line"></view>
+        <view class="rm-text">输出模式 · 培训人才 · 全国建立 10 个基地</view>
+      </view>
+      <view class="rm-row">
+        <view class="rm-year">2030–2035</view>
+        <view class="rm-line"></view>
+        <view class="rm-text">与时俱进、更新模式 · 全国再扩展 10 个基地</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 客户品牌轮播 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">合作品牌</text>
+      <text class="st-en">26 BRANDS · 21 YEARS</text>
+    </view>
+    <view class="brands-grid">
+      <view class="brand-cell" wx:for="{{brands}}" wx:key="name">
+        <text class="bc-name">{{item.name}}</text>
+        <text class="bc-year">{{item.year}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 资质认证 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">资质认证</text>
+      <text class="st-en">CERTIFIED</text>
+    </view>
+    <view class="certs">
+      <view class="cert-pill">amfori BSCI</view>
+      <view class="cert-pill">GRS</view>
+      <view class="cert-pill">两化融合 A</view>
+      <view class="cert-pill gold">军采供货商</view>
+      <view class="cert-pill gold">央政府入库</view>
+      <view class="cert-pill gold">FWF</view>
+    </view>
+  </view>
+
+  <!-- 联系底部 -->
+  <view class="contact-card">
+    <view class="cc-row"><text class="cc-lbl">📍 上海总部</text><text class="cc-val">宝山区沪太路 2751 号尊木汇 A-23 号</text></view>
+    <view class="cc-row"><text class="cc-lbl">📞 联系电话</text><text class="cc-val">+86 136 0167 8647</text></view>
+    <view class="cc-row"><text class="cc-lbl">✉️ 商务邮箱</text><text class="cc-val">henrylu@fran-dressie.com</text></view>
+  </view>
+
+  <view class="footer-mark">
+    <text>FRAN-DRESSIE × CRAYXUS</text>
+    <text class="fm-sub">AI 驱动 · 智能制造合作伙伴</text>
+  </view>
+
+  <view style="height:60rpx"></view>
+
+  <!-- 智能体详情 overlay -->
+  <view class="agent-overlay" wx:if="{{agentOpen}}" catchtouchmove="_noop">
+    <view class="ao-mask" bindtap="closeAgent"></view>
+    <view class="ao-sheet">
+      <view class="ao-handle"></view>
+      <scroll-view class="ao-scroll" scroll-y="true">
+        <view class="ao-head">
+          <text class="ao-icon">{{currentAgent.icon}}</text>
+          <view class="ao-title">{{currentAgent.name}}</view>
+          <text class="ao-close" bindtap="closeAgent">✕</text>
+        </view>
+        <view class="ao-tagline">{{currentAgent.tagline}}</view>
+
+        <view class="ao-body">
+          <view class="ao-block">
+            <view class="ao-block-title">🎯 解决的痛点</view>
+            <view class="ao-block-text">{{currentAgent.painpoint}}</view>
+          </view>
+          <view class="ao-block">
+            <view class="ao-block-title">⚙️ AI 工作机制</view>
+            <view class="ao-block-text">{{currentAgent.mechanism}}</view>
+          </view>
+          <view class="ao-block">
+            <view class="ao-block-title">📈 量化收益</view>
+            <view class="ao-rois">
+              <view class="ao-roi" wx:for="{{currentAgent.rois}}" wx:key="*this">
+                <text class="roi-num">{{item.num}}</text>
+                <text class="roi-lbl">{{item.lbl}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="ao-actions">
+          <view class="ao-tts {{aiLoading ? 'loading' : ''}} {{aiPlaying ? 'playing' : ''}}" bindtap="playAgentTTS">
+            <text>{{aiLoading ? '⏳ AI 生成中' : (aiPlaying ? '⏸ 播放中' : '🔊 听 AI 讲解')}}</text>
+          </view>
+          <view class="ao-close-btn" bindtap="closeAgent"><text>关闭</text></view>
+        </view>
+
+        <view style="height:40rpx"></view>
+      </scroll-view>
+    </view>
+  </view>
+</view>
+
+<ai-helper page-key="falang" />

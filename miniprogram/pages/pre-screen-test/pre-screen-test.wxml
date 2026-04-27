@@ -1,0 +1,76 @@
+<!-- MATCH DRIVE · 匹配度测评 · 10 题 -->
+<view class="page">
+
+  <!-- AI 分析中 · 进度条 overlay -->
+  <view class="ai-loading" wx:if="{{aiLoading}}">
+    <view class="ai-ring"></view>
+    <text class="ai-title">Crayxus AI 运行中</text>
+    <text class="ai-msg">{{aiMessage}}</text>
+    <view class="ai-bar-wrap">
+      <view class="ai-bar-fill" style="width:{{aiProgress}}%"></view>
+    </view>
+    <text class="ai-pct">{{aiProgress}}%</text>
+    <view class="ai-stages">
+      <view class="ai-stage {{aiProgress >= 20 ? 'done' : ''}}"><text>读取</text></view>
+      <view class="ai-stage {{aiProgress >= 50 ? 'done' : ''}}"><text>分析</text></view>
+      <view class="ai-stage {{aiProgress >= 80 ? 'done' : ''}}"><text>生成</text></view>
+      <view class="ai-stage {{aiProgress >= 100 ? 'done' : ''}}"><text>完成</text></view>
+    </view>
+  </view>
+
+  <!-- 顶部系统状态条 -->
+  <view class="sys-bar" wx:if="{{!aiLoading}}">
+    <view class="sys-dot"></view>
+    <text class="sys-tag">MATCH DRIVE · EVALUATION</text>
+    <text class="sys-meta">Q {{currentIdx + 1}} / {{totalQuestions}}</text>
+  </view>
+
+  <!-- 进度条 -->
+  <view class="progress-wrap" wx:if="{{!aiLoading}}">
+    <view class="progress-fill" style="width:{{progress}}%"></view>
+  </view>
+
+  <!-- 问题卡 -->
+  <view class="q-card" wx:if="{{!finished && !aiLoading}}">
+    <view class="q-header">
+      <text class="q-dim">{{currentQuestion.dim}}</text>
+      <text class="q-idx">0{{currentIdx + 1}}</text>
+    </view>
+    <text class="q-title">{{currentQuestion.title}}</text>
+
+    <view class="opt-list">
+      <view class="opt-item {{selectedOption === idx ? 'selected' : ''}}"
+            wx:for="{{currentQuestion.options}}"
+            wx:for-index="idx"
+            wx:for-item="opt"
+            wx:key="idx"
+            bindtap="selectOption"
+            data-idx="{{idx}}">
+        <view class="opt-letter">{{letters[idx]}}</view>
+        <text class="opt-text">{{opt.text}}</text>
+      </view>
+    </view>
+
+    <view class="action-row">
+      <view class="btn-ghost {{currentIdx === 0 ? 'disabled' : ''}}" bindtap="prevQuestion">
+        <text>← 上一题</text>
+      </view>
+      <view class="btn-primary {{selectedOption === null ? 'disabled' : ''}}" bindtap="nextQuestion">
+        <text wx:if="{{currentIdx < totalQuestions - 1}}">下一题 →</text>
+        <text wx:else>▶ 生成报告</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分析中 loading -->
+  <view class="analyzing" wx:if="{{finished}}">
+    <view class="ana-ring"></view>
+    <text class="ana-title">AI 匹配度引擎分析中</text>
+    <text class="ana-sub">综合 10 项答题结果 · 生成你的专属报告...</text>
+  </view>
+
+  <view style="height:60rpx"></view>
+</view>
+
+<ai-helper page-key="pre-screen-test" />
+

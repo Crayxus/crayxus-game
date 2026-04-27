@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "法良时装 · AAAS",
+  "navigationBarBackgroundColor": "#1a0808",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#0f0606",
+  "usingComponents": {
+    "ai-helper": "/components/ai-helper/ai-helper"
+  }
+}

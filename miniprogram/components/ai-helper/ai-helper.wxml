@@ -1,0 +1,56 @@
+<!-- AI 悬浮助手 -->
+<view class="ai-helper-root">
+  <!-- 悬浮小机器人 -->
+  <view class="fab {{panelOpen ? 'open' : ''}}" bindtap="togglePanel">
+    <view class="fab-inner">
+      <view class="robot" wx:if="{{!panelOpen}}">
+        <view class="robot-antenna">
+          <view class="antenna-top"></view>
+        </view>
+        <view class="robot-head">
+          <view class="robot-eye left"></view>
+          <view class="robot-eye right"></view>
+          <view class="robot-mouth"></view>
+        </view>
+      </view>
+      <text class="fab-icon" wx:if="{{panelOpen}}">✕</text>
+      <view class="fab-pulse" wx:if="{{!panelOpen}}"></view>
+    </view>
+    <view class="fab-tooltip" wx:if="{{!panelOpen && showHint}}">
+      <text>点我听语音引导</text>
+    </view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="mask" wx:if="{{panelOpen}}" bindtap="togglePanel"></view>
+
+  <!-- 底部弹出卡片 -->
+  <view class="panel {{panelOpen ? 'show' : ''}}">
+    <view class="panel-handle"></view>
+    <view class="panel-header">
+      <view class="panel-badge">
+        <view class="badge-dot"></view>
+        <text>CRAYXUS AI 向导</text>
+      </view>
+    </view>
+    <view class="panel-title">{{msg.title}}</view>
+    <view class="panel-text">{{msg.text}}</view>
+
+    <view class="panel-actions">
+      <view class="act-tts {{ttsLoading ? 'loading' : ''}} {{ttsPlaying ? 'playing' : ''}}" bindtap="playTTS">
+        <text class="tts-icon">{{ttsLoading ? '⏳' : (ttsPlaying ? '⏸' : '🔊')}}</text>
+        <text class="tts-label">{{ttsLoading ? 'AI 生成中...' : (ttsPlaying ? '播放中' : '播放语音引导')}}</text>
+      </view>
+      <view class="act-close" bindtap="togglePanel">
+        <text>我知道了</text>
+      </view>
+    </view>
+
+    <view class="panel-tips" wx:if="{{msg.tips && msg.tips.length > 0}}">
+      <view class="tip-row" wx:for="{{msg.tips}}" wx:key="*this">
+        <text class="tip-dot">▸</text>
+        <text class="tip-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -21,6 +21,14 @@ Page({
   },
 
   onShow() {
+    // 🔒 拦截冷启动直接进"我的"的情况，强制回 landing
+    try {
+      if (app && app.__coldBoot) {
+        app.__coldBoot = false
+        wx.reLaunch({ url: '/pages/landing/landing' })
+        return
+      }
+    } catch(e) {}
     this.loadData()
     const theme = wx.getStorageSync('theme') || 'dark'
     this.setData({ isLight: theme === 'light' })

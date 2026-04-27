@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "教师 Dashboard",
+  "navigationBarBackgroundColor": "#0a0e1a",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#05070d",
+  "usingComponents": {
+    "ai-helper": "/components/ai-helper/ai-helper"
+  }
+}

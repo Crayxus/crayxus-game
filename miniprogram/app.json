@@ -1,11 +1,22 @@
 {
   "pages": [
+    "pages/landing/landing",
     "pages/home/home",
     "pages/quiz/quiz",
     "pages/academy/academy",
     "pages/tournament/tournament",
     "pages/profile/profile",
-    "pages/shop/shop"
+    "pages/shop/shop",
+    "pages/racing/racing",
+    "pages/scoreboost/scoreboost",
+    "pages/sb-quiz/sb-quiz",
+    "pages/teacher-dashboard/teacher-dashboard",
+    "pages/pre-screen/pre-screen",
+    "pages/pre-screen-test/pre-screen-test",
+    "pages/wrongbook/wrongbook",
+    "pages/falang/falang",
+    "pages/powerloop/powerloop",
+    "pages/truck/home"
   ],
   "window": {
     "navigationBarTitleText": "Crayxus MTT",

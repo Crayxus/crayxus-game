@@ -1,0 +1,129 @@
+<!-- ScoreBoost 答题页 — 20 题测评 / 自适应训练 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- AI 分析中 · 进度条 overlay -->
+  <view class="ai-loading" wx:if="{{aiLoading}}">
+    <view class="ai-ring"></view>
+    <text class="ai-title">Crayxus AI 运行中</text>
+    <text class="ai-msg">{{aiMessage}}</text>
+    <view class="ai-bar-wrap">
+      <view class="ai-bar-fill" style="width:{{aiProgress}}%"></view>
+    </view>
+    <text class="ai-pct">{{aiProgress}}%</text>
+    <view class="ai-stages">
+      <view class="ai-stage {{aiProgress >= 20 ? 'done' : ''}}"><text>读取</text></view>
+      <view class="ai-stage {{aiProgress >= 50 ? 'done' : ''}}"><text>分析</text></view>
+      <view class="ai-stage {{aiProgress >= 80 ? 'done' : ''}}"><text>生成</text></view>
+      <view class="ai-stage {{aiProgress >= 100 ? 'done' : ''}}"><text>完成</text></view>
+    </view>
+  </view>
+
+  <!-- 顶部进度 -->
+  <view class="top-bar" wx:if="{{!aiLoading}}">
+    <view class="close-btn" bindtap="onClose">✕</view>
+    <view class="progress-wrap">
+      <view class="progress-fill" style="width:{{progressPct}}%"></view>
+    </view>
+    <text class="progress-txt">{{currentIdx + 1}} / {{total}}</text>
+  </view>
+
+  <!-- 模式标签 -->
+  <view class="mode-row" wx:if="{{!aiLoading}}">
+    <text class="mode-tag {{mode === 'assess' ? 'assess' : 'adaptive'}}">
+      {{subject.icon}} {{subject.shortName}} · {{mode === 'assess' ? '定级测评' : 'AI 自适应'}}
+      <text wx:if="{{aiBadge}}"> · ✨ AI 实时出题</text>
+    </text>
+    <text class="lesson-tag" wx:if="{{currentQ && currentQ.lesson && dimMap[currentQ.dim]}}">{{currentQ.lesson}} · {{dimMap[currentQ.dim].name}}</text>
+  </view>
+
+  <!-- 题目 -->
+  <view class="q-card" wx:if="{{currentQ && !aiLoading}}">
+    <view class="q-num">Q{{currentIdx + 1}}</view>
+
+    <!-- 听力播放器（仅 listening 题）-->
+    <view class="audio-player" wx:if="{{currentQ.dim === 'listening' && currentQ.audio_script}}">
+      <view class="ap-wave">
+        <view class="ap-bar {{audioPlaying ? 'playing' : ''}}" wx:for="{{[0,1,2,3,4,5,6,7,8,9]}}" wx:key="*this" style="animation-delay:{{item * 0.08}}s"></view>
+      </view>
+      <view class="ap-controls">
+        <view class="ap-play-btn" bindtap="onToggleAudio">
+          <text wx:if="{{audioLoading}}">⏳</text>
+          <text wx:elif="{{audioPlaying}}">⏸</text>
+          <text wx:else>▶</text>
+        </view>
+        <view class="ap-info">
+          <text class="ap-title">{{audioPlaying ? '播放中...' : (audioLoaded ? '点击重播' : '点击播放录音')}}</text>
+          <text class="ap-meta">{{currentQ.audio_speaker === 'dialogue' ? '对话' : '独白'}} · 约 {{currentQ.audio_duration || 12}} 秒</text>
+        </view>
+        <view class="ap-subtitle-btn {{showSubtitle ? 'active' : ''}}" bindtap="onToggleSubtitle">
+          <text>字幕</text>
+        </view>
+      </view>
+      <view class="ap-subtitle" wx:if="{{showSubtitle}}">
+        <text>{{currentQ.audio_script}}</text>
+      </view>
+    </view>
+
+    <text class="q-text">{{currentQ.q}}</text>
+
+    <view class="opt-list">
+      <view class="opt-row {{selectedIdx === idx ? 'selected' : ''}} {{showResult ? (idx === currentQ.answer ? 'correct' : (selectedIdx === idx ? 'wrong' : '')) : ''}}"
+            wx:for="{{currentQ.options}}" wx:for-index="idx" wx:key="idx"
+            bindtap="selectOption" data-idx="{{idx}}">
+        <text class="opt-letter">{{['A','B','C','D'][idx]}}</text>
+        <text class="opt-text">{{item}}</text>
+        <text class="opt-mark" wx:if="{{showResult && idx === currentQ.answer}}">✓</text>
+        <text class="opt-mark wrong" wx:if="{{showResult && selectedIdx === idx && idx !== currentQ.answer}}">✕</text>
+      </view>
+    </view>
+
+    <!-- 解析 -->
+    <view class="solution" wx:if="{{showResult}}">
+      <text class="sol-label">💡 解析</text>
+      <text class="sol-text">{{currentQ.solution}}</text>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-bar">
+    <view class="next-btn {{selectedIdx === null ? 'disabled' : ''}}" bindtap="onNext">
+      <text wx:if="{{!showResult}}">确认</text>
+      <text wx:elif="{{currentIdx + 1 < total}}">下一题 →</text>
+      <text wx:else>查看报告 →</text>
+    </view>
+  </view>
+
+  <!-- 结果弹层 -->
+  <view class="result-overlay" wx:if="{{finished}}">
+    <view class="result-card">
+      <text class="result-title">{{mode === 'assess' ? '📋 测评完成' : '🚀 训练完成'}}</text>
+      <view class="score-ring">
+        <text class="score-big">{{totalScore}}</text>
+        <text class="score-max">/ 100</text>
+      </view>
+      <text class="result-sub">正确 {{correctCount}} / {{total}} · 提分 +{{gain}}</text>
+
+      <view class="dim-result-list">
+        <view class="dim-result-row" wx:for="{{dimResults}}" wx:key="key">
+          <text class="drr-icon">{{item.icon}}</text>
+          <text class="drr-name">{{item.name}}</text>
+          <view class="drr-bar"><view class="drr-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view></view>
+          <text class="drr-val" style="color:{{item.color}}">{{item.pct}}%</text>
+        </view>
+      </view>
+
+      <view class="weak-tip" wx:if="{{weakDimName}}">
+        <text>🎯 薄弱点: <text class="weak-name">{{weakDimName}}</text></text>
+      </view>
+
+      <view class="result-actions">
+        <view class="result-btn ghost" bindtap="onClose">返回</view>
+        <view class="result-btn primary" bindtap="startAdaptiveAgain" wx:if="{{weakDimKey}}">定向强化 →</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<ai-helper page-key="{{mode === 'assess' ? 'sb-quiz-assess' : 'sb-quiz-adaptive'}}" />
+

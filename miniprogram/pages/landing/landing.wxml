@@ -1,0 +1,92 @@
+<view class="landing-page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- Logo（长按 5 秒解锁法良 demo · 隐藏入口） -->
+  <view class="landing-logo-area" bindlongpress="onLogoLongPress">
+    <text class="landing-brand">CRAYXUS</text>
+    <text class="landing-slogan" wx:if="{{!investorMode}}">AI Powered Solutions</text>
+    <text class="landing-slogan" wx:else>浙大研发的 AI 提分大模型</text>
+  </view>
+
+  <!-- 标准模式：2x2 四卡片 -->
+  <view class="landing-cards-grid" wx:if="{{!investorMode}}">
+    <view class="landing-card card-guandan" bindtap="goGuandan">
+      <view class="card-icon-wrap guandan-icon">
+        <text class="card-icon">🃏</text>
+      </view>
+      <text class="card-title">Crayxus AI 掼蛋</text>
+      <text class="card-desc">AI教培 · 段位测评 · MTT赛事</text>
+      <text class="card-arrow-txt">进入 →</text>
+    </view>
+
+    <view class="landing-card card-truck" bindtap="goTruck">
+      <view class="card-icon-wrap truck-icon">
+        <text class="card-icon">⚡</text>
+      </view>
+      <text class="card-title">Crayxus AI 智慧能源</text>
+      <text class="card-desc">车·路·能·云 一体化智能体管理平台</text>
+      <text class="card-arrow-txt">进入 →</text>
+    </view>
+
+    <view class="landing-card card-racing" bindtap="goRacing">
+      <view class="card-badge">NEW</view>
+      <view class="card-icon-wrap racing-icon">
+        <text class="card-icon">🏎️</text>
+      </view>
+      <text class="card-title">Crayxus AI 无人赛车</text>
+      <text class="card-desc">自动驾驶 · 神经调校 · 赛道竞技</text>
+      <text class="card-arrow-txt">进入 →</text>
+    </view>
+
+    <view class="landing-card card-boost" bindtap="goScoreBoost">
+      <view class="card-badge">NEW</view>
+      <view class="card-icon-wrap boost-icon">
+        <text class="card-icon">🚀</text>
+      </view>
+      <text class="card-title">Crayxus AI 提分系统</text>
+      <text class="card-desc">大模型出题 · 弱点定位 · 精准提分</text>
+      <text class="card-arrow-txt">进入 →</text>
+    </view>
+  </view>
+
+  <!-- 投资者模式：单产品大卡片 -->
+  <view class="investor-wrap" wx:if="{{investorMode}}">
+    <view class="investor-card" bindtap="goScoreBoost">
+      <view class="inv-badge">核心产品</view>
+      <view class="inv-icon-wrap">
+        <text class="inv-icon">🚀</text>
+      </view>
+      <text class="inv-title">Crayxus AI 提分系统</text>
+      <text class="inv-tagline">国际学校高中提分 · Twin Drive 双引擎</text>
+
+      <view class="inv-features">
+        <view class="inv-feat">
+          <text class="if-ic">🎯</text>
+          <text class="if-tx">匹配度引擎</text>
+        </view>
+        <view class="inv-feat">
+          <text class="if-ic">⚡</text>
+          <text class="if-tx">提分引擎</text>
+        </view>
+        <view class="inv-feat">
+          <text class="if-ic">📊</text>
+          <text class="if-tx">教师 Dashboard</text>
+        </view>
+      </view>
+
+      <view class="inv-enter">进入 AI 提分系统 →</view>
+    </view>
+
+    <view class="inv-hint">
+      <text>浙大联合研发 · 仅限机构/学校直签合作</text>
+    </view>
+  </view>
+
+  <!-- 底部 -->
+  <view class="landing-footer">
+    <text class="footer-text">general@crayxus.com.au</text>
+  </view>
+</view>
+
+<ai-helper page-key="landing" />
+

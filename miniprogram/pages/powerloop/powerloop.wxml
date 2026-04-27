@@ -1,0 +1,275 @@
+<!-- PowerLoop AI · AAAS 出海中台 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- 顶部品牌头 -->
+  <view class="brand-bar">
+    <view class="brand-left">
+      <view class="brand-logo">⚡</view>
+      <view class="brand-text">
+        <text class="brand-cn">PowerLoop · K</text>
+        <text class="brand-en">AI · 充电宝 · 韩国</text>
+      </view>
+    </view>
+    <view class="brand-back" bindtap="goBack">←</view>
+  </view>
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-deco"></view>
+    <view class="hero-tag">AAAS · AI AGENTS · KOREA FIRST</view>
+    <view class="hero-title">韩国<text class="ht-accent">充电宝中台</text></view>
+    <view class="hero-sub">5 个 AI 智能体 · 韩国市场垂直优化 · KC 认证 · KakaoPay / Toss · 韩中英日 24×7</view>
+
+    <view class="hero-stats">
+      <view class="stat">
+        <text class="stat-num">5<text class="stat-unit">商圈</text></text>
+        <text class="stat-lbl">首尔首战</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">4<text class="stat-unit">语</text></text>
+        <text class="stat-lbl">韩中英日</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">6-12<text class="stat-unit">m</text></text>
+        <text class="stat-lbl">单点回本</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">-83<text class="stat-unit">%</text></text>
+        <text class="stat-lbl">运营人力</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 五大智能体 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">五大 AI 智能体</text>
+      <text class="st-en">CORE AGENTS</text>
+    </view>
+
+    <view class="agents-grid">
+      <view class="agent-card a1" bindtap="openAgent" data-key="scout">
+        <view class="ac-num">01</view>
+        <view class="ac-icon">🛰️</view>
+        <view class="ac-name">AI 选址侦察兵</view>
+        <view class="ac-desc">KakaoMap × Naver 热力 × KB 租金 · 강남/명동/홍대 Top 200</view>
+        <view class="ac-tag">FOR · 首尔商圈开拓</view>
+      </view>
+
+      <view class="agent-card a2" bindtap="openAgent" data-key="dispatch">
+        <view class="ac-num">02</view>
+        <view class="ac-icon">🔄</view>
+        <view class="ac-name">AI 调度大脑</view>
+        <view class="ac-desc">K-pop 演唱会 + 樱花季 · Coupang Eats 模式众包配送</view>
+        <view class="ac-tag">FOR · 运维总部</view>
+      </view>
+
+      <view class="agent-card a3" bindtap="openAgent" data-key="service">
+        <view class="ac-num">03</view>
+        <view class="ac-icon">🌍</view>
+        <view class="ac-name">韩中英日客服官</view>
+        <view class="ac-desc">KakaoTalk + Naver Talk + WhatsApp · 8s 首响 · -92%</view>
+        <view class="ac-tag">FOR · 韩国 + 游客</view>
+      </view>
+
+      <view class="agent-card a4" bindtap="openAgent" data-key="compliance">
+        <view class="ac-num">04</view>
+        <view class="ac-icon">📜</view>
+        <view class="ac-name">韩国合规智能体</view>
+        <view class="ac-desc">KC 认证 · PIPA · 仁川海关 HS · 关务工时 -95%</view>
+        <view class="ac-tag">FOR · 法务 + 关务</view>
+      </view>
+
+      <view class="agent-card a5 wide" bindtap="openAgent" data-key="finance">
+        <view class="ac-num">05</view>
+        <view class="ac-icon">💰</view>
+        <view class="ac-name">财务 + 风控智能体</view>
+        <view class="ac-desc">KakaoPay / Toss / Naver Pay / 银联 / Stripe 五通道 · 坏账率 &lt;0.3%</view>
+        <view class="ac-tag">FOR · 财务 + 风控</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 单点经济模型 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">单点经济模型</text>
+      <text class="st-en">UNIT ECONOMICS</text>
+    </view>
+
+    <view class="econ-card">
+      <view class="econ-row">
+        <text class="econ-lbl">硬件成本（机柜 + 12 块电池）</text>
+        <text class="econ-val">₩650,000</text>
+      </view>
+      <view class="econ-row">
+        <text class="econ-lbl">日均订单（首尔商圈均值）</text>
+        <text class="econ-val">₩3,000 × 12 单</text>
+      </view>
+      <view class="econ-row">
+        <text class="econ-lbl">单点月毛收入</text>
+        <text class="econ-val highlight">₩1,080,000</text>
+      </view>
+      <view class="econ-row">
+        <text class="econ-lbl">运营成本（AI 调度 + 客服 + 合规）</text>
+        <text class="econ-val">₩260,000</text>
+      </view>
+      <view class="econ-row">
+        <text class="econ-lbl">商户분배（30%）+ VAT 10%</text>
+        <text class="econ-val">₩410,000</text>
+      </view>
+      <view class="econ-row final">
+        <text class="econ-lbl">单点月净利</text>
+        <text class="econ-val gold">₩410,000 ≈ USD 300</text>
+      </view>
+      <view class="econ-row final">
+        <text class="econ-lbl">回本周期</text>
+        <text class="econ-val gold">6-12 个月</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 三阶段路线图 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">三阶段出海路线</text>
+      <text class="st-en">ROADMAP</text>
+    </view>
+
+    <view class="roadmap">
+      <view class="rm-row current">
+        <view class="rm-year">2026 Q3-Q4</view>
+        <view class="rm-line"></view>
+        <view class="rm-text">P1 · 首尔 5 大商圈 + 仁川机场 · 1500 点位 · 跑通单点经济</view>
+      </view>
+      <view class="rm-row">
+        <view class="rm-year">2027</view>
+        <view class="rm-line"></view>
+        <view class="rm-text">P2 · 釜山 / 济州 / 大邱 / 大田 · 4000 点位 · 全韩覆盖 + 加盟体系</view>
+      </view>
+      <view class="rm-row">
+        <view class="rm-year">2028-2029</view>
+        <view class="rm-line"></view>
+        <view class="rm-text">P3 · 复制到日本东京/大阪 · AAAS SaaS 对外输出（韩日 = 一套合规系统）</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 目标市场地图 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">韩国战场 · 三阶段</text>
+      <text class="st-en">KOREA-FIRST · 10 BATTLEFIELDS</text>
+    </view>
+    <view class="markets-grid">
+      <view class="market-cell phase-{{item.phase}}" wx:for="{{markets}}" wx:key="name">
+        <text class="mc-flag">{{item.flag}}</text>
+        <view class="mc-info">
+          <text class="mc-name">{{item.name}}</text>
+          <text class="mc-city">{{item.city}}</text>
+        </view>
+        <text class="mc-phase">{{item.phase}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 商业模式三轨 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">商业模式 · 三轨并行</text>
+      <text class="st-en">REVENUE STREAMS</text>
+    </view>
+
+    <view class="biz-grid">
+      <view class="biz-card">
+        <text class="bc-icon">🏗️</text>
+        <text class="bc-title">自营</text>
+        <text class="bc-pct">30%</text>
+        <text class="bc-desc">核心城市自持点位 · 立标杆 · 跑通模型</text>
+      </view>
+      <view class="biz-card hot">
+        <text class="bc-icon">🤝</text>
+        <text class="bc-title">加盟 SaaS</text>
+        <text class="bc-pct">60%</text>
+        <text class="bc-desc">本地合伙人投硬件 · 我们收 AAAS 系统服务费</text>
+        <text class="bc-badge">主战场</text>
+      </view>
+      <view class="biz-card">
+        <text class="bc-icon">📦</text>
+        <text class="bc-title">B 端输出</text>
+        <text class="bc-pct">10%</text>
+        <text class="bc-desc">把 AAAS 系统卖给同行 · 收授权费 + 分润</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系底部 -->
+  <view class="contact-card">
+    <view class="cc-row"><text class="cc-lbl">📍 总部</text><text class="cc-val">上海 · 首尔（拟设）</text></view>
+    <view class="cc-row"><text class="cc-lbl">💼 本轮融资</text><text class="cc-val">A 轮 USD 5M · 估值 USD 30M（pre）</text></view>
+    <view class="cc-row"><text class="cc-lbl">✉️ 商务接洽</text><text class="cc-val">general@crayxus.com.au</text></view>
+  </view>
+
+  <view class="footer-mark">
+    <text>POWERLOOP · K × CRAYXUS AI</text>
+    <text class="fm-sub">AI 驱动 · 共享充电宝韩国市场合作伙伴</text>
+  </view>
+
+  <view style="height:60rpx"></view>
+
+  <!-- 智能体详情 overlay -->
+  <view class="agent-overlay" wx:if="{{agentOpen}}" catchtouchmove="_noop">
+    <view class="ao-mask" bindtap="closeAgent"></view>
+    <view class="ao-sheet">
+      <view class="ao-handle"></view>
+      <scroll-view class="ao-scroll" scroll-y="true">
+        <view class="ao-head">
+          <text class="ao-icon">{{currentAgent.icon}}</text>
+          <view class="ao-title">{{currentAgent.name}}</view>
+          <text class="ao-close" bindtap="closeAgent">✕</text>
+        </view>
+        <view class="ao-tagline">{{currentAgent.tagline}}</view>
+
+        <view class="ao-body">
+          <view class="ao-block">
+            <view class="ao-block-title">🎯 解决的痛点</view>
+            <view class="ao-block-text">{{currentAgent.painpoint}}</view>
+          </view>
+          <view class="ao-block">
+            <view class="ao-block-title">⚙️ AI 工作机制</view>
+            <view class="ao-block-text">{{currentAgent.mechanism}}</view>
+          </view>
+          <view class="ao-block">
+            <view class="ao-block-title">📈 量化收益</view>
+            <view class="ao-rois">
+              <view class="ao-roi" wx:for="{{currentAgent.rois}}" wx:key="*this">
+                <text class="roi-num">{{item.num}}</text>
+                <text class="roi-lbl">{{item.lbl}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="ao-actions">
+          <view class="ao-tts {{aiLoading ? 'loading' : ''}} {{aiPlaying ? 'playing' : ''}}" bindtap="playAgentTTS">
+            <text>{{aiLoading ? '⏳ AI 生成中' : (aiPlaying ? '⏸ 播放中' : '🔊 听 AI 讲解')}}</text>
+          </view>
+          <view class="ao-close-btn" bindtap="closeAgent"><text>关闭</text></view>
+        </view>
+
+        <view style="height:40rpx"></view>
+      </scroll-view>
+    </view>
+  </view>
+</view>
+
+<ai-helper page-key="powerloop" />

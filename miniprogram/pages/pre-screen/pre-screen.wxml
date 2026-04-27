@@ -1,0 +1,138 @@
+<!-- TWIN DRIVE · 匹配度引擎报告页 -->
+<view class="page">
+
+  <!-- 顶部系统状态条 -->
+  <view class="sys-bar">
+    <view class="sys-dot active"></view>
+    <text class="sys-tag">TWIN DRIVE SYSTEM</text>
+    <text class="sys-status">ONLINE</text>
+    <text class="sys-meta">EVAL #CX-{{reportId}}</text>
+  </view>
+
+  <!-- 主指数：兼容度圆环 -->
+  <view class="hero-gauge">
+    <view class="gauge-ring">
+      <view class="gauge-fill"></view>
+      <view class="gauge-center">
+        <text class="gauge-lbl">COMPATIBILITY</text>
+        <text class="gauge-num">{{compat.score}}</text>
+        <text class="gauge-max">/ 100</text>
+        <text class="gauge-tier tier-{{compat.tier}}">{{compat.tierText}}</text>
+      </view>
+    </view>
+    <view class="hero-meta">
+      <text class="hm-name">{{compat.personality}}</text>
+      <text class="hm-sub">学习型人格 · 匹配度引擎输出</text>
+    </view>
+  </view>
+
+  <!-- 双引擎对称卡 -->
+  <view class="twin-engine-row">
+    <view class="eng-col match">
+      <text class="eng-tag">◆ MATCH DRIVE</text>
+      <text class="eng-name">匹配度引擎</text>
+      <text class="eng-val">{{compat.score}}</text>
+      <text class="eng-desc">兼容指数</text>
+    </view>
+    <view class="eng-x">✕</view>
+    <view class="eng-col boost">
+      <text class="eng-tag">◆ BOOST DRIVE</text>
+      <text class="eng-name">提分引擎</text>
+      <text class="eng-val">{{compat.boostPotential}}</text>
+      <text class="eng-desc">提分潜力</text>
+    </view>
+  </view>
+
+  <!-- 6 维能力雷达 -->
+  <view class="section">
+    <view class="sec-title">
+      <text class="sec-bar"></text>
+      <text>SIX-DIM ANALYSIS</text>
+      <text class="sec-en">· 六维能力矩阵</text>
+    </view>
+    <view class="dim-grid">
+      <view class="dim-cell" wx:for="{{dims}}" wx:key="key">
+        <view class="dim-head">
+          <text class="dim-icon">{{item.icon}}</text>
+          <text class="dim-name">{{item.name}}</text>
+          <text class="dim-num">{{item.val}}</text>
+        </view>
+        <view class="dim-bar-wrap">
+          <view class="dim-bar-fill" style="width:{{item.val}}%;background:{{item.color}};box-shadow:0 0 12rpx {{item.color}};"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI 建议 4 条 -->
+  <view class="section">
+    <view class="sec-title">
+      <text class="sec-bar"></text>
+      <text>AI RECOMMENDATIONS</text>
+      <text class="sec-en">· AI 策略建议</text>
+    </view>
+    <view class="reco-list">
+      <view class="reco-item" wx:for="{{recommendations}}" wx:key="i">
+        <view class="reco-no">
+          <text>0{{index + 1}}</text>
+        </view>
+        <view class="reco-body">
+          <text class="reco-title">{{item.title}}</text>
+          <text class="reco-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 推荐方案 -->
+  <view class="section plan-section">
+    <view class="sec-title">
+      <text class="sec-bar"></text>
+      <text>RECOMMENDED PLAN</text>
+      <text class="sec-en">· 智能推荐方案</text>
+    </view>
+    <view class="plan-card">
+      <view class="plan-badge">AI 推荐</view>
+      <text class="plan-name">{{plan.name}}</text>
+      <view class="plan-price">
+        <text class="plan-pnum">¥{{plan.price}}</text>
+        <text class="plan-punit">/{{plan.unit}}</text>
+      </view>
+      <text class="plan-reason">{{plan.reason}}</text>
+      <view class="plan-stats">
+        <view class="plan-stat">
+          <text class="ps-lbl">主攻科目</text>
+          <text class="ps-val">{{plan.subject}}</text>
+        </view>
+        <view class="plan-stat">
+          <text class="ps-lbl">建议周投入</text>
+          <text class="ps-val">{{plan.weeklyHours}} 小时</text>
+        </view>
+        <view class="plan-stat">
+          <text class="ps-lbl">预期提分</text>
+          <text class="ps-val">+{{plan.expectedGain}} 分</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作栏 -->
+  <view class="action-row">
+    <view class="act-btn ghost" bindtap="shareReport">
+      <text>📤 分享给家长</text>
+    </view>
+    <view class="act-btn primary" bindtap="backToHub">
+      <text>⚡ 进入学习 Hub</text>
+    </view>
+  </view>
+
+  <view class="footer-note">
+    <text>测评时间 · {{compat.testedAt}}</text>
+    <text>报告有效期 · 90 天</text>
+  </view>
+
+  <view style="height:60rpx"></view>
+</view>
+
+<ai-helper page-key="pre-screen" />
+
