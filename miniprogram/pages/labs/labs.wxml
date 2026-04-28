@@ -22,9 +22,9 @@
   <!-- Hero -->
   <view class="hero">
     <view class="hero-deco"></view>
-    <view class="hero-tag">CRAYXUS · AI × REAL ENGINEERING</view>
-    <view class="hero-title">学生主导<text class="ht-accent">真实工程项目</text></view>
-    <view class="hero-sub">从掼蛋一体机到水下潜艇 · 从服装大脑到大藏经智库 · 8 个真实项目 · 招募中</view>
+    <view class="hero-tag">CRAYXUS LABS · AI × KICKSTARTER</view>
+    <view class="hero-title">创始赞助方<text class="ht-accent">共建真实项目</text></view>
+    <view class="hero-sub">高净值赞助方共建真实工程项目 · 实物 / 体验 / 教育 / 股权一站到位</view>
 
     <view class="hero-stats">
       <view class="stat">
@@ -34,12 +34,12 @@
       <view class="stat-sep"></view>
       <view class="stat">
         <text class="stat-num">{{totalBudget}}<text class="stat-unit">w</text></text>
-        <text class="stat-lbl">总预算</text>
+        <text class="stat-lbl">总目标</text>
       </view>
       <view class="stat-sep"></view>
       <view class="stat">
         <text class="stat-num">{{totalJoined}}/{{totalSeats}}</text>
-        <text class="stat-lbl">已加入</text>
+        <text class="stat-lbl">席位认领</text>
       </view>
       <view class="stat-sep"></view>
       <view class="stat">
@@ -78,8 +78,8 @@
 
       <view class="pc-stats">
         <view class="pc-stat-cell">
-          <text class="pcs-num">{{item.budget}}<text class="pcs-unit">w</text></text>
-          <text class="pcs-lbl">预算</text>
+          <text class="pcs-num">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
+          <text class="pcs-lbl">单席价</text>
         </view>
         <view class="pc-stat-cell">
           <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
@@ -139,8 +139,12 @@
         <!-- 关键数据卡 -->
         <view class="do-kpi">
           <view class="dk-cell">
+            <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.perSeat}}<text class="dk-unit">{{currentProject.seatUnit}}</text></text>
+            <text class="dk-lbl">单席价</text>
+          </view>
+          <view class="dk-cell">
             <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.budget}}<text class="dk-unit">w</text></text>
-            <text class="dk-lbl">预算</text>
+            <text class="dk-lbl">总预算</text>
           </view>
           <view class="dk-cell">
             <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.duration === 999 ? '持续' : currentProject.duration + 'm'}}</text>
@@ -149,10 +153,6 @@
           <view class="dk-cell">
             <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.joined}}/{{currentProject.seats}}</text>
             <text class="dk-lbl">名额</text>
-          </view>
-          <view class="dk-cell">
-            <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.progress}}<text class="dk-unit">%</text></text>
-            <text class="dk-lbl">已招</text>
           </view>
         </view>
 
@@ -171,6 +171,22 @@
         <view class="do-block">
           <view class="db-title">⚙️ 技术架构</view>
           <view class="db-text">{{currentProject.tech}}</view>
+        </view>
+
+        <!-- 加入收益（核心权益） -->
+        <view class="do-block highlight">
+          <view class="db-title">🎁 加入这个项目你能得到什么</view>
+          <view class="benefit-list">
+            <view class="benefit-row" wx:for="{{currentProject.benefits}}" wx:key="t" wx:for-item="bf">
+              <view class="bf-icon" style="background:linear-gradient(135deg, {{currentProject.color}}, rgba(0,0,0,.4))">
+                <text>{{bf.icon}}</text>
+              </view>
+              <view class="bf-text">
+                <text class="bf-title">{{bf.t}}</text>
+                <text class="bf-desc">{{bf.d}}</text>
+              </view>
+            </view>
+          </view>
         </view>
 
         <!-- 团队岗位 -->
@@ -213,7 +229,7 @@
         <!-- 行动按钮 -->
         <view class="do-actions">
           <view class="da-apply" style="background:linear-gradient(135deg, {{currentProject.color}}, rgba(0,0,0,.4))" bindtap="onApply">
-            <text>🎯 我想加入这个项目</text>
+            <text>💎 申请创始席位 · {{currentProject.perSeat}}{{currentProject.seatUnit}}/席</text>
           </view>
           <view class="da-close" bindtap="closeDetail">
             <text>关闭</text>
