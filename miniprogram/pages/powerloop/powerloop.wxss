@@ -13,35 +13,72 @@ page {
     linear-gradient(180deg, #050810 0%, #0a1224 50%, #050810 100%);
 }
 
+/* ===== 浮动返回按钮（左上角） ===== */
+.float-back {
+  position: fixed;
+  left: 20rpx;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 10rpx 18rpx 10rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(0,210,255,.18);
+  border: 1rpx solid rgba(0,210,255,.45);
+  backdrop-filter: blur(10rpx);
+  -webkit-backdrop-filter: blur(10rpx);
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,.3);
+}
+.float-back:active {
+  background: rgba(0,210,255,.32);
+  transform: scale(0.96);
+}
+.fb-arrow {
+  font-size: 28rpx;
+  color: #00d2ff;
+  font-weight: 700;
+  line-height: 1;
+}
+.fb-text {
+  font-size: 20rpx;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  line-height: 1;
+}
+
 /* ===== 顶部品牌头 ===== */
 .brand-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 18rpx 8rpx 24rpx;
+  justify-content: flex-start;
+  padding: 18rpx 200rpx 24rpx 160rpx;
 }
-.brand-left { display: flex; align-items: center; gap: 16rpx; }
+.brand-left { display: flex; align-items: center; gap: 12rpx; }
 .brand-logo {
-  width: 64rpx; height: 64rpx;
-  border-radius: 14rpx;
+  width: 52rpx; height: 52rpx;
+  border-radius: 12rpx;
   background: linear-gradient(135deg, #00d2ff, #2a5cff);
   color: #fff;
-  font-size: 36rpx;
+  font-size: 30rpx;
   text-align: center;
-  line-height: 64rpx;
+  line-height: 52rpx;
   box-shadow: 0 4rpx 14rpx rgba(0,210,255,.4);
+  flex-shrink: 0;
 }
-.brand-text { display: flex; flex-direction: column; }
+.brand-text { display: flex; flex-direction: column; min-width: 0; }
 .brand-cn {
-  font-size: 28rpx;
+  font-size: 22rpx;
   color: #fff;
   font-weight: 700;
-  letter-spacing: 2rpx;
+  letter-spacing: 1rpx;
+  white-space: nowrap;
 }
 .brand-en {
-  font-size: 18rpx;
+  font-size: 14rpx;
   color: rgba(255,255,255,.5);
-  letter-spacing: 3rpx;
+  letter-spacing: 2rpx;
+  white-space: nowrap;
 }
 .brand-back {
   width: 64rpx; height: 64rpx;

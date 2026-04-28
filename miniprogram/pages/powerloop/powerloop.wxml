@@ -2,6 +2,12 @@
 <view class="page">
   <view style="height:{{statusBarHeight}}px"></view>
 
+  <!-- 浮动返回按钮（始终可见） -->
+  <view class="float-back" style="top:{{statusBarHeight + 12}}px" bindtap="goBack">
+    <text class="fb-arrow">←</text>
+    <text class="fb-text">返回</text>
+  </view>
+
   <!-- 顶部品牌头 -->
   <view class="brand-bar">
     <view class="brand-left">
@@ -11,7 +17,6 @@
         <text class="brand-en">AI · 充电宝 · 韩国</text>
       </view>
     </view>
-    <view class="brand-back" bindtap="goBack">←</view>
   </view>
 
   <!-- Hero -->

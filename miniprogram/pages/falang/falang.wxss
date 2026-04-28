@@ -13,38 +13,75 @@ page {
     linear-gradient(180deg, #0f0606 0%, #1a0a0a 50%, #0f0606 100%);
 }
 
+/* ===== 浮动返回按钮（左上角） ===== */
+.float-back {
+  position: fixed;
+  left: 20rpx;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 10rpx 18rpx 10rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(193,18,28,.22);
+  border: 1rpx solid rgba(255,215,0,.45);
+  backdrop-filter: blur(10rpx);
+  -webkit-backdrop-filter: blur(10rpx);
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,.4);
+}
+.float-back:active {
+  background: rgba(193,18,28,.4);
+  transform: scale(0.96);
+}
+.fb-arrow {
+  font-size: 28rpx;
+  color: #ffd700;
+  font-weight: 700;
+  line-height: 1;
+}
+.fb-text {
+  font-size: 20rpx;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  line-height: 1;
+}
+
 /* ===== 顶部品牌头 ===== */
 .brand-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 18rpx 8rpx 24rpx;
+  justify-content: flex-start;
+  padding: 18rpx 200rpx 24rpx 160rpx;
 }
-.brand-left { display: flex; align-items: center; gap: 16rpx; }
+.brand-left { display: flex; align-items: center; gap: 12rpx; }
 .brand-fj {
-  width: 64rpx; height: 64rpx;
-  border-radius: 14rpx;
+  width: 52rpx; height: 52rpx;
+  border-radius: 12rpx;
   background: linear-gradient(135deg, #c1121c, #6a0a10);
   color: #fff;
-  font-size: 32rpx;
+  font-size: 26rpx;
   font-weight: 900;
   text-align: center;
-  line-height: 64rpx;
+  line-height: 52rpx;
   letter-spacing: 1rpx;
   box-shadow: 0 4rpx 14rpx rgba(193,18,28,.4);
+  flex-shrink: 0;
 }
-.brand-text { display: flex; flex-direction: column; }
+.brand-text { display: flex; flex-direction: column; min-width: 0; }
 .brand-cn {
-  font-size: 28rpx;
+  font-size: 22rpx;
   color: #fff;
   font-weight: 700;
-  letter-spacing: 6rpx;
+  letter-spacing: 4rpx;
+  white-space: nowrap;
 }
 .brand-en {
-  font-size: 16rpx;
+  font-size: 14rpx;
   color: rgba(255,255,255,.45);
-  letter-spacing: 3rpx;
+  letter-spacing: 2rpx;
   font-family: "Helvetica Neue", sans-serif;
+  white-space: nowrap;
 }
 .brand-back {
   width: 64rpx; height: 64rpx;
