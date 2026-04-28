@@ -3178,6 +3178,17 @@ const VOLC_TTS_ACCESS_KEY = process.env.VOLC_TTS_ACCESS_KEY || '718510c3-3096-46
 const VOLC_TTS_HTTP_URL   = 'https://openspeech.bytedance.com/api/v1/tts';
 const VOLC_TTS_CLUSTER    = 'volcano_tts';
 
+// Azure TTS（英文用，自然度远高于火山 BV421）
+const AZURE_TTS_KEY    = process.env.AZURE_TTS_KEY    || 'FU3icbLWhnryBmdfJ0tRgdDgfYjZt8isCthI5O0pYN3lDEAfuzzdJQQJ99BAACL93NaXJ3w3AAAYACOGmJ3v';
+const AZURE_TTS_REGION = process.env.AZURE_TTS_REGION || 'australiaeast';
+const AZURE_TTS_URL    = `https://${AZURE_TTS_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
+const AZURE_VOICES = {
+    'en-female': 'en-US-JennyNeural',   // Jenny - 自然女声
+    'en-male':   'en-US-GuyNeural',     // Guy - 自然男声
+    'us-female': 'en-US-JennyNeural',
+    'us-male':   'en-US-GuyNeural'
+};
+
 // 内存 LRU 缓存
 const ttsCache = new Map();
 const TTS_CACHE_MAX = 200;
@@ -3492,6 +3503,32 @@ ${solution ? '【标准解析】' + solution + '\n' : ''}
     }
 });
 
+// Azure TTS · 英文走 Azure（自然度远超火山）
+async function callAzureTTS(text, azureVoice) {
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const ssml = `<speak version='1.0' xml:lang='en-US'>
+  <voice xml:lang='en-US' name='${azureVoice}'>
+    <prosody rate='-5%'>${escaped}</prosody>
+  </voice>
+</speak>`;
+    const r = await fetch(AZURE_TTS_URL, {
+        method: 'POST',
+        headers: {
+            'Ocp-Apim-Subscription-Key': AZURE_TTS_KEY,
+            'Content-Type': 'application/ssml+xml',
+            'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3',
+            'User-Agent': 'crayxus-tts/1.0'
+        },
+        body: ssml
+    });
+    if (!r.ok) {
+        const txt = await r.text();
+        throw new Error(`Azure TTS HTTP ${r.status}: ${txt.slice(0, 200)}`);
+    }
+    const arrayBuf = await r.arrayBuffer();
+    return Buffer.from(arrayBuf);
+}
+
 app.post('/api/ai/ielts/tts', async (req, res) => {
     try {
         const { text, voice = 'zh-female' } = req.body || {};
@@ -3503,10 +3540,27 @@ app.post('/api/ai/ielts/tts', async (req, res) => {
         }
 
         const voiceType = TTS_VOICES[voice] || TTS_FALLBACK_VOICE;
-        const cacheKey = ttsCacheKey(text, voiceType);
+        const isEnglish = voice && voice.startsWith('en') || voice && voice.startsWith('us');
+        const azureVoice = AZURE_VOICES[voice];
+        const cacheKey = ttsCacheKey(text, isEnglish && azureVoice ? ('azure:' + azureVoice) : voiceType);
         const cached = ttsCacheGet(cacheKey);
         if (cached) {
             return res.json({ ok: true, audio: cached, cached: true });
+        }
+
+        // 英文优先用 Azure（自然 10 倍），失败回退火山
+        if (isEnglish && azureVoice && AZURE_TTS_KEY) {
+            try {
+                const mp3Buf = await callAzureTTS(text, azureVoice);
+                const audioBase64 = mp3Buf.toString('base64');
+                const dataUri = 'data:audio/mp3;base64,' + audioBase64;
+                ttsCacheSet(cacheKey, dataUri);
+                gameLog(`[Azure-TTS] OK ${text.length}c voice=${azureVoice} mp3=${mp3Buf.length}B`);
+                return res.json({ ok: true, audio: dataUri, cached: false, provider: 'azure' });
+            } catch (azureErr) {
+                console.warn('[Azure-TTS] failed, fallback to Volc:', azureErr.message);
+                // 继续往下走火山
+            }
         }
 
         if (!VOLC_TTS_ACCESS_KEY) {
