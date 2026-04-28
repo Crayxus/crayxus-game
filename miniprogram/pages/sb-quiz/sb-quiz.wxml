@@ -72,8 +72,13 @@
 
     <view class="q-row">
       <text class="q-text">{{currentQ.q}}</text>
-      <view wx:if="{{currentQ.q_zh}}" class="q-trans-btn {{showTranslation ? 'active' : ''}}" bindtap="onToggleTranslation">
-        <text>{{showTranslation ? '隐藏' : '🇨🇳 翻译'}}</text>
+      <view class="q-actions">
+        <view wx:if="{{currentQ.q_zh}}" class="q-trans-btn {{showTranslation ? 'active' : ''}}" bindtap="onToggleTranslation">
+          <text>{{showTranslation ? '隐藏' : '🇨🇳'}}</text>
+        </view>
+        <view class="q-vocab-btn {{vocabSaved[currentQ.id] ? 'saved' : ''}}" bindtap="onSaveVocab">
+          <text>{{vocabSaved[currentQ.id] ? '✓' : '📚'}}</text>
+        </view>
       </view>
     </view>
     <view wx:if="{{showTranslation && currentQ.q_zh}}" class="q-translation">
@@ -104,6 +109,23 @@
       <text wx:if="{{!showResult}}">确认</text>
       <text wx:elif="{{currentIdx + 1 < total}}">下一题 →</text>
       <text wx:else>查看报告 →</text>
+    </view>
+  </view>
+
+  <!-- 🎁 抽盲盒奖励弹窗（连对 3 题） -->
+  <view class="reward-overlay" wx:if="{{rewardOpen}}" catchtap="closeReward">
+    <view class="reward-box {{boxOpen ? 'opened' : ''}}" catchtap="onOpenBox">
+      <view wx:if="{{!boxOpen}}" class="rb-closed">
+        <text class="rb-title">🎁 连对 3 题</text>
+        <view class="rb-emoji">🎁</view>
+        <text class="rb-tip">点击打开盲盒</text>
+      </view>
+      <view wx:else class="rb-opened {{rewardItem.rare ? 'rare' : ''}}">
+        <text class="ro-icon">{{rewardItem.icon}}</text>
+        <text class="ro-label">{{rewardItem.label}}</text>
+        <text class="ro-rare" wx:if="{{rewardItem.rare}}">✨ 稀有 ✨</text>
+        <view class="ro-close" catchtap="closeReward"><text>太棒了！继续答题</text></view>
+      </view>
     </view>
   </view>
 

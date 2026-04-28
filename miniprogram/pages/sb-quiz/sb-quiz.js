@@ -35,11 +35,81 @@ Page({
     audioLoaded: false,
     showSubtitle: false,
     showTranslation: false,
-    audioCache: {}    // qid → audio URL
+    audioCache: {},    // qid → audio URL
+    // 奖励 + 生词本
+    correctStreak: 0,
+    rewardOpen: false,
+    rewardItem: null,
+    boxOpen: false,
+    vocabSaved: {}    // qid → bool
   },
 
   onToggleTranslation() {
     this.setData({ showTranslation: !this.data.showTranslation })
+  },
+
+  // 📚 收藏到生词本
+  onSaveVocab() {
+    try {
+      const q = this.data.currentQ
+      if (!q) return
+      const KEY = 'crayxus_vocab_book'
+      const vb = wx.getStorageSync(KEY) || { items: [] }
+      const exists = vb.items.find(x => x.id === q.id)
+      if (exists) {
+        wx.showToast({ title: '已在生词本', icon: 'none' })
+        return
+      }
+      vb.items.unshift({
+        id: q.id,
+        dim: q.dim,
+        q: q.q,
+        q_zh: q.q_zh || '',
+        solution: q.solution || '',
+        savedAt: Date.now()
+      })
+      vb.items = vb.items.slice(0, 500)
+      wx.setStorageSync(KEY, vb)
+      const vs = { ...this.data.vocabSaved, [q.id]: true }
+      this.setData({ vocabSaved: vs })
+      wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+      wx.showToast({ title: '✓ 已加入生词本', icon: 'none' })
+    } catch(e) { console.warn('[saveVocab]', e) }
+  },
+
+  // 🎁 抽盲盒（连对 3 题触发）
+  _maybeOpenReward() {
+    if (this.data.correctStreak < 3) return
+    const rewards = [
+      { type: 'token', icon: '⚡', label: '蛋力 +10', value: 10, rare: false },
+      { type: 'token', icon: '⚡', label: '蛋力 +5',  value: 5,  rare: false },
+      { type: 'token', icon: '💎', label: '蛋力 +20', value: 20, rare: true },
+      { type: 'card',  icon: '🃏', label: '专注卡 · 罕见', value: 0, rare: true },
+      { type: 'card',  icon: '🎴', label: '智慧卡 · 普通', value: 0, rare: false },
+      { type: 'praise',icon: '🌟', label: '"再连 3 题继续抽！"', value: 0, rare: false }
+    ]
+    const isRareRoll = Math.random() < 0.18  // 18% rare
+    const pool = rewards.filter(r => r.rare === isRareRoll)
+    const item = pool[Math.floor(Math.random() * pool.length)]
+    this.setData({ rewardItem: item, rewardOpen: true, boxOpen: false, correctStreak: 0 })
+    wx.vibrateShort && wx.vibrateShort({ type: 'heavy' })
+    // 累加蛋力
+    if (item.type === 'token' && item.value) {
+      try {
+        const k = 'crayxus_token_balance'
+        const cur = wx.getStorageSync(k) || 0
+        wx.setStorageSync(k, cur + item.value)
+      } catch(e) {}
+    }
+  },
+
+  onOpenBox() {
+    this.setData({ boxOpen: true })
+    wx.vibrateShort && wx.vibrateShort({ type: 'medium' })
+  },
+
+  closeReward() {
+    this.setData({ rewardOpen: false, rewardItem: null, boxOpen: false })
   },
 
   onLoad(opts) {
@@ -456,11 +526,17 @@ Page({
       const q = this.data.currentQ
       const correct = this.data.selectedIdx === q.answer
       const ans = { qid: q.id, selected: this.data.selectedIdx, correct, dim: q.dim, second: q.second }
+      const newStreak = correct ? this.data.correctStreak + 1 : 0
       this.setData({
         showResult: true,
-        answers: [...this.data.answers, ans]
+        answers: [...this.data.answers, ans],
+        correctStreak: newStreak
       })
       wx.vibrateShort && wx.vibrateShort({ type: correct ? 'light' : 'medium' })
+      // 连对 3 题 → 触发盲盒
+      if (newStreak >= 3) {
+        setTimeout(() => this._maybeOpenReward(), 600)
+      }
       return
     }
 
