@@ -3,6 +3,7 @@ const PROJECTS = [
   {
     key: 'guandan',
     cat: 'hw',
+    image: '/assets/products/guandan.jpg',
     icon: '🃏',
     color: '#ff6b35',
     name: '掼蛋 AI 一体机',
@@ -50,6 +51,7 @@ const PROJECTS = [
   {
     key: 'racing',
     cat: 'hw',
+    image: '/assets/products/racing.jpg',
     icon: '🏎️',
     color: '#00d2ff',
     name: 'AI 赛车 · 自动驾驶',
@@ -96,6 +98,7 @@ const PROJECTS = [
   {
     key: 'tank',
     cat: 'hw',
+    image: '/assets/products/tank.jpg',
     icon: '🛡️',
     color: '#ffb84d',
     name: 'AI 坦克 · 战术对抗',
@@ -142,6 +145,7 @@ const PROJECTS = [
   {
     key: 'sub',
     cat: 'hw',
+    image: '/assets/products/sub.jpg',
     icon: '🌊',
     color: '#5b6cff',
     name: 'AI 潜水艇 · 水下探测',
@@ -361,15 +365,151 @@ const PROJECTS = [
       { icon: '🌍', t: '海外名校提前接入', d: '澳洲 / 加拿大 / 英国 校友访问 + 内部说明会' },
       { icon: '🎁', t: '创始投资人证书', d: '系统启动页永久挂名 · 限量 8 席' }
     ]
+  },
+  {
+    key: 'texas',
+    cat: 'model',
+    icon: '♠️',
+    color: '#e91e63',
+    name: '德州扑克大模型',
+    short: 'GTO 求解 + 多智能体博弈',
+    budget: 150,
+    duration: 8,
+    seats: 8,
+    joined: 3,
+    perSeat: 18.75,
+    seatUnit: '万',
+    tagline: 'Crayxus 自研德扑大模型 · 对标 Pluribus / Libratus · 击败业内顶级玩家',
+    painpoint: '德州扑克是博弈论 + 不完美信息博弈的圣杯 — Pluribus / Libratus 是 Facebook AI 顶尖论文。中国此领域空白，能跑 GTO + 实战大模型的团队几乎没有。我们用已经在掼蛋 vs 国际冠军 69.5% 胜率的 V8 框架扩展到德扑：Push-fold 求解 + Counterfactual Regret + 实时偏离纠正。',
+    tech: 'CFR+ 求解器 + 抽象化博弈 + 大语言模型策略推理（DeepSeek finetuned）+ 实时对手建模 + 对抗自博弈 RL',
+    roles: [
+      { r: '项目经理 (PM)', n: 1 },
+      { r: 'CFR / 博弈论算法', n: 2 },
+      { r: '强化学习', n: 2 },
+      { r: '大模型微调', n: 1 },
+      { r: '对战平台 + 后端', n: 2 }
+    ],
+    milestones: [
+      { m: 'Push-fold 求解器', t: 'M1-M2' },
+      { m: 'CFR+ 抽象化', t: 'M2-M4' },
+      { m: '自博弈训练', t: 'M3-M6' },
+      { m: '实战平台 + 论文', t: 'M6-M8' }
+    ],
+    spend: [
+      { l: '人员工资', p: 50 },
+      { l: 'GPU 算力 (大规模)', p: 30 },
+      { l: 'API + 外部数据', p: 8 },
+      { l: '论文 + 比赛', p: 7 },
+      { l: '储备', p: 5 }
+    ],
+    benefits: [
+      { icon: '♠️', t: 'AI 训练 1v1 模型对战', d: '24x7 AI 教练 · 业内顶级玩家级别 · 终身使用权' },
+      { icon: '💎', t: '产品上市后股权 2%', d: 'API SaaS + B 端授权 + 比赛场景应用 时分红' },
+      { icon: '🌐', t: 'WSOP 海外锦标赛指导', d: '世界扑克巡回赛 · 高级玩法分析 · 顶级专家陪练' },
+      { icon: '📚', t: '博弈论顶会论文署名', d: 'NeurIPS / IJCAI / AAMAS · 创始赞助方挂名' },
+      { icon: '🎓', t: '浙大 + Stanford CS 联合', d: '博弈论 + RL 闭门课 6 节 · 海外远程导师' },
+      { icon: '🪪', t: '限量 8 席创始证书', d: 'NFT 数字证书 + 实体银制纪念奖牌' }
+    ]
+  },
+  {
+    key: 'mahjong',
+    cat: 'model',
+    icon: '🀄',
+    color: '#4caf50',
+    name: '麻将大模型',
+    short: '日麻 / 国标 / 川麻 全规则',
+    budget: 120,
+    duration: 6,
+    seats: 8,
+    joined: 4,
+    perSeat: 15,
+    seatUnit: '万',
+    tagline: '对标微软 Suphx 超级人类 · 日麻 / 国标 / 川麻 / 广麻 全规则覆盖',
+    painpoint: '麻将是亚洲国民运动但缺乏中国自主大模型 — 微软 Suphx 是日麻顶级 AI，国内麻将 AI 落后 2-3 年。Crayxus 用 V8 框架扩展，对接日麻天凤 / 雀魂 / 国内联众，目标做出 vs 日麻名人级别 60%+ 胜率的中国麻将大模型。',
+    tech: 'Suphx-style 多任务 RL + Oracle Guidance + 围牌策略图谱 + 多版本规则适配 + 自博弈联赛',
+    roles: [
+      { r: '项目经理 (PM)', n: 1 },
+      { r: '多任务 RL 算法', n: 2 },
+      { r: '规则引擎 + 抽象', n: 2 },
+      { r: '平台对接', n: 2 },
+      { r: '数据 + 评估', n: 1 }
+    ],
+    milestones: [
+      { m: '单规则原型 (国标)', t: 'M1-M2' },
+      { m: 'Oracle Guidance 训练', t: 'M2-M4' },
+      { m: '日麻 + 川麻 适配', t: 'M3-M5' },
+      { m: '雀魂 / 天凤 段位冲刺', t: 'M5-M6' }
+    ],
+    spend: [
+      { l: '人员工资', p: 55 },
+      { l: 'GPU 算力', p: 25 },
+      { l: '平台对接 + API', p: 10 },
+      { l: '比赛 + 推广', p: 6 },
+      { l: '储备', p: 4 }
+    ],
+    benefits: [
+      { icon: '🀄', t: '专属麻将 AI 训练教练', d: '24x7 在线陪练 · 日麻 / 川麻 / 广麻 全部规则' },
+      { icon: '🇯🇵', t: '日本天凤 / 雀魂 实战指导', d: '上号陪练 · 段位冲刺顾问 · 出国对战之旅' },
+      { icon: '💎', t: '产品上市后股权 2%', d: 'API + 移动端授权 + 棋牌室合作 时分红' },
+      { icon: '🎓', t: '浙大 + 东京大学 AI 联合', d: '日本东京大学 AI 实验室远程导师 · 私塾 6 节' },
+      { icon: '🏆', t: '中日麻将 AI 邀请赛', d: 'Crayxus 主办 · 创始赞助方贵宾席 · 出国机票包' },
+      { icon: '🪪', t: '限量 8 席创始证书', d: 'NFT 数字证书 + 限量手工竹麻将 1 套' }
+    ]
+  },
+  {
+    key: 'shuangkou',
+    cat: 'model',
+    icon: '🎴',
+    color: '#9c27b0',
+    name: '双扣大模型',
+    short: '浙江本土 · 与掼蛋同源 · 6 个月顶级',
+    budget: 80,
+    duration: 5,
+    seats: 6,
+    joined: 2,
+    perSeat: 13.33,
+    seatUnit: '万',
+    tagline: '浙江最受欢迎的扑克游戏 · 5000 万牌友群体 · 复用 V8 框架 · 6 个月达到顶级水平',
+    painpoint: '双扣（浙江温州 / 台州 / 宁波）至今没有任何级别的 AI · 浙江 5000w 牌友群体被互联网大厂忽略。Crayxus 团队是浙江本土，最懂双扣规则，用 V8 框架直接复用，6 个月可以做到 vs 顶级牌友 65%+ 胜率。',
+    tech: 'V8 强化学习框架（716 维状态 + Numba JIT 加速）+ 双扣专属规则编码 + 浙江本土玩家数据 + 多版本（杭州 / 温州 / 台州各异）',
+    roles: [
+      { r: '项目经理 (PM)', n: 1 },
+      { r: 'V8 框架移植', n: 1 },
+      { r: '规则编码 + 评估', n: 1 },
+      { r: '强化学习训练', n: 2 },
+      { r: '小程序对战平台', n: 1 }
+    ],
+    milestones: [
+      { m: 'V8 框架移植', t: 'M1' },
+      { m: '多版本规则适配', t: 'M2' },
+      { m: '自博弈训练', t: 'M2-M4' },
+      { m: '对外开放对战', t: 'M4-M5' }
+    ],
+    spend: [
+      { l: '人员工资', p: 55 },
+      { l: 'GPU 算力 (V8 复用)', p: 18 },
+      { l: '小程序开发', p: 12 },
+      { l: '推广 + 浙江本地赛事', p: 10 },
+      { l: '储备', p: 5 }
+    ],
+    benefits: [
+      { icon: '🎴', t: '专属双扣 AI 教练', d: '24x7 陪练 · 杭州 / 温州 / 台州 全规则版本' },
+      { icon: '🏆', t: '浙江省双扣赛事冠名', d: 'Crayxus AI × 浙江双扣联赛 创始赞助方' },
+      { icon: '💎', t: '产品上市后股权 2.5%', d: 'AI 移动端 + B 端棋牌室授权 时分红 (浙江市场专享)' },
+      { icon: '🎓', t: '浙大数学系 + AI 系联合', d: '双扣组合数学 / RL 私塾 6 节 · 子女可参加' },
+      { icon: '🍵', t: '浙商私董会接入', d: 'Crayxus 浙江企业家高端社群 · 茶会 + 内部活动' },
+      { icon: '🪪', t: '限量 6 席创始证书', d: '浙江非遗工艺纸牌 1 套 + 数字证书' }
+    ]
   }
 ]
 
 Page({
   data: {
     statusBarHeight: 44,
-    filter: 'all',
     projects: PROJECTS,
-    filtered: PROJECTS,
+    hwProjects: [],
+    modelProjects: [],
+    swProjects: [],
     detailOpen: false,
     currentProject: null,
     totalBudget: 0,
@@ -388,14 +528,14 @@ Page({
       totalSeats += p.seats
       totalJoined += p.joined
     })
-    this.setData({ totalBudget, totalSeats, totalJoined })
-  },
-
-  setFilter(e) {
-    const f = e.currentTarget.dataset.f
-    const filtered = f === 'all' ? PROJECTS : PROJECTS.filter(p => p.cat === f)
-    wx.vibrateShort && wx.vibrateShort({ type: 'light' })
-    this.setData({ filter: f, filtered })
+    this.setData({
+      totalBudget,
+      totalSeats,
+      totalJoined,
+      hwProjects: PROJECTS.filter(p => p.cat === 'hw'),
+      modelProjects: PROJECTS.filter(p => p.cat === 'model'),
+      swProjects: PROJECTS.filter(p => p.cat === 'sw')
+    })
   },
 
   openDetail(e) {

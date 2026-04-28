@@ -108,53 +108,141 @@
     </view>
   </view>
 
-  <!-- 类别筛选 -->
-  <view class="filter-row">
-    <view class="filter-pill {{filter === 'all' ? 'active' : ''}}" bindtap="setFilter" data-f="all">
-      <text>全部 · {{projects.length}}</text>
+  <!-- 板块 1 · 软硬件综合 -->
+  <view class="section">
+    <view class="section-head">
+      <text class="sh-icon">🛠</text>
+      <view class="sh-text">
+        <text class="sh-title">软硬件综合</text>
+        <text class="sh-sub">实体产品 · AI 大脑 · {{hwProjects.length}} 个项目</text>
+      </view>
+      <text class="sh-count">{{hwProjects.length}}</text>
     </view>
-    <view class="filter-pill {{filter === 'hw' ? 'active' : ''}}" bindtap="setFilter" data-f="hw">
-      <text>🛠 软硬件一体</text>
-    </view>
-    <view class="filter-pill {{filter === 'sw' ? 'active' : ''}}" bindtap="setFilter" data-f="sw">
-      <text>💻 AAAS 开发</text>
+    <view class="project-list">
+      <view class="project-card" wx:for="{{hwProjects}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
+        <view class="pc-banner">
+          <image wx:if="{{item.image}}" class="pc-banner-img" src="{{item.image}}" mode="aspectFill"></image>
+          <view wx:else class="pc-banner-fallback" style="background:radial-gradient(circle at 30% 30%, {{item.color}}55, transparent 60%), linear-gradient(135deg, {{item.color}}22, rgba(0,0,0,.4))">
+            <text class="pc-mega-icon">{{item.icon}}</text>
+          </view>
+          <view class="pc-banner-overlay"></view>
+          <text class="pc-cat-badge">软硬件</text>
+        </view>
+        <view class="pc-content">
+          <view class="pc-name-row">
+            <text class="pc-name">{{item.name}}</text>
+            <text class="pc-arrow" style="color:{{item.color}}">→</text>
+          </view>
+          <text class="pc-short">{{item.short}}</text>
+          <view class="pc-stats">
+            <view class="pc-stat-cell">
+              <text class="pcs-num" style="color:{{item.color}}">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
+              <text class="pcs-lbl">单席价</text>
+            </view>
+            <view class="pc-stat-cell">
+              <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
+              <text class="pcs-lbl">周期</text>
+            </view>
+            <view class="pc-stat-cell">
+              <text class="pcs-num">{{item.joined}}/{{item.seats}}</text>
+              <text class="pcs-lbl">名额</text>
+            </view>
+          </view>
+          <view class="pc-progress-wrap">
+            <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
+          </view>
+        </view>
+      </view>
     </view>
   </view>
 
-  <!-- 项目卡片列表 -->
-  <view class="project-list">
-    <view class="project-card" wx:for="{{filtered}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
-      <!-- 大尺寸 banner 视觉区 -->
-      <view class="pc-banner" style="background:radial-gradient(circle at 30% 30%, {{item.color}}55, transparent 60%), linear-gradient(135deg, {{item.color}}22, rgba(0,0,0,.4))">
-        <text class="pc-cat-badge">{{item.cat === 'hw' ? '软硬件' : 'AAAS'}}</text>
-        <text class="pc-mega-icon">{{item.icon}}</text>
-        <view class="pc-banner-glow" style="background:radial-gradient(circle, {{item.color}}66, transparent 70%)"></view>
+  <!-- 板块 2 · 大模型开发 -->
+  <view class="section">
+    <view class="section-head">
+      <text class="sh-icon">🧠</text>
+      <view class="sh-text">
+        <text class="sh-title">AI 大模型开发</text>
+        <text class="sh-sub">博弈 · 多智能体 · 复用 V8 框架 · {{modelProjects.length}} 个项目</text>
       </view>
-
-      <view class="pc-content">
-        <view class="pc-name-row">
-          <text class="pc-name">{{item.name}}</text>
-          <text class="pc-arrow" style="color:{{item.color}}">→</text>
+      <text class="sh-count">{{modelProjects.length}}</text>
+    </view>
+    <view class="project-list">
+      <view class="project-card" wx:for="{{modelProjects}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
+        <view class="pc-banner">
+          <view class="pc-banner-fallback" style="background:radial-gradient(circle at 30% 30%, {{item.color}}55, transparent 60%), linear-gradient(135deg, {{item.color}}22, rgba(0,0,0,.4))">
+            <text class="pc-mega-icon">{{item.icon}}</text>
+          </view>
+          <text class="pc-cat-badge">大模型</text>
         </view>
-        <text class="pc-short">{{item.short}}</text>
-
-        <view class="pc-stats">
-          <view class="pc-stat-cell">
-            <text class="pcs-num" style="color:{{item.color}}">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
-            <text class="pcs-lbl">单席价</text>
+        <view class="pc-content">
+          <view class="pc-name-row">
+            <text class="pc-name">{{item.name}}</text>
+            <text class="pc-arrow" style="color:{{item.color}}">→</text>
           </view>
-          <view class="pc-stat-cell">
-            <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
-            <text class="pcs-lbl">周期</text>
+          <text class="pc-short">{{item.short}}</text>
+          <view class="pc-stats">
+            <view class="pc-stat-cell">
+              <text class="pcs-num" style="color:{{item.color}}">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
+              <text class="pcs-lbl">单席价</text>
+            </view>
+            <view class="pc-stat-cell">
+              <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
+              <text class="pcs-lbl">周期</text>
+            </view>
+            <view class="pc-stat-cell">
+              <text class="pcs-num">{{item.joined}}/{{item.seats}}</text>
+              <text class="pcs-lbl">名额</text>
+            </view>
           </view>
-          <view class="pc-stat-cell">
-            <text class="pcs-num">{{item.joined}}/{{item.seats}}</text>
-            <text class="pcs-lbl">名额</text>
+          <view class="pc-progress-wrap">
+            <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
           </view>
         </view>
+      </view>
+    </view>
+  </view>
 
-        <view class="pc-progress-wrap">
-          <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
+  <!-- 板块 3 · AAAS 项目 -->
+  <view class="section">
+    <view class="section-head">
+      <text class="sh-icon">💻</text>
+      <view class="sh-text">
+        <text class="sh-title">AAAS 项目（AI Agent as a Service）</text>
+        <text class="sh-sub">真实客户落地 · 长期 SaaS · {{swProjects.length}} 个项目</text>
+      </view>
+      <text class="sh-count">{{swProjects.length}}</text>
+    </view>
+    <view class="project-list">
+      <view class="project-card" wx:for="{{swProjects}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
+        <view class="pc-banner">
+          <view class="pc-banner-fallback" style="background:radial-gradient(circle at 30% 30%, {{item.color}}55, transparent 60%), linear-gradient(135deg, {{item.color}}22, rgba(0,0,0,.4))">
+            <text class="pc-mega-icon">{{item.icon}}</text>
+          </view>
+          <text class="pc-cat-badge">AAAS</text>
+        </view>
+        <view class="pc-content">
+          <view class="pc-name-row">
+            <text class="pc-name">{{item.name}}</text>
+            <text class="pc-arrow" style="color:{{item.color}}">→</text>
+          </view>
+          <text class="pc-short">{{item.short}}</text>
+          <view class="pc-stats">
+            <view class="pc-stat-cell">
+              <text class="pcs-num" style="color:{{item.color}}">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
+              <text class="pcs-lbl">单席价</text>
+            </view>
+            <view class="pc-stat-cell">
+              <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
+              <text class="pcs-lbl">周期</text>
+            </view>
+            <view class="pc-stat-cell">
+              <text class="pcs-num">{{item.joined}}/{{item.seats}}</text>
+              <text class="pcs-lbl">名额</text>
+            </view>
+          </view>
+          <view class="pc-progress-wrap">
+            <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
+          </view>
         </view>
       </view>
     </view>
