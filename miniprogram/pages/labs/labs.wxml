@@ -1,0 +1,227 @@
+<!-- Crayxus Labs · AI 课外项目实践 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- 浮动返回 -->
+  <view class="float-back" style="top:{{statusBarHeight + 12}}px" bindtap="goBack">
+    <text class="fb-arrow">←</text>
+    <text class="fb-text">返回</text>
+  </view>
+
+  <!-- 顶部品牌头 -->
+  <view class="brand-bar">
+    <view class="brand-left">
+      <view class="brand-logo">🚀</view>
+      <view class="brand-text">
+        <text class="brand-cn">Crayxus Labs</text>
+        <text class="brand-en">AI 课外项目实践</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-deco"></view>
+    <view class="hero-tag">CRAYXUS · AI × REAL ENGINEERING</view>
+    <view class="hero-title">学生主导<text class="ht-accent">真实工程项目</text></view>
+    <view class="hero-sub">从掼蛋一体机到水下潜艇 · 从服装大脑到大藏经智库 · 8 个真实项目 · 招募中</view>
+
+    <view class="hero-stats">
+      <view class="stat">
+        <text class="stat-num">{{projects.length}}<text class="stat-unit">个</text></text>
+        <text class="stat-lbl">真实项目</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">{{totalBudget}}<text class="stat-unit">w</text></text>
+        <text class="stat-lbl">总预算</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">{{totalJoined}}/{{totalSeats}}</text>
+        <text class="stat-lbl">已加入</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">{{totalSeats - totalJoined}}<text class="stat-unit">席</text></text>
+        <text class="stat-lbl">空缺</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 类别筛选 -->
+  <view class="filter-row">
+    <view class="filter-pill {{filter === 'all' ? 'active' : ''}}" bindtap="setFilter" data-f="all">
+      <text>全部 · {{projects.length}}</text>
+    </view>
+    <view class="filter-pill {{filter === 'hw' ? 'active' : ''}}" bindtap="setFilter" data-f="hw">
+      <text>🛠 软硬件一体</text>
+    </view>
+    <view class="filter-pill {{filter === 'sw' ? 'active' : ''}}" bindtap="setFilter" data-f="sw">
+      <text>💻 AAAS 开发</text>
+    </view>
+  </view>
+
+  <!-- 项目卡片列表 -->
+  <view class="project-list">
+    <view class="project-card" wx:for="{{filtered}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
+      <view class="pc-head">
+        <view class="pc-icon" style="background:linear-gradient(135deg, {{item.color}}, rgba(0,0,0,.4))">
+          <text>{{item.icon}}</text>
+        </view>
+        <view class="pc-title-block">
+          <text class="pc-name">{{item.name}}</text>
+          <text class="pc-short">{{item.short}}</text>
+        </view>
+        <text class="pc-cat-tag">{{item.cat === 'hw' ? '软硬件' : 'AAAS'}}</text>
+      </view>
+
+      <view class="pc-stats">
+        <view class="pc-stat-cell">
+          <text class="pcs-num">{{item.budget}}<text class="pcs-unit">w</text></text>
+          <text class="pcs-lbl">预算</text>
+        </view>
+        <view class="pc-stat-cell">
+          <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
+          <text class="pcs-lbl">周期</text>
+        </view>
+        <view class="pc-stat-cell">
+          <text class="pcs-num joined" style="color:{{item.color}}">{{item.joined}}/{{item.seats}}</text>
+          <text class="pcs-lbl">名额</text>
+        </view>
+      </view>
+
+      <!-- 进度条 -->
+      <view class="pc-progress-wrap">
+        <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
+      </view>
+
+      <view class="pc-footer">
+        <text class="pc-tagline">{{item.tagline}}</text>
+        <text class="pc-arrow" style="color:{{item.color}}">查看详情 →</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系底部 -->
+  <view class="contact-card">
+    <view class="cc-row"><text class="cc-lbl">📍 实验室</text><text class="cc-val">Crayxus Labs · 上海 / 杭州</text></view>
+    <view class="cc-row"><text class="cc-lbl">🎓 合作院校</text><text class="cc-val">浙大 / 复旦 / 同济 / 国际高中</text></view>
+    <view class="cc-row"><text class="cc-lbl">✉️ 项目接洽</text><text class="cc-val">general@crayxus.com.au</text></view>
+  </view>
+
+  <view class="footer-mark">
+    <text>CRAYXUS LABS</text>
+    <text class="fm-sub">让学生在真实项目里学 AI</text>
+  </view>
+
+  <view style="height:60rpx"></view>
+
+  <!-- 项目详情 overlay -->
+  <view class="detail-overlay" wx:if="{{detailOpen}}" catchtouchmove="_noop">
+    <view class="do-mask" bindtap="closeDetail"></view>
+    <view class="do-sheet">
+      <view class="do-handle"></view>
+      <scroll-view class="do-scroll" scroll-y="true">
+        <view class="do-head" style="background:linear-gradient(135deg, {{currentProject.color}}26, transparent)">
+          <view class="do-icon" style="background:linear-gradient(135deg, {{currentProject.color}}, rgba(0,0,0,.4))">
+            <text>{{currentProject.icon}}</text>
+          </view>
+          <view class="do-title-block">
+            <text class="do-name">{{currentProject.name}}</text>
+            <text class="do-cat-tag">{{currentProject.cat === 'hw' ? '🛠 软硬件一体项目' : '💻 AAAS 开发项目'}}</text>
+          </view>
+          <text class="do-close" bindtap="closeDetail">✕</text>
+        </view>
+
+        <view class="do-tagline">{{currentProject.tagline}}</view>
+
+        <!-- 关键数据卡 -->
+        <view class="do-kpi">
+          <view class="dk-cell">
+            <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.budget}}<text class="dk-unit">w</text></text>
+            <text class="dk-lbl">预算</text>
+          </view>
+          <view class="dk-cell">
+            <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.duration === 999 ? '持续' : currentProject.duration + 'm'}}</text>
+            <text class="dk-lbl">周期</text>
+          </view>
+          <view class="dk-cell">
+            <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.joined}}/{{currentProject.seats}}</text>
+            <text class="dk-lbl">名额</text>
+          </view>
+          <view class="dk-cell">
+            <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.progress}}<text class="dk-unit">%</text></text>
+            <text class="dk-lbl">已招</text>
+          </view>
+        </view>
+
+        <!-- 进度条大版 -->
+        <view class="do-progress-big">
+          <view class="dpb-fill" style="width:{{currentProject.progress}}%; background:{{currentProject.color}}"></view>
+        </view>
+
+        <!-- 痛点 -->
+        <view class="do-block">
+          <view class="db-title">🎯 项目痛点</view>
+          <view class="db-text">{{currentProject.painpoint}}</view>
+        </view>
+
+        <!-- 技术架构 -->
+        <view class="do-block">
+          <view class="db-title">⚙️ 技术架构</view>
+          <view class="db-text">{{currentProject.tech}}</view>
+        </view>
+
+        <!-- 团队岗位 -->
+        <view class="do-block">
+          <view class="db-title">👥 团队岗位（共 {{currentProject.seats}} 席 · {{currentProject.seats - currentProject.joined}} 个空缺）</view>
+          <view class="role-list">
+            <view class="role-row" wx:for="{{currentProject.roles}}" wx:key="r" wx:for-item="role">
+              <text class="rr-name">{{role.r}}</text>
+              <text class="rr-num" style="color:{{currentProject.color}}">×{{role.n}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 里程碑 -->
+        <view class="do-block">
+          <view class="db-title">🛤 项目里程碑</view>
+          <view class="ms-list">
+            <view class="ms-row" wx:for="{{currentProject.milestones}}" wx:key="m" wx:for-item="ms">
+              <view class="ms-dot" style="background:{{currentProject.color}}"></view>
+              <text class="ms-time">{{ms.t}}</text>
+              <text class="ms-text">{{ms.m}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 资金分配 -->
+        <view class="do-block">
+          <view class="db-title">💰 资金分配（共 {{currentProject.budget}} 万）</view>
+          <view class="spend-list">
+            <view class="spend-row" wx:for="{{currentProject.spend}}" wx:key="l" wx:for-item="sp">
+              <text class="sr-label">{{sp.l}}</text>
+              <view class="sr-bar-wrap">
+                <view class="sr-bar-fill" style="width:{{sp.p}}%; background:{{currentProject.color}}"></view>
+              </view>
+              <text class="sr-pct" style="color:{{currentProject.color}}">{{sp.p}}%</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 行动按钮 -->
+        <view class="do-actions">
+          <view class="da-apply" style="background:linear-gradient(135deg, {{currentProject.color}}, rgba(0,0,0,.4))" bindtap="onApply">
+            <text>🎯 我想加入这个项目</text>
+          </view>
+          <view class="da-close" bindtap="closeDetail">
+            <text>关闭</text>
+          </view>
+        </view>
+
+        <view style="height:60rpx"></view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

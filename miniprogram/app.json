@@ -16,6 +16,7 @@
     "pages/wrongbook/wrongbook",
     "pages/falang/falang",
     "pages/powerloop/powerloop",
+    "pages/labs/labs",
     "pages/truck/home"
   ],
   "window": {
