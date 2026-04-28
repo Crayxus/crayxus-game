@@ -34,7 +34,12 @@ Page({
     audioPlaying: false,
     audioLoaded: false,
     showSubtitle: false,
+    showTranslation: false,
     audioCache: {}    // qid → audio URL
+  },
+
+  onToggleTranslation() {
+    this.setData({ showTranslation: !this.data.showTranslation })
   },
 
   onLoad(opts) {
@@ -132,9 +137,21 @@ Page({
         return
       }
 
-      // 已缓存文件路径 → 直接播放
+      // 对话题：分段男女声播放
+      if (q.audio_speaker === 'dialogue' && Array.isArray(q.audio_segments) && q.audio_segments.length >= 2) {
+        const cachedPaths = this.data.audioCache[q.id]
+        if (cachedPaths && Array.isArray(cachedPaths)) {
+          this._playSegmentsSequential(cachedPaths)
+          return
+        }
+        this.setData({ audioLoading: true })
+        this._fetchAllSegments(q)
+        return
+      }
+
+      // 单声道：单段播放
       const cachedPath = this.data.audioCache[q.id]
-      if (cachedPath) {
+      if (cachedPath && typeof cachedPath === 'string') {
         this._playAudioFromPath(cachedPath)
         return
       }
@@ -142,7 +159,7 @@ Page({
       // 首次播放 → 请求 TTS
       this.setData({ audioLoading: true })
       const serverUrl = (app && app.globalData && app.globalData.serverUrl) || 'https://crayxus-game.onrender.com'
-      const voice = q.audio_speaker === 'dialogue' ? 'us-female' : 'us-female'
+      const voice = 'us-female'
       wx.request({
         url: serverUrl + '/api/ai/ielts/tts',
         method: 'POST',
@@ -151,7 +168,6 @@ Page({
         success: (r) => {
           const d = r.data
           if (d && d.ok && d.audio) {
-            // 把 base64 写到临时文件然后播放，并缓存路径
             this._writeAndPlay(q.id, d.audio)
           } else {
             this.setData({ audioLoading: false })
@@ -166,6 +182,82 @@ Page({
         }
       })
     } catch(e) { console.warn('[onToggleAudio]', e) }
+  },
+
+  // 对话题：依次请求所有段落 TTS
+  _fetchAllSegments(q) {
+    const serverUrl = (app && app.globalData && app.globalData.serverUrl) || 'https://crayxus-game.onrender.com'
+    const segs = q.audio_segments
+    const paths = new Array(segs.length)
+    let done = 0, failed = false
+
+    segs.forEach((seg, idx) => {
+      wx.request({
+        url: serverUrl + '/api/ai/ielts/tts',
+        method: 'POST',
+        data: { text: seg.text, voice: seg.voice || 'us-female' },
+        timeout: 30000,
+        success: (r) => {
+          const d = r.data
+          if (d && d.ok && d.audio) {
+            const m = d.audio.match(/^data:audio\/(\w+);base64,(.*)$/)
+            if (!m) { failed = true; return }
+            const ext = m[1] === 'mpeg' ? 'mp3' : m[1]
+            const fs = wx.getFileSystemManager()
+            const tempPath = `${wx.env.USER_DATA_PATH}/tts_${q.id}_seg${idx}_${Date.now()}.${ext}`
+            fs.writeFile({
+              filePath: tempPath, data: m[2], encoding: 'base64',
+              success: () => {
+                paths[idx] = tempPath
+                done++
+                if (done === segs.length && !failed) {
+                  const newCache = { ...this.data.audioCache, [q.id]: paths }
+                  this.setData({ audioCache: newCache, audioLoading: false, audioLoaded: true })
+                  this._playSegmentsSequential(paths)
+                }
+              },
+              fail: () => { failed = true; this.setData({ audioLoading: false }) }
+            })
+          } else {
+            failed = true
+            this.setData({ audioLoading: false })
+            wx.showToast({ title: '音频加载失败', icon: 'none' })
+          }
+        },
+        fail: () => {
+          failed = true
+          this.setData({ audioLoading: false })
+          wx.showToast({ title: '网络异常', icon: 'none' })
+        }
+      })
+    })
+  },
+
+  _playSegmentsSequential(paths) {
+    if (!paths || paths.length === 0) return
+    if (this._audioCtx) { try { this._audioCtx.destroy() } catch(e){} this._audioCtx = null }
+    let idx = 0
+    const playNext = () => {
+      if (idx >= paths.length) {
+        this.setData({ audioPlaying: false })
+        return
+      }
+      const ctx = wx.createInnerAudioContext()
+      ctx.src = paths[idx]
+      ctx.onPlay(() => this.setData({ audioPlaying: true }))
+      ctx.onEnded(() => {
+        try { ctx.destroy() } catch(e){}
+        idx++
+        playNext()
+      })
+      ctx.onError(() => {
+        try { ctx.destroy() } catch(e){}
+        this.setData({ audioPlaying: false })
+      })
+      this._audioCtx = ctx
+      ctx.play()
+    }
+    playNext()
   },
 
   _writeAndPlay(qid, dataUri) {
@@ -388,7 +480,8 @@ Page({
       audioPlaying: false,
       audioLoading: false,
       audioLoaded: false,
-      showSubtitle: false
+      showSubtitle: false,
+      showTranslation: false
     })
   },
 

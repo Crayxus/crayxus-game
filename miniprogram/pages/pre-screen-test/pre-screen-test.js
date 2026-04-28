@@ -133,7 +133,26 @@ Page({
     try { wx.vibrateShort && wx.vibrateShort({ type: 'light' }) } catch(e) {}
     const subjectName = (options && options.subject) ? decodeURIComponent(options.subject) : ''
     const subjectId = (options && options.subjectId) ? options.subjectId : ''
+    this._subjectId = subjectId || subjectName
+    this._stateKey = `prescreen_progress__${this._subjectId || 'default'}`
     this.setData({ subjectName })
+
+    // 🔁 尝试恢复上次未完成的测评
+    const saved = this._loadInProgress()
+    if (saved && saved.questions && saved.questions.length > 0 && saved.currentIdx < saved.questions.length) {
+      // 还有未完成的进度 → 恢复
+      this._localQuestions = saved.questions
+      this.setData({
+        totalQuestions: saved.questions.length,
+        currentIdx: saved.currentIdx,
+        currentQuestion: saved.questions[saved.currentIdx],
+        answers: saved.answers || [],
+        selectedOption: (saved.answers && saved.answers[saved.currentIdx] !== undefined) ? saved.answers[saved.currentIdx] : null,
+        progress: Math.round(((saved.currentIdx + 1) / saved.questions.length) * 100)
+      })
+      wx.showToast({ title: '已恢复上次进度', icon: 'none', duration: 1500 })
+      return
+    }
 
     // 雅思 → 调 DeepSeek 实时生成匹配度题
     if (subjectId === 'ielts' || subjectName === '雅思') {
@@ -145,7 +164,27 @@ Page({
         currentQuestion: this._localQuestions[0],
         progress: Math.round((1 / QUESTIONS.length) * 100)
       })
+      this._saveInProgress()
     }
+  },
+
+  _loadInProgress() {
+    try { return wx.getStorageSync(this._stateKey) || null } catch(e) { return null }
+  },
+
+  _saveInProgress() {
+    try {
+      wx.setStorageSync(this._stateKey, {
+        questions: this._localQuestions,
+        currentIdx: this.data.currentIdx,
+        answers: this.data.answers,
+        savedAt: Date.now()
+      })
+    } catch(e) {}
+  },
+
+  _clearInProgress() {
+    try { wx.removeStorageSync(this._stateKey) } catch(e) {}
   },
 
   // 假进度条：0-95% 平滑逼近，100% 在收到数据时跳
@@ -262,9 +301,11 @@ Page({
           selectedOption: answers[nextIdx] !== undefined ? answers[nextIdx] : null,
           progress: Math.round(((nextIdx + 1) / this.data.totalQuestions) * 100)
         })
+        this._saveInProgress()
       } else {
         // 最后一题 → 生成报告
         this.setData({ answers, finished: true, progress: 100 })
+        this._clearInProgress()
         this._generateResult(answers)
       }
     } catch(e) { console.warn('[nextQuestion]', e) }

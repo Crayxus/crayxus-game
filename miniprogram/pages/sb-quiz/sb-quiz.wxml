@@ -62,10 +62,19 @@
       </view>
       <view class="ap-subtitle" wx:if="{{showSubtitle}}">
         <text>{{currentQ.audio_script}}</text>
+        <text wx:if="{{currentQ.audio_script_zh}}" class="ap-subtitle-zh">🇨🇳 {{currentQ.audio_script_zh}}</text>
       </view>
     </view>
 
-    <text class="q-text">{{currentQ.q}}</text>
+    <view class="q-row">
+      <text class="q-text">{{currentQ.q}}</text>
+      <view wx:if="{{currentQ.q_zh}}" class="q-trans-btn {{showTranslation ? 'active' : ''}}" bindtap="onToggleTranslation">
+        <text>{{showTranslation ? '隐藏' : '🇨🇳 翻译'}}</text>
+      </view>
+    </view>
+    <view wx:if="{{showTranslation && currentQ.q_zh}}" class="q-translation">
+      <text>{{currentQ.q_zh}}</text>
+    </view>
 
     <view class="opt-list">
       <view class="opt-row {{selectedIdx === idx ? 'selected' : ''}} {{showResult ? (idx === currentQ.answer ? 'correct' : (selectedIdx === idx ? 'wrong' : '')) : ''}}"

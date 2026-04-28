@@ -2786,6 +2786,17 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
 - **每次生成的题目内容必须和之前不同**，不要重复使用相同的场景/人物/数字
 - 避免和标准题库重复，出题角度要新颖${listeningNote}
 
+【⚠️ 反偏置硬约束（最最重要 · 否则废题）】
+学员反馈说"长选项总是对的、词汇题答案总是 A、阅读题选最长的就行" — 这是命题失败。本次必须修正：
+- ❌ **正确答案的字符长度必须和其他 3 个干扰项相近**（误差不超过 30%）— 不要让对的明显比错的长
+- ❌ **干扰项必须有一定迷惑性** — 不要做出"明显胡编"的选项让学员一眼排除
+- ❌ **不要让正确答案总是出现在某个位置** — 后端会随机打乱，但你也别集中放 A
+- ✅ 阅读题：4 个选项要测试不同的细节，不能一个长答案和三个一句话短的
+- ✅ 词汇题：4 个选项都是同义词候选，只是搭配/语境不同，不能一个对得明显其他错得明显
+
+【🌐 中文翻译要求（非常重要）】
+为方便中国学员理解，每题必须额外提供 **q_zh 字段**：题干的简体中文翻译（保留专业术语英文如 IELTS / Band，但句子结构翻成自然中文）。听力题的 audio_script 也要附上 audio_script_zh 翻译。
+
 【⚠️ 关键 · 题目必须自包含（最重要）】
 学员看到的界面只有：题干文字 + 4 个选项 + （仅听力题）一个播放按钮。**不会显示任何外部段落、图表、图片、表格**。所以：
 - ❌ 严禁出现"According to the passage..."、"Read the text below"、"Refer to the paragraph"等引用外部段落的题
@@ -2806,6 +2817,7 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
       "lesson": "简短考点标签",
       "difficulty": ${difficulty},
       ${schemaField}"q": "题干，听力题写问题本身不要复述音频",
+      "q_zh": "题干的简体中文翻译",
       "options": ["选项A", "选项B", "选项C", "选项D"],
       "answer": 0,
       "solution": "中文讲解 2-3 句"
@@ -2856,13 +2868,14 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
         }
 
         // 补全缺失字段 + 去除危险字段
-        const clean = questions.map((q, i) => {
+        let clean = questions.map((q, i) => {
             const obj = {
                 id: q.id || `ai_${Date.now()}_${i}`,
                 dim: dim,
                 lesson: String(q.lesson || '').slice(0, 40),
                 difficulty: Number(q.difficulty) || difficulty,
                 q: String(q.q || '').slice(0, 500),
+                q_zh: String(q.q_zh || '').slice(0, 500),
                 options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).slice(0, 200)) : [],
                 answer: Math.max(0, Math.min(3, Number(q.answer) || 0)),
                 solution: String(q.solution || '').slice(0, 400),
@@ -2870,11 +2883,22 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
             };
             if (dim === 'listening' && q.audio_script) {
                 obj.audio_script = String(q.audio_script).slice(0, 600);
+                obj.audio_script_zh = String(q.audio_script_zh || '').slice(0, 600);
                 obj.audio_speaker = (q.audio_speaker === 'dialogue') ? 'dialogue' : 'single';
                 obj.audio_duration = Math.max(8, Math.min(40, Number(q.audio_duration) || 12));
+                // 对话题切分男女声段
+                if (obj.audio_speaker === 'dialogue') {
+                    const segs = parseDialogueSegments(obj.audio_script);
+                    if (segs) obj.audio_segments = segs;
+                }
             }
             return obj;
         }).filter(q => q.q && q.options.length === 4);
+
+        // 反偏置：每题随机打乱选项（破除"答案总是 A / 长的总是对"）
+        clean = clean.map(shuffleQuestionOptions);
+        // 简单题在前（自然递进难度）
+        clean = sortByDifficulty(clean);
 
         gameLog(`[AI-IELTS] Generated ${clean.length} questions for dim=${dim} band=${band} mastery=${mastery}`);
         res.json({ ok: true, questions: clean, model: DEEPSEEK_MODEL, band });
@@ -2883,6 +2907,53 @@ app.post('/api/ai/ielts/generate', async (req, res) => {
         res.status(500).json({ error: 'internal_error', message: err.message });
     }
 });
+
+// ============================================
+// 🎲 题目反偏置后处理（修复 DeepSeek 答案规律性问题）
+// ============================================
+function shuffleQuestionOptions(q) {
+    if (!q || !Array.isArray(q.options) || q.options.length !== 4) return q;
+    const correctIdx = Math.max(0, Math.min(3, Number(q.answer) || 0));
+    const correctText = q.options[correctIdx];
+    const distractors = q.options.filter((_, i) => i !== correctIdx);
+    // 随机打乱整体（确保每个位置概率均等）
+    const allOptions = [correctText, ...distractors];
+    for (let i = allOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+    }
+    const newAnswer = allOptions.indexOf(correctText);
+    return { ...q, options: allOptions, answer: newAnswer };
+}
+
+// 把"Man: ... Woman: ..."对话切成多段，分配男女音色
+function parseDialogueSegments(audioScript) {
+    if (!audioScript) return null;
+    const text = String(audioScript);
+    // 匹配 Man:/M:/Woman:/W:/Speaker A:/Speaker B: 等开头
+    const re = /\b(Man|Woman|M|W|Male|Female|Speaker A|Speaker B|A|B)\s*[:：]\s*/gi;
+    const matches = [...text.matchAll(re)];
+    if (matches.length < 2) return null; // 不是对话
+    const segments = [];
+    for (let i = 0; i < matches.length; i++) {
+        const speaker = matches[i][1].toLowerCase();
+        const start = matches[i].index + matches[i][0].length;
+        const end = i + 1 < matches.length ? matches[i + 1].index : text.length;
+        const content = text.slice(start, end).trim();
+        if (!content) continue;
+        const isMale = ['man', 'm', 'male', 'speaker a', 'a'].includes(speaker);
+        segments.push({
+            voice: isMale ? 'us-male' : 'us-female',
+            text: content
+        });
+    }
+    return segments.length >= 2 ? segments : null;
+}
+
+// 把题目按难度升序排（让学员从简单开始）
+function sortByDifficulty(questions) {
+    return [...questions].sort((a, b) => (Number(a.difficulty) || 2) - (Number(b.difficulty) || 2));
+}
 
 // 🧠 DeepSeek 通用调用辅助
 async function callDeepSeek(prompt, maxTokens = 3000, temperature = 1.05) {
@@ -2930,6 +3001,24 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
 - **每次生成的题目必须是全新的**，避免重复的人物/地点/数字/情境
 - 出题角度要新颖、多样，覆盖典型考点
 
+【⚠️ 反偏置硬约束（最最重要 · 否则废题）】
+学员反馈"长选项总是对的、词汇题总是 A、阅读题选最长就对"— 这是命题失败：
+- ❌ **正确答案的字符长度必须和其他 3 个干扰项相近**（误差不超过 30%）
+- ❌ 干扰项必须有迷惑性，不要明显胡编让学员一眼排除
+- ❌ 不要让正确答案集中在某个位置（A/B/C/D 各放约 25%）
+- ✅ 阅读题：4 个选项要测不同细节，不能一个长答案三个短的
+- ✅ 词汇题：4 个选项是同义词候选，搭配/语境差异
+
+【🌐 中文翻译要求（非常重要）】
+每题必须额外提供 q_zh 字段（题干简体中文翻译，专业术语保留英文如 IELTS / Band）。听力题的 audio_script 也要附 audio_script_zh 翻译。
+
+【🎙 听力对话题】
+听力对话题（audio_speaker = "dialogue"）的 audio_script 必须用 "Man:" 和 "Woman:" 前缀分行，例如：
+"Man: Excuse me, where is the library?
+Woman: It's on the second floor, next to the cafeteria.
+Man: Thank you!"
+这样后端能自动切分男女声播放。
+
 【⚠️ 关键 · 题目必须自包含（最重要）】
 学员看到的界面只有：题干文字 + 4 个选项 + （仅听力题）一个播放按钮。**不会显示任何外部段落、图表、图片、表格、数据**。所以：
 - ❌ 严禁出现"The line graph shows..."、"The bar chart compares..."、"The table below..."、"Look at the graph"、"Refer to the chart" 等引用外部图表的题
@@ -2965,10 +3054,12 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
       "dim": "listening|speaking|reading|writing|vocabulary|grammar",
       "lesson": "简短考点标签",
       "difficulty": 1,
-      "audio_script": "仅 listening 题需要，其他科目省略此字段",
+      "audio_script": "仅 listening 题需要，对话题用 Man:/Woman: 前缀",
+      "audio_script_zh": "仅 listening 题需要，音频中文翻译",
       "audio_speaker": "single",
       "audio_duration": 12,
       "q": "题干",
+      "q_zh": "题干的简体中文翻译",
       "options": ["A", "B", "C", "D"],
       "answer": 0,
       "solution": "中文讲解 2-3 句"
@@ -2982,7 +3073,7 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
         const questions = Array.isArray(parsed.questions) ? parsed.questions : [];
 
         const validDims = ['listening','speaking','reading','writing','vocabulary','grammar'];
-        const clean = questions.map((q, i) => {
+        let clean = questions.map((q, i) => {
             const dim = validDims.includes(q.dim) ? q.dim : 'listening';
             const obj = {
                 id: q.id || `ai_assess_${Date.now()}_${i}`,
@@ -2990,6 +3081,7 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
                 lesson: String(q.lesson || '').slice(0, 40),
                 difficulty: Math.max(1, Math.min(3, Number(q.difficulty) || 2)),
                 q: String(q.q || '').slice(0, 500),
+                q_zh: String(q.q_zh || '').slice(0, 500),
                 options: Array.isArray(q.options) ? q.options.slice(0, 4).map(o => String(o).slice(0, 200)) : [],
                 answer: Math.max(0, Math.min(3, Number(q.answer) || 0)),
                 solution: String(q.solution || '').slice(0, 400),
@@ -2997,11 +3089,20 @@ app.post('/api/ai/ielts/assess', async (req, res) => {
             };
             if (dim === 'listening' && q.audio_script) {
                 obj.audio_script = String(q.audio_script).slice(0, 600);
+                obj.audio_script_zh = String(q.audio_script_zh || '').slice(0, 600);
                 obj.audio_speaker = (q.audio_speaker === 'dialogue') ? 'dialogue' : 'single';
                 obj.audio_duration = Math.max(8, Math.min(40, Number(q.audio_duration) || 12));
+                if (obj.audio_speaker === 'dialogue') {
+                    const segs = parseDialogueSegments(obj.audio_script);
+                    if (segs) obj.audio_segments = segs;
+                }
             }
             return obj;
         }).filter(q => q.q && q.options.length === 4);
+
+        // 反偏置：随机打乱选项位置 + 难度升序
+        clean = clean.map(shuffleQuestionOptions);
+        clean = sortByDifficulty(clean);
 
         gameLog(`[AI-IELTS-ASSESS] Generated ${clean.length}/20 questions`);
         res.json({ ok: true, questions: clean, model: DEEPSEEK_MODEL });
