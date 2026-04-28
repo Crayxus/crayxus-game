@@ -49,6 +49,65 @@
     </view>
   </view>
 
+  <!-- 顶级学术后援 -->
+  <view class="academic-card">
+    <view class="ac-title-row">
+      <text class="ac-icon">🎓</text>
+      <text class="ac-title">顶级学术 × 海外团队联合主导</text>
+    </view>
+    <view class="ac-lead">
+      <view class="ac-lead-tag">主导团队</view>
+      <text class="ac-lead-text"><text class="ac-hl">浙江大学 · 张旭光教授</text> 全身心参与 · 计算机学院 + 人工智能研究所</text>
+    </view>
+    <view class="ac-grid">
+      <view class="ac-cell">
+        <text class="ac-flag">🇺🇸</text>
+        <view class="ac-info">
+          <text class="ac-name">Stanford AI Lab</text>
+          <text class="ac-role">自动驾驶 / 多智能体</text>
+        </view>
+      </view>
+      <view class="ac-cell">
+        <text class="ac-flag">🇺🇸</text>
+        <view class="ac-info">
+          <text class="ac-name">MIT CSAIL</text>
+          <text class="ac-role">机器人学 / RL</text>
+        </view>
+      </view>
+      <view class="ac-cell">
+        <text class="ac-flag">🇬🇧</text>
+        <view class="ac-info">
+          <text class="ac-name">Oxford Robotics</text>
+          <text class="ac-role">水下机器人</text>
+        </view>
+      </view>
+      <view class="ac-cell">
+        <text class="ac-flag">🇨🇭</text>
+        <view class="ac-info">
+          <text class="ac-name">ETH Zürich</text>
+          <text class="ac-role">海洋装备 / 控制</text>
+        </view>
+      </view>
+      <view class="ac-cell">
+        <text class="ac-flag">🇨🇳</text>
+        <view class="ac-info">
+          <text class="ac-name">浙大 / 复旦 / 同济</text>
+          <text class="ac-role">国内合作院校</text>
+        </view>
+      </view>
+      <view class="ac-cell">
+        <text class="ac-flag">🇦🇺</text>
+        <view class="ac-info">
+          <text class="ac-name">UNSW + Crayxus AU</text>
+          <text class="ac-role">海外注册 / 海外资源</text>
+        </view>
+      </view>
+    </view>
+    <view class="ac-footer">
+      <text>每个项目均配 <text class="ac-hl">浙大首席教授</text> + <text class="ac-hl">海外名校联合导师</text></text>
+    </view>
+  </view>
+
   <!-- 类别筛选 -->
   <view class="filter-row">
     <view class="filter-pill {{filter === 'all' ? 'active' : ''}}" bindtap="setFilter" data-f="all">
@@ -65,40 +124,38 @@
   <!-- 项目卡片列表 -->
   <view class="project-list">
     <view class="project-card" wx:for="{{filtered}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
-      <view class="pc-head">
-        <view class="pc-icon" style="background:linear-gradient(135deg, {{item.color}}, rgba(0,0,0,.4))">
-          <text>{{item.icon}}</text>
-        </view>
-        <view class="pc-title-block">
+      <!-- 大尺寸 banner 视觉区 -->
+      <view class="pc-banner" style="background:radial-gradient(circle at 30% 30%, {{item.color}}55, transparent 60%), linear-gradient(135deg, {{item.color}}22, rgba(0,0,0,.4))">
+        <text class="pc-cat-badge">{{item.cat === 'hw' ? '软硬件' : 'AAAS'}}</text>
+        <text class="pc-mega-icon">{{item.icon}}</text>
+        <view class="pc-banner-glow" style="background:radial-gradient(circle, {{item.color}}66, transparent 70%)"></view>
+      </view>
+
+      <view class="pc-content">
+        <view class="pc-name-row">
           <text class="pc-name">{{item.name}}</text>
-          <text class="pc-short">{{item.short}}</text>
+          <text class="pc-arrow" style="color:{{item.color}}">→</text>
         </view>
-        <text class="pc-cat-tag">{{item.cat === 'hw' ? '软硬件' : 'AAAS'}}</text>
-      </view>
+        <text class="pc-short">{{item.short}}</text>
 
-      <view class="pc-stats">
-        <view class="pc-stat-cell">
-          <text class="pcs-num">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
-          <text class="pcs-lbl">单席价</text>
+        <view class="pc-stats">
+          <view class="pc-stat-cell">
+            <text class="pcs-num" style="color:{{item.color}}">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
+            <text class="pcs-lbl">单席价</text>
+          </view>
+          <view class="pc-stat-cell">
+            <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
+            <text class="pcs-lbl">周期</text>
+          </view>
+          <view class="pc-stat-cell">
+            <text class="pcs-num">{{item.joined}}/{{item.seats}}</text>
+            <text class="pcs-lbl">名额</text>
+          </view>
         </view>
-        <view class="pc-stat-cell">
-          <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
-          <text class="pcs-lbl">周期</text>
-        </view>
-        <view class="pc-stat-cell">
-          <text class="pcs-num joined" style="color:{{item.color}}">{{item.joined}}/{{item.seats}}</text>
-          <text class="pcs-lbl">名额</text>
-        </view>
-      </view>
 
-      <!-- 进度条 -->
-      <view class="pc-progress-wrap">
-        <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
-      </view>
-
-      <view class="pc-footer">
-        <text class="pc-tagline">{{item.tagline}}</text>
-        <text class="pc-arrow" style="color:{{item.color}}">查看详情 →</text>
+        <view class="pc-progress-wrap">
+          <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
+        </view>
       </view>
     </view>
   </view>
