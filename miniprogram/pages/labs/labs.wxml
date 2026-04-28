@@ -113,7 +113,19 @@
     </view>
 
     <view class="menu-footer">
-      <text class="mf-line">浙江大学 · 张旭光教授 主导 · Stanford / MIT / Oxford / ETH 联合</text>
+      <text class="mf-line">浙江大学 · 张旭光教授 主导 · 海外名校学术顾问网络对接中</text>
+    </view>
+
+    <view class="market-note">
+      <text class="mn-icon">📊</text>
+      <view class="mn-body">
+        <text class="mn-title">满席启动 · 市场决定项目</text>
+        <text class="mn-desc">每个项目独立众筹 · 该项目认领满席后启动 · 不强求所有项目同时开工</text>
+      </view>
+    </view>
+
+    <view class="legal-note">
+      <text>* 本平台所述"营收分润权 / NFT 凭证 / 优先购买权"为基于具体项目协议的合同权益，不构成证券产品。最终条款以正式认领协议为准。本平台不承诺保本收益，赞助前请确认风险承受能力。</text>
     </view>
   </block>
 
