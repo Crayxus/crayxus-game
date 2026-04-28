@@ -5,7 +5,7 @@
   <!-- 浮动返回 -->
   <view class="float-back" style="top:{{statusBarHeight + 12}}px" bindtap="goBack">
     <text class="fb-arrow">←</text>
-    <text class="fb-text">返回</text>
+    <text class="fb-text">{{view === 'menu' ? '返回' : '主菜单'}}</text>
   </view>
 
   <!-- 顶部品牌头 -->
@@ -19,114 +19,124 @@
     </view>
   </view>
 
-  <!-- Hero -->
-  <view class="hero">
-    <view class="hero-deco"></view>
-    <view class="hero-tag">CRAYXUS LABS · AI × KICKSTARTER</view>
-    <view class="hero-title">创始赞助方<text class="ht-accent">共建真实项目</text></view>
-    <view class="hero-sub">高净值赞助方共建真实工程项目 · 实物 / 体验 / 教育 / 股权一站到位</view>
+  <!-- ============ 主菜单视图（仅 3 个板块） ============ -->
+  <block wx:if="{{view === 'menu'}}">
 
-    <view class="hero-stats">
-      <view class="stat">
-        <text class="stat-num">{{projects.length}}<text class="stat-unit">个</text></text>
-        <text class="stat-lbl">真实项目</text>
-      </view>
-      <view class="stat-sep"></view>
-      <view class="stat">
-        <text class="stat-num">{{totalBudget}}<text class="stat-unit">w</text></text>
-        <text class="stat-lbl">总目标</text>
-      </view>
-      <view class="stat-sep"></view>
-      <view class="stat">
-        <text class="stat-num">{{totalJoined}}/{{totalSeats}}</text>
-        <text class="stat-lbl">席位认领</text>
-      </view>
-      <view class="stat-sep"></view>
-      <view class="stat">
-        <text class="stat-num">{{totalSeats - totalJoined}}<text class="stat-unit">席</text></text>
-        <text class="stat-lbl">空缺</text>
-      </view>
+    <view class="menu-intro">
+      <text class="mi-tag">CHOOSE YOUR PATH</text>
+      <text class="mi-title">选择你想加入的方向</text>
     </view>
-  </view>
 
-  <!-- 顶级学术后援 -->
-  <view class="academic-card">
-    <view class="ac-title-row">
-      <text class="ac-icon">🎓</text>
-      <text class="ac-title">顶级学术 × 海外团队联合主导</text>
-    </view>
-    <view class="ac-lead">
-      <view class="ac-lead-tag">主导团队</view>
-      <text class="ac-lead-text"><text class="ac-hl">浙江大学 · 张旭光教授</text> 全身心参与 · 计算机学院 + 人工智能研究所</text>
-    </view>
-    <view class="ac-grid">
-      <view class="ac-cell">
-        <text class="ac-flag">🇺🇸</text>
-        <view class="ac-info">
-          <text class="ac-name">Stanford AI Lab</text>
-          <text class="ac-role">自动驾驶 / 多智能体</text>
-        </view>
-      </view>
-      <view class="ac-cell">
-        <text class="ac-flag">🇺🇸</text>
-        <view class="ac-info">
-          <text class="ac-name">MIT CSAIL</text>
-          <text class="ac-role">机器人学 / RL</text>
-        </view>
-      </view>
-      <view class="ac-cell">
-        <text class="ac-flag">🇬🇧</text>
-        <view class="ac-info">
-          <text class="ac-name">Oxford Robotics</text>
-          <text class="ac-role">水下机器人</text>
-        </view>
-      </view>
-      <view class="ac-cell">
-        <text class="ac-flag">🇨🇭</text>
-        <view class="ac-info">
-          <text class="ac-name">ETH Zürich</text>
-          <text class="ac-role">海洋装备 / 控制</text>
-        </view>
-      </view>
-      <view class="ac-cell">
-        <text class="ac-flag">🇨🇳</text>
-        <view class="ac-info">
-          <text class="ac-name">浙大 / 复旦 / 同济</text>
-          <text class="ac-role">国内合作院校</text>
-        </view>
-      </view>
-      <view class="ac-cell">
-        <text class="ac-flag">🇦🇺</text>
-        <view class="ac-info">
-          <text class="ac-name">UNSW + Crayxus AU</text>
-          <text class="ac-role">海外注册 / 海外资源</text>
-        </view>
-      </view>
-    </view>
-    <view class="ac-footer">
-      <text>每个项目均配 <text class="ac-hl">浙大首席教授</text> + <text class="ac-hl">海外名校联合导师</text></text>
-    </view>
-  </view>
+    <view class="menu-grid">
 
-  <!-- 板块 1 · 软硬件综合 -->
-  <view class="section">
-    <view class="section-head">
-      <text class="sh-icon">🛠</text>
-      <view class="sh-text">
-        <text class="sh-title">软硬件综合</text>
-        <text class="sh-sub">实体产品 · AI 大脑 · {{hwProjects.length}} 个项目</text>
+      <!-- 软硬件综合 -->
+      <view class="menu-card hw-card" bindtap="enterCategory" data-cat="hw">
+        <view class="mc-bg-glow hw-glow"></view>
+        <view class="mc-icon-box">
+          <text class="mc-icon">🛠</text>
+        </view>
+        <view class="mc-body">
+          <text class="mc-title">软硬件综合</text>
+          <text class="mc-sub">实体产品 · AI 大脑</text>
+        </view>
+        <view class="mc-stats">
+          <view class="mcs-cell">
+            <text class="mcs-num">{{hwStats.count}}</text>
+            <text class="mcs-lbl">项目</text>
+          </view>
+          <view class="mcs-cell">
+            <text class="mcs-num">{{hwStats.budget}}<text class="mcs-unit">w</text></text>
+            <text class="mcs-lbl">总目标</text>
+          </view>
+          <view class="mcs-cell">
+            <text class="mcs-num">{{hwStats.fillPct}}<text class="mcs-unit">%</text></text>
+            <text class="mcs-lbl">已招</text>
+          </view>
+        </view>
+        <view class="mc-arrow"><text>查看 {{hwStats.count}} 个项目 →</text></view>
       </view>
-      <text class="sh-count">{{hwProjects.length}}</text>
+
+      <!-- 大模型开发 -->
+      <view class="menu-card model-card" bindtap="enterCategory" data-cat="model">
+        <view class="mc-bg-glow model-glow"></view>
+        <view class="mc-icon-box">
+          <text class="mc-icon">🧠</text>
+        </view>
+        <view class="mc-body">
+          <text class="mc-title">AI 大模型开发</text>
+          <text class="mc-sub">博弈 · 多智能体 · V8 框架</text>
+        </view>
+        <view class="mc-stats">
+          <view class="mcs-cell">
+            <text class="mcs-num">{{modelStats.count}}</text>
+            <text class="mcs-lbl">项目</text>
+          </view>
+          <view class="mcs-cell">
+            <text class="mcs-num">{{modelStats.budget}}<text class="mcs-unit">w</text></text>
+            <text class="mcs-lbl">总目标</text>
+          </view>
+          <view class="mcs-cell">
+            <text class="mcs-num">{{modelStats.fillPct}}<text class="mcs-unit">%</text></text>
+            <text class="mcs-lbl">已招</text>
+          </view>
+        </view>
+        <view class="mc-arrow"><text>查看 {{modelStats.count}} 个项目 →</text></view>
+      </view>
+
+      <!-- AAAS 项目 -->
+      <view class="menu-card sw-card" bindtap="enterCategory" data-cat="sw">
+        <view class="mc-bg-glow sw-glow"></view>
+        <view class="mc-icon-box">
+          <text class="mc-icon">💻</text>
+        </view>
+        <view class="mc-body">
+          <text class="mc-title">AAAS 项目</text>
+          <text class="mc-sub">真实客户落地 · SaaS</text>
+        </view>
+        <view class="mc-stats">
+          <view class="mcs-cell">
+            <text class="mcs-num">{{swStats.count}}</text>
+            <text class="mcs-lbl">项目</text>
+          </view>
+          <view class="mcs-cell">
+            <text class="mcs-num">{{swStats.budget}}<text class="mcs-unit">w</text></text>
+            <text class="mcs-lbl">总目标</text>
+          </view>
+          <view class="mcs-cell">
+            <text class="mcs-num">{{swStats.fillPct}}<text class="mcs-unit">%</text></text>
+            <text class="mcs-lbl">已招</text>
+          </view>
+        </view>
+        <view class="mc-arrow"><text>查看 {{swStats.count}} 个项目 →</text></view>
+      </view>
+
     </view>
+
+    <view class="menu-footer">
+      <text class="mf-line">浙江大学 · 张旭光教授 主导 · Stanford / MIT / Oxford / ETH 联合</text>
+    </view>
+  </block>
+
+  <!-- ============ 板块视图（点击板块后） ============ -->
+  <block wx:if="{{view !== 'menu'}}">
+
+    <view class="cat-banner" style="background:linear-gradient(135deg, {{activeColor}}33, rgba(0,0,0,.4))">
+      <view class="cb-icon">{{activeIcon}}</view>
+      <view class="cb-text">
+        <text class="cb-title">{{activeTitle}}</text>
+        <text class="cb-sub">{{activeProjects.length}} 个项目 · 创始席位招募中</text>
+      </view>
+    </view>
+
     <view class="project-list">
-      <view class="project-card" wx:for="{{hwProjects}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
+      <view class="project-card" wx:for="{{activeProjects}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
         <view class="pc-banner">
           <image wx:if="{{item.image}}" class="pc-banner-img" src="{{item.image}}" mode="aspectFill"></image>
           <view wx:else class="pc-banner-fallback" style="background:radial-gradient(circle at 30% 30%, {{item.color}}55, transparent 60%), linear-gradient(135deg, {{item.color}}22, rgba(0,0,0,.4))">
             <text class="pc-mega-icon">{{item.icon}}</text>
           </view>
-          <view class="pc-banner-overlay"></view>
-          <text class="pc-cat-badge">软硬件</text>
+          <view wx:if="{{item.image}}" class="pc-banner-overlay"></view>
+          <text class="pc-cat-badge">{{view === 'hw' ? '软硬件' : (view === 'model' ? '大模型' : 'AAAS')}}</text>
         </view>
         <view class="pc-content">
           <view class="pc-name-row">
@@ -154,111 +164,11 @@
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 板块 2 · 大模型开发 -->
-  <view class="section">
-    <view class="section-head">
-      <text class="sh-icon">🧠</text>
-      <view class="sh-text">
-        <text class="sh-title">AI 大模型开发</text>
-        <text class="sh-sub">博弈 · 多智能体 · 复用 V8 框架 · {{modelProjects.length}} 个项目</text>
-      </view>
-      <text class="sh-count">{{modelProjects.length}}</text>
+    <view class="back-to-menu" bindtap="backToMenu">
+      <text>← 返回主菜单</text>
     </view>
-    <view class="project-list">
-      <view class="project-card" wx:for="{{modelProjects}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
-        <view class="pc-banner">
-          <view class="pc-banner-fallback" style="background:radial-gradient(circle at 30% 30%, {{item.color}}55, transparent 60%), linear-gradient(135deg, {{item.color}}22, rgba(0,0,0,.4))">
-            <text class="pc-mega-icon">{{item.icon}}</text>
-          </view>
-          <text class="pc-cat-badge">大模型</text>
-        </view>
-        <view class="pc-content">
-          <view class="pc-name-row">
-            <text class="pc-name">{{item.name}}</text>
-            <text class="pc-arrow" style="color:{{item.color}}">→</text>
-          </view>
-          <text class="pc-short">{{item.short}}</text>
-          <view class="pc-stats">
-            <view class="pc-stat-cell">
-              <text class="pcs-num" style="color:{{item.color}}">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
-              <text class="pcs-lbl">单席价</text>
-            </view>
-            <view class="pc-stat-cell">
-              <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
-              <text class="pcs-lbl">周期</text>
-            </view>
-            <view class="pc-stat-cell">
-              <text class="pcs-num">{{item.joined}}/{{item.seats}}</text>
-              <text class="pcs-lbl">名额</text>
-            </view>
-          </view>
-          <view class="pc-progress-wrap">
-            <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
-          </view>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 板块 3 · AAAS 项目 -->
-  <view class="section">
-    <view class="section-head">
-      <text class="sh-icon">💻</text>
-      <view class="sh-text">
-        <text class="sh-title">AAAS 项目（AI Agent as a Service）</text>
-        <text class="sh-sub">真实客户落地 · 长期 SaaS · {{swProjects.length}} 个项目</text>
-      </view>
-      <text class="sh-count">{{swProjects.length}}</text>
-    </view>
-    <view class="project-list">
-      <view class="project-card" wx:for="{{swProjects}}" wx:key="key" bindtap="openDetail" data-key="{{item.key}}">
-        <view class="pc-banner">
-          <view class="pc-banner-fallback" style="background:radial-gradient(circle at 30% 30%, {{item.color}}55, transparent 60%), linear-gradient(135deg, {{item.color}}22, rgba(0,0,0,.4))">
-            <text class="pc-mega-icon">{{item.icon}}</text>
-          </view>
-          <text class="pc-cat-badge">AAAS</text>
-        </view>
-        <view class="pc-content">
-          <view class="pc-name-row">
-            <text class="pc-name">{{item.name}}</text>
-            <text class="pc-arrow" style="color:{{item.color}}">→</text>
-          </view>
-          <text class="pc-short">{{item.short}}</text>
-          <view class="pc-stats">
-            <view class="pc-stat-cell">
-              <text class="pcs-num" style="color:{{item.color}}">{{item.perSeat}}<text class="pcs-unit">{{item.seatUnit}}/席</text></text>
-              <text class="pcs-lbl">单席价</text>
-            </view>
-            <view class="pc-stat-cell">
-              <text class="pcs-num">{{item.duration === 999 ? '持续' : item.duration + 'm'}}</text>
-              <text class="pcs-lbl">周期</text>
-            </view>
-            <view class="pc-stat-cell">
-              <text class="pcs-num">{{item.joined}}/{{item.seats}}</text>
-              <text class="pcs-lbl">名额</text>
-            </view>
-          </view>
-          <view class="pc-progress-wrap">
-            <view class="pc-progress-fill" style="width:{{(item.joined / item.seats * 100)}}%; background:{{item.color}}"></view>
-          </view>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 联系底部 -->
-  <view class="contact-card">
-    <view class="cc-row"><text class="cc-lbl">📍 实验室</text><text class="cc-val">Crayxus Labs · 上海 / 杭州</text></view>
-    <view class="cc-row"><text class="cc-lbl">🎓 合作院校</text><text class="cc-val">浙大 / 复旦 / 同济 / 国际高中</text></view>
-    <view class="cc-row"><text class="cc-lbl">✉️ 项目接洽</text><text class="cc-val">general@crayxus.com.au</text></view>
-  </view>
-
-  <view class="footer-mark">
-    <text>CRAYXUS LABS</text>
-    <text class="fm-sub">让学生在真实项目里学 AI</text>
-  </view>
+  </block>
 
   <view style="height:60rpx"></view>
 
@@ -274,14 +184,13 @@
           </view>
           <view class="do-title-block">
             <text class="do-name">{{currentProject.name}}</text>
-            <text class="do-cat-tag">{{currentProject.cat === 'hw' ? '🛠 软硬件一体项目' : '💻 AAAS 开发项目'}}</text>
+            <text class="do-cat-tag">{{currentProject.cat === 'hw' ? '🛠 软硬件一体项目' : (currentProject.cat === 'model' ? '🧠 AI 大模型开发' : '💻 AAAS 开发项目')}}</text>
           </view>
           <text class="do-close" bindtap="closeDetail">✕</text>
         </view>
 
         <view class="do-tagline">{{currentProject.tagline}}</view>
 
-        <!-- 关键数据卡 -->
         <view class="do-kpi">
           <view class="dk-cell">
             <text class="dk-num" style="color:{{currentProject.color}}">{{currentProject.perSeat}}<text class="dk-unit">{{currentProject.seatUnit}}</text></text>
@@ -301,24 +210,20 @@
           </view>
         </view>
 
-        <!-- 进度条大版 -->
         <view class="do-progress-big">
           <view class="dpb-fill" style="width:{{currentProject.progress}}%; background:{{currentProject.color}}"></view>
         </view>
 
-        <!-- 痛点 -->
         <view class="do-block">
           <view class="db-title">🎯 项目痛点</view>
           <view class="db-text">{{currentProject.painpoint}}</view>
         </view>
 
-        <!-- 技术架构 -->
         <view class="do-block">
           <view class="db-title">⚙️ 技术架构</view>
           <view class="db-text">{{currentProject.tech}}</view>
         </view>
 
-        <!-- 加入收益（核心权益） -->
         <view class="do-block highlight">
           <view class="db-title">🎁 加入这个项目你能得到什么</view>
           <view class="benefit-list">
@@ -334,7 +239,6 @@
           </view>
         </view>
 
-        <!-- 团队岗位 -->
         <view class="do-block">
           <view class="db-title">👥 团队岗位（共 {{currentProject.seats}} 席 · {{currentProject.seats - currentProject.joined}} 个空缺）</view>
           <view class="role-list">
@@ -345,7 +249,6 @@
           </view>
         </view>
 
-        <!-- 里程碑 -->
         <view class="do-block">
           <view class="db-title">🛤 项目里程碑</view>
           <view class="ms-list">
@@ -357,7 +260,6 @@
           </view>
         </view>
 
-        <!-- 资金分配 -->
         <view class="do-block">
           <view class="db-title">💰 资金分配（共 {{currentProject.budget}} 万）</view>
           <view class="spend-list">
@@ -371,7 +273,6 @@
           </view>
         </view>
 
-        <!-- 行动按钮 -->
         <view class="do-actions">
           <view class="da-apply" style="background:linear-gradient(135deg, {{currentProject.color}}, rgba(0,0,0,.4))" bindtap="onApply">
             <text>💎 申请创始席位 · {{currentProject.perSeat}}{{currentProject.seatUnit}}/席</text>

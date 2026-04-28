@@ -503,13 +503,27 @@ const PROJECTS = [
   }
 ]
 
+function _statsOf(arr) {
+  let budget = 0, seats = 0, joined = 0
+  arr.forEach(p => { budget += p.budget; seats += p.seats; joined += p.joined })
+  return { count: arr.length, budget, seats, joined, fillPct: seats ? Math.round(joined / seats * 100) : 0 }
+}
+
 Page({
   data: {
     statusBarHeight: 44,
+    view: 'menu',          // 'menu' | 'hw' | 'model' | 'sw'
+    activeProjects: [],
+    activeTitle: '',
+    activeIcon: '',
+    activeColor: '',
     projects: PROJECTS,
     hwProjects: [],
     modelProjects: [],
     swProjects: [],
+    hwStats: {},
+    modelStats: {},
+    swStats: {},
     detailOpen: false,
     currentProject: null,
     totalBudget: 0,
@@ -522,6 +536,9 @@ Page({
       const sys = wx.getSystemInfoSync()
       this.setData({ statusBarHeight: sys.statusBarHeight || 44 })
     } catch(e) {}
+    const hw = PROJECTS.filter(p => p.cat === 'hw')
+    const model = PROJECTS.filter(p => p.cat === 'model')
+    const sw = PROJECTS.filter(p => p.cat === 'sw')
     let totalBudget = 0, totalSeats = 0, totalJoined = 0
     PROJECTS.forEach(p => {
       totalBudget += p.budget
@@ -532,10 +549,32 @@ Page({
       totalBudget,
       totalSeats,
       totalJoined,
-      hwProjects: PROJECTS.filter(p => p.cat === 'hw'),
-      modelProjects: PROJECTS.filter(p => p.cat === 'model'),
-      swProjects: PROJECTS.filter(p => p.cat === 'sw')
+      hwProjects: hw,
+      modelProjects: model,
+      swProjects: sw,
+      hwStats: _statsOf(hw),
+      modelStats: _statsOf(model),
+      swStats: _statsOf(sw)
     })
+  },
+
+  enterCategory(e) {
+    const cat = e.currentTarget.dataset.cat
+    let projects, title, icon, color
+    if (cat === 'hw') {
+      projects = this.data.hwProjects; title = '软硬件综合'; icon = '🛠'; color = '#ff6b35'
+    } else if (cat === 'model') {
+      projects = this.data.modelProjects; title = 'AI 大模型开发'; icon = '🧠'; color = '#e91e63'
+    } else if (cat === 'sw') {
+      projects = this.data.swProjects; title = 'AAAS 项目'; icon = '💻'; color = '#7c4dff'
+    } else { return }
+    wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+    this.setData({ view: cat, activeProjects: projects, activeTitle: title, activeIcon: icon, activeColor: color })
+  },
+
+  backToMenu() {
+    wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+    this.setData({ view: 'menu' })
   },
 
   openDetail(e) {
@@ -555,6 +594,11 @@ Page({
   _noop() {},
 
   goBack() {
+    // 如果在子板块，先回主菜单，再点一次才退出
+    if (this.data.view !== 'menu') {
+      this.backToMenu()
+      return
+    }
     wx.navigateBack({ delta: 1, fail: () => wx.reLaunch({ url: '/pages/landing/landing' }) })
   },
 
