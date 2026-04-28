@@ -177,11 +177,24 @@ page {
 
 /* ============ AI 加载 overlay（丝滑进度条）============ */
 .ai-loading {
-  padding: 120rpx 48rpx 60rpx;
+  padding: 80rpx 24rpx 60rpx;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.ai-game-hint {
+  margin-top: 36rpx;
+  margin-bottom: 16rpx;
+  padding: 8rpx 22rpx;
+  border-radius: 999rpx;
+  background: rgba(0,212,170,.12);
+  border: 1rpx solid rgba(0,212,170,.3);
+}
+.ai-game-hint text {
+  font-size: 22rpx;
+  color: #00d4aa;
+  letter-spacing: 1rpx;
 }
 .ai-ring {
   width: 140rpx; height: 140rpx;

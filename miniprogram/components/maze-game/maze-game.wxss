@@ -1,0 +1,128 @@
+.maze-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 24rpx 24rpx;
+  background: rgba(15,28,52,.55);
+  border: 1rpx solid rgba(0,212,170,.2);
+  border-radius: 24rpx;
+  width: 90%;
+  max-width: 560rpx;
+  box-sizing: border-box;
+}
+.maze-title {
+  font-size: 30rpx;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+  margin-bottom: 8rpx;
+}
+.maze-sub {
+  font-size: 20rpx;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 26rpx;
+  letter-spacing: 1rpx;
+}
+
+.maze-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8rpx;
+  width: 460rpx;
+  height: 460rpx;
+  padding: 8rpx;
+  background: rgba(0,0,0,.25);
+  border-radius: 16rpx;
+}
+.maze-cell {
+  background: rgba(255,255,255,.06);
+  border: 1rpx solid rgba(255,255,255,.1);
+  border-radius: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  transition: all 0.18s ease;
+}
+.maze-cell:active { transform: scale(0.92); }
+.maze-cell.visited {
+  background: linear-gradient(135deg, rgba(0,212,170,.45), rgba(0,212,170,.18));
+  border-color: rgba(0,212,170,.6);
+  box-shadow: 0 0 10rpx rgba(0,212,170,.35) inset;
+}
+.maze-cell.start {
+  background: linear-gradient(135deg, #00d4aa, #008a6e);
+  border-color: rgba(0,255,170,.85);
+  color: #fff;
+  box-shadow: 0 0 14rpx rgba(0,212,170,.6);
+}
+.maze-cell.goal {
+  background: linear-gradient(135deg, rgba(255,215,0,.32), rgba(255,140,0,.12));
+  border-color: rgba(255,215,0,.6);
+  color: #ffd700;
+}
+.maze-cell.goal.visited {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #fff;
+  box-shadow: 0 0 18rpx rgba(255,215,0,.7);
+}
+
+.cell-mark {
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 1;
+}
+.cell-dot {
+  font-size: 18rpx;
+  color: rgba(255,255,255,.85);
+}
+
+.maze-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 24rpx;
+  padding: 0 12rpx;
+}
+.ms-info { display: flex; align-items: baseline; gap: 4rpx; }
+.ms-num {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #00d4aa;
+}
+.ms-lbl {
+  font-size: 22rpx;
+  color: rgba(255,255,255,.5);
+}
+.maze-reset {
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255,255,255,.08);
+  border: 1rpx solid rgba(255,255,255,.18);
+}
+.maze-reset:active { background: rgba(255,255,255,.15); }
+.maze-reset text {
+  font-size: 22rpx;
+  color: rgba(255,255,255,.85);
+  letter-spacing: 1rpx;
+}
+
+.maze-win {
+  margin-top: 18rpx;
+  padding: 14rpx 30rpx;
+  background: linear-gradient(135deg, rgba(255,215,0,.35), rgba(255,140,0,.18));
+  border: 1rpx solid rgba(255,215,0,.55);
+  border-radius: 14rpx;
+  animation: winPulse 1.2s ease-in-out infinite;
+}
+.maze-win text {
+  font-size: 26rpx;
+  color: #ffd700;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+@keyframes winPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}

@@ -1,0 +1,28 @@
+<view class="maze-wrap">
+  <view class="maze-title">🎮 一笔画通</view>
+  <view class="maze-sub">从绿点开始，每格只走一次，最后停在金色终点</view>
+
+  <view class="maze-grid">
+    <view class="maze-cell {{item.visited ? 'visited' : ''}} {{item.isStart ? 'start' : ''}} {{item.isGoal ? 'goal' : ''}}"
+          wx:for="{{cells}}" wx:key="*this"
+          data-r="{{item.r}}" data-c="{{item.c}}"
+          bindtap="onCellTap">
+      <text wx:if="{{item.isStart}}" class="cell-mark">▶</text>
+      <text wx:elif="{{item.isGoal && !won}}" class="cell-mark">★</text>
+      <text wx:elif="{{item.isGoal && won}}" class="cell-mark">🎉</text>
+      <text wx:elif="{{item.visited}}" class="cell-dot">●</text>
+    </view>
+  </view>
+
+  <view class="maze-stats">
+    <view class="ms-info">
+      <text class="ms-num">{{path.length}}</text>
+      <text class="ms-lbl">/ {{totalCells}}</text>
+    </view>
+    <view class="maze-reset" bindtap="onReset"><text>↻ 重新开始</text></view>
+  </view>
+
+  <view class="maze-win" wx:if="{{won}}">
+    <text>🌟 通关！厉害</text>
+  </view>
+</view>

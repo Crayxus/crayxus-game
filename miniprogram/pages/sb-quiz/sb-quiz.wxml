@@ -2,7 +2,7 @@
 <view class="page">
   <view style="height:{{statusBarHeight}}px"></view>
 
-  <!-- AI 分析中 · 进度条 overlay -->
+  <!-- AI 分析中 · 进度条 overlay + 一笔画通迷宫小游戏 -->
   <view class="ai-loading" wx:if="{{aiLoading}}">
     <view class="ai-ring"></view>
     <text class="ai-title">Crayxus AI 运行中</text>
@@ -17,6 +17,10 @@
       <view class="ai-stage {{aiProgress >= 80 ? 'done' : ''}}"><text>生成</text></view>
       <view class="ai-stage {{aiProgress >= 100 ? 'done' : ''}}"><text>完成</text></view>
     </view>
+    <view class="ai-game-hint">
+      <text>⌛ 等待中？玩个迷宫消磨时间</text>
+    </view>
+    <maze-game></maze-game>
   </view>
 
   <!-- 顶部进度 -->

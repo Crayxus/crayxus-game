@@ -4,6 +4,7 @@
   "navigationBarTextStyle": "white",
   "backgroundColor": "#000814",
   "usingComponents": {
-    "ai-helper": "/components/ai-helper/ai-helper"
+    "ai-helper": "/components/ai-helper/ai-helper",
+    "maze-game": "/components/maze-game/maze-game"
   }
 }
