@@ -36,7 +36,7 @@ Page({
   onLogoLongPress() {
     wx.vibrateShort && wx.vibrateShort({ type: 'heavy' })
     wx.showActionSheet({
-      itemList: ['法良时装 AAAS Demo', 'PowerLoop · 韩国 AI 充电宝 AAAS Demo', 'Crayxus Labs · AI 课外项目实践'],
+      itemList: ['法良时装 AAAS Demo', 'PowerLoop · 韩国 AI 充电宝 AAAS Demo', 'Crayxus Labs · AI 课外项目实践', 'AdMind · AI 营销自动执行官 Demo'],
       success: (res) => {
         if (res.tapIndex === 0) {
           wx.navigateTo({ url: '/pages/falang/falang' })
@@ -44,6 +44,8 @@ Page({
           wx.navigateTo({ url: '/pages/powerloop/powerloop' })
         } else if (res.tapIndex === 2) {
           wx.navigateTo({ url: '/pages/labs/labs' })
+        } else if (res.tapIndex === 3) {
+          wx.navigateTo({ url: '/pages/admind/admind' })
         }
       }
     })

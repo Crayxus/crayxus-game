@@ -17,6 +17,7 @@
     "pages/falang/falang",
     "pages/powerloop/powerloop",
     "pages/labs/labs",
+    "pages/admind/admind",
     "pages/truck/home"
   ],
   "window": {

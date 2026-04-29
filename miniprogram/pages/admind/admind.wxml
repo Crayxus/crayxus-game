@@ -1,0 +1,300 @@
+<!-- AdMind AI · AI 营销自动执行官 -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <!-- 浮动返回 -->
+  <view class="float-back" style="top:{{statusBarHeight + 12}}px" bindtap="goBack">
+    <text class="fb-arrow">←</text>
+    <text class="fb-text">返回</text>
+  </view>
+
+  <!-- 顶部品牌头 -->
+  <view class="brand-bar">
+    <view class="brand-left">
+      <view class="brand-logo">📣</view>
+      <view class="brand-text">
+        <text class="brand-cn">AdMind AI</text>
+        <text class="brand-en">AI 营销自动执行官</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-deco"></view>
+    <view class="hero-tag">CRAYXUS · AI MARKETING AGENT</view>
+    <view class="hero-title">1 个 AI 顶<text class="ht-accent">5 人市场团队</text></view>
+    <view class="hero-sub">朋友圈 / 小红书 / 抖音 / 视频号 / 公众号 / 私域 全自动出内容 + 自动跟单 · 中小老板专属</view>
+
+    <view class="hero-stats">
+      <view class="stat">
+        <text class="stat-num">5<text class="stat-unit">人</text></text>
+        <text class="stat-lbl">替代团队</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">10+<text class="stat-unit">号</text></text>
+        <text class="stat-lbl">矩阵覆盖</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">30/<text class="stat-unit">周</text></text>
+        <text class="stat-lbl">自动出内容</text>
+      </view>
+      <view class="stat-sep"></view>
+      <view class="stat">
+        <text class="stat-num">-92<text class="stat-unit">%</text></text>
+        <text class="stat-lbl">人力成本</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 痛点对比卡 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">为什么需要 AdMind</text>
+      <text class="st-en">THE PAIN</text>
+    </view>
+
+    <view class="compare-card">
+      <view class="cmp-col before">
+        <text class="cmp-tag">❌ 传统做法</text>
+        <view class="cmp-row">
+          <text class="cmp-icon">👥</text>
+          <text class="cmp-text">市场 5 人 + 客服 6 人 = ¥10-15w/月</text>
+        </view>
+        <view class="cmp-row">
+          <text class="cmp-icon">⏰</text>
+          <text class="cmp-text">老板每天 4-6 小时切号、写文、回客户</text>
+        </view>
+        <view class="cmp-row">
+          <text class="cmp-icon">📉</text>
+          <text class="cmp-text">投流靠感觉 · ROI 看不清 · 复盘复不了</text>
+        </view>
+        <view class="cmp-row">
+          <text class="cmp-icon">😴</text>
+          <text class="cmp-text">凌晨/周末客户没人接 · 跑单</text>
+        </view>
+        <view class="cmp-total">月成本 ¥10-15w</view>
+      </view>
+
+      <view class="cmp-vs">VS</view>
+
+      <view class="cmp-col after">
+        <text class="cmp-tag">✅ AdMind AI</text>
+        <view class="cmp-row">
+          <text class="cmp-icon">🤖</text>
+          <text class="cmp-text">5 个 AI 智能体一站搞定 · 月费 ¥6800 起</text>
+        </view>
+        <view class="cmp-row">
+          <text class="cmp-icon">⚡</text>
+          <text class="cmp-text">老板每天 30 分钟审核 · 其余 AI 自动跑</text>
+        </view>
+        <view class="cmp-row">
+          <text class="cmp-icon">📊</text>
+          <text class="cmp-text">每条内容追溯到客户 · ROI 可视化</text>
+        </view>
+        <view class="cmp-row">
+          <text class="cmp-icon">🌙</text>
+          <text class="cmp-text">24×7 不下班 · 8 秒首响 · 不丢客户</text>
+        </view>
+        <view class="cmp-total">月成本 ¥6,800</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 五大智能体 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">五大 AI 智能体</text>
+      <text class="st-en">CORE AGENTS</text>
+    </view>
+
+    <view class="agents-grid">
+      <view class="agent-card a1" bindtap="openAgent" data-key="scout">
+        <view class="ac-num">01</view>
+        <view class="ac-icon">🔍</view>
+        <view class="ac-name">AI 选题侦察兵</view>
+        <view class="ac-desc">监控 50+ 信息源 · 每日 50 个高质量选题 · "为什么会火"预测</view>
+        <view class="ac-tag">FOR · 内容选题</view>
+      </view>
+
+      <view class="agent-card a2" bindtap="openAgent" data-key="content">
+        <view class="ac-num">02</view>
+        <view class="ac-icon">✍️</view>
+        <view class="ac-name">AI 内容工厂</view>
+        <view class="ac-desc">一稿多平台 · 5 个平台风格自适配 · 30 条/周</view>
+        <view class="ac-tag">FOR · 文案创作</view>
+      </view>
+
+      <view class="agent-card a3" bindtap="openAgent" data-key="matrix">
+        <view class="ac-num">03</view>
+        <view class="ac-icon">🌐</view>
+        <view class="ac-name">矩阵号调度官</view>
+        <view class="ac-desc">10+ 实名号自动发布 · 反限流 · 跨平台一键铺量</view>
+        <view class="ac-tag">FOR · 矩阵号管理</view>
+      </view>
+
+      <view class="agent-card a4" bindtap="openAgent" data-key="cs">
+        <view class="ac-num">04</view>
+        <view class="ac-icon">💬</view>
+        <view class="ac-name">AI 私域客服</view>
+        <view class="ac-desc">24×7 自动接待 · 6 端打通 · 高意向自动转销售</view>
+        <view class="ac-tag">FOR · 客户跟单</view>
+      </view>
+
+      <view class="agent-card a5 wide" bindtap="openAgent" data-key="growth">
+        <view class="ac-num">05</view>
+        <view class="ac-icon">📊</view>
+        <view class="ac-name">数据增长大脑</view>
+        <view class="ac-desc">全链路归因 · ROI 排名 · 周报自动出 · AI 优化建议</view>
+        <view class="ac-tag">FOR · 老板看板</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 一周工作流可视化 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">一周自动工作流</text>
+      <text class="st-en">7-DAY AUTOPILOT</text>
+    </view>
+
+    <view class="workflow">
+      <view class="wf-row">
+        <view class="wf-day">周一</view>
+        <view class="wf-bar"></view>
+        <view class="wf-task">AI 选题：本周 350 个候选 · AI 出 30 个最佳</view>
+      </view>
+      <view class="wf-row">
+        <view class="wf-day">周二</view>
+        <view class="wf-bar"></view>
+        <view class="wf-task">AI 内容工厂：批量生成 30 条多平台版本 · 老板审 5 分钟</view>
+      </view>
+      <view class="wf-row">
+        <view class="wf-day">周三</view>
+        <view class="wf-bar"></view>
+        <view class="wf-task">矩阵号自动发布：10+ 号同步 · 黄金时段精准投放</view>
+      </view>
+      <view class="wf-row">
+        <view class="wf-day">周四-周日</view>
+        <view class="wf-bar"></view>
+        <view class="wf-task">AI 客服 24×7 接客 · 高意向客户自动转老板微信</view>
+      </view>
+      <view class="wf-row">
+        <view class="wf-day">下周一</view>
+        <view class="wf-bar"></view>
+        <view class="wf-task">数据大脑出周报：ROI 排名 · 优化建议 · 自动调整下周方向</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 适用行业 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">适用行业</text>
+      <text class="st-en">10 INDUSTRIES</text>
+    </view>
+    <view class="industries-grid">
+      <view class="ind-cell" wx:for="{{industries}}" wx:key="name">
+        <text class="ic-icon">{{item.icon}}</text>
+        <text class="ic-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 套餐 -->
+  <view class="section">
+    <view class="section-title">
+      <text class="st-bar"></text>
+      <text class="st-text">合作套餐</text>
+      <text class="st-en">PRICING</text>
+    </view>
+    <view class="plan-grid">
+      <view class="plan-card">
+        <text class="plan-name">起步版</text>
+        <text class="plan-price">¥3,000<text class="pp-unit">/月</text></text>
+        <view class="plan-feat">3 智能体 · 5 矩阵号 · 1 平台</view>
+        <view class="plan-feat">10 条/周内容 · 8 小时客服</view>
+      </view>
+      <view class="plan-card hot">
+        <text class="plan-badge">最受欢迎</text>
+        <text class="plan-name">专业版</text>
+        <text class="plan-price">¥6,800<text class="pp-unit">/月</text></text>
+        <view class="plan-feat">5 智能体全开 · 10 矩阵号</view>
+        <view class="plan-feat">30 条/周 · 24×7 客服</view>
+        <view class="plan-feat">数据大脑 + 周报</view>
+      </view>
+      <view class="plan-card">
+        <text class="plan-name">旗舰版</text>
+        <text class="plan-price">¥15,800<text class="pp-unit">/月</text></text>
+        <view class="plan-feat">多品牌矩阵 · 30+ 号</view>
+        <view class="plan-feat">定制行业模型 + 私有部署</view>
+        <view class="plan-feat">1v1 增长顾问</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系底部 -->
+  <view class="contact-card">
+    <view class="cc-row"><text class="cc-lbl">📍 总部</text><text class="cc-val">上海 · 杭州 · 远程交付</text></view>
+    <view class="cc-row"><text class="cc-lbl">⚡ 启动周期</text><text class="cc-val">7 天接入 · 14 天看到首批数据</text></view>
+    <view class="cc-row"><text class="cc-lbl">✉️ 商务接洽</text><text class="cc-val">general@crayxus.com.au</text></view>
+  </view>
+
+  <view class="footer-mark">
+    <text>ADMIND × CRAYXUS AI</text>
+    <text class="fm-sub">让 AI 把市场团队的活儿全干了</text>
+  </view>
+
+  <view style="height:60rpx"></view>
+
+  <!-- 智能体详情 overlay -->
+  <view class="agent-overlay" wx:if="{{agentOpen}}" catchtouchmove="_noop">
+    <view class="ao-mask" bindtap="closeAgent"></view>
+    <view class="ao-sheet">
+      <view class="ao-handle"></view>
+      <scroll-view class="ao-scroll" scroll-y="true">
+        <view class="ao-head">
+          <text class="ao-icon">{{currentAgent.icon}}</text>
+          <view class="ao-title">{{currentAgent.name}}</view>
+          <text class="ao-close" bindtap="closeAgent">✕</text>
+        </view>
+        <view class="ao-tagline">{{currentAgent.tagline}}</view>
+
+        <view class="ao-body">
+          <view class="ao-block">
+            <view class="ao-block-title">🎯 解决的痛点</view>
+            <view class="ao-block-text">{{currentAgent.painpoint}}</view>
+          </view>
+          <view class="ao-block">
+            <view class="ao-block-title">⚙️ AI 工作机制</view>
+            <view class="ao-block-text">{{currentAgent.mechanism}}</view>
+          </view>
+          <view class="ao-block">
+            <view class="ao-block-title">📈 量化收益</view>
+            <view class="ao-rois">
+              <view class="ao-roi" wx:for="{{currentAgent.rois}}" wx:key="*this">
+                <text class="roi-num">{{item.num}}</text>
+                <text class="roi-lbl">{{item.lbl}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="ao-actions">
+          <view class="ao-tts {{aiLoading ? 'loading' : ''}} {{aiPlaying ? 'playing' : ''}}" bindtap="playAgentTTS">
+            <text>{{aiLoading ? '⏳ AI 生成中' : (aiPlaying ? '⏸ 播放中' : '🔊 听 AI 讲解')}}</text>
+          </view>
+          <view class="ao-close-btn" bindtap="closeAgent"><text>关闭</text></view>
+        </view>
+
+        <view style="height:40rpx"></view>
+      </scroll-view>
+    </view>
+  </view>
+</view>
