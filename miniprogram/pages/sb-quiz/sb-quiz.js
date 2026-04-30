@@ -677,6 +677,11 @@ Page({
     wx.redirectTo({ url: `/pages/sb-quiz/sb-quiz?subject=${this.data.subjectId}&mode=adaptive` })
   },
 
+  // 口语板块完成 10 题后 → 进入自由口语
+  goFreeSpeaking() {
+    wx.redirectTo({ url: '/pages/speaking-free/speaking-free' })
+  },
+
   onClose() {
     wx.navigateBack({ delta: 1, fail: () => wx.switchTab && wx.switchTab({ url: '/pages/home/home' }) })
   }

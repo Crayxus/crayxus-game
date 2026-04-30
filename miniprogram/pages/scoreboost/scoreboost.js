@@ -264,6 +264,22 @@ Page({
     const subjectId = this.data.currentSubjectId
     if (!dim || !subjectId) return
     wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+
+    // 🗣 雅思口语板块 → 提供 2 种模式选择
+    if (subjectId === 'ielts' && dim === 'speaking') {
+      wx.showActionSheet({
+        itemList: ['📝 10 道选择题（应试快练）', '🎤 自由口语（录音 → AI 评分）'],
+        success: (r) => {
+          if (r.tapIndex === 0) {
+            wx.navigateTo({ url: `/pages/sb-quiz/sb-quiz?subject=${subjectId}&mode=adaptive&dim=${dim}` })
+          } else if (r.tapIndex === 1) {
+            wx.navigateTo({ url: '/pages/speaking-free/speaking-free' })
+          }
+        }
+      })
+      return
+    }
+
     wx.navigateTo({ url: `/pages/sb-quiz/sb-quiz?subject=${subjectId}&mode=adaptive&dim=${dim}` })
   },
 

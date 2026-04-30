@@ -3503,6 +3503,111 @@ ${solution ? '【标准解析】' + solution + '\n' : ''}
     }
 });
 
+// Azure STT · 雅思口语录音转文字（用于自由口语评分）
+async function callAzureSTT(audioBuf) {
+    const sttUrl = `https://${AZURE_TTS_REGION}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US&format=detailed`;
+    const r = await fetch(sttUrl, {
+        method: 'POST',
+        headers: {
+            'Ocp-Apim-Subscription-Key': AZURE_TTS_KEY,
+            'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000',
+            'Accept': 'application/json'
+        },
+        body: audioBuf
+    });
+    if (!r.ok) {
+        const txt = await r.text();
+        throw new Error(`Azure STT HTTP ${r.status}: ${txt.slice(0, 200)}`);
+    }
+    const data = await r.json();
+    const transcript = data.DisplayText || (data.NBest && data.NBest[0] && data.NBest[0].Display) || '';
+    return { transcript, raw: data };
+}
+
+// 雅思自由口语评分: 录音 → STT → DeepSeek 评分
+app.post('/api/ai/ielts/speaking-eval', async (req, res) => {
+    try {
+        const { audio, topic, part = 2 } = req.body || {};
+        if (!audio || !topic) return res.status(200).json({ ok: false, error: 'missing_params' });
+
+        // 解码 base64
+        let b64 = audio;
+        const m = audio.match(/^data:audio\/(\w+);base64,(.*)$/);
+        if (m) b64 = m[2];
+        const audioBuf = Buffer.from(b64, 'base64');
+        if (audioBuf.length < 1000) return res.status(200).json({ ok: false, error: 'audio_too_short' });
+        if (audioBuf.length > 5 * 1024 * 1024) return res.status(200).json({ ok: false, error: 'audio_too_large', max: '5MB' });
+
+        // 1) Azure STT
+        let transcript = '';
+        try {
+            const stt = await callAzureSTT(audioBuf);
+            transcript = (stt.transcript || '').trim();
+        } catch (e) {
+            console.error('[Speaking-Eval] STT fail:', e.message);
+            return res.status(200).json({ ok: false, error: 'asr_failed', message: e.message });
+        }
+
+        if (!transcript || transcript.length < 5) {
+            return res.status(200).json({ ok: false, error: 'transcript_empty', hint: '请说慢一点 / 离话筒近一点 / 检查录音权限' });
+        }
+
+        // 2) DeepSeek 评分
+        const prompt = `你是 IELTS Speaking 资深考官。学员针对 Part ${part} 话题作答（语音转文字）：
+
+话题：${topic}
+
+学员回答：
+"${transcript}"
+
+请按真题标准评判，输出严格 JSON：
+{
+  "errors": [
+    { "type": "grammar|tense|article|preposition|word_form|agreement", "wrong": "原句片段", "correct": "正确版本", "explain": "中文 1 句解释" }
+  ],
+  "vocab": [
+    { "weak": "用得不准/单一的词", "better": "更地道的替换 (Band 7+)", "explain": "中文 1 句" }
+  ],
+  "fluency": "流畅性评价（中文 1-2 句）",
+  "coherence": "连贯性评价（中文 1-2 句）",
+  "band": 6.0,
+  "sampleAnswer": "Band 8 级范例答案（自然口语风格 · 80-150 词 · 围绕话题）",
+  "feedback": "整体反馈（中文 2-3 句 · 鼓励向 + 提出 1 个最关键改进点）"
+}
+
+【硬要求】
+- band 范围 4.0-9.0，半档（如 6.0/6.5）
+- errors 至少列 2 条，至多 5 条
+- vocab 至多 4 条
+- sampleAnswer 必须自然口语，不要写得像范文，可以有 well/you know/I think 等连接
+- 只输出 JSON，不要其他文字`;
+
+        let result;
+        try {
+            result = await callDeepSeek(prompt, 2400, 0.75);
+        } catch (e) {
+            console.error('[Speaking-Eval] DeepSeek fail:', e.message);
+            return res.status(200).json({ ok: false, error: 'eval_failed', transcript, message: e.message });
+        }
+
+        gameLog(`[Speaking-Eval] OK transcript_len=${transcript.length} band=${result.band}`);
+        res.json({
+            ok: true,
+            transcript,
+            errors: Array.isArray(result.errors) ? result.errors.slice(0, 5) : [],
+            vocab: Array.isArray(result.vocab) ? result.vocab.slice(0, 4) : [],
+            fluency: String(result.fluency || ''),
+            coherence: String(result.coherence || ''),
+            band: Math.max(4, Math.min(9, Number(result.band) || 6)),
+            sampleAnswer: String(result.sampleAnswer || ''),
+            feedback: String(result.feedback || '')
+        });
+    } catch (err) {
+        console.error('[Speaking-Eval] crash:', err.message);
+        res.status(200).json({ ok: false, error: 'internal_error', message: err.message });
+    }
+});
+
 // Azure TTS · 英文走 Azure（自然度远超火山）
 async function callAzureTTS(text, azureVoice) {
     const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

@@ -18,6 +18,7 @@
     "pages/powerloop/powerloop",
     "pages/labs/labs",
     "pages/admind/admind",
+    "pages/speaking-free/speaking-free",
     "pages/truck/home"
   ],
   "window": {

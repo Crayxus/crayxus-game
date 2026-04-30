@@ -1,0 +1,136 @@
+<view class="page">
+
+  <!-- 话题卡 -->
+  <view class="topic-card" wx:if="{{topic}}">
+    <view class="tc-head">
+      <text class="tc-tag">IELTS Speaking · Part {{topic.part}}</text>
+      <text class="tc-change" bindtap="changeTopic" wx:if="{{phase === 'topic' || phase === 'reviewing'}}">🔀 换一题</text>
+    </view>
+    <text class="tc-title">{{topic.title}}</text>
+    <view class="tc-bullets">
+      <text class="tc-bullet-lbl">You should say:</text>
+      <view class="tc-bullet-row" wx:for="{{topic.bullets}}" wx:key="*this">
+        <text class="tc-dot">•</text>
+        <text class="tc-bullet">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 阶段：等待 / 录音中 -->
+  <view class="rec-panel" wx:if="{{phase === 'topic'}}">
+    <text class="rp-hint">最长 60 秒 · 建议 1 分钟内说完 4 个要点</text>
+    <view class="rec-btn-big start" bindtap="startRecord">
+      <text class="rb-mic">🎤</text>
+      <text class="rb-label">开始录音</text>
+    </view>
+  </view>
+
+  <view class="rec-panel" wx:if="{{phase === 'recording'}}">
+    <text class="rp-timer">{{recordSecLeft}}<text class="rp-unit">s</text></text>
+    <view class="wave">
+      <view class="wave-bar" wx:for="{{[0,1,2,3,4,5,6,7,8,9,10,11]}}" wx:key="*this" style="animation-delay:{{item * 0.08}}s"></view>
+    </view>
+    <text class="rp-hint">正在录音中...</text>
+    <view class="rec-btn-big stop" bindtap="stopRecord">
+      <text class="rb-mic">⏹</text>
+      <text class="rb-label">停止录音</text>
+    </view>
+  </view>
+
+  <!-- 录音回听 -->
+  <view class="rec-panel" wx:if="{{phase === 'reviewing'}}">
+    <text class="rp-hint">已录制 · 试听检查后提交评分</text>
+    <view class="review-row">
+      <view class="rev-btn" bindtap="playRecord">
+        <text>{{recordPlaying ? '⏸ 暂停' : '▶ 试听'}}</text>
+      </view>
+      <view class="rev-btn redo" bindtap="redoRecord">
+        <text>🔄 重录</text>
+      </view>
+    </view>
+    <view class="submit-btn" bindtap="submitForEval">
+      <text>📤 提交 AI 评分</text>
+    </view>
+    <text class="err-msg" wx:if="{{errMsg}}">{{errMsg}}</text>
+  </view>
+
+  <!-- 上传中 -->
+  <view class="rec-panel" wx:if="{{phase === 'uploading'}}">
+    <view class="upload-spin"></view>
+    <text class="rp-title">AI 评分中</text>
+    <text class="rp-hint">语音转文字 → 语法分析 → 词汇评估 → 范例生成 · 约 30 秒</text>
+  </view>
+
+  <!-- 结果 -->
+  <view class="result-wrap" wx:if="{{phase === 'result' && result}}">
+
+    <!-- Band 总分 -->
+    <view class="band-card">
+      <text class="bc-label">PREDICTED BAND</text>
+      <text class="bc-band">{{result.band}}</text>
+      <text class="bc-feedback">{{result.feedback}}</text>
+    </view>
+
+    <!-- 转写 -->
+    <view class="r-block">
+      <view class="rb-title">📝 你的回答（语音转文字）</view>
+      <view class="rb-text">{{result.transcript}}</view>
+    </view>
+
+    <!-- 语法错误 -->
+    <view class="r-block" wx:if="{{result.errors && result.errors.length > 0}}">
+      <view class="rb-title">⚠️ 语法 · 表达问题（{{result.errors.length}}）</view>
+      <view class="err-list">
+        <view class="err-row" wx:for="{{result.errors}}" wx:key="wrong" wx:for-item="er">
+          <view class="er-tag">{{er.type}}</view>
+          <view class="er-cmp">
+            <text class="er-wrong">✗ {{er.wrong}}</text>
+            <text class="er-correct">✓ {{er.correct}}</text>
+          </view>
+          <text class="er-explain">{{er.explain}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 词汇升级 -->
+    <view class="r-block" wx:if="{{result.vocab && result.vocab.length > 0}}">
+      <view class="rb-title">📚 词汇升级建议</view>
+      <view class="vocab-list">
+        <view class="voc-row" wx:for="{{result.vocab}}" wx:key="weak" wx:for-item="v">
+          <view class="voc-pair">
+            <text class="voc-weak">{{v.weak}}</text>
+            <text class="voc-arrow">→</text>
+            <text class="voc-better">{{v.better}}</text>
+          </view>
+          <text class="voc-explain">{{v.explain}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 流畅 + 连贯 -->
+    <view class="r-row-2">
+      <view class="r-block half">
+        <view class="rb-title">🎵 流畅性</view>
+        <view class="rb-text small">{{result.fluency}}</view>
+      </view>
+      <view class="r-block half">
+        <view class="rb-title">🔗 连贯性</view>
+        <view class="rb-text small">{{result.coherence}}</view>
+      </view>
+    </view>
+
+    <!-- 范例 -->
+    <view class="r-block sample">
+      <view class="rb-title">⭐ Band 8 范例答案</view>
+      <view class="rb-text">{{result.sampleAnswer}}</view>
+    </view>
+
+    <!-- 再来一题 -->
+    <view class="result-actions">
+      <view class="ra-btn primary" bindtap="again">🎯 换一题再练</view>
+      <view class="ra-btn ghost" bindtap="goBack">返回</view>
+    </view>
+  </view>
+
+  <view style="height:80rpx"></view>
+</view>
