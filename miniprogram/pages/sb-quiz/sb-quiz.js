@@ -125,8 +125,10 @@ Page({
     DIMS.forEach(d => { dimMap[d.key] = d })
 
     const mode = opts.mode === 'adaptive' ? 'adaptive' : 'assess'
+    const forcedDim = opts.dim && dimMap[opts.dim] ? opts.dim : null  // 用户指定单板块练习
+    this._forcedDim = forcedDim
 
-    // 🧠 雅思全部走 DeepSeek V4（assess 定级 + adaptive 自适应）
+    // 🧠 雅思全部走 DeepSeek V4（assess 定级 + adaptive 自适应 / 单板块）
     if (subjectId === 'ielts') {
       if (mode === 'assess') {
         this._loadAIAssessIELTS(subject, dimMap, mode, subjectId)
@@ -460,8 +462,11 @@ Page({
       aiLoading: false,
       aiBadge: !!aiBadge
     })
+    const dimName = (this._forcedDim && dimMap[this._forcedDim]) ? dimMap[this._forcedDim].name : null
     wx.setNavigationBarTitle({
-      title: `${subject.shortName} · ${mode === 'assess' ? '定级测评' : (aiBadge ? 'AI 实时出题' : 'AI 自适应训练')}`
+      title: dimName
+        ? `${subject.shortName} · ${dimName} 专练`
+        : `${subject.shortName} · ${mode === 'assess' ? '定级测评' : (aiBadge ? 'AI 实时出题' : 'AI 自适应训练')}`
     })
   },
 
@@ -471,14 +476,21 @@ Page({
 
     const prog = wx.getStorageSync(storageKeyOf(subjectId)) || {}
     const mastery = prog.mastery || {}
-    // 找最弱维度
     const dims = subject.DIMS
-    let weakDim = dims[0].key
-    let weakVal = mastery[dims[0].key] != null ? mastery[dims[0].key] : 50
-    dims.forEach(d => {
-      const v = mastery[d.key] != null ? mastery[d.key] : 50
-      if (v < weakVal) { weakVal = v; weakDim = d.key }
-    })
+    let weakDim, weakVal
+    if (this._forcedDim) {
+      // 用户指定单板块练习
+      weakDim = this._forcedDim
+      weakVal = mastery[weakDim] != null ? mastery[weakDim] : 50
+    } else {
+      // 自动找最弱维度
+      weakDim = dims[0].key
+      weakVal = mastery[dims[0].key] != null ? mastery[dims[0].key] : 50
+      dims.forEach(d => {
+        const v = mastery[d.key] != null ? mastery[d.key] : 50
+        if (v < weakVal) { weakVal = v; weakDim = d.key }
+      })
+    }
 
     const serverUrl = (app && app.globalData && app.globalData.serverUrl) || 'https://crayxus-game.onrender.com'
     wx.request({

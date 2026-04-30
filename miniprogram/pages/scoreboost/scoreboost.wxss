@@ -714,6 +714,39 @@ page {
   margin-top: 2rpx;
 }
 
+/* ============ 单板块定向练习 ============ */
+.dim-practice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12rpx;
+}
+.dim-prac-card {
+  position: relative;
+  padding: 20rpx 14rpx 14rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+}
+.dim-prac-card:active { transform: scale(0.96); }
+.dpc-icon { font-size: 38rpx; line-height: 1; margin-bottom: 4rpx; }
+.dpc-name { font-size: 22rpx; color: #fff; font-weight: 700; letter-spacing: 0.5rpx; }
+.dpc-mastery {
+  font-size: 28rpx;
+  font-weight: 800;
+  line-height: 1;
+  margin: 4rpx 0;
+}
+.dpc-pct { font-size: 18rpx; opacity: 0.7; margin-left: 1rpx; }
+.dpc-cta {
+  font-size: 18rpx;
+  font-weight: 600;
+  letter-spacing: 0.5rpx;
+  margin-top: 2rpx;
+}
+
 /* ============ 错题本入口 ============ */
 .wrongbook-entry {
   display: flex;

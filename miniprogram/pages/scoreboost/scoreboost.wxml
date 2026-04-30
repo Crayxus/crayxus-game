@@ -164,6 +164,24 @@
     </view>
   </view>
 
+  <!-- 单维度训练（按板块独立练习）-->
+  <view class="section" wx:if="{{!currentSubject.isGroup && currentSubject.DIMS && currentSubject.DIMS.length > 0}}">
+    <view class="section-title">
+      <text>🎯 单板块定向练习</text>
+      <text class="section-tip">选 1 个板块 · 10 道 AI 实时出题</text>
+    </view>
+    <view class="dim-practice-grid">
+      <view class="dim-prac-card" wx:for="{{dims}}" wx:key="key"
+            bindtap="practiceDim" data-key="{{item.key}}"
+            style="border-color:{{item.color}}55;background:linear-gradient(135deg,{{item.color}}18,rgba(0,0,0,.3));">
+        <text class="dpc-icon">{{item.icon}}</text>
+        <text class="dpc-name">{{item.name}}</text>
+        <text class="dpc-mastery" style="color:{{item.color}}">{{item.val}}<text class="dpc-pct">%</text></text>
+        <text class="dpc-cta" style="color:{{item.color}}">练 10 题 →</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 错题本入口 -->
   <view class="wrongbook-entry" wx:if="{{!currentSubject.isGroup}}" bindtap="gotoWrongbook">
     <view class="wb-ic">📚</view>

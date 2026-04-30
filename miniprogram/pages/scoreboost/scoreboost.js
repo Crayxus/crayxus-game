@@ -258,6 +258,15 @@ Page({
     wx.navigateTo({ url: `/pages/sb-quiz/sb-quiz?subject=${this.data.currentSubjectId}&mode=adaptive` })
   },
 
+  // 🎯 单板块定向练习（用户指定 dim）
+  practiceDim(e) {
+    const dim = e.currentTarget.dataset.key
+    const subjectId = this.data.currentSubjectId
+    if (!dim || !subjectId) return
+    wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+    wx.navigateTo({ url: `/pages/sb-quiz/sb-quiz?subject=${subjectId}&mode=adaptive&dim=${dim}` })
+  },
+
   practiceWeak(e) {
     const topic = e.currentTarget.dataset.topic
     const subject = this.data.currentSubject
