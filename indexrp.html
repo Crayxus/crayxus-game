@@ -4965,7 +4965,7 @@ function renderHand(isDealing=false){
     GAP = 5;
     const availW = viewW - 20;
     CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
-    CW = Math.max(44, Math.min(100, CW));
+    CW = Math.max(44, Math.min(160, CW));
   }
   const CH = Math.round(CW * 1.42);
   let PEEK = Math.round(CW * 36/66);
