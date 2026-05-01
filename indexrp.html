@@ -4962,10 +4962,12 @@ function renderHand(isDealing=false){
     renderHandKeyboard(isDealing);
     return;
   } else {
-    GAP = 5;
-    const availW = viewW - 20;
-    CW = Math.floor((availW - (totalCols-1)*GAP) / Math.max(totalCols,1));
-    CW = Math.max(44, Math.min(160, CW));
+    // 固定卡牌大小, 不随出牌变化 (按理论最大 15 组算: 13点数+大小王+余量)
+    const MAX_GROUPS = 15;
+    CW = Math.floor((viewW - 40) / MAX_GROUPS);
+    CW = Math.max(70, Math.min(160, CW));
+    // 相邻组重叠 ~35%, 让卡牌更紧凑且能放更大
+    GAP = -Math.floor(CW * 0.35);
   }
   const CH = Math.round(CW * 1.42);
   let PEEK = Math.round(CW * 36/66);
@@ -4991,14 +4993,13 @@ function renderHand(isDealing=false){
     const allSel = gr.cards.every(c=>c.sel);
     const wrap = document.createElement('div');
     wrap.className = 'grp-wrap';
-    // Touch mode: apply overlap via negative margin, z-index so left cards on top
-    if(_isTouchView && GAP < 0 && gi < totalCols - 1){
+    // 重叠模式: GAP<0 时用负 marginRight; 左卡 z-index 高让左盖右(像手牌扇)
+    if(GAP < 0 && gi < totalCols - 1){
       wrap.style.marginRight = GAP + 'px';
     }
-    if(_isTouchView){
-      // Right cards on top of left → left card's top-left label stays visible
+    if(GAP < 0){
       wrap.style.position = 'relative';
-      wrap.style.zIndex = String(gi + 1);
+      wrap.style.zIndex = String(totalCols - gi);  // 左 group 高 z-index → 左盖右
     }
     const col = document.createElement('div');
     col.className = 'grp-col';
