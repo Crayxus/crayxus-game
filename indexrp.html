@@ -1326,22 +1326,16 @@ body.view-touch .kb-key.kb-sorted{
   box-shadow:0 0 14px 4px currentColor,inset 0 0 10px rgba(255,255,255,0.12);
   filter:brightness(1.5) saturate(1.4);
 }
-/* 13.3" 触摸键盘视图: 整体放大键盘区域 (RPi 主路径) — 必须在 .kb-key 基础规则之后
-   min-width:600px 排除手机, 仅平板/13.3"屏生效 */
-@media(min-width:600px) and (max-width:1366px){
-  /* 把 ctrls 20%→14%, #hand 70%→80%, touch-selbar 10%→6% — 键盘多吃 10% 屏幕 */
-  body.view-touch .ctrls{flex:0 0 14%!important;padding:4px 24px 2px}
-  body.view-touch #hand{flex:0 0 80%!important;padding:1px 4px}
-  body.view-touch #touch-selbar{flex:0 0 6%!important}
-  /* 键盘内部 padding/gap 缩小, 让格子吃满空间 */
-  body.view-touch .kb-grid{gap:2px;padding:1px 1px 4px 1px}
-  /* 字号同步放大 (格子大了字也要跟上) */
-  body.view-touch .kb-key{font-size:26px;padding:3px 0 0 5px}
-  body.view-touch .kb-key .kb-sub{font-size:22px;bottom:2px;right:5px}
-  /* 顶部按钮也稍微缩, 避免挤压键盘 */
-  body.view-touch .btn{padding:8px 22px;font-size:14px;min-height:38px}
-  body.view-touch .btn.b-play{padding:8px 32px;font-size:16px}
-}
+/* 触摸键盘视图: 整体放大键盘区域 (无媒体查询, view-touch 本身就是触摸网关)
+   不再用 max-width:1366px — 13.3"屏可能是 1920×1080 不触发 */
+body.view-touch .ctrls{flex:0 0 14%!important;padding:4px 24px 2px}
+body.view-touch #hand{flex:0 0 80%!important;padding:1px 4px}
+body.view-touch #touch-selbar{flex:0 0 6%!important}
+body.view-touch .kb-grid{gap:2px!important;padding:1px 1px 4px 1px!important}
+body.view-touch .kb-key{font-size:26px!important;padding:3px 0 0 5px!important}
+body.view-touch .kb-key .kb-sub{font-size:22px!important;bottom:2px!important;right:5px!important}
+body.view-touch .btn{padding:8px 22px;font-size:14px;min-height:38px}
+body.view-touch .btn.b-play{padding:8px 32px;font-size:16px}
 
 /* In keyboard mode, give more space to grid (80% instead of 70%) */
 body.view-touch #hand{flex:0 0 80%!important}
