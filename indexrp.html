@@ -1762,11 +1762,8 @@ body.view-table .holo-hex-grid{opacity:0.05}
     </div>
     <div class="training-badge" id="training-badge">🎓 TRAINING</div>
     <div id="hand-dock" style="position:absolute;bottom:24px;right:16px;z-index:500;display:none;flex-direction:column;gap:8px;align-items:stretch">
-      <button class="hd-btn hd-smart" onclick="smartSortHand()" title="同花顺→炸弹 优先">
+      <button class="hd-btn hd-smart hd-smart-toggle" onclick="toggleSmartSort()" title="按一次理牌, 再按恢复">
         <span class="hd-icon">🎯</span><span class="hd-label">智能理牌</span>
-      </button>
-      <button class="hd-btn hd-restore" onclick="restoreHand()" title="恢复默认排序">
-        <span class="hd-icon">↺</span><span class="hd-label">恢复手牌</span>
       </button>
       <button class="hd-btn hd-afk" id="afk-btn" onclick="toggleAFK()">
         <span class="hd-icon">🤖</span><span class="hd-label">离座代打</span>
@@ -4251,6 +4248,28 @@ function restoreHand(){
   AudioSys.play('click');
 }
 
+// === 智能理牌/恢复 toggle: 按一次理牌, 再按恢复 ===
+function toggleSmartSort(){
+  if(!myCards||!myCards.length){return toast("暂无手牌")}
+  const isSorted = myCards.some(c => c._sortGrp);
+  if(isSorted){ restoreHand(); } else { smartSortHand(); }
+  _updateSmartBtnLabel();
+}
+function _updateSmartBtnLabel(){
+  const btn = document.querySelector('.hd-smart-toggle');
+  if(!btn) return;
+  const isSorted = myCards && myCards.some(c => c._sortGrp);
+  const icon = btn.querySelector('.hd-icon');
+  const label = btn.querySelector('.hd-label');
+  if(isSorted){
+    if(icon) icon.textContent = '↺';
+    if(label) label.textContent = '恢复';
+  } else {
+    if(icon) icon.textContent = '🎯';
+    if(label) label.textContent = '智能理牌';
+  }
+}
+
 function doHint(){
   myCards.forEach(c=>c.sel=false);
   // Count cards per power value for natural grouping detection
@@ -4971,16 +4990,17 @@ function renderHand(isDealing=false){
   }
   const CH = Math.round(CW * 1.42);
   let PEEK = Math.round(CW * 36/66);
-  // Touch mode: if tallest stack overflows zone, shrink PEEK to fit
-  if(_isTouchView){
+  // Stack 高度自适应: 防止 6 张同点数堆叠时顶部卡片被裁掉/显示不全
+  // touch 模式给 70% 屏高, 非 touch 给 55% (顶部要留对手UI/控件位置)
+  {
     const viewEl2 = document.getElementById('view');
-    const zH = Math.floor((viewEl2 ? viewEl2.offsetHeight : window.innerHeight) * 0.7);
+    const viewH = viewEl2 ? viewEl2.offsetHeight : window.innerHeight;
+    const zH = Math.floor(viewH * (_isTouchView ? 0.7 : 0.55)) - 8;
     const maxN = Math.max(1, ...groups.map(g => g.cards.length));
     const tallestStack = CH + (maxN - 1) * PEEK;
-    if(tallestStack > zH - 8){
-      // Shrink peek so it fits: CH + (maxN-1)*newPeek = zH - 8
-      PEEK = maxN > 1 ? Math.floor((zH - 8 - CH) / (maxN - 1)) : PEEK;
-      PEEK = Math.max(PEEK, 16); // minimum peek to still see rank label
+    if(tallestStack > zH){
+      PEEK = maxN > 1 ? Math.floor((zH - CH) / (maxN - 1)) : PEEK;
+      PEEK = Math.max(PEEK, 16); // 最小露 16px 让点数/花色可见
     }
   }
   const fVal  = Math.max(13, Math.round(CW * 23/66));
@@ -5098,6 +5118,7 @@ function renderHand(isDealing=false){
     h.appendChild(wrap);
   });
   requestAnimationFrame(()=>requestAnimationFrame(()=>repositionButtons()));
+  if(typeof _updateSmartBtnLabel==='function') _updateSmartBtnLabel();
 }
 
 function repositionButtons(){
