@@ -4985,12 +4985,14 @@ function renderHand(isDealing=false){
     renderHandKeyboard(isDealing);
     return;
   } else {
-    // 固定卡牌大小, 不随出牌变化 (按理论最大 15 组算: 13点数+大小王+余量)
+    // 固定卡牌大小, 不随出牌变化. 按"15 组重叠 30% 必须塞下"反推 CW
+    // 总宽 = CW * (1 + (N-1)*(1-overlap)), 解出 CW = availW / (1 + 14*0.7) = availW / 10.8
     const MAX_GROUPS = 15;
-    CW = Math.floor((viewW - 40) / MAX_GROUPS);
-    CW = Math.max(70, Math.min(160, CW));
-    // 相邻组重叠 ~25%, 让卡牌紧凑但保证下一张的左上角点数可见
-    GAP = -Math.floor(CW * 0.25);
+    const OVERLAP = 0.30;
+    const availW = viewW - 40;
+    CW = Math.floor(availW / (1 + (MAX_GROUPS - 1) * (1 - OVERLAP)));
+    CW = Math.max(70, Math.min(220, CW));
+    GAP = -Math.floor(CW * OVERLAP);
   }
   const CH = Math.round(CW * 1.42);
   let PEEK = Math.round(CW * 36/66);
