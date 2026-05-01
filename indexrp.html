@@ -3067,8 +3067,12 @@ function _kbRegisterHandler() {
         else document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape', code:'Escape', bubbles:true}));
       }
     } else if (token === 'MODE') {
-      // MODE = TAB (切换焦点), 任何场景都能用
-      _kbCycleFocus();
+      // 游戏内: 智能理牌/恢复 toggle; 菜单内: TAB 切换焦点
+      if (_kbInGame() && typeof toggleSmartSort === 'function') {
+        toggleSmartSort();
+      } else {
+        _kbCycleFocus();
+      }
     } else if (token === 'BJ') {
       // 大王 (row 6 col 0)
       const card = myCards && myCards.find(c => c.s === 'JOKER' && c.v === 'Bg');
