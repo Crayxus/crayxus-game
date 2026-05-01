@@ -249,12 +249,6 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 
 /* Responsive Styles */
 @media(max-width:1366px){.dashboard{width:200px;padding:10px}.rank-val{font-size:28px}.card{width:100px;height:140px}.val-txt{font-size:22px;padding:4px}.center-icon{font-size:42px}.c-mini{width:70px!important;height:98px!important;margin-right:-35px}.c-mini .val-txt{font-size:16px}.c-mini .center-icon{font-size:26px}.grp-col .stack-card .card .peek-val{font-size:28px}.grp-col .stack-card .card .peek-suit{font-size:24px}.o-m{bottom:260px}.ctrls{bottom:250px}.p-me{bottom:auto}}
-/* 13.3" 触摸键盘视图: 放大 .kb-key 文字 (RPi 主路径,d393b6b 漏覆盖) */
-@media(max-width:1366px){
-  body.view-touch .kb-grid{gap:4px;padding:2px 2px 10px 2px}
-  body.view-touch .kb-key{font-size:24px;padding:3px 0 0 5px}
-  body.view-touch .kb-key .kb-sub{font-size:20px;bottom:2px;right:5px}
-}
 @media(max-width:1194px){.dashboard{width:160px;padding:8px}.rank-val{font-size:24px}.l-item{font-size:9px;padding:4px}.c-mini{width:42px!important;height:58px!important;margin-right:-21px}.c-mini .val-txt{font-size:10px;padding:1px}.c-mini .center-icon{font-size:16px}.out{width:220px;height:72px}.o-t{top:80px}.o-l{left:80px}.o-r{right:80px}.o-m{bottom:250px}.ctrls{gap:8px}.btn{padding:7px 20px;font-size:12px}.p-me{bottom:210px}.p-me .av{width:32px;height:32px;font-size:8px}.timer-ring{width:48px;height:48px}.av{width:42px;height:42px;font-size:9px}.badge-n{width:18px;height:18px;font-size:9px}.badge-type{font-size:7px}.badge-finish{font-size:7px}.tag{font-size:9px;padding:2px 6px;top:-22px}.timer-txt{font-size:12px;top:-24px}.toast{font-size:12px}.res-box{width:360px;padding:24px}.res-type{font-size:30px}.res-score{font-size:44px}.lobby-card{width:320px;padding:22px}.p-top{top:10px}}
 @media(max-height:650px),(max-width:930px){.dashboard{display:none}#game-ui{flex-direction:row}#view{width:100%}.mobile-score{display:flex}}
 @media(max-height:650px){.dashboard{display:none}#view{width:100%}.p-top{top:3px}.p-left{top:30%;left:5px}.p-right{top:30%;right:5px}.timer-ring{width:40px;height:40px}.av{width:34px;height:34px;font-size:8px;border-width:2px}.badge-n{width:16px;height:16px;font-size:8px;top:-2px;right:-2px}.badge-finish{font-size:7px;padding:1px 4px}.badge-type{font-size:7px}.out{width:180px;height:55px}.o-t{top:50px}.o-l{top:30%;left:50px}.o-r{top:30%;right:50px}.o-m{bottom:calc(140px + env(safe-area-inset-bottom,0px))}.c-mini{width:34px!important;height:48px!important;margin-right:-17px}.c-mini .val-txt{font-size:9px;padding:1px}.c-mini .center-icon{font-size:14px}#hand{height:120px;bottom:calc(2px + env(safe-area-inset-bottom,0px));gap:4px;padding:0 6px 4px}.grp-col .stack-card{width:42px;height:60px}.grp-col .stack-card .card{width:42px;height:60px;border-radius:4px}.grp-col .stack-card .card .peek-val{font-size:12px}.grp-col .stack-card .card .peek-suit{font-size:10px}.grp-col .stack-card .card .card-center{font-size:18px}.grp-col .stack-card.sel .card{transform:translateY(-10px)}.ctrls{bottom:calc(130px + env(safe-area-inset-bottom,0px));gap:8px}.btn{padding:6px 16px;font-size:11px}.p-me{bottom:calc(122px + env(safe-area-inset-bottom,0px))}.p-me .av{width:28px;height:28px;font-size:7px}.tag{font-size:8px;padding:2px 5px;top:-18px}.timer-txt{font-size:11px;top:-20px}.toast{font-size:11px;padding:5px 14px}.res-box{width:85vw;max-width:400px;padding:16px}.res-type{font-size:24px}.res-score{font-size:36px;margin-bottom:10px}.res-btn{padding:8px 24px;font-size:14px}.logo{font-size:44px}.lobby-card{width:85vw;max-width:320px;padding:16px}.btn-large{padding:10px;font-size:14px}}
@@ -1332,6 +1326,12 @@ body.view-touch .kb-key.kb-sorted{
   box-shadow:0 0 14px 4px currentColor,inset 0 0 10px rgba(255,255,255,0.12);
   filter:brightness(1.5) saturate(1.4);
 }
+/* 13.3" 触摸键盘视图: 放大 .kb-key 文字 (RPi 主路径) — 必须在 .kb-key 基础规则之后 */
+@media(max-width:1366px){
+  body.view-touch .kb-grid{gap:4px;padding:2px 2px 10px 2px}
+  body.view-touch .kb-key{font-size:24px;padding:3px 0 0 5px}
+  body.view-touch .kb-key .kb-sub{font-size:20px;bottom:2px;right:5px}
+}
 
 /* In keyboard mode, give more space to grid (80% instead of 70%) */
 body.view-touch #hand{flex:0 0 80%!important}
@@ -2105,7 +2105,7 @@ const HAND_AUDIO_URL = {
   'pair':           'audio/voice/play_pair.mp3',
   'triple':         'audio/voice/play_triple.mp3',
 };
-const PASS_AUDIO_URLS = ['audio/voice/pass_1.mp3','audio/voice/pass_2.mp3','audio/voice/pass_3.mp3'];
+const PASS_AUDIO_URLS = ['audio/voice/pass_short_1.mp3','audio/voice/pass_short_2.mp3','audio/voice/pass_short_3.mp3'];
 const _handAudioCache = {};
 const _handAudioFailed = {};
 function _playHandMp3(url, fallbackText){
