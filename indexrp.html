@@ -249,6 +249,12 @@ body{background:var(--bg);height:100vh;height:100dvh;overflow:hidden;display:fle
 
 /* Responsive Styles */
 @media(max-width:1366px){.dashboard{width:200px;padding:10px}.rank-val{font-size:28px}.card{width:100px;height:140px}.val-txt{font-size:22px;padding:4px}.center-icon{font-size:42px}.c-mini{width:70px!important;height:98px!important;margin-right:-35px}.c-mini .val-txt{font-size:16px}.c-mini .center-icon{font-size:26px}.grp-col .stack-card .card .peek-val{font-size:28px}.grp-col .stack-card .card .peek-suit{font-size:24px}.o-m{bottom:260px}.ctrls{bottom:250px}.p-me{bottom:auto}}
+/* 13.3" 触摸键盘视图: 放大 .kb-key 文字 (RPi 主路径,d393b6b 漏覆盖) */
+@media(max-width:1366px){
+  body.view-touch .kb-grid{gap:4px;padding:2px 2px 10px 2px}
+  body.view-touch .kb-key{font-size:24px;padding:3px 0 0 5px}
+  body.view-touch .kb-key .kb-sub{font-size:20px;bottom:2px;right:5px}
+}
 @media(max-width:1194px){.dashboard{width:160px;padding:8px}.rank-val{font-size:24px}.l-item{font-size:9px;padding:4px}.c-mini{width:42px!important;height:58px!important;margin-right:-21px}.c-mini .val-txt{font-size:10px;padding:1px}.c-mini .center-icon{font-size:16px}.out{width:220px;height:72px}.o-t{top:80px}.o-l{left:80px}.o-r{right:80px}.o-m{bottom:250px}.ctrls{gap:8px}.btn{padding:7px 20px;font-size:12px}.p-me{bottom:210px}.p-me .av{width:32px;height:32px;font-size:8px}.timer-ring{width:48px;height:48px}.av{width:42px;height:42px;font-size:9px}.badge-n{width:18px;height:18px;font-size:9px}.badge-type{font-size:7px}.badge-finish{font-size:7px}.tag{font-size:9px;padding:2px 6px;top:-22px}.timer-txt{font-size:12px;top:-24px}.toast{font-size:12px}.res-box{width:360px;padding:24px}.res-type{font-size:30px}.res-score{font-size:44px}.lobby-card{width:320px;padding:22px}.p-top{top:10px}}
 @media(max-height:650px),(max-width:930px){.dashboard{display:none}#game-ui{flex-direction:row}#view{width:100%}.mobile-score{display:flex}}
 @media(max-height:650px){.dashboard{display:none}#view{width:100%}.p-top{top:3px}.p-left{top:30%;left:5px}.p-right{top:30%;right:5px}.timer-ring{width:40px;height:40px}.av{width:34px;height:34px;font-size:8px;border-width:2px}.badge-n{width:16px;height:16px;font-size:8px;top:-2px;right:-2px}.badge-finish{font-size:7px;padding:1px 4px}.badge-type{font-size:7px}.out{width:180px;height:55px}.o-t{top:50px}.o-l{top:30%;left:50px}.o-r{top:30%;right:50px}.o-m{bottom:calc(140px + env(safe-area-inset-bottom,0px))}.c-mini{width:34px!important;height:48px!important;margin-right:-17px}.c-mini .val-txt{font-size:9px;padding:1px}.c-mini .center-icon{font-size:14px}#hand{height:120px;bottom:calc(2px + env(safe-area-inset-bottom,0px));gap:4px;padding:0 6px 4px}.grp-col .stack-card{width:42px;height:60px}.grp-col .stack-card .card{width:42px;height:60px;border-radius:4px}.grp-col .stack-card .card .peek-val{font-size:12px}.grp-col .stack-card .card .peek-suit{font-size:10px}.grp-col .stack-card .card .card-center{font-size:18px}.grp-col .stack-card.sel .card{transform:translateY(-10px)}.ctrls{bottom:calc(130px + env(safe-area-inset-bottom,0px));gap:8px}.btn{padding:6px 16px;font-size:11px}.p-me{bottom:calc(122px + env(safe-area-inset-bottom,0px))}.p-me .av{width:28px;height:28px;font-size:7px}.tag{font-size:8px;padding:2px 5px;top:-18px}.timer-txt{font-size:11px;top:-20px}.toast{font-size:11px;padding:5px 14px}.res-box{width:85vw;max-width:400px;padding:16px}.res-type{font-size:24px}.res-score{font-size:36px;margin-bottom:10px}.res-btn{padding:8px 24px;font-size:14px}.logo{font-size:44px}.lobby-card{width:85vw;max-width:320px;padding:16px}.btn-large{padding:10px;font-size:14px}}
@@ -2081,46 +2087,72 @@ const AudioSys={
   }
 };
 
-/* ===== 牌型语音播报 (Web Speech API) ===== */
+/* ===== 牌型语音播报 (优先播预生成 mp3, 失败回退 Web Speech API) ===== */
 window.SPEAK_HANDS = (typeof localStorage!=='undefined' && localStorage.getItem('speakHands')==='off') ? false : true;
 function toggleSpeakHands(){
   window.SPEAK_HANDS=!window.SPEAK_HANDS;
   try{localStorage.setItem('speakHands', window.SPEAK_HANDS?'on':'off');}catch(e){}
   if(typeof toast==='function') toast('牌型播报: '+(window.SPEAK_HANDS?'开':'关'));
 }
-function speakHandType(type, cards){
-  if(!window.SPEAK_HANDS) return;
-  if(!('speechSynthesis' in window)) return;
-  const map={
-    'bomb':'炸弹','straight_flush':'同花顺','straight':'顺子',
-    'plate':'钢板','tube':'木板','3+2':'三带二',
-    'pair':'对子','triple':'三张'
-  };
-  let name=map[type];
-  if(!name) return;  // single 等不喊
-  if(type==='bomb' && cards && cards.length){
-    const n=cards.length;
-    if(n>=8) name='天王炸';
-    else if(n>=6) name=n+'张炸弹';
-    else if(n===5) name='五炸';
-    else if(n===4) name='炸弹';
+const HAND_AUDIO_URL = {
+  'bomb':           'audio/voice/play_bomb.mp3',
+  'rocket':         'audio/voice/play_rocket.mp3',
+  'straight_flush': 'audio/voice/play_flush.mp3',
+  'straight':       'audio/voice/play_straight.mp3',
+  'plate':          'audio/voice/play_steel_plate.mp3',
+  'tube':           'audio/voice/play_double_straight.mp3',
+  '3+2':            'audio/voice/play_full_house.mp3',
+  'pair':           'audio/voice/play_pair.mp3',
+  'triple':         'audio/voice/play_triple.mp3',
+};
+const PASS_AUDIO_URLS = ['audio/voice/pass_1.mp3','audio/voice/pass_2.mp3','audio/voice/pass_3.mp3'];
+const _handAudioCache = {};
+const _handAudioFailed = {};
+function _playHandMp3(url, fallbackText){
+  if(_handAudioFailed[url]){ _speakFallback(fallbackText); return; }
+  if(!_handAudioCache[url]){
+    const a = new Audio(url);
+    a.addEventListener('error', ()=>{ _handAudioFailed[url]=true; _speakFallback(fallbackText); }, {once:true});
+    _handAudioCache[url] = a;
   }
+  const a = _handAudioCache[url];
+  try{ a.pause(); a.currentTime = 0; }catch(e){}
+  const p = a.play();
+  if(p && p.catch) p.catch(()=>{ _handAudioFailed[url]=true; _speakFallback(fallbackText); });
+}
+function _speakFallback(text){
+  if(!text || !('speechSynthesis' in window)) return;
   try{
-    const u=new SpeechSynthesisUtterance(name);
+    const u=new SpeechSynthesisUtterance(text);
     u.lang='zh-CN'; u.rate=1.25; u.pitch=1.05; u.volume=1.0;
     speechSynthesis.cancel();
     speechSynthesis.speak(u);
   }catch(e){}
 }
+function speakHandType(type, cards){
+  if(!window.SPEAK_HANDS) return;
+  const nameMap={
+    'bomb':'炸弹','straight_flush':'同花顺','straight':'顺子',
+    'plate':'钢板','tube':'木板','3+2':'三带二',
+    'pair':'对子','triple':'三张'
+  };
+  let key=type, name=nameMap[type];
+  if(!name) return;  // single 等不喊
+  if(type==='bomb' && cards && cards.length){
+    const n=cards.length;
+    if(n>=8){ key='rocket'; name='天王炸'; }
+    else if(n>=6) name=n+'张炸弹';
+    else if(n===5) name='五炸';
+    else if(n===4) name='炸弹';
+  }
+  const url = HAND_AUDIO_URL[key];
+  if(url){ _playHandMp3(url, name); }
+  else _speakFallback(name);
+}
 function speakPass(){
   if(!window.SPEAK_HANDS) return;
-  if(!('speechSynthesis' in window)) return;
-  try{
-    const u=new SpeechSynthesisUtterance('过');
-    u.lang='zh-CN'; u.rate=1.3; u.pitch=0.95; u.volume=0.8;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-  }catch(e){}
+  const url = PASS_AUDIO_URLS[Math.floor(Math.random()*PASS_AUDIO_URLS.length)];
+  _playHandMp3(url, '过');
 }
 
 /* ===== EVO HAND POWER SYSTEM v2 — with hand decomposition ===== */
