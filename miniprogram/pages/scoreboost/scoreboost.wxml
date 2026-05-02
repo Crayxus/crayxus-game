@@ -146,6 +146,32 @@
     <view class="tb-badge" style="color:{{currentSubject.color}};background:{{currentSubject.color}}22;border-color:{{currentSubject.color}}44;">已加载</view>
   </view>
 
+  <!-- 🎯 AI 预测分数（醒目大卡）-->
+  <view class="prediction-card {{prediction.ready ? 'active' : 'idle'}}" wx:if="{{!currentSubject.isGroup}}"
+        style="{{prediction.ready ? 'border-color:' + prediction.color + '88;background:linear-gradient(135deg,' + prediction.color + '22,rgba(0,0,0,.5))' : ''}}">
+    <view class="pc-tag">🎯 AI · 预测分数</view>
+    <block wx:if="{{prediction.ready}}">
+      <view class="pc-main">
+        <text class="pc-score" style="color:{{prediction.color}}">{{prediction.score}}</text>
+        <view class="pc-meta">
+          <text class="pc-label">{{prediction.label}}</text>
+          <text class="pc-range">/ {{prediction.max}} · {{prediction.range}}</text>
+        </view>
+      </view>
+      <view class="pc-trend trend-{{prediction.trend}}">
+        <text class="pt-icon">{{prediction.trend === 'up' ? '↗' : prediction.trend === 'down' ? '↘' : '→'}}</text>
+        <text class="pt-text">{{prediction.trendText}}</text>
+      </view>
+      <view class="pc-basis">{{prediction.basis}}</view>
+    </block>
+    <block wx:else>
+      <view class="pc-empty">
+        <text class="pe-icon">🔒</text>
+        <text class="pe-text">{{prediction.hint}}</text>
+      </view>
+    </block>
+  </view>
+
   <!-- 六维能力 · 测评维度 (抬到主科目之后第一位) -->
   <view class="section" wx:if="{{hasHistory && !currentSubject.isGroup}}">
     <view class="section-title">

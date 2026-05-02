@@ -714,6 +714,76 @@ page {
   margin-top: 2rpx;
 }
 
+/* ============ 🎯 AI 预测分数大卡 ============ */
+.prediction-card {
+  margin-bottom: 28rpx;
+  padding: 32rpx 28rpx 24rpx;
+  border-radius: 26rpx;
+  background: linear-gradient(135deg, rgba(0,212,170,.08), rgba(0,0,0,.4));
+  border: 2rpx solid rgba(255,255,255,.12);
+  position: relative;
+  overflow: hidden;
+}
+.prediction-card.idle {
+  border-style: dashed;
+  border-color: rgba(255,255,255,.2);
+  background: rgba(255,255,255,.04);
+}
+.pc-tag {
+  font-size: 22rpx;
+  color: rgba(255,255,255,.55);
+  letter-spacing: 4rpx;
+  font-weight: 700;
+  margin-bottom: 18rpx;
+}
+.pc-main {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+  margin-bottom: 14rpx;
+}
+.pc-score {
+  font-size: 110rpx;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -2rpx;
+  text-shadow: 0 0 30rpx currentColor;
+}
+.pc-meta { display: flex; flex-direction: column; gap: 4rpx; padding-bottom: 10rpx; }
+.pc-label { font-size: 28rpx; color: #fff; font-weight: 700; letter-spacing: 1rpx; }
+.pc-range { font-size: 20rpx; color: rgba(255,255,255,.5); letter-spacing: 0.5rpx; }
+.pc-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255,255,255,.08);
+  margin-bottom: 12rpx;
+  align-self: flex-start;
+}
+.pc-trend.trend-up { background: rgba(0,212,170,.18); border: 1rpx solid rgba(0,212,170,.4); }
+.pc-trend.trend-down { background: rgba(255,107,107,.18); border: 1rpx solid rgba(255,107,107,.4); }
+.pc-trend.trend-stable { background: rgba(255,215,0,.14); border: 1rpx solid rgba(255,215,0,.35); }
+.pt-icon { font-size: 24rpx; font-weight: 800; line-height: 1; }
+.trend-up .pt-icon, .trend-up .pt-text { color: #00d4aa; }
+.trend-down .pt-icon, .trend-down .pt-text { color: #ff8888; }
+.trend-stable .pt-icon, .trend-stable .pt-text { color: #ffd700; }
+.pt-text { font-size: 20rpx; font-weight: 600; letter-spacing: 0.5rpx; }
+.pc-basis {
+  font-size: 18rpx;
+  color: rgba(255,255,255,.45);
+  letter-spacing: 0.5rpx;
+}
+.pc-empty {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 8rpx 0;
+}
+.pe-icon { font-size: 40rpx; line-height: 1; }
+.pe-text { font-size: 24rpx; color: rgba(255,255,255,.6); letter-spacing: 0.5rpx; line-height: 1.5; }
+
 /* ============ 单板块定向练习 ============ */
 .dim-practice-grid {
   display: grid;

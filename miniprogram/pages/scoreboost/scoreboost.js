@@ -14,6 +14,7 @@ Page({
     basisChildren: [],
     hasHistory: false,
     stats: { weekGain: 0, streak: 0, accuracy: 0, totalDone: 0, baseline: 0, latest: 0 },
+    prediction: { ready: false, hint: '完成 1 次定级测评后开放预测' },
     dims: [],
     weakness: [],
     curve: [],
@@ -216,7 +217,84 @@ Page({
       modeText: h.mode === 'assess' ? '定级测评' : '自适应训练'
     }))
 
-    this.setData({ hasHistory, stats, dims, weakness, curve, recentHistory })
+    // 🎯 AI 预测分数（基于掌握度均值 + 趋势）
+    const prediction = this._predictScore(subject, mastery, history)
+
+    this.setData({ hasHistory, stats, dims, weakness, curve, recentHistory, prediction })
+  },
+
+  // 学科特异性预测：mastery 0-100 → 学科分数
+  _predictScore(subject, mastery, history) {
+    const DIMS = subject.DIMS || []
+    const vals = DIMS.map(d => mastery[d.key]).filter(v => v != null)
+    if (vals.length === 0) {
+      return { ready: false, hint: '完成 1 次定级测评后开放预测' }
+    }
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length
+
+    // 趋势加成（最近 3 次平均 vs 历史平均）
+    let trend = 0
+    if (history.length >= 3) {
+      const recent3 = history.slice(-3).reduce((a, h) => a + h.score, 0) / 3
+      const all = history.reduce((a, h) => a + h.score, 0) / history.length
+      trend = recent3 - all  // 正数=上升，负数=下降
+    }
+
+    const sid = subject.id
+    let score, max, label, range, color
+    if (sid === 'ielts') {
+      // 4.0-9.0 半档
+      const raw = 4.0 + (avg / 100) * 5.0 + trend * 0.02
+      score = Math.round(Math.max(4, Math.min(9, raw)) * 2) / 2
+      max = 9
+      label = 'Band'
+      range = '4.0-9.0'
+      color = '#00d4aa'
+    } else if (sid === 'toefl') {
+      score = Math.round(Math.max(0, Math.min(120, avg * 1.2 + trend * 0.5)))
+      max = 120
+      label = 'TOEFL'
+      range = '0-120'
+      color = '#00d4ff'
+    } else if (sid === 'sat') {
+      score = Math.round(Math.max(400, Math.min(1600, 400 + (avg / 100) * 1200 + trend * 5)) / 10) * 10
+      max = 1600
+      label = 'SAT'
+      range = '400-1600'
+      color = '#7c4dff'
+    } else if (sid === 'ap') {
+      score = Math.max(1, Math.min(5, Math.round(1 + (avg / 100) * 4 + trend * 0.02)))
+      max = 5
+      label = 'AP'
+      range = '1-5'
+      color = '#ffd700'
+    } else if (sid === 'alevel') {
+      const v = avg + trend * 0.5
+      score = v >= 90 ? 'A*' : v >= 80 ? 'A' : v >= 70 ? 'B' : v >= 60 ? 'C' : v >= 50 ? 'D' : 'E'
+      max = 'A*'
+      label = 'A-Level'
+      range = 'A*-E'
+      color = '#ff9500'
+    } else {
+      // 贝赛思 / 通用 0-100
+      score = Math.round(Math.max(0, Math.min(100, avg + trend * 0.5)))
+      max = 100
+      label = subject.shortName || '分数'
+      range = '0-100'
+      color = subject.color || '#00d4aa'
+    }
+
+    return {
+      ready: true,
+      score,
+      max,
+      label,
+      range,
+      color,
+      trend: trend > 1 ? 'up' : trend < -1 ? 'down' : 'stable',
+      trendText: trend > 1 ? `近期上升 ${trend.toFixed(1)}` : trend < -1 ? `近期下滑 ${Math.abs(trend).toFixed(1)}` : '稳定中',
+      basis: `基于 ${vals.length} 维掌握度 + ${history.length} 次模考行为`
+    }
   },
 
   _relTime(ts) {
