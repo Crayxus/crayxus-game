@@ -1,240 +1,175 @@
-<!-- Crayxus AI GP · AI 神经驾驶联赛 -->
+<!-- Crayxus AI GP · 极简驾驶大奖赛 -->
 <view class="page">
   <view style="height:{{statusBarHeight}}px"></view>
 
   <!-- 浮动返回 -->
   <view class="float-back" style="top:{{statusBarHeight + 12}}px" bindtap="goBack">
     <text class="fb-arrow">←</text>
-    <text class="fb-text">返回</text>
   </view>
 
-  <!-- 顶部品牌头 -->
-  <view class="brand-bar">
-    <view class="brand-left">
-      <view class="brand-logo">🏁</view>
-      <view class="brand-text">
-        <text class="brand-cn">Crayxus AI GP</text>
-        <text class="brand-en">AI Neural Drive League</text>
+  <!-- 顶部小标 -->
+  <view class="top-tag">
+    <text class="brand-logo-mini">🏁</text>
+    <text class="brand-name">Crayxus AI GP</text>
+    <view class="more-btn" bindtap="openDriverPicker">
+      <text>切换 ▾</text>
+    </view>
+  </view>
+
+  <!-- ==== 主舞台 ==== -->
+
+  <!-- Avatar 大头像 -->
+  <view class="avatar-stage">
+    <view class="avatar-glow" style="background:radial-gradient(circle, {{selectedDriver.color}}66, transparent 70%)"></view>
+    <view class="avatar-circle" style="background:linear-gradient(135deg, {{selectedDriver.color}}, rgba(0,0,0,.5)); box-shadow: 0 0 60rpx {{selectedDriver.color}}88, inset 0 -20rpx 40rpx rgba(0,0,0,.4)">
+      <text class="avatar-emoji">{{selectedDriver.avatar}}</text>
+    </view>
+    <view class="ai-badge-big" style="background:{{selectedDriver.color}}">{{selectedDriver.aiBadge}}</view>
+    <text class="driver-name">{{selectedDriver.name}}</text>
+    <text class="driver-meta">{{selectedDriver.aiModel}} · {{selectedDriver.mentor}}</text>
+
+    <view class="driver-stats-mini">
+      <view class="dsm-cell">
+        <text class="dsm-num" style="color:{{selectedDriver.color}}">{{selectedDriver.bestLap}}</text>
+        <text class="dsm-lbl">最快圈速</text>
+      </view>
+      <view class="dsm-sep"></view>
+      <view class="dsm-cell">
+        <text class="dsm-num">{{selectedDriver.races}}</text>
+        <text class="dsm-lbl">参赛</text>
+      </view>
+      <view class="dsm-sep"></view>
+      <view class="dsm-cell">
+        <text class="dsm-num" style="color:{{selectedDriver.color}}">{{selectedDriver.points}}</text>
+        <text class="dsm-lbl">积分</text>
       </view>
     </view>
   </view>
 
-  <!-- Hero -->
-  <view class="hero">
-    <view class="hero-deco"></view>
-    <view class="hero-tag">SEASON 1 · 2026</view>
-    <view class="hero-title">AI 大模型<text class="ht-accent"> 神经驾驶大奖赛</text></view>
-    <view class="hero-sub">6 个顶级 AI 模型 · 4 条经典赛道 · 全球独家 · 谁是 AI 驾驶之王？</view>
-
-    <view class="hero-stats">
-      <view class="stat">
-        <text class="stat-num">6</text>
-        <text class="stat-lbl">参赛 AI</text>
-      </view>
-      <view class="stat-sep"></view>
-      <view class="stat">
-        <text class="stat-num">4</text>
-        <text class="stat-lbl">经典赛道</text>
-      </view>
-      <view class="stat-sep"></view>
-      <view class="stat">
-        <text class="stat-num">256</text>
-        <text class="stat-lbl">本季总场次</text>
-      </view>
-      <view class="stat-sep"></view>
-      <view class="stat">
-        <text class="stat-num">1:23.456</text>
-        <text class="stat-lbl">最快圈速</text>
-      </view>
+  <!-- 赛道预览 -->
+  <view class="track-strip" bindtap="openTrackPicker">
+    <view class="ts-svg-wrap">
+      <image class="ts-svg" src="{{selectedTrack.svgUri}}" mode="aspectFit"></image>
     </view>
-  </view>
-
-  <!-- LIVE 比赛 banner -->
-  <view class="live-banner" wx:if="{{raceState === 'racing'}}">
-    <view class="lb-dot"></view>
-    <text class="lb-tag">LIVE</text>
-    <text class="lb-info">{{selectedTrack.name}} · Lap {{lap}}/{{totalLaps}} · {{liveTiming[0].name}} 领跑</text>
-  </view>
-  <view class="live-banner finished" wx:if="{{raceState === 'finished'}}">
-    <text class="lb-tag">🏆 FINISHED</text>
-    <text class="lb-info">冠军：{{liveTiming[0].name}} · {{selectedTrack.name}}</text>
-  </view>
-
-  <!-- 实时排位（仅比赛中显示）-->
-  <view class="section" wx:if="{{raceState !== 'idle' && liveTiming.length > 0}}">
-    <view class="section-title">
-      <text class="st-bar"></text>
-      <text class="st-text">实时排位 · LIVE TIMING</text>
+    <view class="ts-info">
+      <text class="ts-name">{{selectedTrack.name}}</text>
+      <text class="ts-meta">{{selectedTrack.length}} · {{selectedTrack.turns}} 弯 · {{selectedTrack.diffStars}}</text>
     </view>
-    <view class="timing-list">
-      <view class="timing-row" wx:for="{{liveTiming}}" wx:key="id"
-            style="border-left-color:{{item.color}}">
-        <text class="tr-pos {{index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}}">P{{item.pos}}</text>
-        <text class="tr-avatar">{{item.avatar}}</text>
-        <view class="tr-info">
-          <text class="tr-name">{{item.name}}</text>
-          <text class="tr-lap">{{item.lastLap}}</text>
+    <text class="ts-arrow">▾</text>
+  </view>
+
+  <!-- ==== 巨型 START 按钮 ==== -->
+  <view class="start-zone">
+    <!-- IDLE: 巨型 START -->
+    <view class="start-mega" wx:if="{{raceState === 'idle'}}" bindtap="startRace"
+          style="background: radial-gradient(circle, {{selectedDriver.color}} 0%, #c1121c 100%); box-shadow: 0 0 80rpx {{selectedDriver.color}}aa, 0 20rpx 60rpx rgba(0,0,0,.6)">
+      <text class="sm-icon">▶</text>
+      <text class="sm-label">START</text>
+      <text class="sm-sub">点击开始比赛</text>
+    </view>
+
+    <!-- RACING: lap 大显示 + pause/stop -->
+    <view class="racing-panel" wx:if="{{raceState === 'racing'}}">
+      <view class="rp-live-tag">
+        <view class="rp-dot"></view>
+        <text>LIVE</text>
+      </view>
+      <view class="rp-lap">
+        <text class="rp-lap-num">{{lap}}</text>
+        <text class="rp-lap-of">/ {{totalLaps}}</text>
+      </view>
+      <text class="rp-lap-lbl">LAP</text>
+      <view class="rp-leader" wx:if="{{liveTiming[0]}}">
+        <text class="rp-leader-prefix">领跑</text>
+        <text class="rp-leader-name">{{liveTiming[0].avatar}} {{liveTiming[0].name}}</text>
+      </view>
+      <view class="rp-actions">
+        <view class="rp-btn pause" bindtap="pauseRace">
+          <text>⏸ 暂停</text>
         </view>
-        <text class="tr-gap" style="color:{{item.color}}">{{item.gap}}</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 控制台 -->
-  <view class="section">
-    <view class="section-title">
-      <text class="st-bar"></text>
-      <text class="st-text">比赛控制台</text>
-      <text class="st-en">CONTROL · {{selectedDriver.name}} @ {{selectedTrack.name}}</text>
-    </view>
-
-    <view class="control-grid">
-      <view class="ctl-btn primary" wx:if="{{raceState === 'idle'}}" bindtap="startRace">
-        <text class="cb-icon">🟢</text>
-        <text class="cb-label">一键启动</text>
-      </view>
-      <view class="ctl-btn pause" wx:if="{{raceState === 'racing'}}" bindtap="pauseRace">
-        <text class="cb-icon">⏸</text>
-        <text class="cb-label">暂停</text>
-      </view>
-      <view class="ctl-btn primary" wx:if="{{raceState === 'paused'}}" bindtap="resumeRace">
-        <text class="cb-icon">▶️</text>
-        <text class="cb-label">继续</text>
-      </view>
-      <view class="ctl-btn stop" wx:if="{{raceState === 'racing' || raceState === 'paused'}}" bindtap="stopRace">
-        <text class="cb-icon">⏹</text>
-        <text class="cb-label">停止</text>
-      </view>
-      <view class="ctl-btn reset" wx:if="{{raceState === 'finished'}}" bindtap="resetRace">
-        <text class="cb-icon">🔄</text>
-        <text class="cb-label">重置</text>
-      </view>
-
-      <view class="ctl-btn ghost" bindtap="liveSpectate">
-        <text class="cb-icon">📺</text>
-        <text class="cb-label">直播观战</text>
-      </view>
-      <view class="ctl-btn ghost" bindtap="replayData">
-        <text class="cb-icon">📊</text>
-        <text class="cb-label">数据回放</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 赛道选择 · 俯瞰图 -->
-  <view class="section">
-    <view class="section-title">
-      <text class="st-bar"></text>
-      <text class="st-text">选择赛道</text>
-      <text class="st-en">CIRCUITS · 4 TRACKS</text>
-    </view>
-
-    <scroll-view class="tracks-scroll" scroll-x="true">
-      <view class="tracks-row">
-        <view class="track-card {{selectedTrackId === item.id ? 'selected' : ''}}"
-              wx:for="{{tracks}}" wx:key="id"
-              bindtap="selectTrack" data-id="{{item.id}}"
-              style="border-color:{{selectedTrackId === item.id ? item.color : 'rgba(255,255,255,.1)'}}">
-          <view class="tc-svg-box">
-            <image class="tc-svg" src="{{item.svgUri}}" mode="aspectFit"></image>
-            <view class="tc-overlay-badge" style="background:{{item.color}}">{{item.code}}</view>
-          </view>
-          <view class="tc-info">
-            <text class="tc-name">{{item.name}}</text>
-            <view class="tc-stats">
-              <view class="tc-stat-row">
-                <text class="tcs-lbl">长度</text>
-                <text class="tcs-val">{{item.length}}</text>
-              </view>
-              <view class="tc-stat-row">
-                <text class="tcs-lbl">弯道</text>
-                <text class="tcs-val">{{item.turns}}</text>
-              </view>
-              <view class="tc-stat-row">
-                <text class="tcs-lbl">难度</text>
-                <text class="tcs-val" style="color:{{item.color}}">{{item.diffStars}}</text>
-              </view>
-            </view>
-            <view class="tc-record">
-              <text class="tcr-lbl">🏆 圈速纪录</text>
-              <text class="tcr-val">{{item.record}}</text>
-            </view>
-          </view>
-        </view>
-      </view>
-    </scroll-view>
-  </view>
-
-  <!-- 6 个 AI 车手 -->
-  <view class="section">
-    <view class="section-title">
-      <text class="st-bar"></text>
-      <text class="st-text">参赛 AI 车手</text>
-      <text class="st-en">DRIVERS · 6 AGENTS</text>
-    </view>
-
-    <view class="drivers-list">
-      <view class="driver-card {{selectedDriverId === item.id ? 'selected' : ''}}"
-            wx:for="{{drivers}}" wx:key="id"
-            bindtap="selectDriver" data-id="{{item.id}}"
-            style="border-color:{{selectedDriverId === item.id ? item.color : 'rgba(255,255,255,.1)'}}">
-        <view class="dc-rank-bar" style="background:{{item.color}}"></view>
-        <view class="dc-avatar-box" style="background:linear-gradient(135deg,{{item.color}}, rgba(0,0,0,.5))">
-          <text class="dc-avatar">{{item.avatar}}</text>
-          <view class="dc-ai-badge" style="background:{{item.color}}">{{item.aiBadge}}</view>
-        </view>
-        <view class="dc-body">
-          <view class="dc-name-row">
-            <text class="dc-name">{{item.name}}</text>
-            <text class="dc-rank-num" style="color:{{item.color}}">#{{index + 1}}</text>
-          </view>
-          <view class="dc-meta-row">
-            <text class="dc-meta-lbl">🤖 AI</text>
-            <text class="dc-meta-val">{{item.aiModel}}</text>
-          </view>
-          <view class="dc-meta-row">
-            <text class="dc-meta-lbl">👨‍💻 开发</text>
-            <text class="dc-meta-val">{{item.dev}}</text>
-          </view>
-          <view class="dc-meta-row">
-            <text class="dc-meta-lbl">🎓 导师</text>
-            <text class="dc-meta-val">{{item.mentor}}</text>
-          </view>
-          <view class="dc-stats-row">
-            <view class="dcs-cell">
-              <text class="dcs-num" style="color:{{item.color}}">{{item.bestLap}}</text>
-              <text class="dcs-lbl">最快圈速</text>
-            </view>
-            <view class="dcs-cell">
-              <text class="dcs-num">{{item.races}}</text>
-              <text class="dcs-lbl">参赛次数</text>
-            </view>
-            <view class="dcs-cell">
-              <text class="dcs-num" style="color:{{item.color}}">{{item.points}}</text>
-              <text class="dcs-lbl">总积分</text>
-            </view>
-            <view class="dcs-cell">
-              <text class="dcs-num">{{item.wins}}</text>
-              <text class="dcs-lbl">胜场</text>
-            </view>
-          </view>
+        <view class="rp-btn stop" bindtap="stopRace">
+          <text>⏹ 停止</text>
         </view>
       </view>
     </view>
+
+    <!-- PAUSED -->
+    <view class="start-mega paused" wx:if="{{raceState === 'paused'}}" bindtap="resumeRace">
+      <text class="sm-icon">▶</text>
+      <text class="sm-label">继续</text>
+      <text class="sm-sub">已暂停 · Lap {{lap}}/{{totalLaps}}</text>
+    </view>
+
+    <!-- FINISHED -->
+    <view class="finished-card" wx:if="{{raceState === 'finished'}}">
+      <text class="fc-trophy">🏆</text>
+      <text class="fc-champion">{{liveTiming[0].avatar}} {{liveTiming[0].name}}</text>
+      <text class="fc-msg">夺冠！</text>
+      <view class="fc-action" bindtap="resetRace">
+        <text>🔄 再来一场</text>
+      </view>
+    </view>
   </view>
 
-  <!-- 联赛说明 -->
-  <view class="contact-card">
-    <view class="cc-row"><text class="cc-lbl">📅 赛季</text><text class="cc-val">2026 Season 1 · 全球首届 AI 大模型驾驶联赛</text></view>
-    <view class="cc-row"><text class="cc-lbl">📺 直播</text><text class="cc-val">每周日 20:00 · 视频号 @CrayxusAI</text></view>
-    <view class="cc-row"><text class="cc-lbl">🏆 奖金池</text><text class="cc-val">¥100w · 冠军独享 + 6 个 AI 团队联合冠名</text></view>
-    <view class="cc-row"><text class="cc-lbl">✉️ 报名</text><text class="cc-val">general@crayxus.com.au</text></view>
-  </view>
-
-  <view class="footer-mark">
-    <text>CRAYXUS AI GP</text>
-    <text class="fm-sub">AI 驱动 · 神经赛车 · 全球独家</text>
+  <!-- 实时排位（精简 Top 3） -->
+  <view class="mini-timing" wx:if="{{raceState === 'racing' && liveTiming.length > 0}}">
+    <view class="mt-row" wx:for="{{liveTiming}}" wx:key="id" wx:if="{{index < 3}}"
+          style="border-left-color:{{item.color}}">
+      <text class="mt-pos {{index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze'}}">P{{item.pos}}</text>
+      <text class="mt-avatar">{{item.avatar}}</text>
+      <text class="mt-name">{{item.name}}</text>
+      <text class="mt-gap" style="color:{{item.color}}">{{item.gap}}</text>
+    </view>
   </view>
 
   <view style="height:60rpx"></view>
+
+  <!-- ====== 车手选择 overlay ====== -->
+  <view class="picker-overlay" wx:if="{{driverPickerOpen}}" catchtouchmove="_noop">
+    <view class="po-mask" bindtap="closeDriverPicker"></view>
+    <view class="po-sheet">
+      <view class="po-handle"></view>
+      <view class="po-title">选择 AI 车手</view>
+      <scroll-view class="po-scroll" scroll-y="true">
+        <view class="picker-driver-card {{selectedDriverId === item.id ? 'on' : ''}}"
+              wx:for="{{drivers}}" wx:key="id"
+              bindtap="selectDriverAndClose" data-id="{{item.id}}"
+              style="border-color:{{selectedDriverId === item.id ? item.color : 'rgba(255,255,255,.08)'}}">
+          <view class="pdc-avatar" style="background:linear-gradient(135deg,{{item.color}}, rgba(0,0,0,.5))">
+            <text>{{item.avatar}}</text>
+          </view>
+          <view class="pdc-body">
+            <view class="pdc-name-row">
+              <text class="pdc-name">{{item.name}}</text>
+              <text class="pdc-rank" style="color:{{item.color}}">#{{index + 1}}</text>
+            </view>
+            <text class="pdc-meta">{{item.aiModel}} · {{item.mentor}}</text>
+            <text class="pdc-lap" style="color:{{item.color}}">{{item.bestLap}}  ·  {{item.points}} 分</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- ====== 赛道选择 overlay ====== -->
+  <view class="picker-overlay" wx:if="{{trackPickerOpen}}" catchtouchmove="_noop">
+    <view class="po-mask" bindtap="closeTrackPicker"></view>
+    <view class="po-sheet">
+      <view class="po-handle"></view>
+      <view class="po-title">选择赛道</view>
+      <scroll-view class="po-scroll" scroll-y="true">
+        <view class="picker-track-card {{selectedTrackId === item.id ? 'on' : ''}}"
+              wx:for="{{tracks}}" wx:key="id"
+              bindtap="selectTrackAndClose" data-id="{{item.id}}"
+              style="border-color:{{selectedTrackId === item.id ? item.color : 'rgba(255,255,255,.08)'}}">
+            <image class="ptc-svg" src="{{item.svgUri}}" mode="aspectFit"></image>
+            <view class="ptc-info">
+              <text class="ptc-name">{{item.name}}</text>
+              <text class="ptc-meta">{{item.length}} · {{item.turns}} 弯 · {{item.diffStars}}</text>
+              <text class="ptc-record" style="color:{{item.color}}">🏆 {{item.record}}</text>
+            </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
 </view>

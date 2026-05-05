@@ -128,7 +128,37 @@ Page({
     liveTiming: [],
     elapsedSec: 0,
     selectedDriver: null,
-    selectedTrack: null
+    selectedTrack: null,
+    driverPickerOpen: false,
+    trackPickerOpen: false
+  },
+
+  _noop() {},
+
+  openDriverPicker() {
+    wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+    this.setData({ driverPickerOpen: true, trackPickerOpen: false })
+  },
+  closeDriverPicker() {
+    this.setData({ driverPickerOpen: false })
+  },
+  selectDriverAndClose(e) {
+    wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+    this.setData({ selectedDriverId: e.currentTarget.dataset.id, driverPickerOpen: false })
+    this._refreshSelected()
+  },
+
+  openTrackPicker() {
+    wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+    this.setData({ trackPickerOpen: true, driverPickerOpen: false })
+  },
+  closeTrackPicker() {
+    this.setData({ trackPickerOpen: false })
+  },
+  selectTrackAndClose(e) {
+    wx.vibrateShort && wx.vibrateShort({ type: 'light' })
+    this.setData({ selectedTrackId: e.currentTarget.dataset.id, trackPickerOpen: false })
+    this._refreshSelected()
   },
 
   onLoad() {
