@@ -1,7 +1,7 @@
 {
   "libVersion": "2.30.4",
   "condition": {},
-  "projectname": "Crayxus",
+  "projectname": "miniprogram",
   "setting": {
     "urlCheck": false,
     "coverView": true,
