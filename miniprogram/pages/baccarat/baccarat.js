@@ -85,6 +85,16 @@ Page({
     history: [],
     historyGrid: [],   // 大路（列式）
     beadPlate: [],     // 珠盘路
+    // 三层揽策略
+    strategyOn: false,
+    strategyTier: 1,           // 1 / 2 / 3
+    tierMul: 1.0,              // 1.0 / 1.1 / 1.21
+    strategyStep: 0,           // 当前阶梯位置 (0 = 第 1 注, 1 = 第 2 注)
+    strategyActive: false,     // 是否处于胜进中
+    bbbColIdx: [],             // 历史中所有 BBB+ 列号
+    totalCols: 0,              // 当前累计列数
+    gapSinceBBB: 0,            // 距上次 BBB+ 的列数
+    suggestBet: null           // { unit: 数值, reason: 文字 }
     lastWin: 0,
     showLastWin: false,
     aiSignal: { pattern: '等待开局', streakLen: 0, streakSide: null, nextProb: 50, recommend: 'B', recommendProb: 45.86, insight: '本局基础概率 · 庄 45.86% / 闲 44.62% / 和 9.52%', confidence: 'low' }
@@ -165,6 +175,167 @@ Page({
       this.setData({ balance: saved })
     }
     this._shoe = buildShoe(8)
+  },
+
+  // 计算列结构（剔除 T）
+  _computeColumns(history) {
+    const cols = []
+    let cur = null
+    history.forEach(h => {
+      if (h.r === 'T') return
+      if (!cur || cur.side !== h.r) { cur = { side: h.r, len: 1 }; cols.push(cur) }
+      else cur.len++
+    })
+    return cols
+  },
+
+  // 每局结束后更新策略状态
+  _updateStrategyAfterRound(round, r, lastWin) {
+    const cols = this._computeColumns(this.data.history)
+    const bbbIdx = []
+    cols.forEach((c, i) => { if (c.side === 'B' && c.len >= 3) bbbIdx.push(i) })
+    const totalCols = cols.length
+
+    if (this.data.strategyActive) {
+      // 本局是下注局，根据结果更新
+      if (r === 'B') {
+        const newStep = this.data.strategyStep + 1
+        if (newStep >= 2) {
+          // 完成 1-2 → 列达到 BBB+
+          const newBBB = bbbIdx[bbbIdx.length - 1]
+          const prevBBB = bbbIdx.length >= 2 ? bbbIdx[bbbIdx.length - 2] : -1
+          const gap = prevBBB >= 0 ? newBBB - prevBBB : 999
+          let newTier = this.data.strategyTier
+          if (gap < 7 && prevBBB >= 0) newTier = Math.min(3, newTier + 1)
+          else newTier = 1
+          this.setData({
+            strategyActive: false,
+            strategyStep: 0,
+            strategyTier: newTier,
+            tierMul: +Math.pow(1.1, newTier - 1).toFixed(3),
+            bbbColIdx: bbbIdx,
+            totalCols,
+            gapSinceBBB: 0
+          })
+        } else {
+          this.setData({ strategyStep: newStep, totalCols, bbbColIdx: bbbIdx })
+        }
+      } else {
+        // P → 失败, 重置
+        this.setData({
+          strategyActive: false,
+          strategyStep: 0,
+          strategyTier: 1,
+          tierMul: 1.0,
+          bbbColIdx: bbbIdx,
+          totalCols
+        })
+      }
+    } else {
+      // 等待新 B 列触发
+      const lastCol = cols[cols.length - 1]
+      if (lastCol && lastCol.side === 'B' && lastCol.len === 1) {
+        // 新 B 列刚开 → 下一局起算第 1 注
+        this.setData({
+          strategyActive: true,
+          strategyStep: 0,
+          bbbColIdx: bbbIdx,
+          totalCols
+        })
+      } else {
+        // 计算距上次 BBB+ 列数
+        const lastBBB = bbbIdx.length > 0 ? bbbIdx[bbbIdx.length - 1] : -1
+        const gap = lastBBB >= 0 ? totalCols - 1 - lastBBB : totalCols
+        this.setData({ bbbColIdx: bbbIdx, totalCols, gapSinceBBB: gap })
+      }
+    }
+
+    this._refreshStrategyState()
+  },
+
+  // 切换策略
+  toggleStrategy() {
+    const on = !this.data.strategyOn
+    wx.vibrateShort && wx.vibrateShort({ type: 'medium' })
+    if (on) {
+      // 启动: 重置策略状态, 但保留历史 (用于判断当前位置)
+      this.setData({
+        strategyOn: true,
+        strategyTier: 1,
+        tierMul: 1.0,
+        strategyStep: 0,
+        strategyActive: false
+      })
+      this._refreshStrategyState()
+      wx.showToast({ title: '🎯 策略已启动', icon: 'none', duration: 1200 })
+    } else {
+      this.setData({ strategyOn: false, suggestBet: null })
+      wx.showToast({ title: '策略已关闭', icon: 'none', duration: 1000 })
+    }
+  },
+
+  // 根据当前牌路计算建议
+  _refreshStrategyState() {
+    if (!this.data.strategyOn) { this.setData({ suggestBet: null }); return }
+    // 已在胜进中，下一注就是 ladder[step]
+    if (this.data.strategyActive) {
+      const baseBet = [1, 2][this.data.strategyStep] * this.data.tierMul
+      this.setData({
+        suggestBet: {
+          unit: +baseBet.toFixed(2),
+          tierLabel: 'L' + this.data.strategyTier,
+          step: this.data.strategyStep + 1,
+          reason: '🎯 第 ' + (this.data.strategyStep + 1) + ' 注 · 押庄 ' + baseBet.toFixed(2)
+        }
+      })
+      return
+    }
+    // 尚未触发: 看上局是否是 P 或起始, 当前是否将开 B (无法预知)
+    // 实际逻辑在 _finalize 后判断: 上局 result 是否打开新 B 列, 来决定本轮要不要下注
+    const last = this.data.history[this.data.history.length - 1]
+    if (!last || last.r !== 'B') {
+      // 等待 B 出现 (不下注本局, 等下一局)
+      this.setData({
+        suggestBet: {
+          unit: 0, tierLabel: 'L' + this.data.strategyTier, step: 0,
+          reason: '等待新 B 列触发 · 当前 ' + (last ? (last.r === 'P' ? '上局闲' : '上局和') : '尚未开始')
+        }
+      })
+    } else {
+      // 上局是 B 但还未触发 (可能列内非起始, 不算新 B 列)
+      this.setData({
+        suggestBet: {
+          unit: 0, tierLabel: 'L' + this.data.strategyTier, step: 0,
+          reason: '当前 B 列已开, 等下一新 B 列再触发'
+        }
+      })
+    }
+  },
+
+  // 智能下注: 根据策略自动放筹码
+  autoBet() {
+    if (!this.data.strategyOn) {
+      wx.showToast({ title: '请先开启策略', icon: 'none' })
+      return
+    }
+    const sb = this.data.suggestBet
+    if (!sb || sb.unit <= 0) {
+      wx.showToast({ title: '当前不下注 · 等触发', icon: 'none', duration: 1200 })
+      return
+    }
+    // 单位 = 100 元 (默认)
+    const amount = Math.round(sb.unit * 100)
+    if (this.data.balance < amount) {
+      wx.showToast({ title: '余额不足', icon: 'none' })
+      return
+    }
+    const newBets = { ...this.data.bets, B: (this.data.bets.B || 0) + amount }
+    wx.vibrateShort && wx.vibrateShort({ type: 'heavy' })
+    this.setData({
+      bets: newBets,
+      balance: this.data.balance - amount
+    })
+    wx.showToast({ title: '✓ 已下 ' + amount + ' 押庄', icon: 'none', duration: 1000 })
   },
 
   selectChip(e) {
@@ -277,6 +448,9 @@ Page({
     })
     // 重算 AI 信号
     this.setData({ aiSignal: this._computeSignal() })
+
+    // 更新策略状态
+    if (this.data.strategyOn) this._updateStrategyAfterRound(round, r, lastWin)
 
     wx.setStorageSync(STORAGE_KEY, newBalance)
 

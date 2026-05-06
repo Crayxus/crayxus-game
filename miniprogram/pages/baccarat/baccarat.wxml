@@ -24,6 +24,53 @@
     </view>
   </view>
 
+  <!-- 🎯 三层揽策略助手 -->
+  <view class="strategy-card {{strategyOn ? 'on' : ''}}">
+    <view class="sc-head">
+      <text class="sc-icon">🎯</text>
+      <text class="sc-title">三层揽 · 1-2 胜进</text>
+      <view class="sc-toggle {{strategyOn ? 'on' : ''}}" bindtap="toggleStrategy">
+        <view class="sc-toggle-dot"></view>
+      </view>
+    </view>
+    <block wx:if="{{strategyOn}}">
+      <view class="sc-tier-row">
+        <view class="sc-tier {{strategyTier === 1 ? 'active' : ''}}">
+          <text class="st-name">L1</text>
+          <text class="st-mul">×1.0</text>
+          <text class="st-bet">1-2</text>
+        </view>
+        <text class="sc-arrow">›</text>
+        <view class="sc-tier {{strategyTier === 2 ? 'active' : ''}}">
+          <text class="st-name">L2</text>
+          <text class="st-mul">×1.1</text>
+          <text class="st-bet">1.1-2.2</text>
+        </view>
+        <text class="sc-arrow">›</text>
+        <view class="sc-tier {{strategyTier === 3 ? 'active' : ''}}">
+          <text class="st-name">L3</text>
+          <text class="st-mul">×1.21</text>
+          <text class="st-bet">1.21-2.42</text>
+        </view>
+      </view>
+      <view class="sc-status" wx:if="{{suggestBet}}">
+        <text class="sc-status-text">{{suggestBet.reason}}</text>
+        <view class="sc-bet-btn {{suggestBet.unit > 0 ? 'go' : 'wait'}}" bindtap="autoBet">
+          <text wx:if="{{suggestBet.unit > 0}}">💎 智能下注 ¥{{suggestBet.unit * 100}}</text>
+          <text wx:else>等待触发中</text>
+        </view>
+      </view>
+      <view class="sc-meta-row">
+        <text class="sc-meta">距上次 BBB+ : {{gapSinceBBB}} 列</text>
+        <text class="sc-meta">总列数: {{totalCols}}</text>
+        <text class="sc-meta">BBB+ 累计: {{bbbColIdx.length}}</text>
+      </view>
+    </block>
+    <view class="sc-empty" wx:else>
+      <text>开启后 AI 自动按 1-2 胜进 + 7 列内连胜 → ×1.1 三层揽提示下注</text>
+    </view>
+  </view>
+
   <!-- 🧠 Crayxus AI 概率信号 -->
   <view class="ai-signal {{aiSignal.confidence}}">
     <view class="as-head">

@@ -71,6 +71,110 @@ page {
 .bb-tool:active { background: rgba(255,215,0,.25); transform: scale(0.95); }
 .bb-tool text { font-size: 18rpx; color: #ffd700; font-weight: 600; letter-spacing: 0.5rpx; }
 
+/* 🎯 三层揽策略卡 */
+.strategy-card {
+  margin: 14rpx 0 14rpx;
+  padding: 16rpx 18rpx 14rpx;
+  border-radius: 18rpx;
+  background: linear-gradient(135deg, rgba(255,215,0,.1), rgba(193,18,28,.06));
+  border: 1rpx solid rgba(255,215,0,.32);
+}
+.strategy-card.on { border-color: rgba(255,215,0,.6); box-shadow: 0 0 22rpx rgba(255,215,0,.2); }
+.sc-head { display: flex; align-items: center; gap: 10rpx; margin-bottom: 12rpx; }
+.sc-icon { font-size: 26rpx; }
+.sc-title { flex: 1; font-size: 22rpx; color: #ffd700; font-weight: 800; letter-spacing: 1rpx; }
+.sc-toggle {
+  width: 64rpx; height: 32rpx;
+  border-radius: 999rpx;
+  background: rgba(255,255,255,.1);
+  border: 1rpx solid rgba(255,255,255,.2);
+  position: relative;
+  transition: all 0.2s ease;
+}
+.sc-toggle.on { background: linear-gradient(90deg, #ffd700, #ff8c00); border-color: #ffd700; }
+.sc-toggle-dot {
+  position: absolute;
+  top: 3rpx; left: 4rpx;
+  width: 24rpx; height: 24rpx;
+  border-radius: 50%;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+.sc-toggle.on .sc-toggle-dot { left: 36rpx; }
+
+.sc-tier-row {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 12rpx 0;
+  border-top: 1rpx solid rgba(255,255,255,.06);
+  border-bottom: 1rpx solid rgba(255,255,255,.06);
+  margin-bottom: 10rpx;
+}
+.sc-tier {
+  flex: 1;
+  padding: 8rpx 4rpx;
+  border-radius: 10rpx;
+  background: rgba(255,255,255,.04);
+  border: 1rpx solid rgba(255,255,255,.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+}
+.sc-tier.active {
+  background: linear-gradient(135deg, rgba(255,215,0,.3), rgba(255,140,0,.18));
+  border-color: rgba(255,215,0,.7);
+  box-shadow: 0 0 16rpx rgba(255,215,0,.4);
+  transform: scale(1.05);
+}
+.st-name { font-size: 20rpx; color: #ffd700; font-weight: 800; letter-spacing: 1rpx; }
+.st-mul { font-size: 16rpx; color: rgba(255,255,255,.55); font-family: "Courier New", monospace; }
+.st-bet { font-size: 16rpx; color: rgba(255,255,255,.7); font-family: "Courier New", monospace; }
+.sc-arrow { font-size: 22rpx; color: rgba(255,215,0,.5); }
+
+.sc-status {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 10rpx 0 8rpx;
+}
+.sc-status-text {
+  flex: 1;
+  font-size: 20rpx;
+  color: rgba(255,255,255,.85);
+  line-height: 1.5;
+}
+.sc-bet-btn {
+  flex-shrink: 0;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid;
+}
+.sc-bet-btn.go {
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  border-color: #ffd700;
+  box-shadow: 0 4rpx 14rpx rgba(255,215,0,.45);
+}
+.sc-bet-btn.go:active { transform: scale(0.95); }
+.sc-bet-btn.go text { font-size: 20rpx; color: #1a0a0a; font-weight: 800; letter-spacing: 0.5rpx; }
+.sc-bet-btn.wait {
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.15);
+}
+.sc-bet-btn.wait text { font-size: 18rpx; color: rgba(255,255,255,.5); }
+
+.sc-meta-row {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8rpx;
+  border-top: 1rpx solid rgba(255,255,255,.05);
+}
+.sc-meta { font-size: 16rpx; color: rgba(255,255,255,.45); letter-spacing: 0.3rpx; }
+
+.sc-empty { padding: 6rpx 0 4rpx; }
+.sc-empty text { font-size: 18rpx; color: rgba(255,255,255,.55); line-height: 1.5; }
+
 /* AI 信号 */
 .ai-signal {
   margin: 14rpx 0 18rpx;
