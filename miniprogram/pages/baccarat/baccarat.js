@@ -83,7 +83,8 @@ Page({
     result: null,
     payout: 0,
     history: [],
-    historyGrid: [],
+    historyGrid: [],   // 大路（列式）
+    beadPlate: [],     // 珠盘路
     lastWin: 0,
     showLastWin: false,
     aiSignal: { pattern: '等待开局', streakLen: 0, streakSide: null, nextProb: 50, recommend: 'B', recommendProb: 45.86, insight: '本局基础概率 · 庄 45.86% / 闲 44.62% / 和 9.52%', confidence: 'low' }
@@ -202,11 +203,7 @@ Page({
 
   deal() {
     if (this.data.state !== 'betting') return
-    const total = Object.values(this.data.bets).reduce((a, b) => a + b, 0)
-    if (total === 0) {
-      wx.showToast({ title: '请先下注', icon: 'none', duration: 800 })
-      return
-    }
+    // 允许零注码发牌（只看牌路）
     wx.vibrateShort && wx.vibrateShort({ type: 'heavy' })
     this.setData({ state: 'dealing', pCards: [], bCards: [], result: null, showLastWin: false })
 
@@ -258,8 +255,11 @@ Page({
     const totalBet = Object.values(bets).reduce((a, b) => a + b, 0)
     const lastWin = payout - totalBet
 
-    const history = [...this.data.history, { r, win: lastWin > 0 }].slice(-36)
+    const playerPair2 = round.playerCards[0].r === round.playerCards[1].r
+    const bankerPair2 = round.bankerCards[0].r === round.bankerCards[1].r
+    const history = [...this.data.history, { r, pp: playerPair2, bp: bankerPair2, win: lastWin > 0 }].slice(-72)
     const historyGrid = this._buildBigRoad(history)
+    const beadPlate = this._buildBeadPlate(history)
     const newBalance = this.data.balance + payout
 
     this.setData({
@@ -272,6 +272,7 @@ Page({
       showLastWin: true,
       history,
       historyGrid,
+      beadPlate,
       balance: newBalance
     })
     // 重算 AI 信号
@@ -284,13 +285,57 @@ Page({
     }
   },
 
-  _buildBigRoad(history) {
+  // 珠盘路：6 行 × N 列，从左上往下填，满 6 个换列
+  _buildBeadPlate(history) {
     const rows = [[], [], [], [], [], []]
     history.forEach((h, i) => {
-      const row = i % 6
-      rows[row].push(h)
+      rows[i % 6].push(h)
     })
     return rows
+  },
+
+  // 大路：忽略和局，同色同列下移，异色新列右移，最多 6 行（拐弯）
+  _buildBigRoad(history) {
+    const cols = []  // 每列: [{ r, ties: 该格上累计和局数 }, ...]
+    let curCol = -1
+    let lastNonTie = null
+    let pendingTies = 0
+    history.forEach(h => {
+      if (h.r === 'T') {
+        pendingTies++
+        return
+      }
+      if (lastNonTie === null || h.r !== lastNonTie) {
+        // 新列
+        curCol++
+        cols[curCol] = []
+        cols[curCol].push({ r: h.r, ties: pendingTies, pp: h.pp, bp: h.bp })
+        pendingTies = 0
+      } else {
+        // 同色 - 同列下移（不超 6 行则下，超则右拐）
+        if (cols[curCol].length < 6) {
+          cols[curCol].push({ r: h.r, ties: pendingTies, pp: h.pp, bp: h.bp })
+        } else {
+          curCol++
+          cols[curCol] = [{ r: h.r, ties: pendingTies, pp: h.pp, bp: h.bp }]
+        }
+        pendingTies = 0
+      }
+      lastNonTie = h.r
+    })
+    // 把和局累在最后一格
+    if (pendingTies > 0 && cols.length > 0) {
+      const lastCol = cols[cols.length - 1]
+      lastCol[lastCol.length - 1].ties += pendingTies
+    }
+    // 转成网格 6 行 × N 列方便 WXML 渲染
+    const grid = [[], [], [], [], [], []]
+    cols.forEach((col, ci) => {
+      for (let r = 0; r < 6; r++) {
+        grid[r].push(col[r] || null)
+      }
+    })
+    return grid
   },
 
   next() {
@@ -343,6 +388,7 @@ Page({
             payout: 0,
             history: [],
             historyGrid: [],
+            beadPlate: [],
             showLastWin: false
           })
           wx.setStorageSync(STORAGE_KEY, STARTING_BALANCE)

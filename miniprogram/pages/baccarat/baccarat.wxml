@@ -6,15 +6,21 @@
     <text>←</text>
   </view>
 
-  <!-- 顶部 brand + balance -->
+  <!-- 顶部 brand（避开微信胶囊）-->
   <view class="top-bar">
-    <view class="tb-left">
-      <text class="tb-icon">♠</text>
-      <text class="tb-name">Baccarat Lounge</text>
+    <text class="tb-icon">♠</text>
+    <text class="tb-name">Baccarat Lounge</text>
+  </view>
+
+  <!-- 独立余额条（避免和系统胶囊重叠）-->
+  <view class="balance-bar">
+    <view class="bb-left">
+      <text class="bb-label">虚拟筹码</text>
+      <text class="bb-amt">¥{{balance}}</text>
     </view>
-    <view class="balance-card">
-      <text class="bc-label">虚拟筹码</text>
-      <text class="bc-amt">¥{{balance}}</text>
+    <view class="bb-right">
+      <view class="bb-tool" bindtap="rebuy"><text>💎 充值</text></view>
+      <view class="bb-tool" bindtap="reset"><text>↻ 重置</text></view>
     </view>
   </view>
 
@@ -180,28 +186,53 @@
     </view>
   </view>
 
-  <!-- 大路 -->
-  <view class="big-road" wx:if="{{history.length > 0}}">
-    <view class="br-title">
-      <text>📊 走势 · 大路</text>
-      <view class="br-tools">
-        <view class="br-tool" bindtap="rebuy">💎 充值</view>
-        <view class="br-tool" bindtap="reset">↻ 重置</view>
+  <!-- 牌路 · 珠盘路 + 大路（赌场标准）-->
+  <view class="roads" wx:if="{{history.length > 0}}">
+    <!-- 珠盘路 -->
+    <view class="road-block">
+      <view class="rb-head">
+        <text class="rb-title">珠盘路</text>
+        <text class="rb-sub">最近 {{history.length}} 局 · 庄 / 闲 / 和</text>
       </view>
-    </view>
-    <view class="br-grid">
-      <view class="br-row" wx:for="{{historyGrid}}" wx:key="*this" wx:for-item="row">
-        <view class="br-cell {{cell.r}}" wx:for="{{row}}" wx:key="*this" wx:for-item="cell">
-          <text>{{cell.r === 'P' ? '闲' : cell.r === 'B' ? '庄' : '和'}}</text>
+      <scroll-view class="rb-scroll" scroll-x="true">
+        <view class="bead-grid">
+          <view class="bead-row" wx:for="{{beadPlate}}" wx:key="*this" wx:for-item="row">
+            <view class="bead-cell {{cell.r}} {{cell ? 'on' : ''}}" wx:for="{{row}}" wx:key="*this" wx:for-item="cell">
+              <text wx:if="{{cell}}">{{cell.r === 'P' ? '闲' : cell.r === 'B' ? '庄' : '和'}}</text>
+              <view class="bead-pair pp" wx:if="{{cell.pp}}"></view>
+              <view class="bead-pair bp" wx:if="{{cell.bp}}"></view>
+            </view>
+          </view>
         </view>
-      </view>
+      </scroll-view>
     </view>
-  </view>
 
-  <!-- 没有历史时 也显示工具按钮 -->
-  <view class="action-row" wx:if="{{history.length === 0}}">
-    <view class="ar-btn ghost" bindtap="rebuy"><text>💎 充值筹码</text></view>
-    <view class="ar-btn ghost" bindtap="reset"><text>↻ 重置游戏</text></view>
+    <!-- 大路 -->
+    <view class="road-block">
+      <view class="rb-head">
+        <text class="rb-title">大路</text>
+        <text class="rb-sub">同色同列下移 · 异色右移</text>
+      </view>
+      <scroll-view class="rb-scroll" scroll-x="true">
+        <view class="big-grid">
+          <view class="big-row" wx:for="{{historyGrid}}" wx:key="*this" wx:for-item="row">
+            <view class="big-cell {{cell.r}} {{cell ? 'on' : ''}}" wx:for="{{row}}" wx:key="*this" wx:for-item="cell">
+              <view wx:if="{{cell}}" class="big-circle"></view>
+              <view wx:if="{{cell && cell.ties > 0}}" class="big-tie-line"></view>
+              <text wx:if="{{cell && cell.ties > 1}}" class="big-tie-num">{{cell.ties}}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="legend-row">
+      <view class="lg-item"><view class="lg-dot B"></view><text>庄</text></view>
+      <view class="lg-item"><view class="lg-dot P"></view><text>闲</text></view>
+      <view class="lg-item"><view class="lg-dot T"></view><text>和</text></view>
+      <view class="lg-item"><view class="lg-dot pair-pp"></view><text>闲对</text></view>
+      <view class="lg-item"><view class="lg-dot pair-bp"></view><text>庄对</text></view>
+    </view>
   </view>
 
   <!-- 免责说明 -->
