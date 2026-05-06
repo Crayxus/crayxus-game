@@ -97,7 +97,11 @@ Page({
     suggestBet: null,          // { unit: 数值, reason: 文字 }
     lastWin: 0,
     showLastWin: false,
-    aiSignal: { pattern: '等待开局', streakLen: 0, streakSide: null, nextProb: 50, recommend: 'B', recommendProb: 45.86, insight: '本局基础概率 · 庄 45.86% / 闲 44.62% / 和 9.52%', confidence: 'low' }
+    aiSignal: { pattern: '等待开局', streakLen: 0, streakSide: null, nextProb: 50, recommend: 'B', recommendProb: 45.86, insight: '本局基础概率 · 庄 45.86% / 闲 44.62% / 和 9.52%', confidence: 'low' },
+    // 本局 + 累计统计
+    shoeStats: { B: 0, P: 0, T: 0, rounds: 0 },
+    cumulative: { B: 0, P: 0, T: 0, rounds: 0, shoes: 0, bPct: '0.0', pPct: '0.0', tPct: '0.0' },
+    autoRunning: false
   },
 
   _computeSignal() {
@@ -433,6 +437,23 @@ Page({
     const beadPlate = this._buildBeadPlate(history)
     const newBalance = this.data.balance + payout
 
+    // 本局 + 累计统计
+    const shoeStats = { ...this.data.shoeStats }
+    shoeStats[r]++
+    shoeStats.rounds++
+    const cum = this.data.cumulative
+    const totalB = cum.B + shoeStats.B
+    const totalP = cum.P + shoeStats.P
+    const totalT = cum.T + shoeStats.T
+    const totalRounds = cum.rounds + shoeStats.rounds
+    const cumulative = {
+      ...cum,
+      bPct: totalRounds > 0 ? (totalB / totalRounds * 100).toFixed(1) : '0.0',
+      pPct: totalRounds > 0 ? (totalP / totalRounds * 100).toFixed(1) : '0.0',
+      tPct: totalRounds > 0 ? (totalT / totalRounds * 100).toFixed(1) : '0.0',
+      curB: totalB, curP: totalP, curT: totalT, curRounds: totalRounds
+    }
+
     this.setData({
       pp: round.pp,
       bp: round.bp,
@@ -444,7 +465,9 @@ Page({
       history,
       historyGrid,
       beadPlate,
-      balance: newBalance
+      balance: newBalance,
+      shoeStats,
+      cumulative
     })
     // 重算 AI 信号
     this.setData({ aiSignal: this._computeSignal() })
@@ -543,10 +566,105 @@ Page({
     })
   },
 
+  // 🎲 一键跑完整靴 (~70 局, 不下注只看牌路 + 累计统计)
+  autoRunShoe() {
+    if (this.data.autoRunning) return
+    if (this.data.state === 'dealing') {
+      wx.showToast({ title: '请等当前发牌完成', icon: 'none' })
+      return
+    }
+    wx.vibrateShort && wx.vibrateShort({ type: 'heavy' })
+
+    // 先把当前本局结算到累计 (如果有数据)
+    this._commitShoeToCumulative()
+
+    // 新一靴
+    this._shoe = buildShoe(8)
+    let history = []
+    const shoeStats = { B: 0, P: 0, T: 0, rounds: 0 }
+    let lastRound = null
+
+    while (this._shoe.length >= 8) {
+      const round = playRound(this._shoe)
+      const r = round.result
+      shoeStats[r]++
+      shoeStats.rounds++
+      const playerPair = round.playerCards[0].r === round.playerCards[1].r
+      const bankerPair = round.bankerCards[0].r === round.bankerCards[1].r
+      history.push({ r, pp: playerPair, bp: bankerPair, win: false })
+      lastRound = round
+    }
+    history = history.slice(-72)
+    const historyGrid = this._buildBigRoad(history)
+    const beadPlate = this._buildBeadPlate(history)
+
+    // 计算累计 (含本局)
+    const cum = this.data.cumulative
+    const totalB = cum.B + shoeStats.B
+    const totalP = cum.P + shoeStats.P
+    const totalT = cum.T + shoeStats.T
+    const totalRounds = cum.rounds + shoeStats.rounds
+    const cumulative = {
+      ...cum,
+      bPct: (totalB / totalRounds * 100).toFixed(1),
+      pPct: (totalP / totalRounds * 100).toFixed(1),
+      tPct: (totalT / totalRounds * 100).toFixed(1),
+      curB: totalB, curP: totalP, curT: totalT, curRounds: totalRounds
+    }
+
+    this.setData({
+      pp: lastRound.pp,
+      bp: lastRound.bp,
+      result: lastRound.result,
+      pCards: lastRound.playerCards,
+      bCards: lastRound.bankerCards,
+      state: 'revealed',
+      payout: 0,
+      lastWin: 0,
+      showLastWin: false,
+      history,
+      historyGrid,
+      beadPlate,
+      shoeStats,
+      cumulative,
+      bets: { P: 0, B: 0, T: 0, PP: 0, BP: 0 }
+    })
+    wx.showToast({ title: '🎰 跑完整靴 ' + shoeStats.rounds + ' 局', icon: 'none', duration: 2000 })
+  },
+
+  // 把本局结算到累计
+  _commitShoeToCumulative() {
+    const s = this.data.shoeStats
+    if (s.rounds === 0) return
+    const cum = { ...this.data.cumulative }
+    cum.B += s.B; cum.P += s.P; cum.T += s.T
+    cum.rounds += s.rounds; cum.shoes += 1
+    cum.bPct = (cum.B / cum.rounds * 100).toFixed(1)
+    cum.pPct = (cum.P / cum.rounds * 100).toFixed(1)
+    cum.tPct = (cum.T / cum.rounds * 100).toFixed(1)
+    cum.curB = cum.B; cum.curP = cum.P; cum.curT = cum.T; cum.curRounds = cum.rounds
+    this.setData({ cumulative: cum, shoeStats: { B:0, P:0, T:0, rounds:0 } })
+  },
+
+  // 新一靴 (累计保留)
+  newShoe() {
+    wx.vibrateShort && wx.vibrateShort({ type: 'medium' })
+    this._commitShoeToCumulative()
+    this._shoe = buildShoe(8)
+    this.setData({
+      bets: { P: 0, B: 0, T: 0, PP: 0, BP: 0 },
+      state: 'betting',
+      pCards: [], bCards: [], pp: 0, bp: 0,
+      result: null, payout: 0,
+      history: [], historyGrid: [], beadPlate: [],
+      showLastWin: false
+    })
+  },
+
   reset() {
     wx.showModal({
       title: '重置游戏？',
-      content: '清空记录，余额恢复至 ¥10000',
+      content: '清空记录，余额恢复至 ¥10000，累计统计也归零',
       success: (r) => {
         if (r.confirm) {
           this._shoe = buildShoe(8)
@@ -563,7 +681,9 @@ Page({
             history: [],
             historyGrid: [],
             beadPlate: [],
-            showLastWin: false
+            showLastWin: false,
+            shoeStats: { B:0, P:0, T:0, rounds:0 },
+            cumulative: { B:0, P:0, T:0, rounds:0, shoes:0, bPct:'0.0', pPct:'0.0', tPct:'0.0', curB:0, curP:0, curT:0, curRounds:0 }
           })
           wx.setStorageSync(STORAGE_KEY, STARTING_BALANCE)
           wx.vibrateShort && wx.vibrateShort({ type: 'heavy' })

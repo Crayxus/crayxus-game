@@ -12,6 +12,25 @@
     <text class="tb-name">Baccarat Lounge</text>
   </view>
 
+  <!-- 本局统计 -->
+  <view class="stats-row shoe-stats">
+    <text class="sr-tag">本局</text>
+    <view class="sr-cell"><text class="sr-num B">{{shoeStats.B}}</text><text class="sr-lbl">庄</text></view>
+    <view class="sr-cell"><text class="sr-num P">{{shoeStats.P}}</text><text class="sr-lbl">闲</text></view>
+    <view class="sr-cell"><text class="sr-num T">{{shoeStats.T}}</text><text class="sr-lbl">和</text></view>
+    <view class="sr-cell"><text class="sr-num">{{shoeStats.rounds}}</text><text class="sr-lbl">局数</text></view>
+  </view>
+
+  <!-- 累计统计 -->
+  <view class="stats-row cum-stats">
+    <text class="sr-tag cum">累计</text>
+    <view class="sr-cell"><text class="sr-num cum-shoe">{{cumulative.shoes}}</text><text class="sr-lbl">靴数</text></view>
+    <view class="sr-cell"><text class="sr-num B">{{cumulative.curB || 0}}</text><text class="sr-lbl">庄 {{cumulative.bPct}}%</text></view>
+    <view class="sr-cell"><text class="sr-num P">{{cumulative.curP || 0}}</text><text class="sr-lbl">闲 {{cumulative.pPct}}%</text></view>
+    <view class="sr-cell"><text class="sr-num T">{{cumulative.curT || 0}}</text><text class="sr-lbl">和 {{cumulative.tPct}}%</text></view>
+    <view class="sr-cell"><text class="sr-num">{{cumulative.curRounds || 0}}</text><text class="sr-lbl">总局</text></view>
+  </view>
+
   <!-- 独立余额条（避免和系统胶囊重叠）-->
   <view class="balance-bar">
     <view class="bb-left">
@@ -230,6 +249,16 @@
     <view class="ar-btn dealing" wx:if="{{state === 'dealing'}}">
       <view class="dh-spin"></view>
       <text>发牌中</text>
+    </view>
+  </view>
+
+  <!-- 一键跑靴 + 新一靴 -->
+  <view class="auto-row">
+    <view class="ar-btn auto" bindtap="autoRunShoe">
+      <text>🎲 一键跑完整靴 (~70 局)</text>
+    </view>
+    <view class="ar-btn newshoe" bindtap="newShoe">
+      <text>↻ 新一靴</text>
     </view>
   </view>
 

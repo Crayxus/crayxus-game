@@ -39,6 +39,80 @@ page {
 .tb-icon { font-size: 28rpx; color: #ffd700; }
 .tb-name { font-size: 22rpx; color: #ffd700; font-weight: 800; letter-spacing: 2rpx; }
 
+/* 本局/累计 双层统计 */
+.stats-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 18rpx 14rpx 14rpx;
+  margin-bottom: 12rpx;
+  border-radius: 16rpx;
+  background: rgba(15,8,20,.7);
+  border: 1rpx solid rgba(255,215,0,.3);
+}
+.stats-row.cum-stats {
+  background: rgba(0,40,30,.5);
+  border-color: rgba(0,212,170,.35);
+  margin-bottom: 18rpx;
+}
+.sr-tag {
+  position: absolute;
+  top: -10rpx;
+  left: 16rpx;
+  padding: 2rpx 14rpx;
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  border-radius: 999rpx;
+  color: #1a0a0a;
+  font-size: 18rpx;
+  font-weight: 800;
+  letter-spacing: 2rpx;
+}
+.sr-tag.cum {
+  background: linear-gradient(90deg, #00d4aa, #00d4ff);
+  color: #03241c;
+}
+.sr-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  flex: 1;
+}
+.sr-num {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #fff;
+  font-family: "Courier New", monospace;
+  line-height: 1;
+}
+.sr-num.B { color: #ff8888; }
+.sr-num.P { color: #4dd0e1; }
+.sr-num.T { color: #66bb6a; }
+.sr-num.cum-shoe { color: #ffd700; }
+.sr-lbl { font-size: 16rpx; color: rgba(255,255,255,.5); letter-spacing: 0.5rpx; }
+
+/* 一键跑靴行 */
+.auto-row {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 10rpx;
+}
+.ar-btn.auto {
+  flex: 2;
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  box-shadow: 0 6rpx 22rpx rgba(255,215,0,.45);
+  animation: autoPulse 2.4s ease-in-out infinite;
+}
+@keyframes autoPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+.ar-btn.auto text { color: #1a0a0a; font-size: 26rpx; font-weight: 800; letter-spacing: 1rpx; }
+.ar-btn.newshoe {
+  flex: 1;
+  background: rgba(124,77,255,.18);
+  border: 1rpx solid rgba(124,77,255,.4);
+}
+.ar-btn.newshoe text { color: #a587ff; font-size: 22rpx; }
+
 /* 独立余额条（避开胶囊）*/
 .balance-bar {
   display: flex;
