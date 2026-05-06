@@ -94,7 +94,7 @@ Page({
     bbbColIdx: [],             // 历史中所有 BBB+ 列号
     totalCols: 0,              // 当前累计列数
     gapSinceBBB: 0,            // 距上次 BBB+ 的列数
-    suggestBet: null           // { unit: 数值, reason: 文字 }
+    suggestBet: null,          // { unit: 数值, reason: 文字 }
     lastWin: 0,
     showLastWin: false,
     aiSignal: { pattern: '等待开局', streakLen: 0, streakSide: null, nextProb: 50, recommend: 'B', recommendProb: 45.86, insight: '本局基础概率 · 庄 45.86% / 闲 44.62% / 和 9.52%', confidence: 'low' }
