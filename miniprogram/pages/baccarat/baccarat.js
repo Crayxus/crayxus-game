@@ -227,8 +227,8 @@ Page({
       const o = order[i++]
       const key = o.side === 'p' ? 'pCards' : 'bCards'
       this.setData({ [key]: [...this.data[key], o.card] })
-      wx.vibrateShort && wx.vibrateShort({ type: 'light' })
-      setTimeout(reveal, 360)
+      // 不再每张牌震动手机（之前太颠了）
+      setTimeout(reveal, 380)
     }
     reveal()
   },
