@@ -36,7 +36,7 @@ Page({
   onLogoLongPress() {
     wx.vibrateShort && wx.vibrateShort({ type: 'heavy' })
     wx.showActionSheet({
-      itemList: ['法良时装 AAAS Demo', 'PowerLoop · 韩国 AI 充电宝 AAAS Demo', 'AdMind · AI 营销自动执行官 Demo', '🏁 Crayxus AI GP · AI 神经驾驶大奖赛'],
+      itemList: ['法良时装 AAAS Demo', 'PowerLoop · 韩国 AI 充电宝 AAAS Demo', 'AdMind · AI 营销自动执行官 Demo', '🏁 Crayxus AI GP · AI 神经驾驶大奖赛', '♠ Baccarat Lounge · 百家乐体验厅'],
       success: (res) => {
         if (res.tapIndex === 0) {
           wx.navigateTo({ url: '/pages/falang/falang' })
@@ -46,6 +46,8 @@ Page({
           wx.navigateTo({ url: '/pages/admind/admind' })
         } else if (res.tapIndex === 3) {
           wx.navigateTo({ url: '/pages/crayxus-gp/crayxus-gp' })
+        } else if (res.tapIndex === 4) {
+          wx.navigateTo({ url: '/pages/baccarat/baccarat' })
         }
       }
     })

@@ -1,0 +1,213 @@
+<!-- Crayxus AI · 百家乐体验厅 (Vegas Star 风格 · 虚拟筹码 · 非赌博) -->
+<view class="page">
+  <view style="height:{{statusBarHeight}}px"></view>
+
+  <view class="float-back" style="top:{{statusBarHeight + 12}}px" bindtap="goBack">
+    <text>←</text>
+  </view>
+
+  <!-- 顶部 brand + balance -->
+  <view class="top-bar">
+    <view class="tb-left">
+      <text class="tb-icon">♠</text>
+      <text class="tb-name">Baccarat Lounge</text>
+    </view>
+    <view class="balance-card">
+      <text class="bc-label">虚拟筹码</text>
+      <text class="bc-amt">¥{{balance}}</text>
+    </view>
+  </view>
+
+  <!-- 🧠 Crayxus AI 概率信号 -->
+  <view class="ai-signal {{aiSignal.confidence}}">
+    <view class="as-head">
+      <text class="as-icon">🧠</text>
+      <text class="as-title">Crayxus AI · 概率回归信号</text>
+      <text class="as-confidence {{aiSignal.confidence}}">
+        {{aiSignal.confidence === 'high' ? '强' : aiSignal.confidence === 'mid' ? '中' : '弱'}}
+      </text>
+    </view>
+    <view class="as-pattern-row">
+      <view class="as-pattern-block">
+        <text class="as-pattern-lbl">当前牌型</text>
+        <text class="as-pattern-val">{{aiSignal.pattern}}</text>
+      </view>
+      <view class="as-pattern-block" wx:if="{{aiSignal.streakLen >= 2}}">
+        <text class="as-pattern-lbl">再连概率</text>
+        <text class="as-pattern-val warn">{{aiSignal.nextProb}}<text class="as-pct">%</text></text>
+      </view>
+      <view class="as-pattern-block">
+        <text class="as-pattern-lbl">AI 推荐</text>
+        <view class="as-rec-pill {{aiSignal.recommend}}">
+          <text>{{aiSignal.recommend === 'B' ? '庄' : aiSignal.recommend === 'P' ? '闲' : '和'}}</text>
+          <text class="as-rec-prob">{{aiSignal.recommendProb}}%</text>
+        </view>
+      </view>
+    </view>
+    <text class="as-insight">{{aiSignal.insight}}</text>
+  </view>
+
+  <!-- 桌面 · Vegas Star 风格绿桌 -->
+  <view class="table-wrap">
+    <view class="table-deco-1"></view>
+    <view class="table-deco-2"></view>
+
+    <view class="table">
+      <view class="table-title">
+        <text class="tt-en">BACCARAT · PUNTO BANCO</text>
+      </view>
+
+      <!-- 庄家区 -->
+      <view class="hand banker {{result === 'B' ? 'win' : ''}}">
+        <view class="hand-head">
+          <text class="hand-label">BANKER · 庄</text>
+          <text class="hand-points" wx:if="{{state === 'revealed'}}">{{bp}}</text>
+        </view>
+        <view class="hand-cards">
+          <view class="card flip" wx:for="{{bCards}}" wx:key="id"
+                style="animation-delay:{{index * 0.06}}s">
+            <view class="card-inner">
+              <text class="card-rank {{item.s === '♥' || item.s === '♦' ? 'red' : 'black'}}">{{item.r}}</text>
+              <text class="card-suit-big {{item.s === '♥' || item.s === '♦' ? 'red' : 'black'}}">{{item.s}}</text>
+            </view>
+          </view>
+          <view class="card empty" wx:if="{{bCards.length === 0}}"><text>?</text></view>
+          <view class="card empty" wx:if="{{bCards.length === 0}}"><text>?</text></view>
+        </view>
+      </view>
+
+      <!-- 闲家区 -->
+      <view class="hand player {{result === 'P' ? 'win' : ''}}">
+        <view class="hand-head">
+          <text class="hand-label">PLAYER · 闲</text>
+          <text class="hand-points" wx:if="{{state === 'revealed'}}">{{pp}}</text>
+        </view>
+        <view class="hand-cards">
+          <view class="card flip" wx:for="{{pCards}}" wx:key="id"
+                style="animation-delay:{{index * 0.06}}s">
+            <view class="card-inner">
+              <text class="card-rank {{item.s === '♥' || item.s === '♦' ? 'red' : 'black'}}">{{item.r}}</text>
+              <text class="card-suit-big {{item.s === '♥' || item.s === '♦' ? 'red' : 'black'}}">{{item.s}}</text>
+            </view>
+          </view>
+          <view class="card empty" wx:if="{{pCards.length === 0}}"><text>?</text></view>
+          <view class="card empty" wx:if="{{pCards.length === 0}}"><text>?</text></view>
+        </view>
+      </view>
+
+      <!-- 结果横幅 -->
+      <view class="win-banner {{result}} {{showLastWin && lastWin > 0 ? 'win' : ''}} {{showLastWin && lastWin <= 0 ? 'lose' : ''}}" wx:if="{{state === 'revealed'}}">
+        <text class="wb-result" wx:if="{{result === 'P'}}">🎴 闲家胜</text>
+        <text class="wb-result" wx:if="{{result === 'B'}}">🏆 庄家胜</text>
+        <text class="wb-result" wx:if="{{result === 'T'}}">⚖ 和局</text>
+        <text class="wb-pay" wx:if="{{lastWin > 0}}">+¥{{lastWin}} 🎉</text>
+        <text class="wb-pay lose" wx:elif="{{lastWin < 0}}">{{lastWin}}</text>
+      </view>
+    </view>
+
+    <!-- 下注区 -->
+    <view class="bet-zones">
+      <view class="bet-zone p {{result === 'P' ? 'won' : ''}}" bindtap="placeBet" data-zone="P">
+        <text class="bz-name">闲</text>
+        <text class="bz-en">PLAYER</text>
+        <text class="bz-payout">1:1</text>
+        <view class="bz-chip" wx:if="{{bets.P > 0}}">
+          <text>¥{{bets.P}}</text>
+        </view>
+      </view>
+      <view class="bet-zone t {{result === 'T' ? 'won' : ''}}" bindtap="placeBet" data-zone="T">
+        <text class="bz-name">和</text>
+        <text class="bz-en">TIE</text>
+        <text class="bz-payout">1:8</text>
+        <view class="bz-chip" wx:if="{{bets.T > 0}}">
+          <text>¥{{bets.T}}</text>
+        </view>
+      </view>
+      <view class="bet-zone b {{result === 'B' ? 'won' : ''}}" bindtap="placeBet" data-zone="B">
+        <text class="bz-name">庄</text>
+        <text class="bz-en">BANKER</text>
+        <text class="bz-payout">1:0.95</text>
+        <view class="bz-chip" wx:if="{{bets.B > 0}}">
+          <text>¥{{bets.B}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="bet-zones-side">
+      <view class="bet-zone-side pp" bindtap="placeBet" data-zone="PP">
+        <text class="bzs-name">闲对</text>
+        <text class="bzs-payout">1:11</text>
+        <view class="bzs-chip" wx:if="{{bets.PP > 0}}">¥{{bets.PP}}</view>
+      </view>
+      <view class="bet-zone-side bp" bindtap="placeBet" data-zone="BP">
+        <text class="bzs-name">庄对</text>
+        <text class="bzs-payout">1:11</text>
+        <view class="bzs-chip" wx:if="{{bets.BP > 0}}">¥{{bets.BP}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 选筹码标签 -->
+  <view class="chip-label-row">
+    <text>选筹码 →</text>
+    <text class="cl-tip">点击数字选面值，点桌上下注区下注</text>
+  </view>
+
+  <!-- 筹码盘 -->
+  <view class="chip-tray">
+    <view class="chip {{selectedChipIdx === index ? 'selected' : ''}}"
+          wx:for="{{chips}}" wx:key="v"
+          bindtap="selectChip" data-idx="{{index}}"
+          style="background:radial-gradient(circle, {{item.color}} 30%, {{item.glow}} 70%); box-shadow:{{selectedChipIdx === index ? '0 0 24rpx ' + item.glow : '0 4rpx 10rpx rgba(0,0,0,.5)'}}">
+      <text class="chip-label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <!-- 操作 -->
+  <view class="action-row">
+    <view class="ar-btn clear" wx:if="{{state === 'betting'}}" bindtap="clearBets">
+      <text>🔄 清空</text>
+    </view>
+    <view class="ar-btn deal" wx:if="{{state === 'betting'}}" bindtap="deal">
+      <text>♠ 发 牌 ♠</text>
+    </view>
+    <view class="ar-btn next-deal" wx:if="{{state === 'revealed'}}" bindtap="next">
+      <text>▶ 下一局</text>
+    </view>
+    <view class="ar-btn dealing" wx:if="{{state === 'dealing'}}">
+      <view class="dh-spin"></view>
+      <text>发牌中</text>
+    </view>
+  </view>
+
+  <!-- 大路 -->
+  <view class="big-road" wx:if="{{history.length > 0}}">
+    <view class="br-title">
+      <text>📊 走势 · 大路</text>
+      <view class="br-tools">
+        <view class="br-tool" bindtap="rebuy">💎 充值</view>
+        <view class="br-tool" bindtap="reset">↻ 重置</view>
+      </view>
+    </view>
+    <view class="br-grid">
+      <view class="br-row" wx:for="{{historyGrid}}" wx:key="*this" wx:for-item="row">
+        <view class="br-cell {{cell.r}}" wx:for="{{row}}" wx:key="*this" wx:for-item="cell">
+          <text>{{cell.r === 'P' ? '闲' : cell.r === 'B' ? '庄' : '和'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 没有历史时 也显示工具按钮 -->
+  <view class="action-row" wx:if="{{history.length === 0}}">
+    <view class="ar-btn ghost" bindtap="rebuy"><text>💎 充值筹码</text></view>
+    <view class="ar-btn ghost" bindtap="reset"><text>↻ 重置游戏</text></view>
+  </view>
+
+  <!-- 免责说明 -->
+  <view class="legal">
+    <text>* Crayxus 百家乐体验厅 · 虚拟筹码无任何真实金钱关联 · 仅作 Vegas Star 风格游戏体验演示，不构成赌博。</text>
+  </view>
+
+  <view style="height:60rpx"></view>
+</view>

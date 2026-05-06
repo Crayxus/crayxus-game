@@ -1,0 +1,495 @@
+page {
+  background: #06030a;
+  font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.page {
+  min-height: 100vh;
+  padding: 0 24rpx 40rpx;
+  background:
+    radial-gradient(ellipse at top, rgba(255,215,0,.10), transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(193,18,28,.16), transparent 60%),
+    linear-gradient(180deg, #06030a 0%, #1a0a08 60%, #06030a 100%);
+}
+
+/* 浮动返回 */
+.float-back {
+  position: fixed;
+  left: 24rpx;
+  z-index: 100;
+  width: 64rpx; height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.5);
+  border: 1rpx solid rgba(255,215,0,.3);
+  backdrop-filter: blur(10rpx);
+}
+.float-back:active { transform: scale(0.92); }
+.float-back text { font-size: 36rpx; color: #ffd700; }
+
+/* 顶部 brand + balance */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 18rpx 0 16rpx 100rpx;
+}
+.tb-left { display: flex; align-items: center; gap: 8rpx; flex: 1; }
+.tb-icon { font-size: 28rpx; color: #ffd700; }
+.tb-name { font-size: 22rpx; color: #ffd700; font-weight: 800; letter-spacing: 2rpx; }
+.balance-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 8rpx 18rpx;
+  border-radius: 12rpx;
+  background: linear-gradient(135deg, rgba(255,215,0,.18), rgba(0,0,0,.3));
+  border: 1rpx solid rgba(255,215,0,.45);
+}
+.bc-label { font-size: 16rpx; color: rgba(255,215,0,.7); letter-spacing: 1rpx; }
+.bc-amt { font-size: 28rpx; color: #ffd700; font-weight: 800; font-family: "Courier New", monospace; }
+
+/* AI 信号 */
+.ai-signal {
+  margin: 14rpx 0 18rpx;
+  padding: 18rpx 20rpx 16rpx;
+  border-radius: 18rpx;
+  background: linear-gradient(135deg, rgba(0,234,255,.10), rgba(124,77,255,.06));
+  border: 1rpx solid rgba(0,234,255,.32);
+}
+.ai-signal.high { border-color: rgba(0,234,255,.6); box-shadow: 0 0 24rpx rgba(0,234,255,.18); }
+.ai-signal.mid { border-color: rgba(255,215,0,.45); }
+.ai-signal.low {}
+.as-head {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 12rpx;
+}
+.as-icon { font-size: 26rpx; line-height: 1; }
+.as-title { flex: 1; font-size: 22rpx; color: #fff; font-weight: 800; letter-spacing: 1rpx; }
+.as-confidence {
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+  font-size: 18rpx;
+  font-weight: 800;
+  letter-spacing: 1rpx;
+}
+.as-confidence.high { background: rgba(0,234,255,.25); color: #00eaff; }
+.as-confidence.mid { background: rgba(255,215,0,.22); color: #ffd700; }
+.as-confidence.low { background: rgba(255,255,255,.08); color: rgba(255,255,255,.55); }
+.as-pattern-row {
+  display: flex;
+  gap: 12rpx;
+  padding: 12rpx 0;
+  border-top: 1rpx solid rgba(255,255,255,.06);
+  border-bottom: 1rpx solid rgba(255,255,255,.06);
+}
+.as-pattern-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  align-items: center;
+}
+.as-pattern-lbl { font-size: 16rpx; color: rgba(255,255,255,.45); letter-spacing: 0.5rpx; }
+.as-pattern-val {
+  font-size: 26rpx;
+  color: #fff;
+  font-weight: 800;
+  font-family: "Courier New", monospace;
+}
+.as-pattern-val.warn { color: #ff6b6b; }
+.as-pct { font-size: 16rpx; color: rgba(255,255,255,.5); margin-left: 2rpx; }
+.as-rec-pill {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(255,255,255,.08);
+}
+.as-rec-pill.B { background: rgba(255,107,107,.22); border: 1rpx solid rgba(255,107,107,.5); }
+.as-rec-pill.P { background: rgba(0,212,255,.22); border: 1rpx solid rgba(0,212,255,.5); }
+.as-rec-pill.T { background: rgba(0,212,170,.22); border: 1rpx solid rgba(0,212,170,.5); }
+.as-rec-pill text { font-size: 22rpx; color: #fff; font-weight: 800; }
+.as-rec-prob { font-size: 18rpx; color: rgba(255,255,255,.7); margin-left: 4rpx; }
+.as-insight {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 20rpx;
+  color: rgba(255,255,255,.7);
+  line-height: 1.55;
+}
+
+/* 桌面绿毛毡 */
+.table-wrap {
+  position: relative;
+  margin-bottom: 18rpx;
+}
+.table-deco-1 {
+  position: absolute;
+  top: -10rpx; left: -10rpx; right: -10rpx; bottom: -10rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #ffd700, #c08c00);
+  opacity: 0.4;
+  filter: blur(20rpx);
+}
+.table {
+  position: relative;
+  padding: 26rpx 22rpx 24rpx;
+  border-radius: 28rpx;
+  background:
+    radial-gradient(ellipse at center, #1a5b3f 0%, #0a3a26 70%, #042316 100%);
+  border: 4rpx solid rgba(255,215,0,.5);
+  box-shadow: 0 12rpx 40rpx rgba(0,0,0,.6), inset 0 0 60rpx rgba(0,0,0,.3);
+  z-index: 1;
+}
+.table-title { text-align: center; padding: 4rpx 0 16rpx; }
+.tt-en {
+  font-size: 18rpx;
+  color: rgba(255,215,0,.55);
+  letter-spacing: 6rpx;
+  font-weight: 800;
+}
+
+.hand {
+  margin-bottom: 14rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 16rpx;
+  background: rgba(0,0,0,.3);
+  border: 1rpx solid rgba(255,255,255,.1);
+  transition: all 0.3s ease;
+}
+.hand.win {
+  border-color: rgba(255,215,0,.7);
+  background: linear-gradient(135deg, rgba(255,215,0,.18), rgba(0,0,0,.4));
+  box-shadow: 0 0 30rpx rgba(255,215,0,.4);
+}
+.hand-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+.hand-label {
+  font-size: 20rpx;
+  color: rgba(255,215,0,.75);
+  letter-spacing: 2rpx;
+  font-weight: 700;
+}
+.hand-points {
+  font-size: 36rpx;
+  color: #ffd700;
+  font-weight: 900;
+  font-family: "Courier New", monospace;
+  text-shadow: 0 0 14rpx rgba(255,215,0,.5);
+}
+.hand-cards {
+  display: flex;
+  gap: 10rpx;
+  align-items: center;
+  min-height: 130rpx;
+}
+
+.card {
+  width: 90rpx;
+  height: 130rpx;
+  border-radius: 10rpx;
+  background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
+  position: relative;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,.6), inset 0 0 0 1rpx rgba(0,0,0,.2);
+  flex-shrink: 0;
+}
+.card.empty {
+  background: rgba(0,0,0,.3);
+  border: 2rpx dashed rgba(255,215,0,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+.card.empty text { font-size: 40rpx; color: rgba(255,215,0,.3); }
+.card.flip { animation: cardFlip 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@keyframes cardFlip {
+  0% { transform: rotateY(180deg) translateY(-30rpx); opacity: 0; }
+  100% { transform: rotateY(0) translateY(0); opacity: 1; }
+}
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.card-rank {
+  position: absolute;
+  top: 6rpx;
+  left: 8rpx;
+  font-size: 28rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+.card-suit-big {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48rpx;
+}
+.card-rank.red, .card-suit-big.red { color: #d40000; }
+.card-rank.black, .card-suit-big.black { color: #000; }
+
+/* 结果横幅 */
+.win-banner {
+  margin-top: 8rpx;
+  padding: 14rpx 0;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  background: rgba(0,0,0,.4);
+  border: 1rpx solid rgba(255,215,0,.4);
+}
+.win-banner.win {
+  background: linear-gradient(135deg, rgba(255,215,0,.4), rgba(0,0,0,.4));
+  border-color: rgba(255,215,0,.85);
+  box-shadow: 0 0 36rpx rgba(255,215,0,.5);
+  animation: winGlow 1s ease-in-out infinite;
+}
+@keyframes winGlow {
+  0%, 100% { box-shadow: 0 0 36rpx rgba(255,215,0,.5); }
+  50% { box-shadow: 0 0 52rpx rgba(255,215,0,.8); }
+}
+.win-banner.lose { opacity: 0.7; }
+.wb-result { font-size: 28rpx; color: #ffd700; font-weight: 900; letter-spacing: 2rpx; }
+.wb-pay { font-size: 28rpx; color: #00ff88; font-weight: 900; font-family: "Courier New", monospace; }
+.wb-pay.lose { color: #ff6b6b; }
+
+/* 主线下注区 */
+.bet-zones {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 12rpx;
+}
+.bet-zone {
+  flex: 1;
+  position: relative;
+  padding: 22rpx 0 18rpx;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  background: rgba(0,0,0,.4);
+  border: 2rpx solid;
+  transition: all 0.2s ease;
+}
+.bet-zone:active { transform: scale(0.96); }
+.bet-zone.p { border-color: rgba(0,212,255,.55); background: linear-gradient(135deg, rgba(0,212,255,.16), rgba(0,0,0,.4)); }
+.bet-zone.b { border-color: rgba(255,107,107,.55); background: linear-gradient(135deg, rgba(255,107,107,.16), rgba(0,0,0,.4)); }
+.bet-zone.t { border-color: rgba(0,212,170,.55); background: linear-gradient(135deg, rgba(0,212,170,.16), rgba(0,0,0,.4)); }
+.bet-zone.won { box-shadow: 0 0 30rpx rgba(255,215,0,.6); border-color: #ffd700; }
+.bz-name { font-size: 32rpx; font-weight: 900; color: #fff; letter-spacing: 2rpx; }
+.bet-zone.p .bz-name { color: #5edcff; }
+.bet-zone.b .bz-name { color: #ff8888; }
+.bet-zone.t .bz-name { color: #5eead4; }
+.bz-en { font-size: 16rpx; color: rgba(255,255,255,.55); letter-spacing: 2rpx; font-weight: 700; }
+.bz-payout { font-size: 18rpx; color: rgba(255,215,0,.7); font-family: "Courier New", monospace; font-weight: 700; }
+.bz-chip {
+  position: absolute;
+  bottom: -16rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #ffd700, #c08c00);
+  border: 2rpx solid #fff;
+  box-shadow: 0 4rpx 14rpx rgba(0,0,0,.6);
+}
+.bz-chip text { font-size: 20rpx; color: #1a0a0a; font-weight: 900; font-family: "Courier New", monospace; }
+
+/* 边注 */
+.bet-zones-side { display: flex; gap: 10rpx; margin-top: 28rpx; }
+.bet-zone-side {
+  flex: 1;
+  position: relative;
+  padding: 14rpx 0 12rpx;
+  border-radius: 14rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+  background: rgba(124,77,255,.12);
+  border: 1rpx solid rgba(124,77,255,.4);
+}
+.bet-zone-side:active { transform: scale(0.97); }
+.bzs-name { font-size: 24rpx; color: #fff; font-weight: 800; letter-spacing: 1rpx; }
+.bzs-payout { font-size: 16rpx; color: rgba(124,77,255,.85); font-family: "Courier New", monospace; }
+.bzs-chip {
+  position: absolute;
+  top: -10rpx; right: -8rpx;
+  padding: 2rpx 10rpx;
+  background: linear-gradient(135deg, #ffd700, #c08c00);
+  border-radius: 999rpx;
+  border: 2rpx solid #fff;
+  font-size: 18rpx;
+  color: #1a0a0a;
+  font-weight: 900;
+}
+
+/* 筹码盘 */
+.chip-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 18rpx 4rpx 8rpx;
+}
+.chip-label-row text:first-child { font-size: 24rpx; color: #ffd700; font-weight: 800; letter-spacing: 1rpx; }
+.cl-tip { font-size: 18rpx; color: rgba(255,255,255,.45); letter-spacing: 0.5rpx; }
+.chip-tray {
+  display: flex;
+  gap: 14rpx;
+  justify-content: center;
+  padding: 6rpx 0 12rpx;
+}
+.chip {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4rpx dashed rgba(255,255,255,.6);
+  position: relative;
+  transition: all 0.18s ease;
+}
+.chip:active { transform: scale(0.92); }
+.chip.selected {
+  transform: translateY(-12rpx) scale(1.06);
+  border-style: solid;
+  border-color: #fff;
+}
+.chip-label {
+  font-size: 28rpx;
+  color: #1a0a0a;
+  font-weight: 900;
+  font-family: "Courier New", monospace;
+  text-shadow: 0 1rpx 2rpx rgba(255,255,255,.5);
+}
+
+/* 操作按钮 */
+.action-row {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+.ar-btn {
+  flex: 1;
+  padding: 22rpx 0;
+  border-radius: 16rpx;
+  text-align: center;
+  letter-spacing: 2rpx;
+}
+.ar-btn:active { transform: scale(0.97); }
+.ar-btn text { font-size: 26rpx; font-weight: 800; }
+.ar-btn.deal {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  flex: 2;
+  box-shadow: 0 6rpx 22rpx rgba(255,215,0,.45);
+  animation: dealPulse 2s ease-in-out infinite;
+}
+@keyframes dealPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+.ar-btn.deal text { color: #1a0a0a; font-size: 30rpx; font-weight: 900; }
+.ar-btn.next-deal {
+  background: linear-gradient(135deg, #00d4aa, #00d4ff);
+  flex: 1;
+  box-shadow: 0 6rpx 22rpx rgba(0,212,170,.4);
+}
+.ar-btn.next-deal text { color: #fff; }
+.ar-btn.clear {
+  background: rgba(255,107,107,.18);
+  border: 1rpx solid rgba(255,107,107,.4);
+}
+.ar-btn.clear text { color: #ff8888; }
+.ar-btn.dealing {
+  background: rgba(0,0,0,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14rpx;
+}
+.ar-btn.dealing text { color: rgba(255,215,0,.85); font-size: 24rpx; }
+.ar-btn.ghost {
+  background: rgba(255,255,255,.05);
+  border: 1rpx solid rgba(255,255,255,.12);
+}
+.ar-btn.ghost text { color: rgba(255,255,255,.7); font-size: 22rpx; }
+.dh-spin {
+  width: 32rpx; height: 32rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255,215,0,.2);
+  border-top-color: #ffd700;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 大路 */
+.big-road {
+  margin-top: 20rpx;
+  padding: 16rpx 18rpx 14rpx;
+  border-radius: 16rpx;
+  background: rgba(0,0,0,.4);
+  border: 1rpx solid rgba(255,215,0,.25);
+}
+.br-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+.br-title text:first-child { font-size: 22rpx; color: #ffd700; font-weight: 800; letter-spacing: 1rpx; }
+.br-tools { display: flex; gap: 8rpx; }
+.br-tool {
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  background: rgba(255,215,0,.15);
+  border: 1rpx solid rgba(255,215,0,.35);
+  font-size: 18rpx;
+  color: #ffd700;
+}
+.br-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.br-row {
+  display: flex;
+  gap: 4rpx;
+}
+.br-cell {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid;
+}
+.br-cell text { font-size: 18rpx; color: #fff; font-weight: 800; }
+.br-cell.B { background: rgba(255,107,107,.7); border-color: #ff6b6b; }
+.br-cell.P { background: rgba(0,212,255,.7); border-color: #00d4ff; }
+.br-cell.T { background: rgba(0,212,170,.4); border-color: #00d4aa; }
+
+/* 免责 */
+.legal {
+  margin-top: 20rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 10rpx;
+  background: rgba(0,0,0,.3);
+}
+.legal text { font-size: 16rpx; color: rgba(255,255,255,.4); line-height: 1.55; letter-spacing: 0.3rpx; }
