@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI·蛋吧 · 用 AI 重新定义掼蛋</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #d4af37;
+    --gold-light: #f4d775;
+    --red: #c41e3a;
+    --red-dark: #8b0000;
+    --dark: #0a0a0a;
+    --dark2: #141414;
+    --dark3: #1c1c1c;
+    --gray: #888;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--dark);
+    color: #e8e8e8;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ============ Nav ============ */
+  .nav { position: fixed; top:0; left:0; right:0; z-index: 100;
+    background: rgba(10,10,10,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(212,175,55,0.15); padding: 14px 0; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 19px; letter-spacing: 1px; }
+  .nav-logo .logo-icon { width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--red), var(--gold)); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 18px; }
+  .nav-logo .ai { color: var(--gold); }
+  .nav-logo .danba { color: #fff; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { font-size: 14px; color: rgba(255,255,255,0.7); transition: color .2s; font-weight: 500; letter-spacing: 0.5px; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #000;
+    padding: 10px 22px; border-radius: 4px; font-weight: 800; font-size: 13px; letter-spacing: 1px; transition: all .2s; }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(212,175,55,0.3); }
+  @media (max-width: 768px) { .nav-links { display: none; } }
+
+  /* ============ Hero ============ */
+  .hero { min-height: 100vh; padding: 130px 32px 80px;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(196,30,58,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 70%, rgba(212,175,55,0.16) 0%, transparent 55%),
+      linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+    position: relative; overflow: hidden; }
+  .hero::before {
+    content: "♠♥♦♣"; position: absolute;
+    top: 10%; right: -3%; font-size: 240px; color: rgba(212,175,55,0.04);
+    letter-spacing: 12px; line-height: 1; transform: rotate(-15deg);
+  }
+  .hero-inner { max-width: 1100px; text-align: center; position: relative; z-index: 1; }
+  .hero-badge { display: inline-block; padding: 6px 18px; background: rgba(212,175,55,0.1);
+    border: 1px solid rgba(212,175,55,0.4); color: var(--gold);
+    font-size: 12px; font-weight: 700; letter-spacing: 4px; border-radius: 2px; margin-bottom: 32px; }
+  .hero h1 { font-size: clamp(48px, 9vw, 108px); font-weight: 900; letter-spacing: -3px; line-height: 0.95; color: #fff; margin-bottom: 24px; }
+  .hero h1 .ai { background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero h1 .danba { color: #fff; }
+  .hero h1 .dot { color: var(--red); margin: 0 0.05em; }
+  .hero-sub { font-size: clamp(18px, 2.5vw, 24px); color: rgba(255,255,255,0.85); margin-bottom: 14px; letter-spacing: 1.5px; font-weight: 500; }
+  .hero-tagline { font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: 2.5px; margin-bottom: 22px; }
+  .hero-pillars { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 22px 0 40px; }
+  .hero-pillar { background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.3); color: var(--gold);
+    padding: 10px 20px; border-radius: 4px; font-size: 14px; font-weight: 800; letter-spacing: 1.5px; }
+  .hero-cta-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn { padding: 16px 36px; border-radius: 4px; font-weight: 800; font-size: 15px; letter-spacing: 1px;
+    cursor: pointer; border: none; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #000; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,175,55,0.3); }
+  .btn-outline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .hero-stats { margin-top: 60px; display: grid; grid-template-columns: repeat(4,1fr); gap: 32px;
+    max-width: 800px; margin-left: auto; margin-right: auto; }
+  .hero-stat { text-align: center; padding: 16px 8px; border-right: 1px solid rgba(255,255,255,0.08); }
+  .hero-stat:last-child { border-right: none; }
+  .hero-stat-num { font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace; font-size: 38px; font-weight: 900; color: var(--gold); line-height: 1; }
+  .hero-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+  @media (max-width: 640px) { .hero-stats { grid-template-columns: repeat(2,1fr); } .hero-stat:nth-child(2){border-right:none;} }
+
+  /* ============ Common ============ */
+  .section { padding: 120px 32px; max-width: 1200px; margin: 0 auto; }
+  .section-head { text-align: center; margin-bottom: 64px; }
+  .section-eyebrow { display: inline-block; color: var(--gold); font-size: 13px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16px; }
+  .section-title { font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: #fff; line-height: 1.1; letter-spacing: -1px; margin-bottom: 16px; }
+  .section-sub { font-size: 17px; color: rgba(255,255,255,0.6); max-width: 720px; margin: 0 auto; line-height: 1.6; }
+
+  /* ============ About ============ */
+  .about { background: linear-gradient(180deg, var(--dark) 0%, var(--dark2) 100%); }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; margin-top: 48px; }
+  .about-text p { font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.8; margin-bottom: 20px; }
+  .about-text strong { color: var(--gold); font-weight: 600; }
+  .about-quote { border-left: 3px solid var(--gold); padding-left: 20px; margin: 24px 0; font-style: italic; color: rgba(255,255,255,0.85); font-size: 18px; }
+  .about-card { background: linear-gradient(135deg, rgba(212,175,55,0.05), rgba(196,30,58,0.05));
+    border: 1px solid rgba(212,175,55,0.2); border-radius: 12px; padding: 40px; }
+  .about-card h3 { font-size: 22px; color: var(--gold); margin-bottom: 24px; font-weight: 800; }
+  .about-feature { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+  .about-feature-icon { width: 44px; height: 44px; background: rgba(212,175,55,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .about-feature-text { flex: 1; }
+  .about-feature-text strong { color: #fff; display: block; margin-bottom: 4px; font-size: 15px; }
+  .about-feature-text span { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+  @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  /* ============ 四大模块 ============ */
+  .modules { background: var(--dark); }
+  .module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .module-card {
+    background: linear-gradient(180deg, #18181d 0%, #0f0f12 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px 22px;
+    position: relative;
+    transition: all .25s;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .module-card::before { content: ""; position: absolute; top:0; left:0; right:0; height: 5px; background: var(--color); }
+  .module-card:hover { transform: translateY(-6px); border-color: var(--color);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+  .module-emoji { font-size: 48px; margin-bottom: 10px; }
+  .module-tag { display: inline-block; font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace;
+    font-size: 10.5px; color: rgba(255,255,255,0.5); letter-spacing: 2px; margin-bottom: 6px; }
+  .module-name { font-size: 24px; font-weight: 900; color: #fff; line-height: 1.2; margin-bottom: 4px; }
+  .module-sub { font-size: 12px; color: var(--color); margin-bottom: 16px; font-weight: 700; letter-spacing: 1px; }
+  .module-feature {
+    background: linear-gradient(90deg, var(--color), transparent);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+  .module-features {
+    display: flex; flex-direction: column; gap: 10px;
+    flex: 1;
+  }
+  .module-item {
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--color);
+    padding: 12px 14px;
+    border-radius: 4px;
+  }
+  .module-item-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .module-item-desc { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+  .module-cta {
+    margin-top: 24px;
+    width: 100%;
+    background: rgba(212,175,55,0.08);
+    color: var(--gold);
+    border: 1px solid rgba(212,175,55,0.4);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .module-cta:hover { background: var(--gold); color: #000; }
+  @media (max-width: 1100px) { .module-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .module-grid { grid-template-columns: 1fr; } }
+
+  /* ============ Curriculum ============ */
+  .curriculum { background: linear-gradient(180deg, var(--dark2) 0%, var(--dark) 100%); }
+  .course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .course-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 4px solid var(--color);
+    border-radius: 10px;
+    padding: 24px 22px;
+    transition: all .2s;
+  }
+  .course-card:hover { border-color: var(--color); transform: translateY(-2px); }
+  .course-num {
+    display: inline-block;
+    font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace;
+    background: var(--color);
+    color: #000;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 32px;
+    font-weight: 900;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .course-name { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+  .course-sub { font-size: 12px; color: var(--color); font-weight: 600; margin-bottom: 14px; letter-spacing: 1px; }
+  .course-desc { font-size: 13.5px; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 14px; }
+  .course-meta {
+    display: flex; gap: 14px; padding-top: 12px;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    font-size: 11.5px; color: rgba(255,255,255,0.55);
+    font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace;
+  }
+  .course-meta b { color: var(--color); font-weight: 700; }
+  @media (max-width: 900px) { .course-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .course-grid { grid-template-columns: 1fr; } }
+
+  /* ============ 段位体系 ============ */
+  .rank-system {
+    margin-top: 64px;
+    background: linear-gradient(135deg, rgba(212,175,55,0.06), rgba(196,30,58,0.04));
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 16px;
+    padding: 36px 32px;
+  }
+  .rank-title { font-size: 20px; font-weight: 900; color: var(--gold); margin-bottom: 6px; }
+  .rank-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 24px; }
+  .rank-bar {
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+    gap: 4px;
+  }
+  .rank-cell {
+    text-align: center;
+    padding: 12px 4px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    transition: all .2s;
+  }
+  .rank-cell:hover { background: var(--gold); color: #000; transform: scale(1.05); }
+  .rank-cell-num { font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace; font-size: 18px; font-weight: 900; color: var(--gold); }
+  .rank-cell:hover .rank-cell-num { color: #000; }
+  .rank-cell-name { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 4px; letter-spacing: 0.5px; }
+  .rank-cell:hover .rank-cell-name { color: rgba(0,0,0,0.7); }
+  .rank-tiers { display: flex; justify-content: space-between; margin-top: 14px; font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 2px; }
+  @media (max-width: 800px) {
+    .rank-bar { grid-template-columns: repeat(7, 1fr); }
+  }
+
+  /* ============ Events ============ */
+  .events { background: var(--dark); }
+  .pyramid { max-width: 1000px; margin: 0 auto 64px;
+    display: flex; flex-direction: column; gap: 8px; }
+  .pyramid-row { background: linear-gradient(135deg, #18181d, #101013);
+    border: 1px solid rgba(255,255,255,0.06); border-left: 4px solid var(--color);
+    border-radius: 8px; padding: 22px 28px; display: grid;
+    grid-template-columns: 80px 1fr auto auto; gap: 24px; align-items: center; transition: all .2s; }
+  .pyramid-row:hover { border-color: var(--color); transform: translateX(4px); }
+  .pyramid-level { font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace; font-size: 14px; color: var(--color); font-weight: 900; letter-spacing: 1px; }
+  .pyramid-body { min-width: 0; }
+  .pyramid-name { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+  .pyramid-desc { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+  .pyramid-tag { background: rgba(212,175,55,0.1); color: var(--gold);
+    font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 4px;
+    letter-spacing: 1px; border: 1px solid rgba(212,175,55,0.3); white-space: nowrap; }
+  .pyramid-when { font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace; font-size: 11px;
+    color: rgba(255,255,255,0.45); letter-spacing: 1px; white-space: nowrap; }
+  @media (max-width: 720px) {
+    .pyramid-row { grid-template-columns: 1fr; gap: 8px; }
+    .pyramid-tag, .pyramid-when { justify-self: start; }
+  }
+
+  .event-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    max-width: 1000px; margin: 0 auto; }
+  .event-feature { background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;
+    padding: 24px; text-align: center; }
+  .event-feature-icon { font-size: 32px; margin-bottom: 12px; }
+  .event-feature h4 { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .event-feature p { font-size: 12.5px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+  @media (max-width: 720px) { .event-features { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ============ Tech Highlight ============ */
+  .tech {
+    background: linear-gradient(90deg, var(--red-dark) 0%, #2a0a14 50%, var(--dark) 100%);
+    padding: 60px 32px; text-align: center;
+    border-top: 2px solid var(--gold); border-bottom: 2px solid var(--gold);
+  }
+  .tech-tag { font-size: 11px; color: var(--gold); letter-spacing: 4px; font-weight: 800;
+    text-transform: uppercase; margin-bottom: 16px; }
+  .tech-title { font-size: clamp(28px, 4vw, 42px); font-weight: 900; color: #fff;
+    letter-spacing: -1px; margin-bottom: 16px; line-height: 1.15; }
+  .tech-title .accent { color: var(--gold); }
+  .tech-sub { font-size: 16px; color: rgba(255,255,255,0.75);
+    max-width: 720px; margin: 0 auto; line-height: 1.6; }
+  .tech-stats {
+    display: flex; gap: 32px; justify-content: center; flex-wrap: wrap;
+    margin-top: 28px;
+  }
+  .tech-stat {
+    background: rgba(255,255,255,0.06);
+    padding: 14px 24px; border-radius: 8px;
+    border: 1px solid rgba(212,175,55,0.3);
+  }
+  .tech-stat-num { font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace; font-size: 28px;
+    font-weight: 900; color: var(--gold); line-height: 1; }
+  .tech-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.6);
+    letter-spacing: 1.5px; margin-top: 4px; text-transform: uppercase; }
+
+  /* ============ Partners ============ */
+  .partners { background: var(--dark); padding: 100px 32px; }
+  .partner-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    max-width: 1200px; margin: 64px auto 0; }
+  .partner-card { background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 32px; transition: all .2s; }
+  .partner-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+  .partner-tag { font-size: 10px; color: var(--gold); letter-spacing: 3px;
+    font-weight: 800; margin-bottom: 12px; text-transform: uppercase; }
+  .partner-name { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 8px; }
+  .partner-sub { font-size: 13px; color: var(--gold); margin-bottom: 16px; font-weight: 600; }
+  .partner-desc { font-size: 13.5px; color: rgba(255,255,255,0.7); line-height: 1.7; }
+  @media (max-width: 900px) { .partner-grid { grid-template-columns: 1fr; } }
+
+  /* ============ CTA ============ */
+  .cta { padding: 120px 32px; text-align: center; background: var(--dark); }
+  .cta h2 { font-size: clamp(36px, 5vw, 56px); font-weight: 900; color: #fff;
+    margin-bottom: 16px; letter-spacing: -1px; }
+  .cta p { font-size: 17px; color: rgba(255,255,255,0.7);
+    max-width: 600px; margin: 0 auto 40px; line-height: 1.7; }
+  .cta-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* ============ Hardware Products ============ */
+  .products {
+    background: linear-gradient(180deg, var(--dark2) 0%, #0d0d10 100%);
+    padding: 120px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .products::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 15% 30%, rgba(74,168,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 70%, rgba(196,30,58,0.08) 0%, transparent 50%);
+  }
+  .products-inner { max-width: 1280px; margin: 0 auto; position: relative; z-index: 1; }
+  .product-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 56px;
+  }
+  .product-card {
+    background: linear-gradient(180deg, #16161b 0%, #0d0d10 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .product-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--c1), var(--c2));
+  }
+  .product-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--c1);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 40px rgba(var(--glow-rgb),0.15);
+  }
+  .product-image {
+    width: 100%; aspect-ratio: 4/3;
+    background: var(--img-bg, #0a0a0a);
+    background-size: cover; background-position: center;
+    position: relative; overflow: hidden;
+  }
+  .product-image::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(13,13,16,0.85) 100%);
+    pointer-events: none;
+  }
+  .product-badge {
+    position: absolute; top: 18px; left: 18px; z-index: 2;
+    background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; font-size: 11px; font-weight: 800;
+    letter-spacing: 2px; padding: 6px 12px; border-radius: 4px;
+  }
+  .product-badge.limited {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border-color: transparent; color: #000;
+  }
+  .product-body { padding: 32px 32px 36px; flex: 1; display: flex; flex-direction: column; }
+  .product-line {
+    font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace;
+    font-size: 11px; color: var(--c1); letter-spacing: 3px;
+    font-weight: 800; margin-bottom: 8px; text-transform: uppercase;
+  }
+  .product-name {
+    font-size: 32px; font-weight: 900; color: #fff;
+    line-height: 1.1; margin-bottom: 6px; letter-spacing: -0.5px;
+  }
+  .product-tagline {
+    font-size: 14px; color: rgba(255,255,255,0.6);
+    margin-bottom: 24px; font-weight: 500; letter-spacing: 0.5px;
+  }
+  .product-features {
+    display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px;
+  }
+  .product-feature {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 14px; color: rgba(255,255,255,0.78); line-height: 1.5;
+  }
+  .product-feature::before {
+    content: "▸"; color: var(--c1); font-weight: 900; flex-shrink: 0;
+    font-size: 14px; margin-top: 2px;
+  }
+  .product-price-row {
+    display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px;
+    padding-top: 24px; border-top: 1px dashed rgba(255,255,255,0.1);
+  }
+  .product-price {
+    font-family: 'SF Pro Display', 'Inter', 'PingFang SC', -apple-system, sans-serif;
+    font-size: 44px; font-weight: 800; color: var(--c1);
+    line-height: 1; letter-spacing: -1.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .product-price .yuan {
+    font-size: 26px; font-weight: 700; margin-right: 2px;
+    vertical-align: 4px; opacity: 0.85;
+  }
+  .product-price-orig {
+    font-family: 'SF Pro Display', 'Inter', 'PingFang SC', -apple-system, sans-serif;
+    font-size: 17px; color: rgba(255,255,255,0.35);
+    text-decoration: line-through; font-weight: 500;
+    letter-spacing: -0.3px; font-variant-numeric: tabular-nums;
+  }
+  .product-price-note {
+    font-size: 12px; color: rgba(255,255,255,0.5);
+    margin-bottom: 22px; letter-spacing: 0.5px;
+  }
+  .product-price-note b { color: var(--gold); font-weight: 700; }
+  .product-cta-row { display: flex; gap: 12px; margin-top: auto; }
+  .product-btn {
+    flex: 1; padding: 14px 20px; border-radius: 8px;
+    font-weight: 800; font-size: 14px; letter-spacing: 1px;
+    cursor: pointer; border: none; transition: all .2s;
+    text-align: center;
+  }
+  .product-btn-primary {
+    background: linear-gradient(135deg, var(--c1), var(--c2));
+    color: #fff;
+  }
+  .product-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(var(--glow-rgb),0.4); }
+  .product-btn-outline {
+    background: transparent; color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .product-btn-outline:hover { border-color: var(--c1); color: var(--c1); }
+
+  .product-compare {
+    margin-top: 56px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .compare-item { text-align: center; }
+  .compare-label { font-size: 11px; color: rgba(255,255,255,0.45);
+    letter-spacing: 2px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+  .compare-value { font-size: 16px; color: #fff; font-weight: 700; line-height: 1.4; }
+  .compare-value .gold { color: var(--gold); }
+  @media (max-width: 900px) {
+    .product-grid { grid-template-columns: 1fr; gap: 24px; }
+    .product-compare { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  }
+
+  /* ============ Footer ============ */
+  footer { background: #08080a; padding: 60px 32px 30px; border-top: 1px solid rgba(212,175,55,0.1); }
+  .footer-inner { max-width: 1200px; margin: 0 auto; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+  .footer-brand h3 { color: #fff; font-size: 22px; font-weight: 900; margin-bottom: 12px; letter-spacing: 1px; }
+  .footer-brand h3 .ai { color: var(--gold); }
+  .footer-brand p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.7; max-width: 320px; }
+  .footer-col h4 { color: var(--gold); font-size: 12px; font-weight: 800;
+    letter-spacing: 2px; margin-bottom: 16px; text-transform: uppercase; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 8px; }
+  .footer-col a { font-size: 13px; color: rgba(255,255,255,0.55); transition: color .2s; }
+  .footer-col a:hover { color: var(--gold); }
+  .footer-bottom { padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-bottom .copy { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; }
+  .footer-bottom .stamp { color: var(--gold); font-weight: 800; font-size: 11px; letter-spacing: 3px; }
+  @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <div class="logo-icon">蛋</div>
+      <span><span class="ai">AI·</span><span class="danba">蛋吧</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#products">智能硬件</a></li>
+      <li><a href="#about">关于</a></li>
+      <li><a href="#modules">四大模块</a></li>
+      <li><a href="#curriculum">课程体系</a></li>
+      <li><a href="#events">赛事金字塔</a></li>
+      <li><a href="#partners">学术背书</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">立即体验</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">★ AI-POWERED · 用 AI 重新定义掼蛋 ★</div>
+    <h1><span class="ai">AI</span><span class="dot">·</span><span class="danba">蛋吧</span></h1>
+    <div class="hero-sub">打牌, 也可以更聪明</div>
+    <div class="hero-tagline">CRAYXUS AI · 浙江大学 · 张旭光教授课题组</div>
+    <div class="hero-pillars">
+      <div class="hero-pillar">🎮 休闲</div>
+      <div class="hero-pillar">⚔️ 挑战</div>
+      <div class="hero-pillar">🎓 教培</div>
+      <div class="hero-pillar">🏆 赛事</div>
+    </div>
+    <div class="hero-cta-row">
+      <a href="#products" class="btn btn-primary">探索智能硬件 →</a>
+      <a href="#modules" class="btn btn-outline">了解四大模块</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">13</div><div class="hero-stat-lbl">级段位</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">60</div><div class="hero-stat-lbl">节课程</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">300</div><div class="hero-stat-lbl">题题库</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-lbl">大模块</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HARDWARE PRODUCTS -->
+<section id="products" class="products">
+  <div class="products-inner">
+    <div class="section-head">
+      <div class="section-eyebrow">HARDWARE · 智能硬件</div>
+      <h2 class="section-title">把 AI 装进掼蛋桌<br>从入门到旗舰, 任你选</h2>
+      <p class="section-sub">两款颠覆性的 AI 智能掼蛋硬件 — 一款让你的麻将桌秒变智能, 一款定义会所级的未来美学。Crayxus AI 引擎 + 全球独家工业设计, 一次买断未来。</p>
+    </div>
+
+    <div class="product-grid">
+
+      <!-- Crayxus Lite (addon) -->
+      <div class="product-card" style="--c1:#4aa8ff; --c2:#22d3ee; --glow-rgb:74,168,255;">
+        <div class="product-image" style="background-image:url('images/product-addon.png'); --img-bg:#f0f0f0;">
+          <div class="product-badge">★ 首发热销</div>
+        </div>
+        <div class="product-body">
+          <div class="product-line">CRAYXUS LITE · ADD-ON</div>
+          <div class="product-name">透明智能盖板</div>
+          <div class="product-tagline">3cm 透明亚克力 · 不换桌, 秒升级智能掼蛋桌</div>
+
+          <div class="product-features">
+            <div class="product-feature">直接覆盖在现有麻将桌上, 5 秒安装即用, 不用时可拆下收纳</div>
+            <div class="product-feature">四套独立战位 · 透明 RGB 键盘 + 平躺屏幕 + 60° 全息屏</div>
+            <div class="product-feature">中央全息屏显示公共出牌区, 真实掼蛋桌仪式感</div>
+            <div class="product-feature">内置 Crayxus V8 AI 引擎 · 实时陪练 / 复盘 / 段位认证</div>
+          </div>
+
+          <div class="product-price-row">
+            <div class="product-price"><span class="yuan">¥</span>8,888</div>
+            <div class="product-price-orig">¥12,800</div>
+          </div>
+          <div class="product-price-note"><b>★ 首发限时直降</b> · 或 ¥200/天 / ¥1,200/周 灵活租赁</div>
+
+          <div class="product-cta-row">
+            <button class="product-btn product-btn-primary">立即预订 →</button>
+            <button class="product-btn product-btn-outline">查看租赁</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crayxus Genesis (旗舰桌) -->
+      <div class="product-card" style="--c1:#d4af37; --c2:#c41e3a; --glow-rgb:212,175,55;">
+        <div class="product-image" style="background-image:url('images/product-genesis.png'); --img-bg:#0a0a0a;">
+          <div class="product-badge limited">◆ 限量 99 台</div>
+        </div>
+        <div class="product-body">
+          <div class="product-line">CRAYXUS GENESIS · FLAGSHIP</div>
+          <div class="product-name">旗舰收藏款全桌</div>
+          <div class="product-tagline">全亚克力一体雕刻 · 磁悬浮中央全息 · 顶级会所专享</div>
+
+          <div class="product-features">
+            <div class="product-feature">10cm 厚光学级亚克力一体桌身, 内嵌光纤电路, 流动光效如液态水晶</div>
+            <div class="product-feature">中央磁悬浮水晶盘 + 体积全息显示 · 卡牌真 3D 悬浮空中</div>
+            <div class="product-feature">四套嵌入式透明 RGB 键盘 + 曲面 OLED 全息屏 + 个人光环状态环</div>
+            <div class="product-feature">全球限量 99 台, 激光镌刻独立编号 № 001-099 · 赠终身 OTA + 私人定制服务</div>
+          </div>
+
+          <div class="product-price-row">
+            <div class="product-price"><span class="yuan">¥</span>88,888</div>
+          </div>
+          <div class="product-price-note">限量 99 台 · 接受私人订制 (材质 / 编号 / 颜色) · <b>顶级会所合作请联系</b></div>
+
+          <div class="product-cta-row">
+            <button class="product-btn product-btn-primary">申请定制 →</button>
+            <button class="product-btn product-btn-outline">查看详情</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 产品对比 -->
+    <div class="product-compare">
+      <div class="compare-item">
+        <div class="compare-label">适用场景</div>
+        <div class="compare-value">家庭 / 棋牌室<span class="gold"> · </span>顶级会所</div>
+      </div>
+      <div class="compare-item">
+        <div class="compare-label">交付周期</div>
+        <div class="compare-value">7 天发货<span class="gold"> · </span>60 天定制</div>
+      </div>
+      <div class="compare-item">
+        <div class="compare-label">AI 引擎</div>
+        <div class="compare-value">同款 Crayxus V8<span class="gold"> · </span>全国唯一</div>
+      </div>
+      <div class="compare-item">
+        <div class="compare-label">售后服务</div>
+        <div class="compare-value">2 年质保<span class="gold"> · </span>终身 OTA 升级</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ABOUT -->
+<section id="about" class="section about">
+  <div class="section-head">
+    <div class="section-eyebrow">ABOUT · 关于 AI·蛋吧</div>
+    <h2 class="section-title">让 AI 走进掼蛋桌<br>每一局都更精彩</h2>
+    <p class="section-sub">用顶级的 AI 训练方法论, 打造一个集合休闲、教培、赛事的掼蛋生态。从陪练到课程, 从段位到赛事, 一站式覆盖。</p>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-text">
+      <p>AI·蛋吧来自 <strong>Crayxus AI · 浙江大学张旭光教授课题组</strong>, 我们用世界领先的多智能体强化学习方法论, 训练出能稳定击败顶级牌手的 AI 系统。</p>
+      <p>但 AI 不是为了取代玩家——而是让每个普通爱好者也能享受到"和高手过招"的乐趣, 让每个想学掼蛋的人都能有一位 7×24 小时的私人教练, 让每场赛事都有公平公正的 AI 裁判。</p>
+      <div class="about-quote">
+        我们让 AI 站到掼蛋桌后面, 把高手的视角、教练的耐心、裁判的公正, 一次性带给每个掼蛋玩家。
+      </div>
+      <p>三大模块——<strong>休闲、教培、赛事</strong>——围绕一个核心: 让掼蛋这项国民运动, 用 AI 进入全新的时代。</p>
+    </div>
+
+    <div class="about-card">
+      <h3>🥚 AI·蛋吧 四大优势</h3>
+      <div class="about-feature">
+        <div class="about-feature-icon">🤖</div>
+        <div class="about-feature-text">
+          <strong>顶级 AI 引擎</strong>
+          <span>多智能体强化学习训练 · 稳定击败主流大模型 200:0</span>
+        </div>
+      </div>
+      <div class="about-feature">
+        <div class="about-feature-icon">🎓</div>
+        <div class="about-feature-text">
+          <strong>13 段段位认证</strong>
+          <span>从入门 1 段到大师 13 段, 系统化能力评估</span>
+        </div>
+      </div>
+      <div class="about-feature">
+        <div class="about-feature-icon">📚</div>
+        <div class="about-feature-text">
+          <strong>系统课程体系</strong>
+          <span>6 门核心课 · 60 节课 · 300 题题库</span>
+        </div>
+      </div>
+      <div class="about-feature">
+        <div class="about-feature-icon">🎯</div>
+        <div class="about-feature-text">
+          <strong>蛋力 Token 经济</strong>
+          <span>登录 / 学习 / 对战赚取 · 课程 / 赛事消费</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 三大模块 -->
+<section id="modules" class="section modules">
+  <div class="section-head">
+    <div class="section-eyebrow">CORE MODULES · 四大模块</div>
+    <h2 class="section-title">休闲 · 挑战 · 教培 · 赛事<br>一个 App 全覆盖</h2>
+    <p class="section-sub">从下班放松一局到全国锦标赛冠军, AI·蛋吧用四大模块, 服务每一种掼蛋需求。</p>
+  </div>
+
+  <div class="module-grid">
+
+    <!-- 休闲 -->
+    <div class="module-card" style="--color:#4aa8ff">
+      <div class="module-tag">MODULE / 01</div>
+      <div class="module-emoji">🎮</div>
+      <div class="module-name">休闲</div>
+      <div class="module-sub">CASUAL · AI 陪练 / AI 复盘</div>
+      <div class="module-feature">🎯 随时随地, 跟 AI 对战 + 智能复盘</div>
+      <div class="module-features">
+        <div class="module-item">
+          <div class="module-item-title">⚔️ AI 陪练房</div>
+          <div class="module-item-desc">顶级 AI 全天候陪练 · 多难度可选 (新手 / 进阶 / 大师)</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">🔍 智能复盘</div>
+          <div class="module-item-desc">每一手出牌 AI 分析 · 找出失误关键点 · 给出最优解</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">👥 多人房间</div>
+          <div class="module-item-desc">和朋友开私房 · 段位匹配 · 全国玩家随机匹配</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">🏅 每日任务</div>
+          <div class="module-item-desc">登录 / 对战 / 复盘 · 赚蛋力 Token 解锁高级功能</div>
+        </div>
+      </div>
+      <button class="module-cta">进入休闲模式 →</button>
+    </div>
+
+    <!-- 挑战 -->
+    <div class="module-card" style="--color:#9b59b6">
+      <div class="module-tag">MODULE / 02</div>
+      <div class="module-emoji">⚔️</div>
+      <div class="module-name">挑战</div>
+      <div class="module-sub">CHALLENGE · 挑战大师 / 升段考</div>
+      <div class="module-feature">🎯 真正的硬核 · 段位升级唯一通道</div>
+      <div class="module-features">
+        <div class="module-item">
+          <div class="module-item-title">🏆 挑战 AI 大师</div>
+          <div class="module-item-desc">挑战 V8 顶级 AI · 击败一次 = 永久荣誉勋章 + 蛋力 Token</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">📈 段位升段赛</div>
+          <div class="module-item-desc">想升段必过的考试 · 5 局 3 胜 · 实战 + 题目混合</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">💎 每日挑战题</div>
+          <div class="module-item-desc">每日 5 道残局题 · 限时作答 · 段位积分加成</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">🏅 速通排行榜</div>
+          <div class="module-item-desc">全国最快通关时间 / 最少手数 · 名人堂展示</div>
+        </div>
+      </div>
+      <button class="module-cta">立即接受挑战 →</button>
+    </div>
+
+    <!-- 教培 (编号已对齐) -->
+    <div class="module-card" style="--color:#d4af37">
+      <div class="module-tag">MODULE / 03</div>
+      <div class="module-emoji">🎓</div>
+      <div class="module-name">教培</div>
+      <div class="module-sub">EDUCATION · 6 门课 · 60 节 · 300 题</div>
+      <div class="module-feature">🎯 7×24 私人 AI 教练, 一节课就能进步</div>
+      <div class="module-features">
+        <div class="module-item">
+          <div class="module-item-title">📖 6 门核心课程</div>
+          <div class="module-item-desc">入门 / 配合 / 算牌 / M 值 / 心理 / 大师 · 体系化学习</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">📝 段位测评</div>
+          <div class="module-item-desc">20 题定级 · 6 维度评估 · 出具个性化能力报告</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">🎬 名师视频</div>
+          <div class="module-item-desc">真人讲解 + AI 实战演示 · 每节课 5 题即时反馈</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">🏆 段位证书</div>
+          <div class="module-item-desc">1-13 段段位认证 · 区块链存证 · 全国通用</div>
+        </div>
+      </div>
+      <button class="module-cta">进入蛋吧学院 →</button>
+    </div>
+
+    <!-- 赛事 -->
+    <div class="module-card" style="--color:#c41e3a">
+      <div class="module-tag">MODULE / 04</div>
+      <div class="module-emoji">🏆</div>
+      <div class="module-name">赛事</div>
+      <div class="module-sub">TOURNAMENT · 4 级金字塔</div>
+      <div class="module-feature">🎯 从社区周赛打到全国锦标 + 国际邀请</div>
+      <div class="module-features">
+        <div class="module-item">
+          <div class="module-item-title">🏘️ 社区周赛</div>
+          <div class="module-item-desc">每周一次线上海选 · 段位积分 · 报名免费</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">🏙️ 城市联赛</div>
+          <div class="module-item-desc">100+ 城市同步举办 · 季度晋级 · 城市冠军</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">🎖️ 全国锦标赛</div>
+          <div class="module-item-desc">年度全国总决赛 · 万元奖金 · 央视级直播</div>
+        </div>
+        <div class="module-item">
+          <div class="module-item-title">🌏 国际邀请</div>
+          <div class="module-item-desc">中外掼蛋对抗 · 出海首站 · 国际段位认证</div>
+        </div>
+      </div>
+      <button class="module-cta">报名最近赛事 →</button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- Curriculum -->
+<section id="curriculum" class="section curriculum">
+  <div class="section-head">
+    <div class="section-eyebrow">CURRICULUM · 课程体系</div>
+    <h2 class="section-title">6 门核心课 · 60 节课 · 300 题</h2>
+    <p class="section-sub">从看懂规则到打懂套路, 系统化六门课覆盖掼蛋的所有维度。每节课配 5 道即时练习题, 学完就能用。</p>
+  </div>
+
+  <div class="course-grid">
+    <div class="course-card" style="--color:#4aa8ff">
+      <div class="course-num">01</div>
+      <div class="course-name">入门课</div>
+      <div class="course-sub">BEGINNER · 看懂规则</div>
+      <div class="course-desc">从零开始: 牌型识别 · 出牌顺序 · 升级 / 进贡规则 · 队友配合基础。</div>
+      <div class="course-meta">
+        <span><b>10 节</b></span><span><b>50 题</b></span><span>段位 1-3</span>
+      </div>
+    </div>
+
+    <div class="course-card" style="--color:#2ecc71">
+      <div class="course-num">02</div>
+      <div class="course-name">配合课</div>
+      <div class="course-sub">TEAMWORK · 搭档默契</div>
+      <div class="course-desc">谁压谁、谁让谁 · 队友信号识别 · 进贡选择的艺术 · 双败局救援。</div>
+      <div class="course-meta">
+        <span><b>10 节</b></span><span><b>50 题</b></span><span>段位 3-5</span>
+      </div>
+    </div>
+
+    <div class="course-card" style="--color:#9b59b6">
+      <div class="course-num">03</div>
+      <div class="course-name">算牌课</div>
+      <div class="course-sub">CARD COUNTING · 记牌技巧</div>
+      <div class="course-desc">大牌剩余分析 · 主力级数追踪 · 对手牌力推断 · 关键炸弹定位。</div>
+      <div class="course-meta">
+        <span><b>10 节</b></span><span><b>50 题</b></span><span>段位 5-7</span>
+      </div>
+    </div>
+
+    <div class="course-card" style="--color:#f39c12">
+      <div class="course-num">04</div>
+      <div class="course-name">M 值课</div>
+      <div class="course-sub">M-VALUE · 手牌评估</div>
+      <div class="course-desc">独家 M 值理论 · 量化手牌强度 · 关键牌的取舍 · Power 值组合策略。</div>
+      <div class="course-meta">
+        <span><b>10 节</b></span><span><b>50 题</b></span><span>段位 7-9</span>
+      </div>
+    </div>
+
+    <div class="course-card" style="--color:#e74c3c">
+      <div class="course-num">05</div>
+      <div class="course-name">心理课</div>
+      <div class="course-sub">PSYCHOLOGY · 策略博弈</div>
+      <div class="course-desc">读对手牌的"势" · 何时虚张声势 · 何时藏锋 · 关键时刻的心理对抗。</div>
+      <div class="course-meta">
+        <span><b>10 节</b></span><span><b>50 题</b></span><span>段位 9-11</span>
+      </div>
+    </div>
+
+    <div class="course-card" style="--color:#d4af37">
+      <div class="course-num">06</div>
+      <div class="course-name">大师课</div>
+      <div class="course-sub">MASTER · 高阶套路</div>
+      <div class="course-desc">高手专属战术 · 残局精算 · 反向运营 · 锦标赛级别的综合策略。</div>
+      <div class="course-meta">
+        <span><b>10 节</b></span><span><b>50 题</b></span><span>段位 11-13</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 段位体系 -->
+  <div class="rank-system">
+    <div class="rank-title">🏅 13 级段位认证体系</div>
+    <div class="rank-sub">完成各门课程 + 段位测评 + 实战胜率, 综合评定段位。每升一段配发段位证书 + 蛋力 Token 奖励。</div>
+    <div class="rank-bar">
+      <div class="rank-cell"><div class="rank-cell-num">1</div><div class="rank-cell-name">入门</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">2</div><div class="rank-cell-name">练习生</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">3</div><div class="rank-cell-name">初级</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">4</div><div class="rank-cell-name">熟手</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">5</div><div class="rank-cell-name">老手</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">6</div><div class="rank-cell-name">中级</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">7</div><div class="rank-cell-name">高手</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">8</div><div class="rank-cell-name">达人</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">9</div><div class="rank-cell-name">高级</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">10</div><div class="rank-cell-name">专家</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">11</div><div class="rank-cell-name">名家</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">12</div><div class="rank-cell-name">宗师</div></div>
+      <div class="rank-cell"><div class="rank-cell-num">13</div><div class="rank-cell-name">大师</div></div>
+    </div>
+    <div class="rank-tiers">
+      <span>入门段</span><span>初级段</span><span>中级段</span><span>高级段</span><span>大师段</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- Events -->
+<section id="events" class="section events">
+  <div class="section-head">
+    <div class="section-eyebrow">TOURNAMENT · 赛事金字塔</div>
+    <h2 class="section-title">从社区周赛<br>打到全国锦标</h2>
+    <p class="section-sub">四级赛事金字塔, 段位决定起点。AI 裁判保证公正, 段位证书认可全国, 万元奖金 + 直播曝光。</p>
+  </div>
+
+  <div class="pyramid">
+    <div class="pyramid-row" style="--color:#4aa8ff">
+      <div class="pyramid-level">L.1</div>
+      <div class="pyramid-body">
+        <div class="pyramid-name">社区周赛</div>
+        <div class="pyramid-desc">每周一次线上海选 · 报名免费 · 入门段以上即可参加 · AI 裁判自动评分</div>
+      </div>
+      <div class="pyramid-tag">每周</div>
+      <div class="pyramid-when">免费</div>
+    </div>
+
+    <div class="pyramid-row" style="--color:#2ecc71">
+      <div class="pyramid-level">L.2</div>
+      <div class="pyramid-body">
+        <div class="pyramid-name">城市联赛</div>
+        <div class="pyramid-desc">100+ 城市同步举办 · 季度晋级 · 城市冠军直通全国 · 当地俱乐部承办</div>
+      </div>
+      <div class="pyramid-tag">季度</div>
+      <div class="pyramid-when">城市级</div>
+    </div>
+
+    <div class="pyramid-row" style="--color:#f39c12">
+      <div class="pyramid-level">L.3</div>
+      <div class="pyramid-body">
+        <div class="pyramid-name">全国锦标赛</div>
+        <div class="pyramid-desc">年度全国总决赛 · 万元奖金池 · 央视级专业直播 · 段位认证升级通道</div>
+      </div>
+      <div class="pyramid-tag">年度</div>
+      <div class="pyramid-when">国家级</div>
+    </div>
+
+    <div class="pyramid-row" style="--color:#c41e3a">
+      <div class="pyramid-level">L.4</div>
+      <div class="pyramid-body">
+        <div class="pyramid-name">国际邀请赛</div>
+        <div class="pyramid-desc">中外掼蛋大师对抗 · 出海首站 · 国际段位认证 · 蛋吧杯年终盛典</div>
+      </div>
+      <div class="pyramid-tag">年终</div>
+      <div class="pyramid-when">国际级</div>
+    </div>
+  </div>
+
+  <div class="event-features">
+    <div class="event-feature"><div class="event-feature-icon">🤖</div><h4>AI 裁判</h4><p>每一手 AI 自动判定 · 完全公平公正</p></div>
+    <div class="event-feature"><div class="event-feature-icon">📜</div><h4>段位认证</h4><p>赛事成绩计入段位 · 区块链存证</p></div>
+    <div class="event-feature"><div class="event-feature-icon">🎬</div><h4>实时直播</h4><p>多机位 + AI 解说 · 大牌时刻回放</p></div>
+    <div class="event-feature"><div class="event-feature-icon">💎</div><h4>奖金与荣誉</h4><p>万元奖金 + 段位升级 + 名人堂</p></div>
+  </div>
+</section>
+
+
+<!-- Tech 引擎 -->
+<section class="tech">
+  <div class="tech-tag">★ AI ENGINE · 顶级 AI 引擎 ★</div>
+  <div class="tech-title">背后, 是一颗<span class="accent">击败大厂大模型的 AI 大脑</span></div>
+  <div class="tech-sub">来自浙江大学张旭光教授课题组的多智能体强化学习训练系统, 在掼蛋这个复杂博弈中, 已经能稳定击败国内主流大模型。</div>
+  <div class="tech-stats">
+    <div class="tech-stat"><div class="tech-stat-num">200:0</div><div class="tech-stat-lbl">vs DeepSeek · 千问 · GLM</div></div>
+    <div class="tech-stat"><div class="tech-stat-num">98%+</div><div class="tech-stat-lbl">vs Rule 胜率</div></div>
+    <div class="tech-stat"><div class="tech-stat-num">71.5%</div><div class="tech-stat-lbl">vs Champion 胜率</div></div>
+  </div>
+</section>
+
+
+<!-- Partners -->
+<section id="partners" class="partners">
+  <div class="section-head" style="max-width:1200px;margin:0 auto;">
+    <div class="section-eyebrow">PARTNERS · 学术背书与生态</div>
+    <h2 class="section-title">不只是 AI, 是顶级 AI</h2>
+    <p class="section-sub">来自顶级学术机构 + 行业大厂的联合背书, 不是普通的智能助手, 是真正的"会打牌的 AI"。</p>
+  </div>
+
+  <div class="partner-grid">
+    <div class="partner-card">
+      <div class="partner-tag">学术背书 · ACADEMIC</div>
+      <div class="partner-name">浙江大学</div>
+      <div class="partner-sub">张旭光教授课题组</div>
+      <p class="partner-desc">浙江大学 AI / 强化学习方向博士生导师, 课题组全身心参与 AI·蛋吧核心算法研发。多智能体强化学习 + 不完全信息博弈, 行业顶级方向。</p>
+    </div>
+
+    <div class="partner-card">
+      <div class="partner-tag">技术伙伴 · TECH</div>
+      <div class="partner-name">Crayxus AI</div>
+      <div class="partner-sub">AI 训练方法论提供方</div>
+      <p class="partner-desc">独家 716 维状态编码 + Target Network 稳定训练 + Dense Rewards 等核心方法论, 让 AI·蛋吧的 AI 引擎达到行业天花板水平。</p>
+    </div>
+
+    <div class="partner-card">
+      <div class="partner-tag">知识产权 · IP</div>
+      <div class="partner-name">8-10 项核心专利</div>
+      <div class="partner-sub">独家算法 + 段位体系</div>
+      <p class="partner-desc">5 项发明专利 · M 值 + Power 编码方法 · 稳定训练方法 · AI 决策评估 · 段位认证 · 蛋力 Token 经济, 全方位 IP 保护。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA -->
+<section id="cta" class="cta">
+  <h2>打牌, 也可以更聪明<br><span style="color: var(--gold);">从今天开始</span></h2>
+  <p>扫码进入「AI·蛋吧」微信小程序, 完成段位测评, 立即开启你的掼蛋成长之旅。</p>
+  <div class="cta-row">
+    <a href="#modules" class="btn btn-primary">立即体验 →</a>
+    <a href="mailto:general@crayxus.com.au" class="btn btn-outline">商务合作</a>
+  </div>
+</section>
+
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>🥚 <span class="ai">AI·</span>蛋吧</h3>
+        <p>用 AI 重新定义掼蛋。集合休闲、教培、赛事三大模块 · 13 级段位认证 · 6 门核心课 · 60 节课 · 300 题题库 · 全国一张网。</p>
+      </div>
+      <div class="footer-col">
+        <h4>产品</h4>
+        <ul>
+          <li><a href="#products">智能硬件</a></li>
+          <li><a href="#modules">休闲模式</a></li>
+          <li><a href="#curriculum">教培课程</a></li>
+          <li><a href="#events">赛事报名</a></li>
+          <li><a href="#cta">段位测评</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>支持</h4>
+        <ul>
+          <li><a href="#about">关于我们</a></li>
+          <li><a href="#partners">学术背书</a></li>
+          <li><a href="#partners">知识产权</a></li>
+          <li><a href="mailto:general@crayxus.com.au">商务合作</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>联系</h4>
+        <ul>
+          <li><a href="mailto:general@crayxus.com.au">邮箱</a></li>
+          <li><a href="#">微信小程序</a></li>
+          <li><a href="#">客服中心</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="copy">© 2026 Crayxus AI · 浙江大学张旭光教授课题组 · general@crayxus.com.au</div>
+      <div class="stamp">AI·蛋吧 v1.0</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  function onScroll() {
+    let cur = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 200) cur = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + cur ? 'var(--gold)' : '';
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>
+
+</body>
+</html>
