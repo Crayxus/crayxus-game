@@ -470,6 +470,229 @@
     .product-compare { grid-template-columns: repeat(2, 1fr); gap: 20px; }
   }
 
+  /* ============ Roadmap / 24h 大战 ============ */
+  .roadmap {
+    background: linear-gradient(180deg, #0a0508 0%, #14060c 50%, #0a0508 100%);
+    padding: 120px 32px;
+    position: relative; overflow: hidden;
+    border-top: 1px solid rgba(196,30,58,0.2);
+    border-bottom: 1px solid rgba(212,175,55,0.2);
+  }
+  .roadmap::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 10% 20%, rgba(254,44,85,0.12) 0%, transparent 45%),
+      radial-gradient(ellipse at 90% 80%, rgba(212,175,55,0.10) 0%, transparent 45%);
+  }
+  .roadmap-inner { max-width: 1280px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .break-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, #fe2c55, #c41e3a);
+    color: #fff; font-size: 12px; font-weight: 800;
+    letter-spacing: 3px; padding: 8px 18px; border-radius: 4px;
+    margin-bottom: 24px;
+    box-shadow: 0 0 24px rgba(254,44,85,0.4);
+  }
+  .break-badge::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 12px #fff;
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .roadmap-head { text-align: center; max-width: 900px; margin: 0 auto 56px; }
+  .roadmap-title {
+    font-size: clamp(36px, 5.5vw, 64px); font-weight: 900;
+    color: #fff; line-height: 1.05; letter-spacing: -1.5px;
+    margin-bottom: 20px;
+  }
+  .roadmap-title .accent {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .roadmap-sub {
+    font-size: 17px; color: rgba(255,255,255,0.7);
+    line-height: 1.7; max-width: 720px; margin: 0 auto;
+  }
+
+  /* 数据 strip */
+  .event-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    max-width: 1000px; margin: 0 auto 64px;
+  }
+  .es-item {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(254,44,85,0.18);
+    border-radius: 12px;
+    padding: 28px 16px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .es-item::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #fe2c55, var(--gold), transparent);
+  }
+  .es-num {
+    font-family: 'SF Pro Display', 'Inter', 'PingFang SC', -apple-system, sans-serif;
+    font-size: 40px; font-weight: 900;
+    background: linear-gradient(135deg, #fe2c55, var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1; margin-bottom: 8px;
+    letter-spacing: -1px; font-variant-numeric: tabular-nums;
+  }
+  .es-lbl { font-size: 12px; color: rgba(255,255,255,0.65);
+    letter-spacing: 2px; font-weight: 700; }
+  @media (max-width: 720px) {
+    .event-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Timeline */
+  .timeline { max-width: 900px; margin: 0 auto 72px; position: relative; }
+  .timeline::before {
+    content: ""; position: absolute;
+    left: 110px; top: 20px; bottom: 20px; width: 2px;
+    background: linear-gradient(180deg, #fe2c55, var(--gold), var(--red));
+    opacity: 0.3;
+  }
+  .tl-row {
+    display: grid; grid-template-columns: 110px 1fr;
+    gap: 32px; margin-bottom: 24px; position: relative;
+  }
+  .tl-stage {
+    font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace;
+    font-size: 12px; color: var(--gold); letter-spacing: 2px;
+    font-weight: 800; padding-top: 18px; text-align: right;
+    position: relative;
+  }
+  .tl-stage::after {
+    content: ""; position: absolute;
+    right: -32px; top: 22px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--c, var(--gold));
+    box-shadow: 0 0 16px var(--c, var(--gold));
+    border: 2px solid #0a0508;
+  }
+  .tl-card {
+    background: linear-gradient(180deg, #18101a 0%, #0f080d 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 4px solid var(--c, var(--gold));
+    border-radius: 12px;
+    padding: 22px 26px;
+    transition: all .25s;
+  }
+  .tl-card:hover { border-color: var(--c, var(--gold)); transform: translateX(6px); }
+  .tl-when {
+    display: inline-block;
+    font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.06);
+    padding: 4px 10px; border-radius: 4px;
+    margin-bottom: 10px; letter-spacing: 1px;
+  }
+  .tl-name {
+    font-size: 22px; font-weight: 900; color: #fff;
+    line-height: 1.2; margin-bottom: 14px; letter-spacing: -0.3px;
+  }
+  .tl-list { list-style: none; padding: 0; }
+  .tl-list li {
+    font-size: 14px; color: rgba(255,255,255,0.75);
+    line-height: 1.6; padding: 5px 0 5px 18px;
+    position: relative;
+  }
+  .tl-list li::before {
+    content: "▸"; position: absolute; left: 0;
+    color: var(--c, var(--gold)); font-weight: 900;
+  }
+  @media (max-width: 720px) {
+    .timeline::before { left: 8px; }
+    .tl-row { grid-template-columns: 1fr; gap: 8px; }
+    .tl-stage { text-align: left; padding-top: 0; padding-left: 24px; }
+    .tl-stage::after { right: auto; left: 0; top: 6px; }
+    .tl-card { margin-left: 24px; }
+  }
+
+  /* 小黄车产品矩阵 */
+  .livestream-cart {
+    background: linear-gradient(135deg, #1a0a14 0%, #0d0508 100%);
+    border: 1px solid rgba(254,232,68,0.25);
+    border-radius: 16px;
+    padding: 36px 32px;
+    margin-top: 64px;
+    position: relative; overflow: hidden;
+  }
+  .livestream-cart::before {
+    content: "TAOBAO LIVE"; position: absolute;
+    top: 12px; right: 20px;
+    font-family: 'SF Mono', monospace;
+    font-size: 9px; color: rgba(254,232,68,0.2);
+    letter-spacing: 4px; font-weight: 800;
+  }
+  .lc-head { display: flex; align-items: center; gap: 18px; margin-bottom: 28px; }
+  .lc-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #fee844, #f9b536);
+    border-radius: 14px; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(254,232,68,0.3);
+  }
+  .lc-title { font-size: 22px; font-weight: 900; color: #fff;
+    margin-bottom: 4px; letter-spacing: -0.3px; }
+  .lc-sub { font-size: 13px; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; }
+
+  .lc-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .lc-sku {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 18px 16px;
+    transition: all .2s; position: relative;
+  }
+  .lc-sku:hover { border-color: #fee844; transform: translateY(-2px); }
+  .lc-sku-tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+    color: #000; background: linear-gradient(135deg, #fee844, #f9b536);
+    padding: 3px 8px; border-radius: 3px; margin-bottom: 10px;
+  }
+  .lc-sku-name { font-size: 14px; font-weight: 800; color: #fff;
+    line-height: 1.3; margin-bottom: 8px; min-height: 36px; }
+  .lc-sku-price-row { display: flex; align-items: baseline; gap: 8px; }
+  .lc-sku-price {
+    font-family: 'SF Pro Display', 'Inter', sans-serif;
+    font-size: 22px; font-weight: 800; color: #fee844;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.5px;
+  }
+  .lc-sku-price .yuan { font-size: 14px; vertical-align: 3px; opacity: 0.85; margin-right: 1px; }
+  .lc-sku-orig {
+    font-size: 12px; color: rgba(255,255,255,0.4);
+    text-decoration: line-through;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 900px) {
+    .lc-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .roadmap-cta {
+    margin-top: 48px; text-align: center;
+  }
+  .roadmap-cta .btn {
+    background: linear-gradient(135deg, #fe2c55, var(--red));
+    color: #fff; padding: 18px 40px;
+    font-size: 16px; box-shadow: 0 12px 36px rgba(254,44,85,0.35);
+  }
+  .roadmap-cta .btn:hover { transform: translateY(-2px); box-shadow: 0 16px 44px rgba(254,44,85,0.5); }
+  .roadmap-cta-note {
+    margin-top: 14px; font-size: 13px;
+    color: rgba(255,255,255,0.5); letter-spacing: 1px;
+  }
+
   /* ============ Footer ============ */
   footer { background: #08080a; padding: 60px 32px 30px; border-top: 1px solid rgba(212,175,55,0.1); }
   .footer-inner { max-width: 1200px; margin: 0 auto; }
@@ -501,6 +724,7 @@
     </a>
     <ul class="nav-links">
       <li><a href="#products">智能硬件</a></li>
+      <li><a href="#roadmap">24h 大战 🔴</a></li>
       <li><a href="#about">关于</a></li>
       <li><a href="#modules">四大模块</a></li>
       <li><a href="#curriculum">课程体系</a></li>
@@ -980,6 +1204,169 @@
 </section>
 
 
+<!-- ROADMAP / 24h 大战 -->
+<section id="roadmap" class="roadmap">
+  <div class="roadmap-inner">
+
+    <div class="roadmap-head">
+      <div class="break-badge">EVENT · 重大计划即将启动</div>
+      <h2 class="roadmap-title">抖音 24 小时人机大战<br><span class="accent">冲击吉尼斯世界纪录</span></h2>
+      <p class="roadmap-sub">真人掼蛋名将 vs Crayxus V8 AI · 全程不间断直播 24 小时 · 抖音小黄车实时上架全系硬件 + 课程包 · 一场直播看完, 一个小黄车买齐</p>
+    </div>
+
+    <!-- 数据 strip -->
+    <div class="event-stats">
+      <div class="es-item">
+        <div class="es-num">24h</div>
+        <div class="es-lbl">不间断直播</div>
+      </div>
+      <div class="es-item">
+        <div class="es-num">6 位</div>
+        <div class="es-lbl">真人高手轮战</div>
+      </div>
+      <div class="es-item">
+        <div class="es-num">1000万+</div>
+        <div class="es-lbl">预期累计观看</div>
+      </div>
+      <div class="es-item">
+        <div class="es-num">★</div>
+        <div class="es-lbl">吉尼斯世界纪录认证</div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+
+      <div class="tl-row" style="--c:#4aa8ff">
+        <div class="tl-stage">STAGE 01</div>
+        <div class="tl-card">
+          <div class="tl-when">Q3 · 2026</div>
+          <div class="tl-name">筹备 · 立项与认证申请</div>
+          <ul class="tl-list">
+            <li>正式申请吉尼斯世界纪录官方认证 (最长直播 AI 对战 / 最大规模人机赛)</li>
+            <li>抖音官方蓝 V 账号矩阵搭建 · 申请头部活动扶持</li>
+            <li>全国掼蛋名将招募 · 4-6 位轮班挑战 V8</li>
+            <li>直播间硬件搭建 · 多机位 + 央视级转播团队</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-row" style="--c:#9b59b6">
+        <div class="tl-stage">STAGE 02</div>
+        <div class="tl-card">
+          <div class="tl-when">Q4 · 2026 · 前 4 周</div>
+          <div class="tl-name">预热 · 全网话题引爆</div>
+          <ul class="tl-list">
+            <li>抖音矩阵号每日发布 V8 AI 高光 / 神局复盘短视频</li>
+            <li>真人挑战者人物纪录片 · "他们要挑战 AI" 悬念营销</li>
+            <li>蛋吧小程序开放预约 + 小黄车产品蓄水</li>
+            <li>媒体传播: 36氪 / 虎嗅 / 央视科技频道预告</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-row" style="--c:#fe2c55">
+        <div class="tl-stage">STAGE 03</div>
+        <div class="tl-card">
+          <div class="tl-when">D-DAY · 24 小时</div>
+          <div class="tl-name">🔴 直播开战 · 历史时刻</div>
+          <ul class="tl-list">
+            <li>6 位真人高手轮班 · 24 小时不间断对决 V8 AI</li>
+            <li>多机位 + AI 实时解说 + 牌桌 360° 全息复盘</li>
+            <li>抖音小黄车实时上架: Crayxus Lite ¥8,888 / Genesis ¥88,888 / 课程包 ¥888</li>
+            <li>每整点上架"直播专享秒杀" · 限量 99 / 9 / 无限</li>
+            <li>全程吉尼斯认证官现场公证 · 同步全平台多机位直播</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-row" style="--c:#d4af37">
+        <div class="tl-stage">STAGE 04</div>
+        <div class="tl-card">
+          <div class="tl-when">D+1 起 · 30 天</div>
+          <div class="tl-name">认证 · 二次裂变传播</div>
+          <ul class="tl-list">
+            <li>吉尼斯世界纪录证书颁发 · 央视 / 新华社二次报道</li>
+            <li>24 小时直播切片 · 30 天每日发布精彩瞬间</li>
+            <li>小黄车持续挂载 · 用户 UGC 反响视频引流</li>
+            <li>第二波直播预告 (城市快闪 / 真人 PK 真人冠军赛)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-row" style="--c:#c41e3a">
+        <div class="tl-stage">STAGE 05</div>
+        <div class="tl-card">
+          <div class="tl-when">D+90 起 · 长期</div>
+          <div class="tl-name">规模化 · 直播带货常态化</div>
+          <ul class="tl-list">
+            <li>每周固定直播日 · "AI 教练 vs 全民挑战" 互动赛</li>
+            <li>城市线下快闪 · 高端会所 Genesis 试用 + 直播</li>
+            <li>头部主播签约合作 · 教培课程包成为爆款 SKU</li>
+            <li>出海首站: TikTok 海外 24h 大战 · 全球同步认证</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 小黄车产品矩阵 -->
+    <div class="livestream-cart">
+      <div class="lc-head">
+        <div class="lc-icon">🛒</div>
+        <div class="lc-text">
+          <div class="lc-title">直播间小黄车 · 全系产品上架</div>
+          <div class="lc-sub">直播间下单, 当场发货, 直播专享福利价</div>
+        </div>
+      </div>
+
+      <div class="lc-grid">
+        <div class="lc-sku">
+          <div class="lc-sku-tag">★ 直播专享</div>
+          <div class="lc-sku-name">Crayxus Lite<br>透明智能盖板</div>
+          <div class="lc-sku-price-row">
+            <div class="lc-sku-price"><span class="yuan">¥</span>7,988</div>
+            <div class="lc-sku-orig">¥12,800</div>
+          </div>
+        </div>
+
+        <div class="lc-sku">
+          <div class="lc-sku-tag">◆ 限量 9 台</div>
+          <div class="lc-sku-name">Crayxus Genesis<br>旗舰收藏全桌</div>
+          <div class="lc-sku-price-row">
+            <div class="lc-sku-price"><span class="yuan">¥</span>88,888</div>
+          </div>
+        </div>
+
+        <div class="lc-sku">
+          <div class="lc-sku-tag">▶ 爆款 SKU</div>
+          <div class="lc-sku-name">AI·蛋吧课程包<br>6 门 + 段位认证</div>
+          <div class="lc-sku-price-row">
+            <div class="lc-sku-price"><span class="yuan">¥</span>888</div>
+            <div class="lc-sku-orig">¥1,888</div>
+          </div>
+        </div>
+
+        <div class="lc-sku">
+          <div class="lc-sku-tag">⚡ 整点秒杀</div>
+          <div class="lc-sku-name">蛋力 Token 礼包<br>10000 蛋力 + 段位测评</div>
+          <div class="lc-sku-price-row">
+            <div class="lc-sku-price"><span class="yuan">¥</span>88</div>
+            <div class="lc-sku-orig">¥288</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="roadmap-cta">
+      <a href="#cta" class="btn">🔴 预约直播提醒, 抢首发福利 →</a>
+      <div class="roadmap-cta-note">关注抖音号 @AI蛋吧官方 · 开播第一时间通知 · 小黄车福利不限量</div>
+    </div>
+
+  </div>
+</section>
+
+
 <!-- Partners -->
 <section id="partners" class="partners">
   <div class="section-head" style="max-width:1200px;margin:0 auto;">
@@ -1036,6 +1423,7 @@
         <h4>产品</h4>
         <ul>
           <li><a href="#products">智能硬件</a></li>
+          <li><a href="#roadmap">24h 大战</a></li>
           <li><a href="#modules">休闲模式</a></li>
           <li><a href="#curriculum">教培课程</a></li>
           <li><a href="#events">赛事报名</a></li>
