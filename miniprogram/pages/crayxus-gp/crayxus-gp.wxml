@@ -1,4 +1,4 @@
-<!-- Crayxus AI GP · 极简驾驶大奖赛 -->
+<!-- Crayxus AI GP · 四大板块版 -->
 <view class="page">
   <view style="height:{{statusBarHeight}}px"></view>
 
@@ -9,17 +9,20 @@
 
   <!-- 顶部小标 -->
   <view class="top-tag">
-    <text class="brand-logo-mini">🏁</text>
-    <text class="brand-name">Crayxus AI GP</text>
+    <text class="brand-logo-mini">★</text>
+    <view class="brand-name-block">
+      <text class="brand-prefix">CRAYXUS</text>
+      <text class="brand-ai">AI</text>
+      <text class="brand-dot">·</text>
+      <text class="brand-gp">GP</text>
+    </view>
     <view class="more-btn" bindtap="openDriverPicker">
       <text>切换 ▾</text>
     </view>
   </view>
 
-  <!-- ==== 主舞台 ==== -->
-
-  <!-- Avatar 大头像 -->
-  <view class="avatar-stage">
+  <!-- ==== AI 车手 Hero (简化) ==== -->
+  <view class="avatar-stage compact">
     <view class="avatar-glow" style="background:radial-gradient(circle, {{selectedDriver.color}}66, transparent 70%)"></view>
     <view class="avatar-circle" style="background:linear-gradient(135deg, {{selectedDriver.color}}, rgba(0,0,0,.5)); box-shadow: 0 0 60rpx {{selectedDriver.color}}88, inset 0 -20rpx 40rpx rgba(0,0,0,.4)">
       <text class="avatar-emoji">{{selectedDriver.avatar}}</text>
@@ -27,102 +30,329 @@
     <view class="ai-badge-big" style="background:{{selectedDriver.color}}">{{selectedDriver.aiBadge}}</view>
     <text class="driver-name">{{selectedDriver.name}}</text>
     <text class="driver-meta">{{selectedDriver.aiModel}} · {{selectedDriver.mentor}}</text>
+  </view>
 
-    <view class="driver-stats-mini">
-      <view class="dsm-cell">
-        <text class="dsm-num" style="color:{{selectedDriver.color}}">{{selectedDriver.bestLap}}</text>
-        <text class="dsm-lbl">最快圈速</text>
+  <!-- ==== 当前段位 + 赛车积分 ==== -->
+  <view class="rank-card">
+    <view class="rc-left">
+      <view class="rc-lv">{{currentRank.lv}}</view>
+      <view class="rc-name">{{currentRank.name}}</view>
+    </view>
+    <view class="rc-mid">
+      <view class="rc-prog-bar">
+        <view class="rc-prog-fill" style="width:{{currentRank.progress}}%"></view>
       </view>
-      <view class="dsm-sep"></view>
-      <view class="dsm-cell">
-        <text class="dsm-num">{{selectedDriver.races}}</text>
-        <text class="dsm-lbl">参赛</text>
-      </view>
-      <view class="dsm-sep"></view>
-      <view class="dsm-cell">
-        <text class="dsm-num" style="color:{{selectedDriver.color}}">{{selectedDriver.points}}</text>
-        <text class="dsm-lbl">积分</text>
-      </view>
+      <text class="rc-prog-text">已学 {{currentRank.doneLessons}} / {{currentRank.totalLessons}} 课时</text>
+    </view>
+    <view class="rc-right">
+      <text class="rc-token-num">🏁 {{currentRank.racePoints}}</text>
+      <text class="rc-token-lbl">赛车积分</text>
     </view>
   </view>
 
-  <!-- 赛道预览 -->
-  <view class="track-strip" bindtap="openTrackPicker">
-    <view class="ts-svg-wrap">
-      <image class="ts-svg" src="{{selectedTrack.svgUri}}" mode="aspectFit"></image>
+  <!-- ==== AI 教练入口 (AAaaS) ==== -->
+  <view class="ai-tutor-entry" data-lv="lv1" bindtap="openTutor">
+    <view class="ate-avatar">😊</view>
+    <view class="ate-text">
+      <view class="ate-row">
+        <text class="ate-title">找小启聊聊</text>
+        <text class="ate-badge">AAaaS · AI 教练</text>
+      </view>
+      <text class="ate-sub">7×24 私教 · 任何问题都能问 · 语音/文字双输入</text>
     </view>
-    <view class="ts-info">
-      <text class="ts-name">{{selectedTrack.name}}</text>
-      <text class="ts-meta">{{selectedTrack.length}} · {{selectedTrack.turns}} 弯 · {{selectedTrack.diffStars}}</text>
-    </view>
-    <text class="ts-arrow">▾</text>
+    <text class="ate-arrow">→</text>
   </view>
 
-  <!-- ==== 巨型 START 按钮 ==== -->
-  <view class="start-zone">
-    <!-- IDLE: 巨型 START -->
-    <view class="start-mega" wx:if="{{raceState === 'idle'}}" bindtap="startRace"
-          style="background: radial-gradient(circle, {{selectedDriver.color}} 0%, #c1121c 100%); box-shadow: 0 0 80rpx {{selectedDriver.color}}aa, 0 20rpx 60rpx rgba(0,0,0,.6)">
-      <text class="sm-icon">▶</text>
-      <text class="sm-label">START</text>
-      <text class="sm-sub">点击开始比赛</text>
-    </view>
-
-    <!-- RACING: lap 大显示 + pause/stop -->
-    <view class="racing-panel" wx:if="{{raceState === 'racing'}}">
-      <view class="rp-live-tag">
-        <view class="rp-dot"></view>
-        <text>LIVE</text>
+  <!-- ==== 语音控制 (按住说话) ==== -->
+  <view class="voice-control" wx:if="{{voiceSupported}}">
+    <view class="voice-status">
+      <view wx:if="{{voiceListening}}" class="voice-hint listening">
+        <view class="voice-pulse"></view>
+        <text class="voice-hint-text">听着... {{voiceText || '说话即可'}}</text>
       </view>
-      <view class="rp-lap">
-        <text class="rp-lap-num">{{lap}}</text>
-        <text class="rp-lap-of">/ {{totalLaps}}</text>
+      <view wx:elif="{{voiceLastCmd}}" class="voice-hint result">
+        <text class="voice-result-icon">🎤</text>
+        <text class="voice-hint-text">{{voiceLastCmd}}</text>
       </view>
-      <text class="rp-lap-lbl">LAP</text>
-      <view class="rp-leader" wx:if="{{liveTiming[0]}}">
-        <text class="rp-leader-prefix">领跑</text>
-        <text class="rp-leader-name">{{liveTiming[0].avatar}} {{liveTiming[0].name}}</text>
-      </view>
-      <view class="rp-actions">
-        <view class="rp-btn pause" bindtap="pauseRace">
-          <text>⏸ 暂停</text>
-        </view>
-        <view class="rp-btn stop" bindtap="stopRace">
-          <text>⏹ 停止</text>
-        </view>
+      <view wx:else class="voice-hint idle">
+        <text class="voice-hint-text">🎤 按住说话, 跟你的 AI 司机沟通</text>
       </view>
     </view>
-
-    <!-- PAUSED -->
-    <view class="start-mega paused" wx:if="{{raceState === 'paused'}}" bindtap="resumeRace">
-      <text class="sm-icon">▶</text>
-      <text class="sm-label">继续</text>
-      <text class="sm-sub">已暂停 · Lap {{lap}}/{{totalLaps}}</text>
+    <view class="voice-btn {{voiceListening ? 'on' : ''}}"
+          bindtouchstart="voiceTouchStart"
+          bindtouchend="voiceTouchEnd"
+          bindtouchcancel="voiceTouchEnd">
+      <text class="voice-btn-icon">🎤</text>
+      <text class="voice-btn-label">{{voiceListening ? '松开发送' : '按住说话'}}</text>
     </view>
-
-    <!-- FINISHED -->
-    <view class="finished-card" wx:if="{{raceState === 'finished'}}">
-      <text class="fc-trophy">🏆</text>
-      <text class="fc-champion">{{liveTiming[0].avatar}} {{liveTiming[0].name}}</text>
-      <text class="fc-msg">夺冠！</text>
-      <view class="fc-action" bindtap="resetRace">
-        <text>🔄 再来一场</text>
-      </view>
+    <view class="voice-hints">
+      试试: <text class="vh-tag">"原地转圈"</text>
+            <text class="vh-tag">"绕个 8 字"</text>
+            <text class="vh-tag">"跑赛道"</text>
+            <text class="vh-tag">"停"</text>
     </view>
   </view>
 
-  <!-- 实时排位（精简 Top 3） -->
-  <view class="mini-timing" wx:if="{{raceState === 'racing' && liveTiming.length > 0}}">
-    <view class="mt-row" wx:for="{{liveTiming}}" wx:key="id" wx:if="{{index < 3}}"
-          style="border-left-color:{{item.color}}">
-      <text class="mt-pos {{index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze'}}">P{{item.pos}}</text>
-      <text class="mt-avatar">{{item.avatar}}</text>
+  <!-- ==== 四大板块 Tab ==== -->
+  <view class="modules-tab">
+    <view class="mod-tab {{activeModule === item.id ? 'on' : ''}}"
+          wx:for="{{modules}}" wx:key="id"
+          data-id="{{item.id}}" bindtap="switchModule">
+      <text class="mt-icon">{{item.icon}}</text>
       <text class="mt-name">{{item.name}}</text>
-      <text class="mt-gap" style="color:{{item.color}}">{{item.gap}}</text>
     </view>
   </view>
 
-  <view style="height:60rpx"></view>
+  <!-- ============================================ -->
+  <!-- 板块 1: 训练 (实车演示 + 手动 + F1 赛道)        -->
+  <!-- ============================================ -->
+  <view class="module-content" wx:if="{{activeModule === 'training'}}">
+
+    <!-- 真实车辆演示 (3 个一键动作) -->
+    <view class="real-demo">
+      <view class="rd-header">
+        <text class="rd-title">🤖 真实车辆演示</text>
+        <view class="rd-status">
+          <view class="rd-dot {{bleConnected ? 'on' : (bleConnecting ? 'pulse' : '')}}"></view>
+          <text>{{bleConnected ? '已连接' : (bleConnecting ? '连接中' : '未连接')}}</text>
+        </view>
+      </view>
+      <view class="rd-grid">
+        <view class="rd-btn rd-cyan" bindtap="demoSpin">
+          <text class="rd-icon">🌀</text>
+          <text class="rd-name">原地转圈</text>
+        </view>
+        <view class="rd-btn rd-pink" bindtap="demoCircle">
+          <text class="rd-icon">⭕</text>
+          <text class="rd-name">绕圆圈</text>
+        </view>
+        <view class="rd-btn rd-gold" bindtap="demoFigure8">
+          <text class="rd-icon">∞</text>
+          <text class="rd-name">绕 8 字</text>
+        </view>
+      </view>
+      <view class="rd-stop" bindtap="demoStop">
+        <text class="rd-stop-icon">⏹</text>
+        <text class="rd-stop-name">立即停止</text>
+      </view>
+    </view>
+
+    <!-- 手动方向盘 -->
+    <view class="manual-pad">
+      <view class="mp-header">
+        <text class="mp-title">🎮 手动方向盘</text>
+        <text class="mp-hint">按住走, 松手停</text>
+      </view>
+      <view class="mp-grid">
+        <view class="mp-spacer"></view>
+        <view class="mp-btn mp-up {{manualActive==='a' ? 'on' : ''}}"
+              bindtouchstart="manualForwardStart" bindtouchend="manualForwardEnd"
+              bindtouchcancel="manualForwardEnd">
+          <text>▲</text>
+        </view>
+        <view class="mp-spacer"></view>
+
+        <view class="mp-btn mp-left {{manualActive==='b' ? 'on' : ''}}"
+              bindtouchstart="manualLeftStart" bindtouchend="manualLeftEnd"
+              bindtouchcancel="manualLeftEnd">
+          <text>◀</text>
+        </view>
+        <view class="mp-center" bindtap="demoStop">
+          <text class="mp-center-icon">⏹</text>
+        </view>
+        <view class="mp-btn mp-right {{manualActive==='d' ? 'on' : ''}}"
+              bindtouchstart="manualRightStart" bindtouchend="manualRightEnd"
+              bindtouchcancel="manualRightEnd">
+          <text>▶</text>
+        </view>
+
+        <view class="mp-spacer"></view>
+        <view class="mp-btn mp-down {{manualActive==='c' ? 'on' : ''}}"
+              bindtouchstart="manualBackStart" bindtouchend="manualBackEnd"
+              bindtouchcancel="manualBackEnd">
+          <text>▼</text>
+        </view>
+        <view class="mp-spacer"></view>
+      </view>
+    </view>
+
+    <!-- 赛道预览条 (切换赛道) -->
+    <view class="track-strip" bindtap="openTrackPicker">
+      <view class="ts-svg-wrap">
+        <image class="ts-svg" src="{{selectedTrack.svgUri}}" mode="aspectFit"></image>
+      </view>
+      <view class="ts-info">
+        <text class="ts-name">{{selectedTrack.name}}</text>
+        <text class="ts-meta">{{selectedTrack.length}} · {{selectedTrack.turns}} 弯 · {{selectedTrack.diffStars}}</text>
+      </view>
+      <text class="ts-arrow">▾</text>
+    </view>
+
+    <!-- F1 上海赛道训练 -->
+    <view class="sh-track">
+      <view class="sh-header">
+        <text class="sh-flag">🏁</text>
+        <view class="sh-title-block">
+          <text class="sh-title">F1 上海国际赛车场</text>
+          <text class="sh-meta">CHINESE GP · 5.451 km · 16 弯</text>
+        </view>
+        <text class="sh-step">{{lapStep}}/{{lapTotal}}</text>
+      </view>
+
+      <!-- 赛道 Canvas + 小车标记 -->
+      <view class="sh-canvas">
+        <image class="sh-bg-img" src="{{shanghaiSvg}}" mode="widthFix"></image>
+        <canvas type="2d" id="shTrackCanvas" class="sh-svg"></canvas>
+        <view class="sh-marker"
+              style="left: {{markerX}}rpx; top: {{markerY}}rpx; transition-duration: {{markerDur}}ms;">
+          🏎️
+        </view>
+        <view class="sh-start-flag" style="left: 100rpx; top: 360rpx;">
+          <text>🚦</text>
+        </view>
+      </view>
+
+      <view class="sh-status">
+        <view class="sh-status-dot {{lapRunning ? 'racing' : ''}}"></view>
+        <text class="sh-label">{{lapLabel}}</text>
+      </view>
+
+      <button class="sh-go-btn {{lapRunning ? 'is-running' : ''}}"
+              bindtap="onShanghaiBtnTap">
+        {{lapRunning ? '⏹ 中止比赛' : '🏁 跑完 1 圈'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- ============================================ -->
+  <!-- 板块 2: 赛事                                  -->
+  <!-- ============================================ -->
+  <view class="module-content" wx:if="{{activeModule === 'racing'}}">
+    <view class="section-head">
+      <text class="sh-icon">🏆</text>
+      <view class="sh-text">
+        <text class="sh-big">神驾联赛</text>
+        <text class="sh-sub">AI 神经驾驶 · 段位认证 · 奖金赛</text>
+      </view>
+    </view>
+
+    <view class="tournament-list">
+      <view class="tnt-card" wx:for="{{tournaments}}" wx:key="id">
+        <view class="tnt-row1">
+          <text class="tnt-name">{{item.name}}</text>
+          <text class="tnt-stage tnt-{{item.stage === '报名中' ? 'live' : (item.stage === '即将开始' ? 'soon' : 'preview')}}">{{item.stage}}</text>
+        </view>
+        <view class="tnt-row2">
+          <text class="tnt-date">📅 {{item.date}}</text>
+          <text class="tnt-prize">🏅 {{item.prize}}</text>
+        </view>
+        <view class="tnt-row3">
+          <text class="tnt-enrolled">已报名 {{item.enrolled}} 人</text>
+          <view class="tnt-btn" data-id="{{item.id}}" bindtap="enrollTournament">立即报名 →</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================ -->
+  <!-- 板块 3: 报名 (五段课程)                        -->
+  <!-- ============================================ -->
+  <view class="module-content" wx:if="{{activeModule === 'register'}}">
+    <view class="section-head">
+      <text class="sh-icon">📝</text>
+      <view class="sh-text">
+        <text class="sh-big">五段课程 · 入门到大师</text>
+        <text class="sh-sub">每段对应硬件梯度 · 段位认证 · 持续升舱</text>
+      </view>
+    </view>
+
+    <view class="course-list">
+      <view class="course-tier {{item.state}}" wx:for="{{courseTiers}}" wx:key="id">
+        <view class="ct-bar" style="background:{{item.color}}"></view>
+        <view class="ct-body">
+          <view class="ct-head-row">
+            <view class="ct-lv-box">
+              <text class="ct-lv">{{item.lv}}</text>
+              <text class="ct-state" wx:if="{{item.state === 'current'}}">▶ 当前</text>
+              <text class="ct-state locked" wx:elif="{{item.state === 'locked'}}">🔒 未解锁</text>
+            </view>
+            <text class="ct-emoji">{{item.emoji}}</text>
+            <view class="ct-name-box">
+              <text class="ct-name" style="color:{{item.color}}">{{item.name}}</text>
+              <text class="ct-title">{{item.title}}</text>
+            </view>
+          </view>
+
+          <view class="ct-learn">
+            <text class="ct-section-tag">🎯 学到什么</text>
+            <view class="ct-learn-items">
+              <text class="ct-learn-li" wx:for="{{item.learn}}" wx:for-item="li" wx:key="*this">• {{li}}</text>
+            </view>
+          </view>
+
+          <view class="ct-project">
+            <text class="ct-section-tag">🛠 做什么作品</text>
+            <text class="ct-project-text">{{item.project}}</text>
+          </view>
+
+          <view class="ct-meta-row">
+            <text class="ct-meta">📚 {{item.hours}}</text>
+            <text class="ct-meta">👶 {{item.age}}</text>
+            <text class="ct-meta">🥇 {{item.rank}}</text>
+          </view>
+          <view class="ct-hardware">配套硬件: {{item.hardware}}</view>
+
+          <view class="ct-bottom">
+            <view class="ct-price">
+              <text class="ct-price-yen">¥</text>
+              <text class="ct-price-num">{{item.price}}</text>
+              <text class="ct-price-suffix">/ 全段</text>
+            </view>
+            <view class="ct-enroll-btn"
+                  data-id="{{item.id}}" bindtap="enrollCourse"
+                  style="background:{{item.color}}">
+              {{item.state === 'current' ? '继续学习' : '立即报名'}} →
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================ -->
+  <!-- 板块 4: AI 实验室                              -->
+  <!-- ============================================ -->
+  <view class="module-content" wx:if="{{activeModule === 'lab'}}">
+    <view class="section-head">
+      <text class="sh-icon">🧪</text>
+      <view class="sh-text">
+        <text class="sh-big">AI 实验室</text>
+        <text class="sh-sub">训练自己的 AI 车手 · 上传模型 · 对战 V8 Champion</text>
+      </view>
+    </view>
+
+    <view class="lab-grid">
+      <view class="lab-card" wx:for="{{labFeatures}}" wx:key="name"
+            data-name="{{item.name}}" bindtap="openLabFeature">
+        <text class="lab-icon">{{item.icon}}</text>
+        <text class="lab-name">{{item.name}}</text>
+        <text class="lab-desc">{{item.desc}}</text>
+      </view>
+    </view>
+
+    <!-- AI·GP 理念 -->
+    <view class="manifesto">
+      <text class="mf-tag">CRAYXUS AI·GP 理念</text>
+      <text class="mf-title">从 V8 掼蛋 AI 到 AI 神经驾驶</text>
+      <text class="mf-text">
+        我们用掼蛋训练 AI 的方法论 (716 维状态编码 · Target Network · Dense Rewards),
+        把同样的训练流程下沉到实体赛车——同一个 AI 大脑, 既能打牌, 也能开车。
+        你训练的不是一台车, 是一位 AI 车手。
+      </text>
+    </view>
+  </view>
+
+  <view style="height:80rpx"></view>
 
   <!-- ====== 车手选择 overlay ====== -->
   <view class="picker-overlay" wx:if="{{driverPickerOpen}}" catchtouchmove="_noop">
@@ -148,6 +378,88 @@
           </view>
         </view>
       </scroll-view>
+    </view>
+  </view>
+
+  <!-- ====== 圈速遥测日志 overlay (保留, 但不再有按钮入口, 跑完赛道时自动弹出) ====== -->
+  <view class="picker-overlay" wx:if="{{lapLogModalOpen}}" catchtouchmove="_noop">
+    <view class="po-mask" bindtap="closeLapLogModal"></view>
+    <view class="po-sheet">
+      <view class="po-handle"></view>
+      <view class="po-title">本圈遥测 ({{lapLog.length}} 条)</view>
+      <scroll-view class="po-scroll" scroll-y="true" style="max-height:50vh;">
+        <view wx:for="{{lapLog}}" wx:key="raw" class="lap-log-row {{item.kind === 'T' ? 'is-turn' : 'is-straight'}}">
+          <text class="llr-idx">{{index + 1}}</text>
+          <block wx:if="{{item.kind === 'T'}}">
+            <text class="llr-tag tag-turn">转 {{item.dir}}</text>
+            <text class="llr-main">{{item.target}}° → {{item.actual}}°</text>
+            <text class="llr-meta">{{item.ms}}ms</text>
+          </block>
+          <block wx:elif="{{item.kind === 'S'}}">
+            <text class="llr-tag tag-straight">直行</text>
+            <text class="llr-main">{{item.ms}}ms</text>
+            <text class="llr-meta">漂 {{item.drift}}°</text>
+          </block>
+        </view>
+        <view wx:if="{{lapLog.length === 0}}" class="lap-log-empty">无遥测</view>
+      </scroll-view>
+      <view class="lap-log-actions">
+        <button class="lap-log-btn primary" bindtap="copyLapLog">复制日志</button>
+        <button class="lap-log-btn" bindtap="closeLapLogModal">关闭</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- ====== AI 教练对话 overlay ====== -->
+  <view class="picker-overlay" wx:if="{{tutorOpen}}" catchtouchmove="_noop">
+    <view class="po-mask" bindtap="closeTutor"></view>
+    <view class="tutor-sheet">
+      <view class="tutor-head" style="background:linear-gradient(135deg, {{tutorProfile.color}}, rgba(0,0,0,.4))">
+        <view class="tutor-avatar-big">{{tutorProfile.emoji}}</view>
+        <view class="tutor-head-info">
+          <text class="tutor-head-name">{{tutorProfile.name}}</text>
+          <text class="tutor-head-sub">{{tutorProfile.lv}} · {{tutorProfile.style}}</text>
+        </view>
+        <view class="tutor-close" bindtap="closeTutor">×</view>
+      </view>
+
+      <scroll-view class="tutor-msgs" scroll-y="true" scroll-into-view="msg-{{tutorMessages.length}}" scroll-with-animation="true">
+        <view wx:for="{{tutorMessages}}" wx:key="t" id="msg-{{index + 1}}" class="tutor-row tutor-row-{{item.role}}">
+          <view class="tutor-mini-avatar tutor-mini-{{item.role}}">
+            {{item.role === 'tutor' ? tutorProfile.emoji : '👦'}}
+          </view>
+          <view class="tutor-bubble tutor-bubble-{{item.role}}" style="{{item.role === 'tutor' ? 'border-left-color:' + tutorProfile.color : ''}}">
+            {{item.text}}
+          </view>
+        </view>
+        <view wx:if="{{tutorTyping}}" class="tutor-typing">
+          <text class="tt-dot"></text>
+          <text class="tt-dot"></text>
+          <text class="tt-dot"></text>
+          <text class="tt-label">{{tutorProfile.name}} 正在思考...</text>
+        </view>
+      </scroll-view>
+
+      <view class="tutor-quick-bar">
+        <text class="tqb-tag" wx:for="{{tutorProfile.quickAsks}}" wx:for-item="qa" wx:key="*this"
+              data-text="{{qa}}" bindtap="quickAskTutor">{{qa}}</text>
+      </view>
+
+      <view class="tutor-input-bar">
+        <view class="tutor-voice-btn {{tutorVoiceListening ? 'on' : ''}}"
+              bindtouchstart="tutorVoiceStart"
+              bindtouchend="tutorVoiceEnd"
+              bindtouchcancel="tutorVoiceEnd">
+          🎤
+        </view>
+        <input class="tutor-input"
+               placeholder="问 {{tutorProfile.name}}..."
+               value="{{tutorInputText}}"
+               bindinput="onTutorInput"
+               confirm-type="send"
+               bindconfirm="sendTutorMessage"/>
+        <view class="tutor-send-btn" bindtap="sendTutorMessage">发送</view>
+      </view>
     </view>
   </view>
 

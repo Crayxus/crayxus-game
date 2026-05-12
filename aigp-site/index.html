@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crayxus AI·GP · AI 神驾联赛 · 用 AI 重新定义赛车教培</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --violet: #7c4dff;
+    --violet-light: #b388ff;
+    --cyan: #00eaff;
+    --cyan-light: #6ff5ff;
+    --gold: #ffd700;
+    --gold-warm: #ffb344;
+    --pink: #ff4081;
+    --green: #10b981;
+    --orange: #ff9500;
+    --red: #fe2c55;
+    --dark: #06030c;
+    --dark2: #0d0618;
+    --dark3: #14082a;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'SF Pro Display', 'Inter', "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--dark);
+    color: #e8e8e8;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ============ Nav ============ */
+  .nav { position: fixed; top:0; left:0; right:0; z-index: 100;
+    background: rgba(6,3,12,0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(124,77,255,0.2); padding: 14px 0; }
+  .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 19px; letter-spacing: 1.5px; }
+  .nav-logo .logo-icon { width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--violet), var(--cyan)); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 17px;
+    box-shadow: 0 0 18px rgba(124,77,255,0.4); }
+  .nav-logo .ai { color: var(--cyan); }
+  .nav-logo .gp { color: #fff; }
+  .nav-logo .dot { color: var(--violet); margin: 0 0.05em; }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { font-size: 14px; color: rgba(255,255,255,0.7); transition: color .2s; font-weight: 500; letter-spacing: 0.5px; }
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-cta { background: linear-gradient(135deg, var(--violet), var(--cyan)); color: #fff;
+    padding: 10px 22px; border-radius: 6px; font-weight: 800; font-size: 13px; letter-spacing: 1px;
+    transition: all .2s; box-shadow: 0 6px 18px rgba(124,77,255,0.3); }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(124,77,255,0.5); }
+  @media (max-width: 900px) { .nav-links { display: none; } }
+
+  /* ============ Hero ============ */
+  .hero { position: relative; min-height: 100vh;
+    display: flex; align-items: center;
+    background: var(--dark); overflow: hidden; }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background-image: url('images/hero-aigp.png');
+    background-size: cover;
+    background-position: center right;
+  }
+  .hero-bg::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(6,3,12,0.95) 0%, rgba(6,3,12,0.65) 35%, rgba(6,3,12,0.15) 60%, transparent 100%),
+      linear-gradient(180deg, rgba(6,3,12,0.6) 0%, transparent 30%, transparent 70%, rgba(6,3,12,0.7) 100%);
+  }
+  .hero-inner {
+    position: relative; z-index: 2;
+    max-width: 1280px; margin: 0 auto;
+    padding: 130px 32px 80px;
+    width: 100%;
+  }
+  .hero-text { max-width: 640px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 16px;
+    background: rgba(124,77,255,0.12);
+    border: 1px solid rgba(124,77,255,0.4);
+    color: var(--violet-light);
+    font-size: 12px; font-weight: 800; letter-spacing: 4px;
+    border-radius: 4px; margin-bottom: 28px;
+    backdrop-filter: blur(8px);
+  }
+  .hero-badge::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 12px var(--cyan);
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.6); }
+  }
+  .hero h1 {
+    font-size: clamp(56px, 10vw, 128px); font-weight: 900;
+    letter-spacing: -4px; line-height: 0.92;
+    color: #fff; margin-bottom: 24px;
+  }
+  .hero h1 .ai {
+    background: linear-gradient(135deg, var(--cyan), var(--cyan-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero h1 .dot { color: var(--violet); margin: 0 0.04em; }
+  .hero h1 .gp {
+    background: linear-gradient(135deg, var(--violet-light), var(--violet));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: clamp(20px, 2.6vw, 28px);
+    color: #fff; margin-bottom: 14px;
+    letter-spacing: 1px; font-weight: 700;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  }
+  .hero-tagline {
+    font-size: 14px; color: rgba(255,255,255,0.65);
+    letter-spacing: 3px; margin-bottom: 32px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .hero-pillars {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px;
+  }
+  .hero-pillar {
+    background: rgba(0,234,255,0.08);
+    border: 1px solid rgba(0,234,255,0.35);
+    color: var(--cyan);
+    padding: 9px 18px; border-radius: 4px;
+    font-size: 13px; font-weight: 800; letter-spacing: 1.5px;
+    backdrop-filter: blur(8px);
+  }
+  .hero-cta-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    padding: 16px 34px; border-radius: 6px;
+    font-weight: 800; font-size: 15px; letter-spacing: 1px;
+    cursor: pointer; border: none; transition: all .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--violet), var(--cyan));
+    color: #fff;
+    box-shadow: 0 8px 28px rgba(124,77,255,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(124,77,255,0.55); }
+  .btn-outline {
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(8px);
+  }
+  .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .hero-stats {
+    margin-top: 56px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+    max-width: 720px;
+  }
+  .hero-stat {
+    padding: 14px 0;
+    border-left: 2px solid rgba(124,77,255,0.4);
+    padding-left: 16px;
+  }
+  .hero-stat:first-child { border-left-color: var(--cyan); }
+  .hero-stat-num {
+    font-family: 'SF Pro Display', 'Inter', sans-serif;
+    font-size: 34px; font-weight: 900;
+    color: #fff; line-height: 1;
+    letter-spacing: -1px; font-variant-numeric: tabular-nums;
+  }
+  .hero-stat-lbl {
+    font-size: 11px; color: rgba(255,255,255,0.6);
+    letter-spacing: 2px; margin-top: 8px;
+    text-transform: uppercase; font-weight: 600;
+  }
+  @media (max-width: 720px) {
+    .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  }
+
+  /* ============ Common ============ */
+  .section { padding: 120px 32px; max-width: 1280px; margin: 0 auto; }
+  .section-head { text-align: center; margin-bottom: 64px; max-width: 800px; margin-left: auto; margin-right: auto; }
+  .section-eyebrow {
+    display: inline-block; color: var(--cyan);
+    font-size: 13px; font-weight: 800; letter-spacing: 4px;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: clamp(36px, 5vw, 60px); font-weight: 900;
+    color: #fff; line-height: 1.1;
+    letter-spacing: -1.5px; margin-bottom: 16px;
+  }
+  .section-title .accent {
+    background: linear-gradient(135deg, var(--violet-light), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .section-sub {
+    font-size: 17px; color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+  }
+
+  /* ============ AI 车手矩阵 ============ */
+  .drivers { background: linear-gradient(180deg, var(--dark) 0%, var(--dark2) 100%); position: relative; overflow: hidden; }
+  .drivers::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 15% 30%, rgba(0,234,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 70%, rgba(124,77,255,0.08) 0%, transparent 50%);
+  }
+  .driver-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+    position: relative; z-index: 1;
+  }
+  .driver-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 28px 24px;
+    position: relative; transition: all .3s;
+    overflow: hidden;
+  }
+  .driver-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--c);
+  }
+  .driver-card::after {
+    content: ""; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px;
+    background: radial-gradient(circle, var(--c) 0%, transparent 70%);
+    opacity: 0.15; pointer-events: none; transition: opacity .3s;
+  }
+  .driver-card:hover { transform: translateY(-6px); border-color: var(--c); }
+  .driver-card:hover::after { opacity: 0.3; }
+  .driver-card:hover { box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px var(--c-glow); }
+  .driver-head {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 18px;
+  }
+  .driver-avatar {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--c), rgba(0,0,0,0.5));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; flex-shrink: 0;
+    box-shadow: 0 0 24px var(--c-glow);
+  }
+  .driver-name-block { flex: 1; min-width: 0; }
+  .driver-rank {
+    font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+    font-size: 11px; color: var(--c); letter-spacing: 2px;
+    font-weight: 800; margin-bottom: 4px;
+  }
+  .driver-name {
+    font-size: 19px; font-weight: 900; color: #fff;
+    letter-spacing: -0.3px; line-height: 1.2;
+  }
+  .driver-model {
+    font-size: 12px; color: rgba(255,255,255,0.55);
+    margin-top: 4px; letter-spacing: 0.5px;
+  }
+  .driver-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin-bottom: 16px; padding: 16px 0;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+  }
+  .ds-item { text-align: center; }
+  .ds-num {
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 20px; font-weight: 800;
+    color: var(--c); font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .ds-lbl {
+    font-size: 10px; color: rgba(255,255,255,0.5);
+    letter-spacing: 1.5px; margin-top: 4px; text-transform: uppercase;
+  }
+  .driver-lap {
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px; padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: rgba(255,255,255,0.65);
+  }
+  .driver-lap b {
+    font-family: 'SF Mono', monospace; color: var(--c); font-weight: 800;
+    font-variant-numeric: tabular-nums; font-size: 14px;
+  }
+  @media (max-width: 900px) { .driver-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .driver-grid { grid-template-columns: 1fr; } }
+
+  /* ============ Hardware ============ */
+  .hardware { background: linear-gradient(180deg, var(--dark2) 0%, var(--dark3) 50%, var(--dark2) 100%); position: relative; }
+  .hw-ladder {
+    display: flex; gap: 14px; flex-wrap: nowrap;
+    overflow-x: auto; padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+  }
+  .hw-ladder::-webkit-scrollbar { height: 6px; }
+  .hw-ladder::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 3px; }
+  .hw-ladder::-webkit-scrollbar-thumb { background: rgba(124,77,255,0.4); border-radius: 3px; }
+  .hw-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 28px 22px;
+    flex: 1 1 0; min-width: 220px;
+    scroll-snap-align: start;
+    position: relative; transition: all .25s;
+    display: flex; flex-direction: column;
+  }
+  .hw-card::before {
+    content: ""; position: absolute; left: 0; top: 28px; bottom: 28px;
+    width: 4px; background: var(--c); border-radius: 0 4px 4px 0;
+  }
+  .hw-card:hover { border-color: var(--c); transform: translateY(-4px); }
+  .hw-lv {
+    font-family: 'SF Mono', monospace;
+    font-size: 11px; color: var(--c); letter-spacing: 2px;
+    font-weight: 800; margin-bottom: 8px;
+  }
+  .hw-name {
+    font-size: 18px; font-weight: 900; color: #fff;
+    margin-bottom: 6px; line-height: 1.2;
+  }
+  .hw-title {
+    font-size: 13px; color: rgba(255,255,255,0.6);
+    margin-bottom: 18px;
+  }
+  .hw-spec {
+    font-size: 12.5px; color: rgba(255,255,255,0.7);
+    line-height: 1.7; flex: 1; margin-bottom: 18px;
+  }
+  .hw-spec li { padding: 3px 0 3px 14px; position: relative; list-style: none; }
+  .hw-spec li::before {
+    content: "▸"; position: absolute; left: 0; color: var(--c); font-weight: 900;
+  }
+  .hw-price-row {
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+  }
+  .hw-price {
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 24px; font-weight: 800; color: var(--c);
+    letter-spacing: -0.5px; font-variant-numeric: tabular-nums;
+  }
+  .hw-price .yuan {
+    font-size: 14px; vertical-align: 3px; opacity: 0.85; margin-right: 1px;
+  }
+  .hw-price-note {
+    font-size: 11px; color: rgba(255,255,255,0.45);
+    margin-top: 4px; letter-spacing: 0.5px;
+  }
+
+  /* ============ Curriculum ============ */
+  .curriculum { background: var(--dark); }
+  .course-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+  }
+  .course-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 26px 20px;
+    transition: all .25s; position: relative;
+    display: flex; flex-direction: column;
+  }
+  .course-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--c); border-radius: 14px 14px 0 0;
+  }
+  .course-card:hover { border-color: var(--c); transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.5); }
+  .course-emoji { font-size: 36px; margin-bottom: 12px; }
+  .course-lv {
+    font-family: 'SF Mono', monospace;
+    font-size: 11px; color: var(--c); letter-spacing: 2px;
+    font-weight: 800; margin-bottom: 4px;
+  }
+  .course-name { font-size: 20px; font-weight: 900; color: #fff;
+    line-height: 1.2; margin-bottom: 4px; }
+  .course-title {
+    font-size: 13px; color: rgba(255,255,255,0.55);
+    margin-bottom: 16px; font-weight: 500;
+  }
+  .course-learn { flex: 1; margin-bottom: 18px; }
+  .course-learn-li {
+    font-size: 12.5px; color: rgba(255,255,255,0.7);
+    line-height: 1.55; padding: 3px 0 3px 14px; position: relative;
+  }
+  .course-learn-li::before {
+    content: "▸"; position: absolute; left: 0; color: var(--c); font-weight: 900;
+  }
+  .course-meta {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    letter-spacing: 0.5px; padding: 10px 0;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+    margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .course-meta span { white-space: nowrap; }
+  .course-price-row {
+    display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;
+  }
+  .course-price {
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 28px; font-weight: 800; color: var(--c);
+    letter-spacing: -0.5px; font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .course-price .yuan {
+    font-size: 16px; vertical-align: 2px; opacity: 0.85; margin-right: 1px;
+  }
+  .course-price-suffix {
+    font-size: 12px; color: rgba(255,255,255,0.45);
+  }
+  .course-btn {
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    border: 1px solid var(--c);
+    padding: 10px 14px; border-radius: 6px;
+    font-size: 12.5px; font-weight: 800;
+    cursor: pointer; transition: all .2s;
+    text-align: center; letter-spacing: 1px;
+    font-family: inherit;
+  }
+  .course-btn:hover { background: var(--c); color: #000; }
+  @media (max-width: 1100px) { .course-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .course-grid { grid-template-columns: 1fr; } }
+
+  /* ============ Events ============ */
+  .events { background: linear-gradient(180deg, var(--dark) 0%, var(--dark2) 100%); }
+  .pyramid { max-width: 1000px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 12px; }
+  .pyramid-row {
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: 4px solid var(--c);
+    border-radius: 10px; padding: 22px 28px;
+    display: grid; grid-template-columns: 90px 1fr auto auto; gap: 24px;
+    align-items: center; transition: all .25s;
+  }
+  .pyramid-row:hover { border-color: var(--c); transform: translateX(6px); }
+  .pyramid-level {
+    font-family: 'SF Mono', monospace; font-size: 14px;
+    color: var(--c); font-weight: 900; letter-spacing: 1px;
+  }
+  .pyramid-name { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+  .pyramid-desc { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+  .pyramid-tag {
+    background: rgba(124,77,255,0.12);
+    color: var(--violet-light);
+    font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 4px;
+    letter-spacing: 1px; border: 1px solid rgba(124,77,255,0.3); white-space: nowrap;
+  }
+  .pyramid-when {
+    font-family: 'SF Mono', monospace; font-size: 11px;
+    color: rgba(255,255,255,0.45); letter-spacing: 1px; white-space: nowrap;
+  }
+  @media (max-width: 720px) {
+    .pyramid-row { grid-template-columns: 1fr; gap: 8px; }
+    .pyramid-tag, .pyramid-when { justify-self: start; }
+  }
+
+  /* ============ Lab ============ */
+  .lab { background: var(--dark); position: relative; overflow: hidden; }
+  .lab::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 30% 50%, rgba(0,234,255,0.08) 0%, transparent 45%),
+      radial-gradient(ellipse at 70% 50%, rgba(124,77,255,0.08) 0%, transparent 45%);
+  }
+  .lab-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+    position: relative; z-index: 1;
+  }
+  .lab-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(124,77,255,0.2);
+    border-radius: 14px; padding: 32px 26px;
+    transition: all .25s;
+  }
+  .lab-card:hover { border-color: var(--cyan); transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,234,255,0.15); }
+  .lab-icon { font-size: 40px; margin-bottom: 16px; }
+  .lab-name {
+    font-size: 19px; font-weight: 900; color: #fff;
+    margin-bottom: 10px;
+  }
+  .lab-desc {
+    font-size: 13.5px; color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+  }
+  @media (max-width: 900px) { .lab-grid { grid-template-columns: 1fr; } }
+
+  /* ============ Manifesto ============ */
+  .manifesto {
+    background: linear-gradient(135deg, rgba(124,77,255,0.12) 0%, rgba(0,234,255,0.06) 100%);
+    border-top: 1px solid rgba(124,77,255,0.3);
+    border-bottom: 1px solid rgba(0,234,255,0.3);
+    padding: 80px 32px; text-align: center;
+  }
+  .manifesto-tag {
+    font-size: 12px; color: var(--cyan); letter-spacing: 4px;
+    font-weight: 800; text-transform: uppercase; margin-bottom: 16px;
+  }
+  .manifesto-title {
+    font-size: clamp(28px, 4vw, 44px); font-weight: 900;
+    color: #fff; letter-spacing: -1px; line-height: 1.2;
+    margin-bottom: 18px; max-width: 900px;
+    margin-left: auto; margin-right: auto;
+  }
+  .manifesto-title .accent {
+    background: linear-gradient(135deg, var(--cyan), var(--violet-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .manifesto-text {
+    font-size: 16px; color: rgba(255,255,255,0.75);
+    max-width: 800px; margin: 0 auto; line-height: 1.8;
+  }
+
+  /* ============ Partners ============ */
+  .partners { background: var(--dark); padding: 100px 32px; }
+  .partner-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    max-width: 1280px; margin: 64px auto 0;
+  }
+  .partner-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 32px;
+    transition: all .25s;
+  }
+  .partner-card:hover { border-color: var(--violet); transform: translateY(-4px); }
+  .partner-tag {
+    font-size: 10px; color: var(--cyan); letter-spacing: 3px;
+    font-weight: 800; margin-bottom: 14px; text-transform: uppercase;
+  }
+  .partner-name {
+    font-size: 22px; font-weight: 900; color: #fff;
+    margin-bottom: 6px; letter-spacing: -0.3px;
+  }
+  .partner-sub {
+    font-size: 13px; color: var(--violet-light);
+    margin-bottom: 18px; font-weight: 600;
+  }
+  .partner-desc {
+    font-size: 13.5px; color: rgba(255,255,255,0.7);
+    line-height: 1.7;
+  }
+  @media (max-width: 900px) { .partner-grid { grid-template-columns: 1fr; } }
+
+  /* ============ CTA ============ */
+  .cta { padding: 120px 32px; text-align: center;
+    background: linear-gradient(180deg, var(--dark) 0%, var(--dark2) 100%); }
+  .cta h2 {
+    font-size: clamp(36px, 5vw, 56px); font-weight: 900;
+    color: #fff; margin-bottom: 18px;
+    letter-spacing: -1.5px; line-height: 1.15;
+  }
+  .cta h2 .accent {
+    background: linear-gradient(135deg, var(--violet-light), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cta p {
+    font-size: 17px; color: rgba(255,255,255,0.7);
+    max-width: 640px; margin: 0 auto 40px; line-height: 1.7;
+  }
+  .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  /* ============ Footer ============ */
+  footer { background: #050208; padding: 60px 32px 30px;
+    border-top: 1px solid rgba(124,77,255,0.2); }
+  .footer-inner { max-width: 1280px; margin: 0 auto; }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px;
+    margin-bottom: 48px;
+  }
+  .footer-brand h3 {
+    color: #fff; font-size: 24px; font-weight: 900;
+    margin-bottom: 14px; letter-spacing: 1px;
+  }
+  .footer-brand h3 .ai { color: var(--cyan); }
+  .footer-brand h3 .dot { color: var(--violet); margin: 0 0.05em; }
+  .footer-brand p {
+    font-size: 13px; color: rgba(255,255,255,0.55);
+    line-height: 1.7; max-width: 360px;
+  }
+  .footer-col h4 {
+    color: var(--violet-light); font-size: 12px; font-weight: 800;
+    letter-spacing: 2px; margin-bottom: 16px; text-transform: uppercase;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 8px; }
+  .footer-col a {
+    font-size: 13px; color: rgba(255,255,255,0.55);
+    transition: color .2s;
+  }
+  .footer-col a:hover { color: var(--cyan); }
+  .footer-bottom {
+    padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .footer-bottom .copy {
+    font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 0.5px;
+  }
+  .footer-bottom .stamp {
+    font-family: 'SF Mono', monospace;
+    color: var(--cyan); font-weight: 800; font-size: 11px; letter-spacing: 3px;
+  }
+  @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <div class="logo-icon">GP</div>
+      <span><span class="ai">AI</span><span class="dot">·</span><span class="gp">GP</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#drivers">AI 车手</a></li>
+      <li><a href="#hardware">智能硬件</a></li>
+      <li><a href="#curriculum">五段课程</a></li>
+      <li><a href="#events">神驾联赛</a></li>
+      <li><a href="#lab">AI 实验室</a></li>
+      <li><a href="#partners">学术背书</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">立即体验</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge">★ AI NEURAL RACING · 神经网络驾驶联赛</div>
+      <h1><span class="ai">AI</span><span class="dot">·</span><span class="gp">GP</span></h1>
+      <div class="hero-sub">让每个孩子, 训练自己的 AI 车手</div>
+      <div class="hero-tagline">CRAYXUS AI · 浙江大学 · 张旭光教授课题组</div>
+      <div class="hero-pillars">
+        <div class="hero-pillar">🏎️ 实体赛车</div>
+        <div class="hero-pillar">🧠 AI 强化学习</div>
+        <div class="hero-pillar">🏆 神驾联赛</div>
+        <div class="hero-pillar">🎓 五段课程</div>
+      </div>
+      <div class="hero-cta-row">
+        <a href="#curriculum" class="btn btn-primary">查看五段课程 →</a>
+        <a href="#drivers" class="btn btn-outline">认识 AI 车手</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">6</div>
+          <div class="hero-stat-lbl">AI 车手</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">5</div>
+          <div class="hero-stat-lbl">硬件梯度</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">5</div>
+          <div class="hero-stat-lbl">课程段位</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">4</div>
+          <div class="hero-stat-lbl">赛事金字塔</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- AI 车手 -->
+<section id="drivers" class="section drivers">
+  <div class="section-head">
+    <div class="section-eyebrow">AI DRIVERS · 神经车手矩阵</div>
+    <h2 class="section-title">6 位 <span class="accent">AI 车手</span> 已就位<br>选你的搭档, 训练你的对手</h2>
+    <p class="section-sub">每一位 AI 车手都是基于一个真实的大模型 + Crayxus 强化学习方法论训练出来的赛道智能体。挑战他们, 击败他们, 或者成为他们的训练师。</p>
+  </div>
+
+  <div class="driver-grid">
+
+    <div class="driver-card" style="--c:#00eaff; --c-glow:rgba(0,234,255,0.25)">
+      <div class="driver-head">
+        <div class="driver-avatar">🏎️</div>
+        <div class="driver-name-block">
+          <div class="driver-rank">#01 · CRX-V8</div>
+          <div class="driver-name">Crayxus-Alpha</div>
+          <div class="driver-model">自研 V8 强化学习 · 浙大张旭光</div>
+        </div>
+      </div>
+      <div class="driver-stats">
+        <div class="ds-item"><div class="ds-num">47</div><div class="ds-lbl">场次</div></div>
+        <div class="ds-item"><div class="ds-num">12</div><div class="ds-lbl">胜场</div></div>
+        <div class="ds-item"><div class="ds-num">348</div><div class="ds-lbl">积分</div></div>
+      </div>
+      <div class="driver-lap">
+        <span>BEST LAP</span>
+        <b>1:23.456</b>
+      </div>
+    </div>
+
+    <div class="driver-card" style="--c:#ff4081; --c-glow:rgba(255,64,129,0.25)">
+      <div class="driver-head">
+        <div class="driver-avatar">🚗</div>
+        <div class="driver-name-block">
+          <div class="driver-rank">#02 · 豆包</div>
+          <div class="driver-name">Doubao-X</div>
+          <div class="driver-model">豆包 1.5 Pro · 字节跳动 ML</div>
+        </div>
+      </div>
+      <div class="driver-stats">
+        <div class="ds-item"><div class="ds-num">52</div><div class="ds-lbl">场次</div></div>
+        <div class="ds-item"><div class="ds-num">9</div><div class="ds-lbl">胜场</div></div>
+        <div class="ds-item"><div class="ds-num">311</div><div class="ds-lbl">积分</div></div>
+      </div>
+      <div class="driver-lap">
+        <span>BEST LAP</span>
+        <b>1:24.012</b>
+      </div>
+    </div>
+
+    <div class="driver-card" style="--c:#7c4dff; --c-glow:rgba(124,77,255,0.25)">
+      <div class="driver-head">
+        <div class="driver-avatar">🚀</div>
+        <div class="driver-name-block">
+          <div class="driver-rank">#03 · Kimi</div>
+          <div class="driver-name">Kimi-Racer</div>
+          <div class="driver-model">Kimi K2 Pro · Moonshot AI</div>
+        </div>
+      </div>
+      <div class="driver-stats">
+        <div class="ds-item"><div class="ds-num">38</div><div class="ds-lbl">场次</div></div>
+        <div class="ds-item"><div class="ds-num">7</div><div class="ds-lbl">胜场</div></div>
+        <div class="ds-item"><div class="ds-num">268</div><div class="ds-lbl">积分</div></div>
+      </div>
+      <div class="driver-lap">
+        <span>BEST LAP</span>
+        <b>1:24.789</b>
+      </div>
+    </div>
+
+    <div class="driver-card" style="--c:#10b981; --c-glow:rgba(16,185,129,0.25)">
+      <div class="driver-head">
+        <div class="driver-avatar">⚡</div>
+        <div class="driver-name-block">
+          <div class="driver-rank">#04 · DSV4</div>
+          <div class="driver-name">DeepSeek-Drift</div>
+          <div class="driver-model">DeepSeek V4 · DeepSeek AI</div>
+        </div>
+      </div>
+      <div class="driver-stats">
+        <div class="ds-item"><div class="ds-num">41</div><div class="ds-lbl">场次</div></div>
+        <div class="ds-item"><div class="ds-num">6</div><div class="ds-lbl">胜场</div></div>
+        <div class="ds-item"><div class="ds-num">245</div><div class="ds-lbl">积分</div></div>
+      </div>
+      <div class="driver-lap">
+        <span>BEST LAP</span>
+        <b>1:25.234</b>
+      </div>
+    </div>
+
+    <div class="driver-card" style="--c:#ffd700; --c-glow:rgba(255,215,0,0.25)">
+      <div class="driver-head">
+        <div class="driver-avatar">🌪</div>
+        <div class="driver-name-block">
+          <div class="driver-rank">#05 · Qwen</div>
+          <div class="driver-name">Qwen-Velocity</div>
+          <div class="driver-model">通义千问 Max · 阿里达摩院</div>
+        </div>
+      </div>
+      <div class="driver-stats">
+        <div class="ds-item"><div class="ds-num">45</div><div class="ds-lbl">场次</div></div>
+        <div class="ds-item"><div class="ds-num">5</div><div class="ds-lbl">胜场</div></div>
+        <div class="ds-item"><div class="ds-num">232</div><div class="ds-lbl">积分</div></div>
+      </div>
+      <div class="driver-lap">
+        <span>BEST LAP</span>
+        <b>1:25.890</b>
+      </div>
+    </div>
+
+    <div class="driver-card" style="--c:#ff9500; --c-glow:rgba(255,149,0,0.25)">
+      <div class="driver-head">
+        <div class="driver-avatar">🌐</div>
+        <div class="driver-name-block">
+          <div class="driver-rank">#06 · GPT-4o</div>
+          <div class="driver-name">GPT-Stratos</div>
+          <div class="driver-model">GPT-4o · OpenAI 海外团队</div>
+        </div>
+      </div>
+      <div class="driver-stats">
+        <div class="ds-item"><div class="ds-num">33</div><div class="ds-lbl">场次</div></div>
+        <div class="ds-item"><div class="ds-num">4</div><div class="ds-lbl">胜场</div></div>
+        <div class="ds-item"><div class="ds-num">198</div><div class="ds-lbl">积分</div></div>
+      </div>
+      <div class="driver-lap">
+        <span>BEST LAP</span>
+        <b>1:26.123</b>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- HARDWARE -->
+<section id="hardware" class="section hardware">
+  <div class="section-head">
+    <div class="section-eyebrow">HARDWARE LADDER · 五级硬件梯度</div>
+    <h2 class="section-title">从积木编程到 <span class="accent">树莓派 ROS</span><br>硬件跟着段位一起升级</h2>
+    <p class="section-sub">5 级硬件梯度, 对应 5 段课程。每升一段, 换一辆更强的赛车——从启蒙阶段的麦轮车, 到冠军级 ROS 自主车, 让 AI 能力跟硬件一起成长。</p>
+  </div>
+
+  <div class="hw-ladder">
+
+    <div class="hw-card" style="--c:#95a5a6">
+      <div class="hw-lv">LV.1 · 启航</div>
+      <div class="hw-name">KE3051 麦轮车</div>
+      <div class="hw-title">积木编程入门</div>
+      <ul class="hw-spec">
+        <li>麦克纳姆轮全向行驶</li>
+        <li>蓝牙 + 红外双控</li>
+        <li>积木图形化编程</li>
+        <li>小学低年级可上手</li>
+      </ul>
+      <div class="hw-price-row">
+        <div class="hw-price"><span class="yuan">¥</span>488</div>
+        <div class="hw-price-note">配套 LV.1 启航班</div>
+      </div>
+    </div>
+
+    <div class="hw-card" style="--c:#4aa8ff">
+      <div class="hw-lv">LV.2 · 智控</div>
+      <div class="hw-name">ESP32-S3 联网车</div>
+      <div class="hw-title">大模型驾驶</div>
+      <ul class="hw-spec">
+        <li>WiFi 联网 + LLM API</li>
+        <li>自然语言控车</li>
+        <li>JSON 数据解析</li>
+        <li>小学高年级</li>
+      </ul>
+      <div class="hw-price-row">
+        <div class="hw-price"><span class="yuan">¥</span>988</div>
+        <div class="hw-price-note">配套 LV.2 智控班</div>
+      </div>
+    </div>
+
+    <div class="hw-card" style="--c:#10b981">
+      <div class="hw-lv">LV.3 · 视觉</div>
+      <div class="hw-name">K230 视觉车</div>
+      <div class="hw-title">图像识别 AI</div>
+      <ul class="hw-spec">
+        <li>嘉楠 K230 / RV1106 NPU</li>
+        <li>OpenCV 巡线/识标</li>
+        <li>物体追踪 · 特征提取</li>
+        <li>初中起</li>
+      </ul>
+      <div class="hw-price-row">
+        <div class="hw-price"><span class="yuan">¥</span>1,988</div>
+        <div class="hw-price-note">配套 LV.3 视觉班</div>
+      </div>
+    </div>
+
+    <div class="hw-card" style="--c:#f39c12">
+      <div class="hw-lv">LV.4 · 决策</div>
+      <div class="hw-name">RK3566 NPU 竞速车</div>
+      <div class="hw-title">强化学习训练</div>
+      <ul class="hw-spec">
+        <li>瑞芯微 RK3566 + NPU</li>
+        <li>端侧 RL 推理</li>
+        <li>多车协作训练</li>
+        <li>高中起</li>
+      </ul>
+      <div class="hw-price-row">
+        <div class="hw-price"><span class="yuan">¥</span>3,988</div>
+        <div class="hw-price-note">配套 LV.4 决策班</div>
+      </div>
+    </div>
+
+    <div class="hw-card" style="--c:#fe2c55">
+      <div class="hw-lv">LV.5 · 大师</div>
+      <div class="hw-name">树莓派 5 ROS 冠军车</div>
+      <div class="hw-title">自主智能 SLAM</div>
+      <ul class="hw-spec">
+        <li>树莓派 5 + ROS 2</li>
+        <li>SLAM 建图 · 端到端 DL</li>
+        <li>论文级开源项目</li>
+        <li>高中竞赛 / 大学预备</li>
+      </ul>
+      <div class="hw-price-row">
+        <div class="hw-price"><span class="yuan">¥</span>8,888</div>
+        <div class="hw-price-note">配套 LV.5 大师班</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- CURRICULUM -->
+<section id="curriculum" class="section curriculum">
+  <div class="section-head">
+    <div class="section-eyebrow">CURRICULUM · 五段课程体系</div>
+    <h2 class="section-title">小学到高中, <span class="accent">8 年 AI 成长路径</span></h2>
+    <p class="section-sub">从图形化积木到 ROS 机器人系统, 每一段都有明确"学到什么 + 做出什么作品", 完成段位作品即可解锁下一段。</p>
+  </div>
+
+  <div class="course-grid">
+
+    <div class="course-card" style="--c:#95a5a6">
+      <div class="course-emoji">📚</div>
+      <div class="course-lv">LV.1 · 启航班</div>
+      <div class="course-name">积木编程</div>
+      <div class="course-title">看懂代码的样子</div>
+      <ul class="course-learn">
+        <li class="course-learn-li">流程·循环·条件三件套</li>
+        <li class="course-learn-li">蓝牙 + 红外双控基础</li>
+        <li class="course-learn-li">一句话指挥赛车</li>
+      </ul>
+      <div class="course-meta">
+        <span>📚 8 课时</span><span>👶 小学低年级</span><span>🥇 1-3 段</span>
+      </div>
+      <div class="course-price-row">
+        <div class="course-price"><span class="yuan">¥</span>488</div>
+        <div class="course-price-suffix">/ 全段</div>
+      </div>
+      <button class="course-btn">立即报名 →</button>
+    </div>
+
+    <div class="course-card" style="--c:#4aa8ff">
+      <div class="course-emoji">🌐</div>
+      <div class="course-lv">LV.2 · 智控班</div>
+      <div class="course-name">大模型驾驶</div>
+      <div class="course-title">让 AI 听懂你说话</div>
+      <ul class="course-learn">
+        <li class="course-learn-li">API 调用 · JSON 数据</li>
+        <li class="course-learn-li">提示工程 · NLP 解析</li>
+        <li class="course-learn-li">云端 LLM 接入</li>
+      </ul>
+      <div class="course-meta">
+        <span>📚 12 课时</span><span>👶 小学高年级</span><span>🥇 4-6 段</span>
+      </div>
+      <div class="course-price-row">
+        <div class="course-price"><span class="yuan">¥</span>988</div>
+        <div class="course-price-suffix">/ 全段</div>
+      </div>
+      <button class="course-btn">立即报名 →</button>
+    </div>
+
+    <div class="course-card" style="--c:#10b981">
+      <div class="course-emoji">👁️</div>
+      <div class="course-lv">LV.3 · 视觉班</div>
+      <div class="course-name">视觉 AI</div>
+      <div class="course-title">教 AI 看懂世界</div>
+      <ul class="course-learn">
+        <li class="course-learn-li">图像识别 · 巡线算法</li>
+        <li class="course-learn-li">物体追踪 · 特征提取</li>
+        <li class="course-learn-li">OpenCV 实战</li>
+      </ul>
+      <div class="course-meta">
+        <span>📚 16 课时</span><span>👶 初中</span><span>🥇 7-9 段</span>
+      </div>
+      <div class="course-price-row">
+        <div class="course-price"><span class="yuan">¥</span>1,988</div>
+        <div class="course-price-suffix">/ 全段</div>
+      </div>
+      <button class="course-btn">立即报名 →</button>
+    </div>
+
+    <div class="course-card" style="--c:#f39c12">
+      <div class="course-emoji">🧠</div>
+      <div class="course-lv">LV.4 · 决策班</div>
+      <div class="course-name">强化学习</div>
+      <div class="course-title">训练你的 AI 车手</div>
+      <ul class="course-learn">
+        <li class="course-learn-li">RL 原理 · 奖励函数</li>
+        <li class="course-learn-li">策略网络 · 端侧推理</li>
+        <li class="course-learn-li">多车协作训练</li>
+      </ul>
+      <div class="course-meta">
+        <span>📚 24 课时</span><span>👶 高中</span><span>🥇 10-12 段</span>
+      </div>
+      <div class="course-price-row">
+        <div class="course-price"><span class="yuan">¥</span>3,988</div>
+        <div class="course-price-suffix">/ 全段</div>
+      </div>
+      <button class="course-btn">立即报名 →</button>
+    </div>
+
+    <div class="course-card" style="--c:#fe2c55">
+      <div class="course-emoji">🚀</div>
+      <div class="course-lv">LV.5 · 大师班</div>
+      <div class="course-name">自主智能</div>
+      <div class="course-title">论文级 AI 项目</div>
+      <ul class="course-learn">
+        <li class="course-learn-li">ROS 机器人系统 · SLAM</li>
+        <li class="course-learn-li">端到端深度学习</li>
+        <li class="course-learn-li">自训练新技能</li>
+      </ul>
+      <div class="course-meta">
+        <span>📚 32 课时</span><span>👶 高中竞赛</span><span>🥇 13 段</span>
+      </div>
+      <div class="course-price-row">
+        <div class="course-price"><span class="yuan">¥</span>8,888</div>
+        <div class="course-price-suffix">/ 全段</div>
+      </div>
+      <button class="course-btn">立即报名 →</button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- EVENTS -->
+<section id="events" class="section events">
+  <div class="section-head">
+    <div class="section-eyebrow">TOURNAMENT · 神驾联赛金字塔</div>
+    <h2 class="section-title">从校园周赛 <span class="accent">打到全国总决赛</span></h2>
+    <p class="section-sub">四级赛事金字塔, 真实赛车 + AI 算法 + 段位认证。AI 裁判保证公正, 段位证书全国通用, 全国总决赛万元奖金 + 央视级直播。</p>
+  </div>
+
+  <div class="pyramid">
+
+    <div class="pyramid-row" style="--c:#4aa8ff">
+      <div class="pyramid-level">L.1</div>
+      <div>
+        <div class="pyramid-name">校园周赛</div>
+        <div class="pyramid-desc">每周一次校内对决 · 启航班以上即可参加 · 赚段位积分 · 报名免费</div>
+      </div>
+      <div class="pyramid-tag">每周</div>
+      <div class="pyramid-when">免费</div>
+    </div>
+
+    <div class="pyramid-row" style="--c:#10b981">
+      <div class="pyramid-level">L.2</div>
+      <div>
+        <div class="pyramid-name">城市联赛</div>
+        <div class="pyramid-desc">100+ 城市同步举办 · 季度晋级 · 城市冠军直通全国 · 当地俱乐部承办</div>
+      </div>
+      <div class="pyramid-tag">季度</div>
+      <div class="pyramid-when">城市级</div>
+    </div>
+
+    <div class="pyramid-row" style="--c:#ffd700">
+      <div class="pyramid-level">L.3</div>
+      <div>
+        <div class="pyramid-name">全国神驾锦标赛</div>
+        <div class="pyramid-desc">年度全国总决赛 · 万元奖金池 · 央视级专业直播 · 段位认证升级通道</div>
+      </div>
+      <div class="pyramid-tag">年度</div>
+      <div class="pyramid-when">国家级</div>
+    </div>
+
+    <div class="pyramid-row" style="--c:#fe2c55">
+      <div class="pyramid-level">L.4</div>
+      <div>
+        <div class="pyramid-name">国际邀请赛</div>
+        <div class="pyramid-desc">中外学生 AI 车手对抗 · 出海首站 · 国际段位认证 · 蛋吧杯年终盛典</div>
+      </div>
+      <div class="pyramid-tag">年终</div>
+      <div class="pyramid-when">国际级</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- AI LAB -->
+<section id="lab" class="section lab">
+  <div class="section-head">
+    <div class="section-eyebrow">AI LAB · 神驾实验室</div>
+    <h2 class="section-title">不只是学习, <span class="accent">是创造一个 AI 车手</span></h2>
+    <p class="section-sub">在 AI 实验室, 你可以训练自己的策略网络, 上传到云端, 让它在虚拟赛道上对战 Crayxus V8 Champion, 然后烧录到实体小车跑真实赛道。</p>
+  </div>
+
+  <div class="lab-grid">
+
+    <div class="lab-card">
+      <div class="lab-icon">🧪</div>
+      <div class="lab-name">训练我的 AI</div>
+      <div class="lab-desc">用 Crayxus 提供的训练框架, 编写自己的奖励函数和策略网络, 在云端 GPU 上跑强化学习训练任务。无需服务器, 一键启动。</div>
+    </div>
+
+    <div class="lab-card">
+      <div class="lab-icon">⚡</div>
+      <div class="lab-name">挑战 V8 Champion</div>
+      <div class="lab-desc">把训练好的模型上传到云端, 跟我们的旗舰 AI Crayxus-Alpha V8 对决。胜出即可获得"神驾认证"徽章 + 蛋力 Token 奖励。</div>
+    </div>
+
+    <div class="lab-card">
+      <div class="lab-icon">🏎️</div>
+      <div class="lab-name">实体小车部署</div>
+      <div class="lab-desc">虚拟里赢了不算赢, 把你的 AI 烧录到 LV.3+ 实体小车, 在真实赛道跑 1 圈才是真的牛。一键 OTA 部署, 摩擦力 / 光照 / 抓地力全部按真实参数验证。</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- MANIFESTO -->
+<section class="manifesto">
+  <div class="manifesto-tag">★ CRAYXUS AI·GP 理念 ★</div>
+  <h2 class="manifesto-title">从 <span class="accent">V8 掼蛋 AI</span> 到 <span class="accent">AI 神经驾驶</span></h2>
+  <p class="manifesto-text">
+    我们用掼蛋训练 AI 的方法论 (716 维状态编码 · Target Network · Dense Rewards), 把同样的训练流程下沉到实体赛车——
+    同一个 AI 大脑, 既能打牌, 也能开车。你训练的不是一台车, 是一位 AI 车手。
+  </p>
+</section>
+
+
+<!-- PARTNERS -->
+<section id="partners" class="partners">
+  <div class="section-head" style="max-width:1280px;margin:0 auto;">
+    <div class="section-eyebrow">PARTNERS · 学术背书与生态</div>
+    <h2 class="section-title">不只是赛车, 是 <span class="accent">真正的 AI 教育</span></h2>
+    <p class="section-sub">顶级学术机构 + 行业大厂的联合背书。这不是普通的少儿编程, 是有论文支撑的 AI 强化学习教育体系。</p>
+  </div>
+
+  <div class="partner-grid">
+
+    <div class="partner-card">
+      <div class="partner-tag">学术背书 · ACADEMIC</div>
+      <div class="partner-name">浙江大学</div>
+      <div class="partner-sub">张旭光教授课题组</div>
+      <p class="partner-desc">浙江大学 AI / 强化学习方向博士生导师, 课题组全身心参与 AI·GP 训练方法论研发。多智能体强化学习 + 不完全信息博弈, 行业顶级方向。</p>
+    </div>
+
+    <div class="partner-card">
+      <div class="partner-tag">技术伙伴 · TECH</div>
+      <div class="partner-name">Crayxus AI</div>
+      <div class="partner-sub">同源训练方法论</div>
+      <p class="partner-desc">独家 716 维状态编码 + Target Network 稳定训练 + Dense Rewards 方法论, 从 V8 掼蛋 AI 下沉到实体赛车, 同一套大脑两个赛场。</p>
+    </div>
+
+    <div class="partner-card">
+      <div class="partner-tag">硬件生态 · HARDWARE</div>
+      <div class="partner-name">五级车型矩阵</div>
+      <div class="partner-sub">KE3051 → 树莓派 5 ROS</div>
+      <p class="partner-desc">从入门麦轮车到旗舰 ROS 冠军车, 五级硬件梯度跟课程段位一一对应。每升一段换一辆车, 让能力和硬件同步成长。</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- CTA -->
+<section id="cta" class="cta">
+  <h2>开始你的 <span class="accent">AI 神驾之旅</span><br>从今天的第一节启航班开始</h2>
+  <p>扫码进入「Crayxus AI·GP」微信小程序, 注册即送 LV.1 启航班体验课, 当天开始训练你的第一个 AI 车手。</p>
+  <div class="cta-row">
+    <a href="#curriculum" class="btn btn-primary">立即报名 LV.1 启航班 →</a>
+    <a href="mailto:general@crayxus.com.au" class="btn btn-outline">商务合作 / 学校采购</a>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>🏁 <span class="ai">AI</span><span class="dot">·</span>GP</h3>
+        <p>Crayxus AI·GP · 用 AI 重新定义赛车教培。六位 AI 车手 · 五级硬件梯度 · 五段课程 · 四级神驾联赛 · 全国一张网。</p>
+      </div>
+      <div class="footer-col">
+        <h4>产品</h4>
+        <ul>
+          <li><a href="#drivers">AI 车手</a></li>
+          <li><a href="#hardware">智能硬件</a></li>
+          <li><a href="#curriculum">五段课程</a></li>
+          <li><a href="#events">神驾联赛</a></li>
+          <li><a href="#lab">AI 实验室</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>生态</h4>
+        <ul>
+          <li><a href="#partners">学术背书</a></li>
+          <li><a href="#">AI·蛋吧</a></li>
+          <li><a href="#">Crayxus 主站</a></li>
+          <li><a href="mailto:general@crayxus.com.au">商务合作</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>联系</h4>
+        <ul>
+          <li><a href="mailto:general@crayxus.com.au">邮箱</a></li>
+          <li><a href="#">微信小程序</a></li>
+          <li><a href="#">客服中心</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="copy">© 2026 Crayxus AI · 浙江大学张旭光教授课题组 · general@crayxus.com.au</div>
+      <div class="stamp">AI·GP v1.0</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  function onScroll() {
+    let cur = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 200) cur = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + cur ? 'var(--cyan)' : '';
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>
+
+</body>
+</html>
