@@ -470,6 +470,233 @@
     .product-compare { grid-template-columns: repeat(2, 1fr); gap: 20px; }
   }
 
+  /* ============ Offline Club ============ */
+  .club {
+    background: linear-gradient(180deg, var(--dark2) 0%, #0e0a18 100%);
+    padding: 120px 0 0;
+    position: relative; overflow: hidden;
+  }
+  .club-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+
+  .club-hero-img {
+    width: 100%; aspect-ratio: 21/9;
+    background-image: url('images/club-interior.png');
+    background-size: cover; background-position: center;
+    border-radius: 16px;
+    margin: 56px 0 0;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 60px rgba(0,234,255,0.1);
+    position: relative; overflow: hidden;
+  }
+  .club-hero-img::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 70%, rgba(14,10,24,0.4) 100%);
+    pointer-events: none;
+  }
+  .club-hero-tag {
+    position: absolute; bottom: 24px; left: 28px;
+    z-index: 2; display: flex; align-items: center; gap: 10px;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,234,255,0.25);
+    padding: 10px 18px; border-radius: 8px;
+  }
+  .club-hero-tag::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: #00eaff; box-shadow: 0 0 12px #00eaff;
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+  .club-hero-tag-text {
+    font-size: 13px; color: #fff; font-weight: 700; letter-spacing: 1px;
+  }
+  .club-hero-tag-text b { color: #00eaff; font-weight: 800; }
+
+  /* 数据 strip */
+  .club-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+    margin: 56px auto;
+  }
+  .club-stat {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(0,234,255,0.18);
+    border-radius: 12px;
+    padding: 28px 20px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .club-stat::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #00eaff, var(--gold), transparent);
+  }
+  .club-stat-num {
+    font-family: 'SF Pro Display', 'Inter', 'PingFang SC', -apple-system, sans-serif;
+    font-size: 38px; font-weight: 900;
+    background: linear-gradient(135deg, #00eaff, var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1; letter-spacing: -1px;
+    font-variant-numeric: tabular-nums; margin-bottom: 8px;
+  }
+  .club-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.65);
+    letter-spacing: 2px; font-weight: 700; }
+  @media (max-width: 720px) {
+    .club-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* 三大功能区 */
+  .club-zones {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    margin-top: 64px;
+  }
+  .club-zone {
+    background: linear-gradient(180deg, #18151f 0%, #0d0a14 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 32px 28px;
+    transition: all .25s; position: relative;
+    display: flex; flex-direction: column;
+  }
+  .club-zone::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--c); border-radius: 16px 16px 0 0;
+  }
+  .club-zone:hover { border-color: var(--c); transform: translateY(-6px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+  .cz-icon { font-size: 40px; margin-bottom: 16px; }
+  .cz-tag {
+    font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+    font-size: 11px; color: var(--c); letter-spacing: 2px;
+    font-weight: 800; margin-bottom: 8px;
+  }
+  .cz-name {
+    font-size: 22px; font-weight: 900; color: #fff;
+    line-height: 1.2; margin-bottom: 14px; letter-spacing: -0.3px;
+  }
+  .cz-desc {
+    font-size: 14px; color: rgba(255,255,255,0.7);
+    line-height: 1.7; margin-bottom: 20px;
+  }
+  .cz-features { list-style: none; padding: 0; margin-top: auto; }
+  .cz-features li {
+    font-size: 13px; color: rgba(255,255,255,0.65);
+    padding: 6px 0 6px 18px; position: relative; line-height: 1.5;
+  }
+  .cz-features li::before {
+    content: "▸"; position: absolute; left: 0;
+    color: var(--c); font-weight: 900;
+  }
+  @media (max-width: 900px) { .club-zones { grid-template-columns: 1fr; } }
+
+  /* 首店倒计时 */
+  .club-launch {
+    margin-top: 72px;
+    background: linear-gradient(135deg, rgba(0,234,255,0.08) 0%, rgba(212,175,55,0.06) 100%);
+    border: 1px solid rgba(0,234,255,0.25);
+    border-radius: 18px;
+    padding: 40px 36px;
+    display: grid; grid-template-columns: 1fr auto; gap: 32px;
+    align-items: center;
+  }
+  .cl-tag {
+    display: inline-block;
+    font-size: 11px; color: #00eaff;
+    letter-spacing: 4px; font-weight: 800;
+    margin-bottom: 12px; text-transform: uppercase;
+  }
+  .cl-title {
+    font-size: 28px; font-weight: 900; color: #fff;
+    line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.3px;
+  }
+  .cl-title .accent { color: #00eaff; }
+  .cl-sub {
+    font-size: 14px; color: rgba(255,255,255,0.6);
+    letter-spacing: 0.5px;
+  }
+  .cl-when {
+    text-align: right;
+    padding-left: 32px;
+    border-left: 2px solid rgba(0,234,255,0.3);
+  }
+  .cl-when-q {
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 48px; font-weight: 900;
+    background: linear-gradient(135deg, #00eaff, var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1; letter-spacing: -2px;
+  }
+  .cl-when-lbl {
+    font-size: 12px; color: rgba(255,255,255,0.55);
+    letter-spacing: 2px; font-weight: 700;
+    margin-top: 6px;
+  }
+  @media (max-width: 720px) {
+    .club-launch { grid-template-columns: 1fr; }
+    .cl-when { text-align: left; padding-left: 0; padding-top: 24px;
+      border-left: none; border-top: 2px solid rgba(0,234,255,0.3); }
+  }
+
+  /* 加盟流程 */
+  .club-franchise {
+    margin-top: 64px;
+    padding: 56px 36px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 18px;
+  }
+  .cf-head { text-align: center; margin-bottom: 40px; }
+  .cf-tag {
+    display: inline-block;
+    font-size: 11px; color: var(--gold);
+    letter-spacing: 4px; font-weight: 800;
+    margin-bottom: 10px; text-transform: uppercase;
+  }
+  .cf-title {
+    font-size: 28px; font-weight: 900; color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .cf-steps {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    position: relative;
+  }
+  .cf-step {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 24px 20px;
+    transition: all .25s; position: relative;
+  }
+  .cf-step:hover { border-color: var(--gold); transform: translateY(-4px); }
+  .cf-step-num {
+    font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+    font-size: 11px; color: var(--gold);
+    letter-spacing: 2px; font-weight: 800; margin-bottom: 10px;
+  }
+  .cf-step-name {
+    font-size: 18px; font-weight: 900; color: #fff;
+    margin-bottom: 8px; line-height: 1.2;
+  }
+  .cf-step-desc {
+    font-size: 13px; color: rgba(255,255,255,0.6);
+    line-height: 1.6;
+  }
+  @media (max-width: 720px) {
+    .cf-steps { grid-template-columns: 1fr 1fr; }
+  }
+
+  .club-cta {
+    margin-top: 56px; padding: 0 0 120px;
+    text-align: center;
+  }
+  .club-cta-row {
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  }
+  .club-cta .btn-primary {
+    background: linear-gradient(135deg, #00eaff, var(--gold));
+    color: #000;
+  }
+  .club-cta .btn-primary:hover { box-shadow: 0 12px 36px rgba(0,234,255,0.4); }
+  .club-cta-note {
+    margin-top: 14px;
+    font-size: 13px; color: rgba(255,255,255,0.5);
+    letter-spacing: 1px;
+  }
+
   /* ============ Roadmap / 24h 大战 ============ */
   .roadmap {
     background: linear-gradient(180deg, #0a0508 0%, #14060c 50%, #0a0508 100%);
@@ -724,6 +951,7 @@
     </a>
     <ul class="nav-links">
       <li><a href="#products">智能硬件</a></li>
+      <li><a href="#club">线下俱乐部</a></li>
       <li><a href="#roadmap">24h 大战 🔴</a></li>
       <li><a href="#about">关于</a></li>
       <li><a href="#modules">四大模块</a></li>
@@ -1367,6 +1595,147 @@
 </section>
 
 
+<!-- OFFLINE CLUB · AI·俱乐部 -->
+<section id="club" class="club">
+  <div class="club-inner">
+
+    <div class="section-head">
+      <div class="section-eyebrow">OFFLINE CLUB · 线下 AI·俱乐部网络</div>
+      <h2 class="section-title">线下也要有 <span style="background: linear-gradient(135deg, #00eaff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">未来感的"蛋吧"</span></h2>
+      <p class="section-sub">把 Crayxus Lite + Genesis 装进真实的会所空间, 配套 AI 教练 / 段位认证 / 直播赛事 / 社交餐酒——上海首店打样, 全国 100 城招募合伙人, 重新定义中国线下牌类社交。</p>
+    </div>
+
+    <!-- Hero 实景图 -->
+    <div class="club-hero-img">
+      <div class="club-hero-tag">
+        <div class="club-hero-tag-text">上海陆家嘴首店 · <b>Q4 2026 开业</b></div>
+      </div>
+    </div>
+
+    <!-- 数据 strip -->
+    <div class="club-stats">
+      <div class="club-stat">
+        <div class="club-stat-num">300㎡</div>
+        <div class="club-stat-lbl">首店面积</div>
+      </div>
+      <div class="club-stat">
+        <div class="club-stat-num">10 桌</div>
+        <div class="club-stat-lbl">智能掼蛋桌</div>
+      </div>
+      <div class="club-stat">
+        <div class="club-stat-num">100 城</div>
+        <div class="club-stat-lbl">三年规划店数</div>
+      </div>
+      <div class="club-stat">
+        <div class="club-stat-num">¥58/日</div>
+        <div class="club-stat-lbl">会员单次费用</div>
+      </div>
+    </div>
+
+    <!-- 三大功能区 -->
+    <div class="club-zones">
+
+      <div class="club-zone" style="--c:#22d3ee">
+        <div class="cz-icon">🎮</div>
+        <div class="cz-tag">ZONE 01 · 主厅</div>
+        <div class="cz-name">智能对战大厅</div>
+        <div class="cz-desc">8 张 Crayxus Lite + 2 张 Genesis 旗舰款, 每桌 AI 实时陪练 / 复盘 / 段位计分。点单即玩, 零学习成本。</div>
+        <ul class="cz-features">
+          <li>4 人开桌, 全国玩家段位匹配</li>
+          <li>每局 AI 神级复盘 + 关键决策回放</li>
+          <li>蛋力 Token 积分, 兑换饮品 / 段位升级</li>
+          <li>非会员 ¥58/日, 会员月卡 ¥888 不限场</li>
+        </ul>
+      </div>
+
+      <div class="club-zone" style="--c:#d4af37">
+        <div class="cz-icon">🏆</div>
+        <div class="cz-tag">ZONE 02 · 赛事 + VIP</div>
+        <div class="cz-name">赛事直播 + VIP 包间</div>
+        <div class="cz-desc">2 间私密 VIP 包间各配 1 张 Genesis 旗舰桌, 适合企业团建 / 私人锦标赛 / 高端社交。主厅大屏直播跟联赛同步。</div>
+        <ul class="cz-features">
+          <li>VIP 包间含 Genesis 桌 + 调酒师 + 私人服务</li>
+          <li>顶部 LED 大屏 7×24 直播全国蛋吧联赛</li>
+          <li>每周三晚:「店长杯」店内冠军赛 + 现金奖</li>
+          <li>VIP 包间 ¥1,888/4h, 含 AI 教练 + 茶酒</li>
+        </ul>
+      </div>
+
+      <div class="club-zone" style="--c:#fe2c55">
+        <div class="cz-icon">🎓</div>
+        <div class="cz-tag">ZONE 03 · 教培 + 体验</div>
+        <div class="cz-name">教培体验 + 段位认证</div>
+        <div class="cz-desc">线下段位测评官现场坐镇, 完成 20 道实战题即可拿段位证书。Crayxus Lite/Genesis 全系硬件可现场体验购买, 配套大师课线下小班。</div>
+        <ul class="cz-features">
+          <li>段位测评 ¥288 / 次, 现场拿证 + 区块链存证</li>
+          <li>大师课线下小班: 6-8 人 / 期, 含设备 + 教练</li>
+          <li>硬件体验区: Lite ¥8,888 / Genesis ¥88,888 现场下单</li>
+          <li>新会员免费体验 90 分钟 + 段位测评 5 折</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- 首店开业倒计时 -->
+    <div class="club-launch">
+      <div>
+        <div class="cl-tag">★ 上海首店即将开业</div>
+        <div class="cl-title">陆家嘴 · <span class="accent">AI·蛋吧 旗舰店</span></div>
+        <div class="cl-sub">浦东陆家嘴金融区核心位置 · 落地窗外即东方明珠 + 上海中心夜景 · 300㎡ 全亚克力工业风装修</div>
+      </div>
+      <div class="cl-when">
+        <div class="cl-when-q">Q4 · 2026</div>
+        <div class="cl-when-lbl">即将开业</div>
+      </div>
+    </div>
+
+    <!-- 加盟流程 -->
+    <div class="club-franchise">
+      <div class="cf-head">
+        <div class="cf-tag">★ FRANCHISE · 城市合伙人招募中</div>
+        <div class="cf-title">100 城合伙人计划 · 4 步开店</div>
+      </div>
+      <div class="cf-steps">
+
+        <div class="cf-step">
+          <div class="cf-step-num">STEP 01</div>
+          <div class="cf-step-name">城市申请</div>
+          <div class="cf-step-desc">提交所在城市 + 商业资质 · 总部 7 天内反馈是否有空缺名额</div>
+        </div>
+
+        <div class="cf-step">
+          <div class="cf-step-num">STEP 02</div>
+          <div class="cf-step-name">选址 + 培训</div>
+          <div class="cf-step-desc">总部协助选址 (CBD/会所/酒店底商) · 7 天店长 + 教练标准化培训</div>
+        </div>
+
+        <div class="cf-step">
+          <div class="cf-step-num">STEP 03</div>
+          <div class="cf-step-name">装修 + 设备</div>
+          <div class="cf-step-desc">90 天交钥匙 · 总部统一供应 Lite + Genesis 桌 / LED 大屏 / 装修 SI</div>
+        </div>
+
+        <div class="cf-step">
+          <div class="cf-step-num">STEP 04</div>
+          <div class="cf-step-name">开业 + 运营</div>
+          <div class="cf-step-desc">总部派资深店长驻场首月 · 开业即接入全国联赛 + 抖音直播流量</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="club-cta">
+      <div class="club-cta-row">
+        <a href="mailto:general@crayxus.com.au?subject=申请上海首店内测体验" class="btn btn-primary">★ 申请首店内测体验 →</a>
+        <a href="mailto:general@crayxus.com.au?subject=申请城市合伙人" class="btn btn-outline">申请成为城市合伙人</a>
+      </div>
+      <div class="club-cta-note">首店 100 名内测会员 · 终身 5 折 + 段位认证免单 · 邮箱预约</div>
+    </div>
+
+  </div>
+</section>
+
+
 <!-- Partners -->
 <section id="partners" class="partners">
   <div class="section-head" style="max-width:1200px;margin:0 auto;">
@@ -1423,6 +1792,7 @@
         <h4>产品</h4>
         <ul>
           <li><a href="#products">智能硬件</a></li>
+          <li><a href="#club">线下俱乐部</a></li>
           <li><a href="#roadmap">24h 大战</a></li>
           <li><a href="#modules">休闲模式</a></li>
           <li><a href="#curriculum">教培课程</a></li>
