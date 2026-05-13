@@ -489,6 +489,120 @@
   }
   @media (max-width: 900px) { .lab-grid { grid-template-columns: 1fr; } }
 
+  /* ============ Vibe Coding CLI ============ */
+  .vibe {
+    background: linear-gradient(180deg, var(--dark2) 0%, var(--dark3) 100%);
+    padding: 120px 32px;
+    position: relative; overflow: hidden;
+  }
+  .vibe::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 20% 40%, rgba(124,77,255,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 60%, rgba(0,234,255,0.10) 0%, transparent 50%);
+  }
+  .vibe-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .cli-window {
+    background: #0a0613;
+    border: 1px solid rgba(124,77,255,0.25);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 56px;
+    box-shadow:
+      0 32px 80px rgba(0,0,0,0.6),
+      0 0 80px rgba(124,77,255,0.12);
+    position: relative;
+  }
+  .cli-chrome {
+    background: linear-gradient(180deg, #1a1228 0%, #110a1c 100%);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .cli-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .cli-dot.r { background: #ff5f57; }
+  .cli-dot.y { background: #febc2e; }
+  .cli-dot.g { background: #28c840; }
+  .cli-title {
+    flex: 1; text-align: center;
+    font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+    font-size: 13px; color: rgba(255,255,255,0.55);
+    letter-spacing: 0.5px;
+  }
+  .cli-title .live-dot {
+    display: inline-block; width: 7px; height: 7px;
+    background: var(--cyan); border-radius: 50%;
+    margin-right: 6px; vertical-align: 1px;
+    box-shadow: 0 0 8px var(--cyan);
+    animation: cli-live-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes cli-live-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .cli-body {
+    padding: 28px 32px;
+    font-family: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+    font-size: 14.5px;
+    line-height: 1.9;
+    color: rgba(255,255,255,0.88);
+    min-height: 540px;
+    max-height: 600px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .cli-body::-webkit-scrollbar { width: 6px; }
+  .cli-body::-webkit-scrollbar-track { background: transparent; }
+  .cli-body::-webkit-scrollbar-thumb { background: rgba(124,77,255,0.3); border-radius: 3px; }
+
+  .cli-line { display: block; min-height: 1em; }
+  .cli-line.system { color: var(--cyan); }
+  .cli-line.kid { color: #4ade80; }
+  .cli-line.coach { color: var(--violet-light); }
+  .cli-line.meta { color: rgba(255,255,255,0.45); font-size: 13px; }
+  .cli-line.success { color: #4ade80; font-weight: 600; }
+  .cli-line.code {
+    background: rgba(124,77,255,0.06);
+    border-left: 3px solid var(--violet);
+    padding: 12px 18px;
+    margin: 8px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.92);
+  }
+  .cli-line .accent { color: var(--cyan); font-weight: 600; }
+  .cli-line .gold { color: var(--gold); font-weight: 600; }
+  .cli-line .dim { color: rgba(255,255,255,0.5); }
+  .cli-line .prefix { opacity: 0.85; margin-right: 6px; }
+
+  .cli-cursor {
+    display: inline-block;
+    width: 9px; height: 18px;
+    background: var(--cyan);
+    vertical-align: -3px;
+    margin-left: 3px;
+    animation: cli-blink 1s steps(2) infinite;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  @keyframes cli-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  .cli-footer-hint {
+    text-align: center; margin-top: 28px;
+    font-size: 13px; color: rgba(255,255,255,0.55);
+    letter-spacing: 0.5px;
+  }
+  .cli-footer-hint .accent { color: var(--cyan); font-weight: 700; }
+
+  @media (max-width: 720px) {
+    .cli-body { padding: 20px 18px; font-size: 12.5px; min-height: 480px; }
+  }
+
   /* ============ Manifesto ============ */
   .manifesto {
     background: linear-gradient(135deg, rgba(124,77,255,0.12) 0%, rgba(0,234,255,0.06) 100%);
@@ -625,6 +739,7 @@
       <li><a href="#curriculum">五段课程</a></li>
       <li><a href="#events">神驾联赛</a></li>
       <li><a href="#lab">AI 实验室</a></li>
+      <li><a href="#vibe">CLI 演示 ▶</a></li>
       <li><a href="#partners">学术背书</a></li>
     </ul>
     <a href="#cta" class="nav-cta">立即体验</a>
@@ -1101,13 +1216,40 @@
 </section>
 
 
+<!-- VIBE CODING CLI 演示 -->
+<section id="vibe" class="vibe">
+  <div class="vibe-inner">
+    <div class="section-head">
+      <div class="section-eyebrow">VIBE CODING · 跟 AI 教练对话</div>
+      <h2 class="section-title">不用学编程, <span class="accent">用一句话指挥 AI 车手</span></h2>
+      <p class="section-sub">看 8 岁小学生怎么用自然语言, 让 AI 教练帮他诊断赛车问题、应用解决方案、顺便学一门 AI 算法——这不是表演, 这就是 LV.2 智控班 + AI 实验室的真实课堂体验。</p>
+    </div>
+
+    <div class="cli-window">
+      <div class="cli-chrome">
+        <div class="cli-dot r"></div>
+        <div class="cli-dot y"></div>
+        <div class="cli-dot g"></div>
+        <div class="cli-title"><span class="live-dot"></span>crayxus-cli · AI 教练「小启」实时陪练</div>
+      </div>
+      <div class="cli-body" id="cliBody"></div>
+    </div>
+
+    <div class="cli-footer-hint">
+      ✦ 这个对话流是 <span class="accent">LV.2 智控班</span> 真实课堂示意 · 报名后立刻能在你家小车上玩起来
+    </div>
+  </div>
+</section>
+
+
 <!-- MANIFESTO -->
 <section class="manifesto">
   <div class="manifesto-tag">★ CRAYXUS AI·GP 理念 ★</div>
-  <h2 class="manifesto-title">从 <span class="accent">V8 掼蛋 AI</span> 到 <span class="accent">AI 神经驾驶</span></h2>
+  <h2 class="manifesto-title">从 <span class="accent">浙大实验室</span> 到 <span class="accent">孩子的跑道</span></h2>
   <p class="manifesto-text">
-    我们用掼蛋训练 AI 的方法论 (716 维状态编码 · Target Network · Dense Rewards), 把同样的训练流程下沉到实体赛车——
-    同一个 AI 大脑, 既能打牌, 也能开车。你训练的不是一台车, 是一位 AI 车手。
+    Crayxus V8 强化学习引擎 (716 维状态编码 · Target Network · Dense Rewards),
+    把世界级 AI 训练方法论下沉到每一辆实体赛车——论文级的算法, 跑在你眼前的跑道上。
+    你训练的不是一台车, 是一位 AI 车手。
   </p>
 </section>
 
@@ -1202,6 +1344,7 @@
 </footer>
 
 <script>
+  // ======= Nav scroll-spy =======
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-links a');
   function onScroll() {
@@ -1214,6 +1357,117 @@
     });
   }
   window.addEventListener('scroll', onScroll, { passive: true });
+
+  // ======= Vibe Coding CLI typewriter demo =======
+  (function () {
+    const body = document.getElementById('cliBody');
+    if (!body) return;
+
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    const SCRIPT = [
+      // [type, html, charDelay, postDelay]
+      ['system', '<span class="prefix">✦</span>crayxus-cli <span class="dim">v2.6</span> · 神驾大脑已就位', 22, 350],
+      ['system', '<span class="prefix">✦</span>你好<span class="accent">小明</span>! AI 教练「<span class="accent">小启</span>」准备好啦, 有什么想问我的?', 22, 800],
+      ['kid',    '<span class="prefix">›</span>kid@crayxus<span class="dim"> ~ </span>$ 我的赛车每次过 T1 弯都打滑, 帮我想想办法', 55, 600],
+      ['system', '<span class="prefix">✦</span>让我看看你最近 10 圈的 T1 数据...', 25, 200],
+      ['meta',   '<span class="prefix">▸</span>[ANALYZING] ▰▰▰▰▰▰▰▰▰▰ <span class="accent">100%</span>', 30, 400],
+      ['coach',  '<span class="prefix">✦</span>找到问题了:', 25, 100],
+      ['coach',  '  · 进弯前 200ms 速度: <span class="gold">1.8 m/s</span> (超出建议 30%)', 22, 100],
+      ['coach',  '  · 转向角度变化: <span class="gold">&gt;45°/次</span> (过陡)', 22, 300],
+      ['coach',  '<span class="prefix">✦</span>推荐方案:', 25, 100],
+      ['coach',  '  <span class="accent">1.</span> 进弯前 200ms 自动减速 -25%', 22, 80],
+      ['coach',  '  <span class="accent">2.</span> 转向曲线平滑化 (二次缓动)', 22, 80],
+      ['coach',  '  <span class="accent">3.</span> 启用 ABS 防抱死', 22, 300],
+      ['coach',  '<span class="prefix">›</span>是否应用方案? <span class="dim">[y/n]</span>', 25, 600],
+      ['kid',    '<span class="prefix">›</span>kid@crayxus<span class="dim"> ~ </span>$ y', 80, 300],
+      ['meta',   '<span class="prefix">▸</span>[APPLYING] ▰▰▰▰▰▰▰▰▰▰ <span class="accent">100%</span>', 30, 200],
+      ['success','<span class="prefix">✓</span>已写入: configs/turn_t1.yaml', 22, 60],
+      ['success','<span class="prefix">✓</span>RL 策略网络重新编译完成', 22, 60],
+      ['success','<span class="prefix">✓</span>你的 AI 车手已升级 🏎️', 22, 1000],
+      ['kid',    '<span class="prefix">›</span>kid@crayxus<span class="dim"> ~ </span>$ 太牛了! 那能教我什么是 Q-learning 吗?', 55, 600],
+      ['system', '<span class="prefix">✦</span>没问题! Q-learning 就像让 AI 写一本「经验本」-', 25, 100],
+      ['coach',  '  · 每个状态记录"做哪个动作最好"', 22, 80],
+      ['coach',  '  · 不断试错, 累计奖励', 22, 80],
+      ['coach',  '  · 最后形成最优策略', 22, 300],
+      ['coach',  '<span class="prefix">✦</span>看个例子吧, 这是简化版 Q-table:', 25, 200],
+      ['code',   '       ┌──────┬──────┬──────┐\n       │ 前进 │ 左转 │ 右转 │\n  ┌────┼──────┼──────┼──────┤\n  │ S₁ │ 0.42 │ <span style="color:#4ade80">0.81</span> │ 0.23 │ ← 最优: 左转\n  │ S₂ │ <span style="color:#4ade80">0.95</span> │ 0.31 │ 0.12 │ ← 最优: 前进\n  │ S₃ │ 0.18 │ 0.08 │ <span style="color:#4ade80">0.79</span> │ ← 最优: 右转\n  └────┴──────┴──────┴──────┘', 8, 600],
+      ['coach',  '<span class="prefix">✦</span>看明白了吗? 这就是为什么 AI 车手能做出聪明决策 :)', 25, 1000],
+      ['kid',    '<span class="prefix">›</span>kid@crayxus<span class="dim"> ~ </span>$ 好酷! 我也要训练我自己的 AI', 55, 0],
+    ];
+
+    function appendLine(cls) {
+      const el = document.createElement('span');
+      el.className = 'cli-line ' + cls;
+      body.appendChild(el);
+      return el;
+    }
+
+    function addCursor() {
+      const c = document.createElement('span');
+      c.className = 'cli-cursor';
+      c.id = 'cliCursor';
+      body.appendChild(c);
+    }
+    function removeCursor() {
+      const c = document.getElementById('cliCursor');
+      if (c) c.remove();
+    }
+
+    async function typeHTML(el, html, delay) {
+      // Parse HTML safely token-by-token: walk plain text and tags
+      // We expand: text chars are added one at a time, tags added in one shot
+      const tokens = [];
+      let i = 0;
+      while (i < html.length) {
+        if (html[i] === '<') {
+          const end = html.indexOf('>', i);
+          tokens.push({ type: 'tag', val: html.slice(i, end + 1) });
+          i = end + 1;
+        } else if (html[i] === '&') {
+          const end = html.indexOf(';', i);
+          tokens.push({ type: 'char', val: html.slice(i, end + 1) });
+          i = end + 1;
+        } else {
+          tokens.push({ type: 'char', val: html[i] });
+          i++;
+        }
+      }
+      let buffer = '';
+      for (const t of tokens) {
+        buffer += t.val;
+        el.innerHTML = buffer;
+        body.scrollTop = body.scrollHeight;
+        if (t.type === 'char') await sleep(delay);
+      }
+    }
+
+    async function runOnce() {
+      body.innerHTML = '';
+      for (const [cls, html, delay, post] of SCRIPT) {
+        const el = appendLine(cls);
+        addCursor();
+        await typeHTML(el, html, delay);
+        removeCursor();
+        await sleep(post);
+      }
+      addCursor();
+      await sleep(4500);
+    }
+
+    // Start when CLI section enters viewport, then loop
+    let started = false;
+    const observer = new IntersectionObserver(async (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && !started) {
+          started = true;
+          while (true) {
+            await runOnce();
+          }
+        }
+      }
+    }, { threshold: 0.25 });
+    observer.observe(document.querySelector('#vibe'));
+  })();
 </script>
 
 </body>
