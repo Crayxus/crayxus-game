@@ -1,0 +1,25 @@
+# Render Blueprint - 一次部署 Crayxus 双品牌静态站
+# Dashboard → New + → Blueprint → 选 Crayxus/crayxus-game → Apply
+
+services:
+  - type: web
+    name: crayxus-aidanba
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: ./aidanba-site
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+
+  - type: web
+    name: crayxus-aigp
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: ./aigp-site
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
