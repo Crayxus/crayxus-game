@@ -222,6 +222,33 @@
         {{lapRunning ? '⏹ 中止比赛' : '🏁 跑完 1 圈'}}
       </button>
     </view>
+
+    <!-- Vibe Coding CLI 演示 (LV.2 智控班课堂示意) -->
+    <view class="cli-demo">
+      <view class="cli-head">
+        <text class="cli-eyebrow">VIBE CODING · 跟 AI 教练对话</text>
+        <text class="cli-h">不用学编程, 用一句话指挥你的 AI 车手</text>
+        <text class="cli-h-sub">看 8 岁小学生用自然语言, 让 AI 教练「小启」诊断问题、应用方案、顺便学一门 AI 算法。这就是 LV.2 智控班的真实课堂。</text>
+      </view>
+
+      <view class="cli-window">
+        <view class="cli-chrome">
+          <view class="cli-dot r"></view>
+          <view class="cli-dot y"></view>
+          <view class="cli-dot g"></view>
+          <view class="cli-title">
+            <view class="cli-title-dot"></view>
+            <text>crayxus-cli · 小启实时陪练</text>
+          </view>
+        </view>
+        <scroll-view class="cli-body" scroll-y="true" scroll-into-view="cliEnd-{{cliLines.length}}" scroll-with-animation="true">
+          <view wx:for="{{cliLines}}" wx:key="i" class="cli-line cli-{{item.type}}">{{item.text}}</view>
+          <view id="cliEnd-{{cliLines.length}}" class="cli-anchor"></view>
+        </scroll-view>
+      </view>
+
+      <text class="cli-foot">✦ 这就是 LV.2 智控班课堂示意 · 报名后立刻在你家小车上玩起来</text>
+    </view>
   </view>
 
   <!-- ============================================ -->

@@ -345,6 +345,8 @@ Page({
     courseTiers: COURSE_TIERS,
     tournaments: TOURNAMENTS,
     labFeatures: LAB_FEATURES,
+    // === Vibe Coding CLI Demo ===
+    cliLines: [],
     currentRank: { lv: 'LV.1', name: '启航班', progress: 32, totalLessons: 8, doneLessons: 2, racePoints: 320 },
     // === 电机微调 (-50 ~ +50, 保留但 UI 不显示) ===
     trimUL: 0, trimUR: 0, trimLL: 0, trimLR: 0,
@@ -599,6 +601,12 @@ Page({
     if (id === this.data.activeModule) return
     wx.vibrateShort && wx.vibrateShort({ type: 'light' })
     this.setData({ activeModule: id })
+    // CLI demo 仅在 training 板块运行
+    if (id === 'training') {
+      this.startCliDemo()
+    } else {
+      this.stopCliDemo()
+    }
   },
 
   // ============ 课程报名 ============
@@ -665,6 +673,81 @@ Page({
     this._refreshSelected()
   },
 
+  // ========================================
+  // Vibe Coding CLI Demo (训练板块底部)
+  // 模拟"小明 vs AI 教练小启"的对话, typewriter 效果, 循环播放
+  // ========================================
+  _CLI_SCRIPT: [
+    { type: 'system',  text: '✦ crayxus-cli v2.6 · 神驾大脑已就位',                       d: 28, p: 350 },
+    { type: 'system',  text: '✦ 你好小明! AI 教练「小启」准备好啦, 有什么想问我的?',  d: 28, p: 800 },
+    { type: 'kid',     text: '› kid$ 我的赛车每次过 T1 弯都打滑, 帮我想办法',           d: 60, p: 600 },
+    { type: 'system',  text: '✦ 让我看看你最近 10 圈的 T1 数据...',                      d: 28, p: 200 },
+    { type: 'meta',    text: '▸ [ANALYZING] ▰▰▰▰▰▰▰▰▰▰ 100%',                       d: 32, p: 400 },
+    { type: 'coach',   text: '✦ 找到问题了:',                                              d: 28, p: 100 },
+    { type: 'coach',   text: '  · 进弯前速度: 1.8 m/s (超出建议 30%)',                  d: 26, p: 100 },
+    { type: 'coach',   text: '  · 转向变化: >45°/次 (过陡)',                            d: 26, p: 300 },
+    { type: 'coach',   text: '✦ 推荐方案:',                                                d: 28, p: 100 },
+    { type: 'coach',   text: '  1. 进弯减速 -25%',                                          d: 26, p: 80  },
+    { type: 'coach',   text: '  2. 转向曲线平滑化',                                        d: 26, p: 80  },
+    { type: 'coach',   text: '  3. 启用 ABS 防抱死',                                       d: 26, p: 300 },
+    { type: 'coach',   text: '› 是否应用方案? [y/n]',                                      d: 28, p: 600 },
+    { type: 'kid',     text: '› kid$ y',                                                    d: 80, p: 300 },
+    { type: 'meta',    text: '▸ [APPLYING] ▰▰▰▰▰▰▰▰▰▰ 100%',                          d: 32, p: 200 },
+    { type: 'success', text: '✓ 已写入 configs/turn_t1.yaml',                              d: 26, p: 60  },
+    { type: 'success', text: '✓ RL 策略网络重新编译完成',                                 d: 26, p: 60  },
+    { type: 'success', text: '✓ 你的 AI 车手已升级 🏎️',                                  d: 26, p: 1000 },
+    { type: 'kid',     text: '› kid$ 太牛了! 教我什么是 Q-learning 吗?',                d: 60, p: 600 },
+    { type: 'system',  text: '✦ Q-learning 就像让 AI 写一本「经验本」-',                d: 28, p: 100 },
+    { type: 'coach',   text: '  · 每个状态记录"做哪个动作最好"',                       d: 26, p: 80  },
+    { type: 'coach',   text: '  · 不断试错, 累计奖励',                                    d: 26, p: 80  },
+    { type: 'coach',   text: '  · 最后形成最优策略',                                       d: 26, p: 1000 },
+    { type: 'kid',     text: '› kid$ 好酷! 我也要训练我自己的 AI',                       d: 60, p: 0   }
+  ],
+
+  startCliDemo() {
+    if (this._cliRunning) return
+    this._cliRunning = true
+    this._cliRunOnce()
+  },
+
+  stopCliDemo() {
+    this._cliRunning = false
+    if (this._cliTimer) { clearTimeout(this._cliTimer); this._cliTimer = null }
+  },
+
+  _cliSleep(ms) {
+    return new Promise(resolve => {
+      this._cliTimer = setTimeout(resolve, ms)
+    })
+  },
+
+  async _cliRunOnce() {
+    while (this._cliRunning) {
+      this.setData({ cliLines: [] })
+      const script = this._CLI_SCRIPT
+      for (let i = 0; i < script.length; i++) {
+        if (!this._cliRunning) return
+        const step = script[i]
+        // 添加空行
+        const lines = this.data.cliLines.slice()
+        lines.push({ type: step.type, text: '' })
+        this.setData({ cliLines: lines })
+        // 逐字符
+        const idx = lines.length - 1
+        let buf = ''
+        for (let c = 0; c < step.text.length; c++) {
+          if (!this._cliRunning) return
+          buf += step.text[c]
+          this.setData({ [`cliLines[${idx}].text`]: buf })
+          await this._cliSleep(step.d)
+        }
+        await this._cliSleep(step.p)
+      }
+      // 一轮完成, 停留几秒再重启
+      await this._cliSleep(4500)
+    }
+  },
+
   onLoad() {
     try {
       const sys = wx.getSystemInfoSync()
@@ -672,6 +755,8 @@ Page({
     } catch(e) {}
     this._refreshSelected()
     this._initVoice()
+    // 默认在 training 板块, 启动 CLI demo
+    this.startCliDemo()
   },
 
   onReady() {
@@ -1490,6 +1575,7 @@ Page({
     if (this._raceTimer) { clearInterval(this._raceTimer); this._raceTimer = null }
     if (this._bleActionTimer) { clearTimeout(this._bleActionTimer); this._bleActionTimer = null }
     this._stopManualHeartbeat()
+    this.stopCliDemo()
     this.setData({ lapRunning: false })
     if (this.data.bleConnected && this.data.bleDeviceId) {
       try { wx.closeBLEConnection({ deviceId: this.data.bleDeviceId }) } catch (e) {}
