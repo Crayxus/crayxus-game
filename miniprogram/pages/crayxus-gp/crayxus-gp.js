@@ -1230,7 +1230,7 @@ Page({
 
   // 把日志格式化成可发的纯文本
   _formatLapLog() {
-    const lines = ['# guandan-car lap log']
+    const lines = ['# crayxus-gp lap log']
     let segIdx = 0
     for (const e of this.data.lapLog) {
       segIdx++

@@ -343,10 +343,11 @@
     <!-- AI·GP 理念 -->
     <view class="manifesto">
       <text class="mf-tag">CRAYXUS AI·GP 理念</text>
-      <text class="mf-title">从 V8 掼蛋 AI 到 AI 神经驾驶</text>
+      <text class="mf-title">从浙大实验室 · 到孩子的跑道</text>
       <text class="mf-text">
-        我们用掼蛋训练 AI 的方法论 (716 维状态编码 · Target Network · Dense Rewards),
-        把同样的训练流程下沉到实体赛车——同一个 AI 大脑, 既能打牌, 也能开车。
+        Crayxus V8 强化学习引擎 (716 维状态编码 · Target Network · Dense Rewards),
+        把世界级 AI 训练方法论下沉到每一辆实体赛车——
+        论文级的算法, 跑在你眼前的跑道上。
         你训练的不是一台车, 是一位 AI 车手。
       </text>
     </view>
