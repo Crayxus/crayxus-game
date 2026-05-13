@@ -46,48 +46,128 @@
   .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(212,175,55,0.3); }
   @media (max-width: 768px) { .nav-links { display: none; } }
 
-  /* ============ Hero ============ */
-  .hero { min-height: 100vh; padding: 130px 32px 80px;
-    display: flex; align-items: center; justify-content: center;
-    background:
-      radial-gradient(ellipse at 20% 30%, rgba(196,30,58,0.22) 0%, transparent 55%),
-      radial-gradient(ellipse at 80% 70%, rgba(212,175,55,0.16) 0%, transparent 55%),
-      linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
-    position: relative; overflow: hidden; }
-  .hero::before {
-    content: "♠♥♦♣"; position: absolute;
-    top: 10%; right: -3%; font-size: 240px; color: rgba(212,175,55,0.04);
-    letter-spacing: 12px; line-height: 1; transform: rotate(-15deg);
+  /* ============ Hero (俱乐部全屏背景版) ============ */
+  .hero { position: relative; min-height: 100vh;
+    display: flex; align-items: center;
+    background: var(--dark); overflow: hidden; }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background-image: url('images/club-interior.png');
+    background-size: cover;
+    background-position: center right;
   }
-  .hero-inner { max-width: 1100px; text-align: center; position: relative; z-index: 1; }
-  .hero-badge { display: inline-block; padding: 6px 18px; background: rgba(212,175,55,0.1);
-    border: 1px solid rgba(212,175,55,0.4); color: var(--gold);
-    font-size: 12px; font-weight: 700; letter-spacing: 4px; border-radius: 2px; margin-bottom: 32px; }
-  .hero h1 { font-size: clamp(48px, 9vw, 108px); font-weight: 900; letter-spacing: -3px; line-height: 0.95; color: #fff; margin-bottom: 24px; }
+  .hero-bg::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(10,10,10,0.96) 0%, rgba(10,10,10,0.7) 35%, rgba(10,10,10,0.2) 60%, transparent 100%),
+      linear-gradient(180deg, rgba(10,10,10,0.5) 0%, transparent 25%, transparent 70%, rgba(10,10,10,0.75) 100%),
+      radial-gradient(ellipse at 25% 35%, rgba(196,30,58,0.18) 0%, transparent 55%);
+  }
+  .hero-inner {
+    position: relative; z-index: 2;
+    max-width: 1280px; margin: 0 auto;
+    padding: 130px 32px 80px;
+    width: 100%;
+  }
+  .hero-text { max-width: 660px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 16px;
+    background: rgba(212,175,55,0.12);
+    border: 1px solid rgba(212,175,55,0.45);
+    color: var(--gold-light);
+    font-size: 12px; font-weight: 800; letter-spacing: 4px;
+    border-radius: 4px; margin-bottom: 28px;
+    backdrop-filter: blur(10px);
+  }
+  .hero-badge::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red); box-shadow: 0 0 12px var(--red);
+    animation: hero-pulse-dot 1.8s ease-in-out infinite;
+  }
+  @keyframes hero-pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.6); }
+  }
+  .hero h1 {
+    font-size: clamp(56px, 10vw, 132px); font-weight: 900;
+    letter-spacing: -4px; line-height: 0.92;
+    color: #fff; margin-bottom: 24px;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
   .hero h1 .ai { background: linear-gradient(135deg, var(--gold), var(--gold-light));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .hero h1 .danba { color: #fff; }
-  .hero h1 .dot { color: var(--red); margin: 0 0.05em; }
-  .hero-sub { font-size: clamp(18px, 2.5vw, 24px); color: rgba(255,255,255,0.85); margin-bottom: 14px; letter-spacing: 1.5px; font-weight: 500; }
-  .hero-tagline { font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: 2.5px; margin-bottom: 22px; }
-  .hero-pillars { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 22px 0 40px; }
-  .hero-pillar { background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.3); color: var(--gold);
-    padding: 10px 20px; border-radius: 4px; font-size: 14px; font-weight: 800; letter-spacing: 1.5px; }
-  .hero-cta-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-  .btn { padding: 16px 36px; border-radius: 4px; font-weight: 800; font-size: 15px; letter-spacing: 1px;
-    cursor: pointer; border: none; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
-  .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #000; }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,175,55,0.3); }
-  .btn-outline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+  .hero h1 .dot { color: var(--red); margin: 0 0.04em; }
+  .hero-sub {
+    font-size: clamp(20px, 2.6vw, 28px);
+    color: #fff; margin-bottom: 14px;
+    letter-spacing: 1px; font-weight: 700;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  }
+  .hero-tagline {
+    font-size: 14px; color: rgba(255,255,255,0.7);
+    letter-spacing: 3px; margin-bottom: 32px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .hero-pillars {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px;
+  }
+  .hero-pillar {
+    background: rgba(212,175,55,0.08);
+    border: 1px solid rgba(212,175,55,0.4);
+    color: var(--gold);
+    padding: 9px 18px; border-radius: 4px;
+    font-size: 13px; font-weight: 800; letter-spacing: 1.5px;
+    backdrop-filter: blur(8px);
+  }
+  .hero-cta-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    padding: 16px 34px; border-radius: 6px;
+    font-weight: 800; font-size: 15px; letter-spacing: 1px;
+    cursor: pointer; border: none; transition: all .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: #000;
+    box-shadow: 0 8px 28px rgba(212,175,55,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(212,175,55,0.6); }
+  .btn-outline {
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(8px);
+  }
   .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-  .hero-stats { margin-top: 60px; display: grid; grid-template-columns: repeat(4,1fr); gap: 32px;
-    max-width: 800px; margin-left: auto; margin-right: auto; }
-  .hero-stat { text-align: center; padding: 16px 8px; border-right: 1px solid rgba(255,255,255,0.08); }
-  .hero-stat:last-child { border-right: none; }
-  .hero-stat-num { font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Courier New', monospace; font-size: 38px; font-weight: 900; color: var(--gold); line-height: 1; }
-  .hero-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
-  @media (max-width: 640px) { .hero-stats { grid-template-columns: repeat(2,1fr); } .hero-stat:nth-child(2){border-right:none;} }
+  .hero-stats {
+    margin-top: 56px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+    max-width: 720px;
+  }
+  .hero-stat {
+    padding: 14px 0;
+    border-left: 2px solid rgba(212,175,55,0.4);
+    padding-left: 16px;
+  }
+  .hero-stat:first-child { border-left-color: var(--red); }
+  .hero-stat-num {
+    font-family: 'SF Pro Display', 'Inter', sans-serif;
+    font-size: 34px; font-weight: 900;
+    color: var(--gold); line-height: 1;
+    letter-spacing: -1px; font-variant-numeric: tabular-nums;
+  }
+  .hero-stat-lbl {
+    font-size: 11px; color: rgba(255,255,255,0.6);
+    letter-spacing: 2px; margin-top: 8px;
+    text-transform: uppercase; font-weight: 600;
+  }
+  @media (max-width: 720px) {
+    .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  }
 
   /* ============ Common ============ */
   .section { padding: 120px 32px; max-width: 1200px; margin: 0 auto; }
@@ -965,26 +1045,29 @@
 
 <!-- HERO -->
 <section id="hero" class="hero">
+  <div class="hero-bg"></div>
   <div class="hero-inner">
-    <div class="hero-badge">★ AI-POWERED · 用 AI 重新定义掼蛋 ★</div>
-    <h1><span class="ai">AI</span><span class="dot">·</span><span class="danba">蛋吧</span></h1>
-    <div class="hero-sub">打牌, 也可以更聪明</div>
-    <div class="hero-tagline">CRAYXUS AI · 浙江大学 · 张旭光教授课题组</div>
-    <div class="hero-pillars">
-      <div class="hero-pillar">🎮 休闲</div>
-      <div class="hero-pillar">⚔️ 挑战</div>
-      <div class="hero-pillar">🎓 教培</div>
-      <div class="hero-pillar">🏆 赛事</div>
-    </div>
-    <div class="hero-cta-row">
-      <a href="#products" class="btn btn-primary">探索智能硬件 →</a>
-      <a href="#modules" class="btn btn-outline">了解四大模块</a>
-    </div>
-    <div class="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-num">13</div><div class="hero-stat-lbl">级段位</div></div>
-      <div class="hero-stat"><div class="hero-stat-num">60</div><div class="hero-stat-lbl">节课程</div></div>
-      <div class="hero-stat"><div class="hero-stat-num">300</div><div class="hero-stat-lbl">题题库</div></div>
-      <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-lbl">大模块</div></div>
+    <div class="hero-text">
+      <div class="hero-badge">★ AI 软件 + 智能硬件 + 线下俱乐部</div>
+      <h1><span class="ai">AI</span><span class="dot">·</span><span class="danba">蛋吧</span></h1>
+      <div class="hero-sub">线上线下, 重新定义掼蛋</div>
+      <div class="hero-tagline">CRAYXUS AI · 浙江大学 · 张旭光教授课题组</div>
+      <div class="hero-pillars">
+        <div class="hero-pillar">🎮 App 陪练</div>
+        <div class="hero-pillar">🪑 智能桌</div>
+        <div class="hero-pillar">🏛️ 线下俱乐部</div>
+        <div class="hero-pillar">🏆 全国联赛</div>
+      </div>
+      <div class="hero-cta-row">
+        <a href="#club" class="btn btn-primary">探索 AI·俱乐部 →</a>
+        <a href="#products" class="btn btn-outline">查看智能硬件</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-num">100</div><div class="hero-stat-lbl">城规划俱乐部</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">13</div><div class="hero-stat-lbl">级段位认证</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">60</div><div class="hero-stat-lbl">节核心课程</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">98%</div><div class="hero-stat-lbl">vs Rule 胜率</div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -1437,20 +1520,20 @@
   <div class="roadmap-inner">
 
     <div class="roadmap-head">
-      <div class="break-badge">EVENT · 重大计划即将启动</div>
-      <h2 class="roadmap-title">抖音 24 小时人机大战<br><span class="accent">冲击吉尼斯世界纪录</span></h2>
-      <p class="roadmap-sub">真人掼蛋名将 vs Crayxus V8 AI · 全程不间断直播 24 小时 · 抖音小黄车实时上架全系硬件 + 课程包 · 一场直播看完, 一个小黄车买齐</p>
+      <div class="break-badge">EVENT · 单挑模式 · 重大计划即将启动</div>
+      <h2 class="roadmap-title">蛋王 vs AI · 24 小时单挑<br><span class="accent">冲击吉尼斯世界纪录</span></h2>
+      <p class="roadmap-sub">从全国海选 1 位"民间蛋王" · 单挑 Crayxus V8 AI 整整 24 小时 · 不轮班 · 不退场 · 抖音全程直播 · 小黄车实时上架全系硬件 + 课程包 — 史上最戏剧的 AI 极限挑战</p>
     </div>
 
     <!-- 数据 strip -->
     <div class="event-stats">
       <div class="es-item">
         <div class="es-num">24h</div>
-        <div class="es-lbl">不间断直播</div>
+        <div class="es-lbl">不间断单挑</div>
       </div>
       <div class="es-item">
-        <div class="es-num">6 位</div>
-        <div class="es-lbl">真人高手轮战</div>
+        <div class="es-num">1 vs 1</div>
+        <div class="es-lbl">蛋王 vs AI</div>
       </div>
       <div class="es-item">
         <div class="es-num">1000万+</div>
@@ -1469,12 +1552,12 @@
         <div class="tl-stage">STAGE 01</div>
         <div class="tl-card">
           <div class="tl-when">Q3 · 2026</div>
-          <div class="tl-name">筹备 · 立项与认证申请</div>
+          <div class="tl-name">蛋王海选 · 立项与认证申请</div>
           <ul class="tl-list">
-            <li>正式申请吉尼斯世界纪录官方认证 (最长直播 AI 对战 / 最大规模人机赛)</li>
+            <li>正式申请吉尼斯世界纪录认证: "个人最长连续单挑 AI 牌类游戏"</li>
+            <li>全国"民间蛋王"线上海选: 12-13 段大师胜率排位赛, 仅 1 位入选</li>
             <li>抖音官方蓝 V 账号矩阵搭建 · 申请头部活动扶持</li>
-            <li>全国掼蛋名将招募 · 4-6 位轮班挑战 V8</li>
-            <li>直播间硬件搭建 · 多机位 + 央视级转播团队</li>
+            <li>直播间硬件搭建 · 多机位 + 央视级转播团队 + 医疗保障组</li>
           </ul>
         </div>
       </div>
@@ -1483,12 +1566,12 @@
         <div class="tl-stage">STAGE 02</div>
         <div class="tl-card">
           <div class="tl-when">Q4 · 2026 · 前 4 周</div>
-          <div class="tl-name">预热 · 全网话题引爆</div>
+          <div class="tl-name">预热 · "蛋王" 人物悬念引爆</div>
           <ul class="tl-list">
-            <li>抖音矩阵号每日发布 V8 AI 高光 / 神局复盘短视频</li>
-            <li>真人挑战者人物纪录片 · "他们要挑战 AI" 悬念营销</li>
-            <li>蛋吧小程序开放预约 + 小黄车产品蓄水</li>
-            <li>媒体传播: 36氪 / 虎嗅 / 央视科技频道预告</li>
+            <li>抖音矩阵号每日发布: 蛋王训练日记 + V8 AI 高光集锦</li>
+            <li>蛋王人物纪录片: 从全国海选到极限训练的 30 天独家跟拍</li>
+            <li>赛前体能 + 心理评估 · 营养师 + 教练组 + 队医同步公开</li>
+            <li>媒体传播: 36氪 / 虎嗅 / 央视科技频道 + 体育频道双重预告</li>
           </ul>
         </div>
       </div>
@@ -1496,14 +1579,15 @@
       <div class="tl-row" style="--c:#fe2c55">
         <div class="tl-stage">STAGE 03</div>
         <div class="tl-card">
-          <div class="tl-when">D-DAY · 24 小时</div>
-          <div class="tl-name">🔴 直播开战 · 历史时刻</div>
+          <div class="tl-when">D-DAY · 24 小时不退场</div>
+          <div class="tl-name">🔴 蛋王 vs AI · 极限单挑</div>
           <ul class="tl-list">
-            <li>6 位真人高手轮班 · 24 小时不间断对决 V8 AI</li>
+            <li>1 位蛋王真人 · 单挑 V8 AI 整整 24 小时, 不轮班、不下桌</li>
+            <li>每 2 小时强制 5 分钟休整 (吉尼斯规则) · 全程心率 / 注意力 实时显示</li>
             <li>多机位 + AI 实时解说 + 牌桌 360° 全息复盘</li>
             <li>抖音小黄车实时上架: Crayxus Lite ¥8,888 / Genesis ¥88,888 / 课程包 ¥888</li>
-            <li>每整点上架"直播专享秒杀" · 限量 99 / 9 / 无限</li>
-            <li>全程吉尼斯认证官现场公证 · 同步全平台多机位直播</li>
+            <li>每整点上架"蛋王同款"秒杀 · 限量 99 / 9 / 无限</li>
+            <li>全程吉尼斯认证官现场公证 · 多平台同步直播</li>
           </ul>
         </div>
       </div>
@@ -1512,12 +1596,12 @@
         <div class="tl-stage">STAGE 04</div>
         <div class="tl-card">
           <div class="tl-when">D+1 起 · 30 天</div>
-          <div class="tl-name">认证 · 二次裂变传播</div>
+          <div class="tl-name">认证 · "蛋王传奇" 裂变传播</div>
           <ul class="tl-list">
-            <li>吉尼斯世界纪录证书颁发 · 央视 / 新华社二次报道</li>
-            <li>24 小时直播切片 · 30 天每日发布精彩瞬间</li>
-            <li>小黄车持续挂载 · 用户 UGC 反响视频引流</li>
-            <li>第二波直播预告 (城市快闪 / 真人 PK 真人冠军赛)</li>
+            <li>蛋王 + 吉尼斯证书 + Crayxus 终身代言三重颁发 · 央视 / 新华社报道</li>
+            <li>24 小时直播切片 · 30 天每日发布"蛋王神局"精彩瞬间</li>
+            <li>蛋王体能数据 / 决策曲线开源 · 学术圈二次背书</li>
+            <li>小黄车持续挂载"蛋王同款" · UGC 翻拍挑战二次引流</li>
           </ul>
         </div>
       </div>
@@ -1526,12 +1610,12 @@
         <div class="tl-stage">STAGE 05</div>
         <div class="tl-card">
           <div class="tl-when">D+90 起 · 长期</div>
-          <div class="tl-name">规模化 · 直播带货常态化</div>
+          <div class="tl-name">规模化 · 全国"蛋王挑战赛"常态化</div>
           <ul class="tl-list">
-            <li>每周固定直播日 · "AI 教练 vs 全民挑战" 互动赛</li>
-            <li>城市线下快闪 · 高端会所 Genesis 试用 + 直播</li>
+            <li>每月一位"城市蛋王"出炉, 抖音直播挑战 V8, 时长 6/12/24 小时三档</li>
+            <li>线下俱乐部: 蛋王挑战包间 · 任何会员可申请挑战 · 现场出证</li>
             <li>头部主播签约合作 · 教培课程包成为爆款 SKU</li>
-            <li>出海首站: TikTok 海外 24h 大战 · 全球同步认证</li>
+            <li>出海首站: TikTok 海外蛋王赛 · 国际段位认证 · 全球同步</li>
           </ul>
         </div>
       </div>
@@ -1587,8 +1671,8 @@
     </div>
 
     <div class="roadmap-cta">
-      <a href="#cta" class="btn">🔴 预约直播提醒, 抢首发福利 →</a>
-      <div class="roadmap-cta-note">关注抖音号 @AI蛋吧官方 · 开播第一时间通知 · 小黄车福利不限量</div>
+      <a href="#cta" class="btn">🔴 预约直播 · 见证"蛋王"诞生 →</a>
+      <div class="roadmap-cta-note">关注抖音号 @AI蛋吧官方 · 开播第一时间通知 · 我也想做蛋王? 报名海选戳这里</div>
     </div>
 
   </div>
@@ -1602,13 +1686,13 @@
     <div class="section-head">
       <div class="section-eyebrow">OFFLINE CLUB · 线下 AI·俱乐部网络</div>
       <h2 class="section-title">线下也要有 <span style="background: linear-gradient(135deg, #00eaff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">未来感的"蛋吧"</span></h2>
-      <p class="section-sub">把 Crayxus Lite + Genesis 装进真实的会所空间, 配套 AI 教练 / 段位认证 / 直播赛事 / 社交餐酒——上海首店打样, 全国 100 城招募合伙人, 重新定义中国线下牌类社交。</p>
+      <p class="section-sub">把 Crayxus Lite + Genesis 装进真实的会所空间, 配套 AI 教练 / 段位认证 / 直播赛事 / 社交餐酒——杭州首店打样, 全国 100 城招募合伙人, 重新定义中国线下牌类社交。</p>
     </div>
 
     <!-- Hero 实景图 -->
     <div class="club-hero-img">
       <div class="club-hero-tag">
-        <div class="club-hero-tag-text">上海陆家嘴首店 · <b>Q4 2026 开业</b></div>
+        <div class="club-hero-tag-text">杭州钱江新城首店 · <b>Q4 2026 开业</b></div>
       </div>
     </div>
 
@@ -1679,9 +1763,9 @@
     <!-- 首店开业倒计时 -->
     <div class="club-launch">
       <div>
-        <div class="cl-tag">★ 上海首店即将开业</div>
-        <div class="cl-title">陆家嘴 · <span class="accent">AI·蛋吧 旗舰店</span></div>
-        <div class="cl-sub">浦东陆家嘴金融区核心位置 · 落地窗外即东方明珠 + 上海中心夜景 · 300㎡ 全亚克力工业风装修</div>
+        <div class="cl-tag">★ 杭州首店即将开业</div>
+        <div class="cl-title">钱江新城 · <span class="accent">AI·蛋吧 旗舰店</span></div>
+        <div class="cl-sub">钱江新城 CBD 核心位置 · 落地窗外即钱塘江畔璀璨夜景 · 紧邻浙江大学张旭光教授课题组 · 300㎡ 全亚克力工业风装修</div>
       </div>
       <div class="cl-when">
         <div class="cl-when-q">Q4 · 2026</div>
@@ -1726,7 +1810,7 @@
 
     <div class="club-cta">
       <div class="club-cta-row">
-        <a href="mailto:general@crayxus.com.au?subject=申请上海首店内测体验" class="btn btn-primary">★ 申请首店内测体验 →</a>
+        <a href="mailto:general@crayxus.com.au?subject=申请杭州首店内测体验" class="btn btn-primary">★ 申请首店内测体验 →</a>
         <a href="mailto:general@crayxus.com.au?subject=申请城市合伙人" class="btn btn-outline">申请成为城市合伙人</a>
       </div>
       <div class="club-cta-note">首店 100 名内测会员 · 终身 5 折 + 段位认证免单 · 邮箱预约</div>
