@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陆园 LUYUAN · 嘉兴湘家荡 150 亩水岸庄园</title>
+<meta name="description" content="嘉兴七星镇湘家荡 150 亩水岸庄园，三面环河，已规划水岸办公大楼。">
+
+<!-- Favicons (修复微信/浏览器右下角白图) -->
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon.png">
+<link rel="shortcut icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+
+<!-- Open Graph (微信/朋友圈分享卡片读取的就是这组标签) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="陆园 LUYUAN">
+<meta property="og:title" content="陆园 LUYUAN · 嘉兴湘家荡 150 亩水岸庄园">
+<meta property="og:description" content="嘉兴七星镇湘家荡 150 亩水岸庄园，三面环河，已规划水岸办公大楼。">
+<meta property="og:image" content="https://crayxus-luyuan.onrender.com/images/share-card.jpg">
+<meta property="og:image:width" content="500">
+<meta property="og:image:height" content="400">
+<meta property="og:url" content="https://crayxus-luyuan.onrender.com/">
+
+<!-- 微信小程序 webview 分享专用 (部分版本读这个) -->
+<meta itemprop="image" content="https://crayxus-luyuan.onrender.com/images/share-card.jpg">
+<meta name="image" content="https://crayxus-luyuan.onrender.com/images/share-card.jpg">
+
+<!-- Twitter card (兼容其他平台) -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="陆园 LUYUAN · 嘉兴湘家荡 150 亩水岸庄园">
+<meta name="twitter:description" content="嘉兴七星镇湘家荡 150 亩水岸庄园，三面环河，已规划水岸办公大楼。">
+<meta name="twitter:image" content="https://crayxus-luyuan.onrender.com/images/share-card.jpg">
+<style>
+  :root {
+    --bg: #fafaf8;
+    --ink: #111;
+    --muted: #6a6a66;
+    --line: #d8d6d0;
+    --accent: #5d6b4a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { display: block; width: 100%; height: auto; }
+
+  /* Top bar */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px 48px;
+    z-index: 100;
+    mix-blend-mode: difference;
+    color: #fff;
+    font-size: 13px; letter-spacing: 0.12em;
+    pointer-events: none;
+  }
+  .topbar .brand { font-weight: 500; }
+  .topbar nav { display: flex; gap: 32px; pointer-events: auto; }
+  .topbar nav a { color: inherit; text-decoration: none; opacity: 0.85; transition: opacity .2s; }
+  .topbar nav a:hover { opacity: 1; }
+
+  /* Hero */
+  .hero {
+    position: relative; height: 100vh; min-height: 640px;
+    overflow: hidden;
+  }
+  .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 55%, rgba(0,0,0,.65) 100%);
+  }
+  .hero-text {
+    position: absolute; left: 48px; right: 48px; bottom: 56px;
+    color: #fff; z-index: 2;
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 48px;
+  }
+  .hero-text h1 {
+    font-size: clamp(36px, 5.4vw, 84px);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .hero-text h1 small {
+    display: block;
+    font-size: clamp(12px, 1vw, 14px);
+    letter-spacing: 0.32em;
+    opacity: 0.7;
+    margin-bottom: 18px;
+    font-weight: 400;
+  }
+  .hero-meta {
+    text-align: right;
+    font-size: 13px; letter-spacing: 0.08em;
+    opacity: 0.88;
+    line-height: 1.9;
+    min-width: 240px;
+  }
+
+  /* Sections */
+  section { padding: 120px 48px; }
+  .container { max-width: 1280px; margin: 0 auto; }
+
+  .section-head {
+    display: flex; align-items: baseline; gap: 24px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+    margin-bottom: 64px;
+  }
+  .section-head .num {
+    font-size: 13px; letter-spacing: 0.2em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .section-head h2 {
+    font-size: clamp(26px, 3vw, 40px);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+  .section-head .en {
+    margin-left: auto;
+    font-size: 12px; letter-spacing: 0.24em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Metrics stripe */
+  .metrics {
+    background: #111; color: #fff;
+    padding: 84px 48px;
+  }
+  .metrics-grid {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .metric {
+    padding: 12px 24px;
+    border-left: 1px solid #2a2a2a;
+  }
+  .metric:first-child { border-left: 0; padding-left: 0; }
+  .metric .val {
+    font-size: clamp(34px, 4.2vw, 64px);
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+  .metric .val sup {
+    font-size: 0.36em; vertical-align: super;
+    font-weight: 300;
+    opacity: 0.7;
+    margin-left: 4px;
+  }
+  .metric .label {
+    font-size: 12px; letter-spacing: 0.16em;
+    color: #888; text-transform: uppercase;
+  }
+  .metric .desc {
+    font-size: 13px; color: #c8c8c8;
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Intro grid */
+  .intro {
+    display: grid; grid-template-columns: 1fr 1.4fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .intro .lead {
+    font-size: clamp(18px, 1.6vw, 22px);
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+  }
+  .intro .body {
+    font-size: 15px; color: var(--muted);
+    line-height: 1.95;
+  }
+  .intro .body p + p { margin-top: 16px; }
+
+  /* Estate / aerial section */
+  .estate {
+    display: grid; grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  .estate .figure-wrap {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 28px;
+  }
+  .estate img {
+    width: 100%; height: auto;
+    max-height: 720px; object-fit: contain;
+  }
+  .estate-caption {
+    margin-top: 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; letter-spacing: 0.14em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .legend {
+    display: flex; gap: 24px;
+    font-size: 12px; letter-spacing: 0.06em;
+    color: var(--ink);
+    text-transform: none;
+  }
+  .legend span {
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .legend i {
+    display: inline-block; width: 14px; height: 14px;
+    border: 1px solid rgba(0,0,0,.3);
+  }
+
+  /* Location split */
+  .location-split {
+    display: grid; grid-template-columns: 1.1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .location-split .text { padding: 0 16px; }
+  .location-split h3 {
+    font-size: 22px; font-weight: 400;
+    margin-bottom: 20px;
+    letter-spacing: 0.04em;
+  }
+  .location-split p {
+    font-size: 15px; color: var(--muted);
+    line-height: 1.95;
+  }
+  .location-split p + p { margin-top: 14px; }
+  .figure {
+    background: #fff;
+    border: 1px solid var(--line);
+  }
+  .figure img { display: block; }
+  .figure figcaption {
+    font-size: 12px; letter-spacing: 0.14em;
+    color: var(--muted);
+    padding: 12px 18px;
+    border-top: 1px solid var(--line);
+    text-transform: uppercase;
+  }
+  .distances {
+    margin-top: 28px; padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .distances .item .city {
+    font-size: 11px; letter-spacing: 0.2em;
+    color: var(--muted); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .distances .item .time {
+    font-size: 20px; color: var(--ink);
+    font-weight: 300;
+  }
+
+  /* Gallery */
+  .gallery {
+    display: grid; grid-template-columns: 1fr; gap: 24px;
+  }
+  .gallery .big { position: relative; }
+  .gallery .row2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  .gallery .caption {
+    position: absolute;
+    left: 24px; bottom: 20px;
+    color: #fff;
+    font-size: 13px; letter-spacing: 0.16em;
+    text-shadow: 0 1px 6px rgba(0,0,0,.45);
+    background: rgba(0,0,0,.32);
+    padding: 8px 14px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Design / spec table */
+  .design {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .spec-table { width: 100%; border-collapse: collapse; }
+  .spec-table tr { border-bottom: 1px solid var(--line); }
+  .spec-table th, .spec-table td {
+    text-align: left; padding: 16px 0;
+    font-size: 15px; font-weight: 400;
+  }
+  .spec-table th {
+    color: var(--muted);
+    width: 38%;
+    letter-spacing: 0.04em;
+  }
+  .spec-table td {
+    color: var(--ink);
+    font-feature-settings: "tnum";
+  }
+
+  /* Possibilities cards */
+  .possibilities {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 8px;
+  }
+  .card {
+    padding: 36px 32px;
+    background: #fff;
+    border: 1px solid var(--line);
+    transition: background .25s ease;
+  }
+  .card:hover { background: #f3f1ec; }
+  .card .num {
+    font-size: 12px; letter-spacing: 0.24em;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .card h3 {
+    font-size: 22px; font-weight: 400;
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+  .card p {
+    font-size: 14px; color: var(--muted);
+    line-height: 1.85;
+  }
+
+  /* Footer */
+  footer {
+    background: #111; color: #c8c8c8;
+    padding: 64px 48px 40px;
+    font-size: 13px;
+  }
+  footer .container {
+    display: grid; grid-template-columns: 2fr 1fr 1fr;
+    gap: 60px;
+  }
+  footer h4 {
+    color: #fff; font-size: 13px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  footer p { line-height: 1.9; color: #9c9c9c; }
+  footer .credit {
+    max-width: 1280px; margin: 48px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid #2a2a2a;
+    display: flex; justify-content: space-between;
+    color: #6c6c6c; font-size: 12px; letter-spacing: 0.1em;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .topbar { padding: 18px 24px; }
+    .topbar nav { display: none; }
+    section { padding: 80px 24px; }
+    .metrics { padding: 56px 24px; }
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 32px 8px; }
+    .metric { border-left: 0; padding: 0; }
+    .intro, .location-split, .design { grid-template-columns: 1fr; gap: 40px; }
+    .gallery .row2 { grid-template-columns: 1fr; }
+    .possibilities { grid-template-columns: 1fr; gap: 16px; }
+    .hero-text { left: 24px; right: 24px; bottom: 40px; flex-direction: column; align-items: flex-start; }
+    .hero-meta { text-align: left; }
+    .distances { grid-template-columns: 1fr 1fr; }
+    footer { padding: 48px 24px 32px; }
+    footer .container { grid-template-columns: 1fr; gap: 32px; }
+    footer .credit { flex-direction: column; gap: 12px; padding: 0 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">陆 园 · LUYUAN</div>
+  <nav>
+    <a href="#estate">园区</a>
+    <a href="#location">区位</a>
+    <a href="#vision">规划</a>
+    <a href="#possibilities">构想</a>
+    <a href="#contact">联系</a>
+  </nav>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <img src="images/aerial.jpg" alt="陆园水岸庄园鸟瞰">
+  <div class="hero-text">
+    <div>
+      <h1><small>嘉兴 · 七星镇 · 湘家荡</small>一百五十亩<br>水岸之上的庄园</h1>
+    </div>
+    <div class="hero-meta">
+      整体用地 &nbsp;约 150 亩<br>
+      三面环河 &nbsp;一面临道<br>
+      已规划水岸办公大楼<br>
+      浙江中房建筑设计研究院
+    </div>
+  </div>
+</header>
+
+<!-- METRICS -->
+<div class="metrics">
+  <div class="metrics-grid">
+    <div class="metric">
+      <div class="val">150<sup>亩</sup></div>
+      <div class="label">Estate</div>
+      <div class="desc">完整独立庄园</div>
+    </div>
+    <div class="metric">
+      <div class="val">3<sup>面</sup></div>
+      <div class="label">Waterfront</div>
+      <div class="desc">河道环抱 · 临湘家荡</div>
+    </div>
+    <div class="metric">
+      <div class="val">10,618<sup>㎡</sup></div>
+      <div class="label">Office GFA</div>
+      <div class="desc">已规划办公大楼</div>
+    </div>
+    <div class="metric">
+      <div class="val">60<sup>min</sup></div>
+      <div class="label">To Shanghai</div>
+      <div class="desc">高速 · 高铁 1 小时</div>
+    </div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section id="intro">
+  <div class="container">
+    <div class="section-head">
+      <span class="num">01</span>
+      <h2>关于陆园</h2>
+      <span class="en">The Estate</span>
+    </div>
+    <div class="intro">
+      <div class="lead">
+        一块完整、临水、可独立规划的城市近郊庄园，<br>
+        坐落于嘉兴七星镇湘家荡度假区南缘。
+      </div>
+      <div class="body">
+        <p>地块整体约 150 亩，南北两侧为天然河道，西临南北向支河，东接 320 国道辅道，呈半岛状的完整形态。境内包含水塘、林地、农田与可建设用地，自然本底优良、肌理清晰。</p>
+        <p>距嘉兴市区核心约 8 公里，沪杭高速、沪昆高铁通达，1 小时直抵上海、35 分钟到杭州。湘家荡区域已形成度假、康养、文创、总部办公的成熟氛围。</p>
+        <p>园区内已完成办公大楼项目的初步设计（浙江中房建筑设计研究院，2023），10,618 ㎡，是整片庄园中第一个落位的建筑组团。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ESTATE / SATELLITE -->
+<section id="estate" style="background:#f3f1ec;">
+  <div class="container">
+    <div class="section-head">
+      <span class="num">02</span>
+      <h2>整体地块</h2>
+      <span class="en">Site Overview</span>
+    </div>
+    <div class="estate">
+      <div class="figure-wrap">
+        <img src="images/estate_satellite.jpg" alt="陆园地块卫星标识图">
+        <div class="estate-caption">
+          <span>SITE PLAN · SATELLITE</span>
+          <div class="legend">
+            <span><i style="background:#fff066;"></i>整体用地范围</span>
+            <span><i style="background:#7defe1;"></i>水塘 · 景观节点</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:48px; margin-top:8px;">
+        <div>
+          <div style="font-size:12px; letter-spacing:0.2em; color:var(--muted); text-transform:uppercase; margin-bottom:10px;">North</div>
+          <div style="font-size:15px; color:var(--ink); line-height:1.85;">湘家荡大道 · 城市主干路<br>临 320 国道辅道</div>
+        </div>
+        <div>
+          <div style="font-size:12px; letter-spacing:0.2em; color:var(--muted); text-transform:uppercase; margin-bottom:10px;">South / West</div>
+          <div style="font-size:15px; color:var(--ink); line-height:1.85;">天然河道环抱<br>对岸为生态林地与农田</div>
+        </div>
+        <div>
+          <div style="font-size:12px; letter-spacing:0.2em; color:var(--muted); text-transform:uppercase; margin-bottom:10px;">East</div>
+          <div style="font-size:15px; color:var(--ink); line-height:1.85;">支河及村落界面<br>步行 5 分钟达湘家荡</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<section id="location">
+  <div class="container">
+    <div class="section-head">
+      <span class="num">03</span>
+      <h2>区位</h2>
+      <span class="en">Location</span>
+    </div>
+    <div class="location-split">
+      <figure class="figure">
+        <img src="images/location.jpg" alt="嘉兴七星镇区位图">
+        <figcaption>嘉兴市区 — 七星镇 — 湘家荡区位</figcaption>
+      </figure>
+      <div class="text">
+        <h3>嘉兴七星 · 湘家荡度假区</h3>
+        <p>项目位于嘉兴七星镇东侧，湘家荡大道南侧。湘家荡是嘉兴市级生态度假区，以湖湾、湿地与林地资源著称，区内集聚度假酒店、康养社区与文旅项目。</p>
+        <p>地块紧邻城市主干路，与南湖区核心商务带快速通达；同时享有近郊的低密度环境与自然景观资源 —— 城市与田园的临界线。</p>
+        <div class="distances">
+          <div class="item"><div class="city">Shanghai</div><div class="time">60 min</div></div>
+          <div class="item"><div class="city">Hangzhou</div><div class="time">35 min</div></div>
+          <div class="item"><div class="city">嘉兴南站</div><div class="time">20 min</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISION / GALLERY -->
+<section id="vision" style="background:#f3f1ec;">
+  <div class="container">
+    <div class="section-head">
+      <span class="num">04</span>
+      <h2>水岸办公 · 已规划</h2>
+      <span class="en">Planned Architecture</span>
+    </div>
+    <div class="gallery">
+      <div class="big">
+        <img src="images/night.jpg" alt="南侧沿河透视 · 夜景">
+        <div class="caption">南侧沿河透视 · 夜</div>
+      </div>
+      <div class="row2">
+        <div class="big">
+          <img src="images/street.jpg" alt="北侧沿湘家荡大道透视">
+          <div class="caption">北侧街景 · 湘家荡大道</div>
+        </div>
+        <div class="big">
+          <img src="images/aerial.jpg" alt="东南侧鸟瞰">
+          <div class="caption">东南侧鸟瞰</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="max-width:760px; margin: 64px auto 0; text-align:center;">
+      <p style="font-size:15px; color:var(--muted); line-height:1.95;">
+        建筑组团 10,618 ㎡，沿河岸错落铺展，立面通透，屋顶设连续的园林平台与花境。建筑与水岸之间预留连续步道与公共活动空间。<br>
+        是整片庄园中第一处已完成方案的建筑落位。
+      </p>
+    </div>
+
+    <!-- Spec table -->
+    <div class="design" style="margin-top: 96px;">
+      <div>
+        <figure class="figure" style="background:#fff;">
+          <img src="images/site_plan.jpg" alt="办公组团总平面图">
+          <figcaption>办公组团 · 总平面</figcaption>
+        </figure>
+      </div>
+      <div>
+        <table class="spec-table">
+          <tr><th>所在地块</th><td>陆园西北角</td></tr>
+          <tr><th>用地面积</th><td>5,150 ㎡</td></tr>
+          <tr><th>总建筑面积</th><td>10,618.7 ㎡</td></tr>
+          <tr><th>地上 / 地下</th><td>8,228 ㎡ &nbsp;/&nbsp; 2,588 ㎡</td></tr>
+          <tr><th>建筑层数</th><td>地上 6 层 &nbsp;/&nbsp; 地下 1 层</td></tr>
+          <tr><th>建筑限高</th><td>23.8 m</td></tr>
+          <tr><th>容积率</th><td>1.60</td></tr>
+          <tr><th>绿地率</th><td>≥ 30%</td></tr>
+          <tr><th>结构形式</th><td>钢筋混凝土框架</td></tr>
+        </table>
+        <div style="margin-top:36px; padding-top:24px; border-top:1px solid var(--line);">
+          <div style="font-size:12px; letter-spacing:0.2em; color:var(--muted); text-transform:uppercase; margin-bottom:10px;">Designed by</div>
+          <div style="font-size:18px; color:var(--ink); font-weight:400; letter-spacing:0.04em;">浙江中房建筑设计研究院有限公司</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:6px;">初步设计 · 2023.04</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POSSIBILITIES -->
+<section id="possibilities">
+  <div class="container">
+    <div class="section-head">
+      <span class="num">05</span>
+      <h2>场景构想</h2>
+      <span class="en">Scenarios</span>
+    </div>
+    <p style="max-width:760px; font-size:16px; color:var(--muted); line-height:1.95; margin-bottom:56px;">
+      150 亩中，已规划建筑占地约 5,150 ㎡，余下水塘、林地与可建设用地保有完整的更新空间。整片庄园的肌理已经成形，能承载多种业态的落位与组合。
+    </p>
+    <div class="possibilities">
+      <div class="card">
+        <div class="num">01</div>
+        <h3>园林办公</h3>
+        <p>水岸总部、设计型办公、创意工作室，结合屋顶花园与步道系统，形成低密度园区。</p>
+      </div>
+      <div class="card">
+        <div class="num">02</div>
+        <h3>康养休闲</h3>
+        <p>临水度假、康养社区、精品酒店，依托湘家荡度假区的成熟客流与生态资源。</p>
+      </div>
+      <div class="card">
+        <div class="num">03</div>
+        <h3>文创田园</h3>
+        <p>艺术驻留、研学营地、田园生活体验，水塘与林地具备多功能场景的可塑性。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="container">
+    <div>
+      <h4>陆园</h4>
+      <p>嘉兴南湖陆园农业科技有限公司<br>
+         浙江省嘉兴市南湖区七星镇湘家荡大道南侧</p>
+    </div>
+    <div>
+      <h4>设计单位</h4>
+      <p>浙江中房建筑设计研究院<br>有限公司 · 2023</p>
+    </div>
+    <div>
+      <h4>洽谈</h4>
+      <p>联系电话 &nbsp; — — —<br>
+         邮箱 &nbsp; — — —</p>
+    </div>
+  </div>
+  <div class="credit">
+    <span>© 嘉兴南湖陆园农业科技有限公司</span>
+    <span>LUYUAN · NANHU · JIAXING</span>
+  </div>
+</footer>
+
+</body>
+</html>

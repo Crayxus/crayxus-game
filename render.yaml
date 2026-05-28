@@ -1,4 +1,4 @@
-# Render Blueprint - 一次部署 Crayxus 双品牌静态站
+# Render Blueprint - 一次部署 Crayxus 三品牌静态站
 # Dashboard → New + → Blueprint → 选 Crayxus/crayxus-game → Apply
 
 services:
@@ -18,6 +18,17 @@ services:
     runtime: static
     buildCommand: ""
     staticPublishPath: ./aigp-site
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+
+  - type: web
+    name: crayxus-luyuan
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: ./luyuan-site
     pullRequestPreviewsEnabled: false
     headers:
       - path: /*
