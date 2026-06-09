@@ -126,7 +126,7 @@
         <tr><td class="part">电调</td><td class="model">VESC 6(兼容版)</td><td class="use">闭环限速 + 里程计</td><td class="num">300</td><td class="num"><span class="chk v">⚠ 验正品</span></td></tr>
         <tr><td class="part">IMU</td><td class="model">BNO055</td><td class="use">姿态/航向</td><td class="num">140</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">动力电池×2 + 充电器</td><td class="model">3S LiPo + B6</td><td class="use">供电(双电池轮换)</td><td class="num">350</td><td class="num"><span class="chk ok">✓</span></td></tr>
-        <tr><td class="part">无线急停 / 接管</td><td class="model">工业无线急停按钮 + 软件看门狗</td><td class="use">一键安全停车(非遥控开车,失联自动刹停)</td><td class="num">300</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">急停 / 接管</td><td class="model">网页/PC 控制台 + 车端看门狗 + 物理总断电</td><td class="use">软件一键停/接管,全程无遥控器;失联自动刹停</td><td class="num">300</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">系统盘</td><td class="model">NVMe SSD 256G</td><td class="use">系统/数据集</td><td class="num">160</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">集成杂项</td><td class="model">降压供电/USB Hub/支架/散热/线材</td><td class="use">系统集成</td><td class="num">350</td><td class="num"><span class="chk ok">✓</span></td></tr>
       </tbody>
@@ -160,7 +160,7 @@
         <tr><td class="part">IMU</td><td class="model">ICM-42688-P / BMI088</td><td class="use">高频姿态(填补 RTK 间隙)</td><td class="num">80</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">电调</td><td class="model">Flipsky VESC</td><td class="use">FOC 闭环 + 里程计</td><td class="num">700</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">动力电池 + 主板供电</td><td class="model">2-3S LiPo + 独立稳压</td><td class="use">供电(主板独立电源防重启)</td><td class="num">500</td><td class="num"><span class="chk ok">✓</span></td></tr>
-        <tr><td class="part">安全系统</td><td class="model">无线急停按钮 + 看门狗 + 物理断电</td><td class="use">竞技三重安全(全自主,非遥控)</td><td class="num">300</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">安全系统</td><td class="model">网页/PC 急停 + 车端看门狗 + 物理总断电</td><td class="use">软件一键停,全自主无遥控器;失联自动刹停</td><td class="num">300</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">支架/线材/杂项</td><td class="model">3D 打印传感器塔架 + 防振 + 线材</td><td class="use">集成</td><td class="num">500</td><td class="num"><span class="chk ok">✓</span></td></tr>
       </tbody>
     </table>
@@ -272,6 +272,7 @@
       <li><b>1/10 目前无公开"战胜人类"记录</b>——我们是在做前沿,单圈可超、贴身缠斗 AI 仍弱(全尺寸 AI 都还在摔),对外别把多车对决说满。</li>
       <li><b>sim-to-real 残差补偿必做</b>(Swift 的关键步),否则仿真训的策略上真车会崩。</li>
       <li><b>固定赛道 + 室内控光</b>(Swift 失败模式就是光照变化)、室外防 GPS 多径。</li>
+      <li><b>全自主、零遥控器</b>:操控/急停走<b>网页/PC 控制台</b> + 车端看门狗失联自动刹停。但软件急停依赖网络,高速车<b>强烈建议保留一个独立物理总断电</b>作最后兜底(非遥控器,安全规范)。</li>
       <li><b>需现场核价</b>:OptiTrack 按 16×8 出正式报价;Jetson/VESC/Orbbec/UM982 国内到手价。</li>
     </ul>
   </div>
