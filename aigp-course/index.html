@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAYXUS AI·GP — 自动驾驶赛车课程体系</title>
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.10);
+    --glass:rgba(255,255,255,.045);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    color:var(--ink); line-height:1.6;
+    background:
+      radial-gradient(1200px 600px at 15% -5%, rgba(139,59,255,.35), transparent 60%),
+      radial-gradient(900px 500px at 95% 5%, rgba(255,46,154,.22), transparent 55%),
+      radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.16), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    background-attachment:fixed;
+    padding:0 0 80px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  /* ---------- HERO ---------- */
+  header{padding:64px 0 34px;text-align:center;position:relative}
+  .kicker{letter-spacing:.42em;font-size:12px;color:var(--cyan);font-weight:700}
+  h1{font-size:40px;line-height:1.25;margin:14px 0 6px;font-weight:800}
+  .hot{color:var(--gold)}
+  .sub{color:var(--dim);font-size:16px;max-width:680px;margin:10px auto 0}
+  .endorse{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+  .badge{display:flex;align-items:center;gap:9px;padding:10px 18px;border-radius:40px;
+    background:var(--glass);border:1px solid var(--line);font-size:14px;backdrop-filter:blur(6px)}
+  .badge b{color:var(--ink)} .badge span{color:var(--dim);font-size:12px}
+  .dot{width:9px;height:9px;border-radius:50%}
+  /* ---------- SPINE ---------- */
+  .spine{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:40px 0 8px}
+  .spine .s{padding:9px 16px;border-radius:30px;background:rgba(139,59,255,.16);
+    border:1px solid rgba(139,59,255,.4);font-weight:700;font-size:15px}
+  .spine .arr{align-self:center;color:var(--pink);font-weight:800}
+  .section-t{font-size:13px;letter-spacing:.3em;color:var(--cyan);text-align:center;margin:62px 0 6px;font-weight:700}
+  .section-h{font-size:28px;text-align:center;font-weight:800;margin-bottom:30px}
+  /* ---------- LEVEL CARDS ---------- */
+  .levels{display:grid;gap:16px}
+  .lv{display:grid;grid-template-columns:92px 1fr;gap:0;border-radius:18px;overflow:hidden;
+    background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px);
+    transition:transform .15s, box-shadow .15s}
+  .lv:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(139,59,255,.25)}
+  .lv .tag{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(160deg,rgba(255,46,154,.22),rgba(139,59,255,.22));
+    border-right:1px solid var(--line);padding:16px 6px;text-align:center}
+  .lv .tag .num{font-size:26px;font-weight:900;color:#fff}
+  .lv .tag .word{font-size:13px;color:var(--cyan);margin-top:2px;font-weight:700}
+  .lv .body{padding:16px 20px}
+  .lv h3{font-size:19px;margin-bottom:9px}
+  .lv h3 .star{color:var(--gold)}
+  .grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 22px;font-size:13.5px}
+  .grid4 .k{color:var(--cyan);font-weight:700;margin-right:6px}
+  .grid4 .row{color:var(--dim)} .grid4 .row b{color:var(--ink);font-weight:600}
+  .cert{margin-top:10px;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;
+    padding:5px 12px;border-radius:30px;background:rgba(255,207,92,.12);
+    border:1px solid rgba(255,207,92,.42);color:var(--gold)}
+  .opt{font-size:11px;color:var(--purple);border:1px solid rgba(139,59,255,.5);
+    padding:1px 8px;border-radius:20px;margin-left:8px;vertical-align:middle}
+  /* ---------- CERT TIERS ---------- */
+  .tiers{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .tier{padding:18px 20px;border-radius:16px;background:var(--glass);border:1px solid var(--line)}
+  .tier .n{font-size:12px;color:var(--pink);font-weight:800;letter-spacing:.1em}
+  .tier h4{font-size:17px;margin:6px 0 6px}
+  .tier p{font-size:13.5px;color:var(--dim)}
+  .tier.hard{border-color:rgba(255,207,92,.5);background:rgba(255,207,92,.06)}
+  .note{margin-top:16px;padding:14px 18px;border-radius:14px;font-size:13.5px;color:var(--dim);
+    background:rgba(25,227,255,.06);border:1px solid rgba(25,227,255,.3)}
+  .note b{color:var(--cyan)}
+  /* ---------- RACE DAY ---------- */
+  .raceday{margin-top:24px;padding:26px;border-radius:20px;text-align:center;
+    background:linear-gradient(120deg,rgba(255,46,154,.18),rgba(139,59,255,.18),rgba(25,227,255,.14));
+    border:1px solid rgba(255,46,154,.4)}
+  .raceday h3{font-size:24px;margin-bottom:8px}
+  .raceday p{color:var(--dim);font-size:14.5px;max-width:680px;margin:0 auto}
+  /* ---------- DEMO TIMELINE ---------- */
+  .tl{position:relative;margin-top:8px;padding-left:8px}
+  .tl::before{content:"";position:absolute;left:78px;top:6px;bottom:6px;width:2px;
+    background:linear-gradient(var(--cyan),var(--pink),var(--gold))}
+  .step{display:grid;grid-template-columns:88px 1fr;gap:18px;margin-bottom:14px;position:relative}
+  .step .time{text-align:right;font-weight:800;color:var(--cyan);font-size:15px;padding-top:14px}
+  .step .time small{display:block;color:var(--dim);font-weight:500;font-size:11px}
+  .step .card{position:relative;padding:14px 18px;border-radius:14px;background:var(--glass);
+    border:1px solid var(--line);backdrop-filter:blur(8px)}
+  .step .card::before{content:"";position:absolute;left:-29px;top:18px;width:14px;height:14px;
+    border-radius:50%;background:var(--bg1);border:3px solid var(--pink);box-shadow:0 0 12px var(--pink)}
+  .step.wow .card{border-color:rgba(255,207,92,.6);background:rgba(255,207,92,.08)}
+  .step.wow .card::before{border-color:var(--gold);box-shadow:0 0 16px var(--gold)}
+  .step h4{font-size:16px;margin-bottom:7px}
+  .step h4 .pill{font-size:11px;background:rgba(255,46,154,.2);border:1px solid rgba(255,46,154,.5);
+    padding:2px 9px;border-radius:20px;margin-left:8px;color:#fff;font-weight:600}
+  .line{font-size:13.5px;color:var(--dim);margin:3px 0}
+  .line b{color:var(--cyan);font-weight:700}
+  .line.s b{color:var(--pink)}
+  .foot{text-align:center;margin-top:60px;color:var(--dim);font-size:12px;letter-spacing:.2em}
+  @media(max-width:680px){
+    h1{font-size:30px} .grid4,.tiers{grid-template-columns:1fr}
+    .lv{grid-template-columns:74px 1fr} .step{grid-template-columns:64px 1fr;gap:12px}
+    .tl::before{left:60px} .step .card::before{left:-23px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <header>
+    <div class="kicker">CRAYXUS AI·GP　|　INVITATION 2026</div>
+    <h1>从 0 到上赛道的<br><span class="neon">AI 自动驾驶赛车</span> 课程体系</h1>
+    <p class="sub">为贝赛思 (BASIS) 学子打造的「科研硬通货」——用一台亲手训练的 AI 赛车，
+      拿下藤校申请的 Research × Entrepreneurship 创新履历。</p>
+    <div class="endorse">
+      <div class="badge"><span class="dot" style="background:var(--cyan)"></span><b>浙江大学 AI 教授团队</b><span>学术指导</span></div>
+      <div class="badge"><span class="dot" style="background:var(--pink)"></span><b>中天模型 ZT&nbsp;Model</b><span>赛事 · 产业落地</span></div>
+    </div>
+  </header>
+
+  <!-- SPINE -->
+  <div class="spine">
+    <div class="s">看</div><span class="arr">›</span>
+    <div class="s">学</div><span class="arr">›</span>
+    <div class="s">训</div><span class="arr">›</span>
+    <div class="s">修</div><span class="arr">›</span>
+    <div class="s">优</div><span class="arr">›</span>
+    <div class="s">进化</div><span class="arr">›</span>
+    <div class="s">赛</div>
+  </div>
+  <p class="sub" style="text-align:center">主线由浅入深，<b style="color:#fff">我们扛 turnkey 90%，学生亲手做有意义的 10%</b>，全程课上完成、不留作业。</p>
+
+  <!-- FULL COURSE LIST -->
+  <div class="section-t">FULL CURRICULUM</div>
+  <h2 class="section-h">完整课程内容列表</h2>
+  <div class="levels">
+
+    <div class="lv">
+      <div class="tag"><div class="num">L0</div><div class="word">体验</div></div>
+      <div class="body">
+        <h3>45 分钟 Demo 课 —「让 AI 替你开车」</h3>
+        <div class="grid4">
+          <div class="row"><span class="k">AI 概念</span><b>感知 + 大脑 的直觉</b></div>
+          <div class="row"><span class="k">学生亲手</span><b>采段数据 → 看车当场学会开</b></div>
+          <div class="row"><span class="k">当场成果</span><b>车自己走起来</b></div>
+          <div class="row"><span class="k">目的</span><b>震撼 + 转化报名</b></div>
+        </div>
+        <span class="cert">📜 L0 · AI 自动驾驶体验认证</span>
+      </div>
+    </div>
+
+    <div class="lv">
+      <div class="tag"><div class="num">L1</div><div class="word">看</div></div>
+      <div class="body">
+        <h3>车怎么「看」世界 · 感知</h3>
+        <div class="grid4">
+          <div class="row"><span class="k">AI 概念</span><b>图像 / 像素 / 颜色感知</b></div>
+          <div class="row"><span class="k">学生亲手</span><b>调感知参数，框住蓝色路肩</b></div>
+          <div class="row"><span class="k">成果</span><b>不同光照下稳定显示预测路径</b></div>
+          <div class="row"><span class="k">深一层</span><b>规则的局限 → 引出「学习」</b></div>
+        </div>
+        <span class="cert">📜 L1 · AI 感知工程 认证</span>
+      </div>
+    </div>
+
+    <div class="lv">
+      <div class="tag"><div class="num">L2</div><div class="word">学</div></div>
+      <div class="body">
+        <h3>机器是怎么「学」的 · 数据</h3>
+        <div class="grid4">
+          <div class="row"><span class="k">AI 概念</span><b>监督 / 模仿学习</b></div>
+          <div class="row"><span class="k">学生亲手</span><b>系统化采数据（干净圈 + 难点）</b></div>
+          <div class="row"><span class="k">成果</span><b>自己的第一份数据集</b></div>
+          <div class="row"><span class="k">深一层</span><b>「数据 = 教材」的质量意识</b></div>
+        </div>
+        <span class="cert">📜 L2 · 机器学习·数据 认证</span>
+      </div>
+    </div>
+
+    <div class="lv">
+      <div class="tag"><div class="num">L3</div><div class="word">训</div></div>
+      <div class="body">
+        <h3>训练你的第一个自动驾驶模型 <span class="star">★ 关键锚点</span></h3>
+        <div class="grid4">
+          <div class="row"><span class="k">AI 概念</span><b>神经网络 / loss / 训练</b></div>
+          <div class="row"><span class="k">学生亲手</span><b>一键开训 → 部署上车</b></div>
+          <div class="row"><span class="k">成果</span><b>我的模型让车自动跑起来</b></div>
+          <div class="row"><span class="k">价值</span><b>最大 wow，留存与续费锚点</b></div>
+        </div>
+        <span class="cert">📜 L3 · 神经网络训练 认证</span>
+      </div>
+    </div>
+
+    <div class="lv">
+      <div class="tag"><div class="num">L4</div><div class="word">修</div></div>
+      <div class="body">
+        <h3>它为什么开不好 · 诊断与迭代</h3>
+        <div class="grid4">
+          <div class="row"><span class="k">AI 概念</span><b>数据偏差 / 边缘情况 / 迭代</b></div>
+          <div class="row"><span class="k">学生亲手</span><b>定位失败点 → 补数据 → 重训对比</b></div>
+          <div class="row"><span class="k">成果</span><b>「问题→改进→效果」实验记录</b></div>
+          <div class="row"><span class="k">价值</span><b>答辩 / 推荐信的科研硬货</b></div>
+        </div>
+        <span class="cert">📜 L4 · AI 模型调优·实验 认证</span>
+      </div>
+    </div>
+
+    <div class="lv">
+      <div class="tag"><div class="num">L5</div><div class="word">优</div></div>
+      <div class="body">
+        <h3>开得更快更稳 · 调优与赛车线</h3>
+        <div class="grid4">
+          <div class="row"><span class="k">AI 概念</span><b>优化 / 权衡 / 赛车线（最优线）</b></div>
+          <div class="row"><span class="k">学生亲手</span><b>调速度 + 赛车线，跑计时实验</b></div>
+          <div class="row"><span class="k">成果</span><b>圈速优化曲线（定量）</b></div>
+          <div class="row"><span class="k">深一层</span><b>速度 vs 稳定的工程取舍</b></div>
+        </div>
+        <span class="cert">📜 L5 · 智能赛车·性能优化 认证</span>
+      </div>
+    </div>
+
+    <div class="lv">
+      <div class="tag"><div class="num">L6</div><div class="word">进化</div></div>
+      <div class="body">
+        <h3>让车自己进化 · 仿真 + 强化学习 <span class="opt">高阶可选</span></h3>
+        <div class="grid4">
+          <div class="row"><span class="k">AI 概念</span><b>强化学习 / 奖励 / 仿真</b></div>
+          <div class="row"><span class="k">学生亲手</span><b>仿真里设奖励，让车自学最优线</b></div>
+          <div class="row"><span class="k">成果</span><b>「模仿 vs 强化学习」对比研究</b></div>
+          <div class="row"><span class="k">价值</span><b>进阶亮点，更强推荐信素材</b></div>
+        </div>
+        <span class="cert">📜 L6 · 强化学习·进阶 认证</span>
+      </div>
+    </div>
+
+    <div class="lv">
+      <div class="tag"><div class="num">L7</div><div class="word">赛</div></div>
+      <div class="body">
+        <h3>上赛道 + 成果答辩 · Race Day <span class="star">★ 高大上封顶</span></h3>
+        <div class="grid4">
+          <div class="row"><span class="k">AI 概念</span><b>部署 / 评测 / 科研表达</b></div>
+          <div class="row"><span class="k">学生亲手</span><b>真赛道计时赛 + 做海报 / 报告</b></div>
+          <div class="row"><span class="k">成果</span><b>AI 赛车完赛 + 可提交科创的研究</b></div>
+          <div class="row"><span class="k">价值</span><b>赛事证书 + 教授推荐 + 履历高光</b></div>
+        </div>
+        <span class="cert">🏆 L7 · AI 赛车完赛认证 + 外部赛事证书 + 教授推荐信</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CERTIFICATE SYSTEM -->
+  <div class="section-t">CREDENTIALS</div>
+  <h2 class="section-h">证书与成果体系 · 边学边拿，越往后越硬</h2>
+  <div class="tiers">
+    <div class="tier"><div class="n">TIER 1 · 激励</div><h4>阶梯认证（内部）</h4>
+      <p>每级结课即发 Crayxus AI·GP 分级证书 / 徽章。学生每节有获得感、家长每阶段见进展——续费与口碑引擎。</p></div>
+    <div class="tier hard"><div class="n">TIER 2 · 硬通货 ★</div><h4>赛事证书（外部权威）</h4>
+      <p>用 AI 赛车项目去打白名单 AI·科创·机器人赛事，拿参赛 / 名次证书。<b style="color:var(--gold)">这才是留学 / 升学真正认的。</b></p></div>
+    <div class="tier"><div class="n">TIER 3 · 背书</div><h4>教授推荐信 + 科研实践证明</h4>
+      <p>基于 L4 / L7 学生真实实验与答辩，由浙大 AI 指导教授出具——真实、可辩护。</p></div>
+    <div class="tier"><div class="n">TIER 4 · 加固</div><h4>课时 / 科研实践证明</h4>
+      <p>可联合大学 / 协会出具，强化 Common App 的 Research × Entrepreneurship 履历。</p></div>
+  </div>
+  <div class="note">⚠️ <b>诚实底线</b>：内部证书只作激励；真正升学价值来自「外部权威 / 白名单赛事 + 真实科研成果 + 教授推荐」。
+    课程末端必须对接到对的赛事，且学生成果须真动手、真理解——平台是脚手架，不是代笔，否则申请审查会反噬。</div>
+
+  <!-- RACE DAY -->
+  <div class="raceday">
+    <h3>🏁 上赛道 = 毕业战 Race Day</h3>
+    <p>真实赛道、计时赛、家长与媒体到场、现场颁奖。一身三用——教学高潮、最强招生素材、
+      学生最亮眼的成果与推荐信背景：「我的 AI 赛车在正式赛道完赛」。</p>
+  </div>
+
+  <!-- 45-MIN DEMO -->
+  <div class="section-t">SIGNATURE DEMO CLASS</div>
+  <h2 class="section-h">45 分钟 Demo 课 · 详细脚本</h2>
+  <p class="sub" style="text-align:center;margin-bottom:26px">
+    一节课内，学生亲手训练出人生第一个会开车的 AI。目标：<b style="color:#fff">震撼 → 亲手 → 高光 → 转化</b>。
+    <br>（训练环节用预热模型 + 学生数据微调，工程上保证课内必出结果，绝不掉链子）</p>
+
+  <div class="tl">
+
+    <div class="step">
+      <div class="time">0–3′<small>开场</small></div>
+      <div class="card">
+        <h4>震撼开场 <span class="pill">Hook</span></h4>
+        <p class="line"><b>老师：</b>播一段赛事 / 特斯拉自动驾驶片段，随即现场让改装 AI 车自己跑一圈。</p>
+        <p class="line s"><b>金句：</b>「这台车没人遥控，是它自己在看路开。今天结束前，你会亲手训练出一个会开车的 AI。」</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">3–8′<small>认知</small></div>
+      <div class="card">
+        <h4>这是什么 <span class="pill">极简概念</span></h4>
+        <p class="line"><b>老师：</b>AI 自动驾驶 = 眼睛（摄像头）+ 大脑（神经网络）；指着屏上蓝色预测带「这就是 AI 正在想的路线」。</p>
+        <p class="line"><b>定位：</b>这是浙大教授团队带的真科研，是藤校申请要的「科研硬通货」。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">8–15′<small>亲手·看</small></div>
+      <div class="card">
+        <h4>让 AI「看见」赛道 <span class="pill">感知调参</span></h4>
+        <p class="line"><b>学生亲手：</b>上手感知界面，调出框住蓝色路肩的效果，看预测路径随之变化。</p>
+        <p class="line"><b>收获：</b>第一个亲手成就——理解「AI 怎么看世界」。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">15–25′<small>亲手·教</small></div>
+      <div class="card">
+        <h4>你来当 AI 的教练 <span class="pill">采数据</span></h4>
+        <p class="line"><b>学生亲手：</b>遥控开车 2–3 圈，系统录下「看到的画面 → 你怎么打方向」，屏上数据条数实时上涨。</p>
+        <p class="line"><b>老师：</b>「你正在用例子教 AI，这叫<b>模仿学习</b>——数据就是它的教材。」</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">25–33′<small>见证</small></div>
+      <div class="card">
+        <h4>AI 正在学习 <span class="pill">一键训练</span></h4>
+        <p class="line"><b>学生亲手：</b>点「开始训练」，大屏看 loss 曲线一路下降。</p>
+        <p class="line"><b>老师：</b>「它在从你的例子里总结开车的规律——这就是神经网络的训练。」（后台公司 GPU，几分钟出模型）</p>
+      </div>
+    </div>
+
+    <div class="step wow">
+      <div class="time">33–40′<small>高光</small></div>
+      <div class="card">
+        <h4>「我训练的 AI 在开车！」 <span class="pill">部署上车 · 全场最高潮</span></h4>
+        <p class="line"><b>学生亲手：</b>一键把<b>自己的模型</b>部署上车，车沿赛道自己走起来。</p>
+        <p class="line s"><b>仪式：</b>全场拍照 / 录视频（家长朋友圈素材）——这一刻就是转化的引爆点。</p>
+      </div>
+    </div>
+
+    <div class="step wow">
+      <div class="time">40–45′<small>收尾</small></div>
+      <div class="card">
+        <h4>钩子 + 颁证 <span class="pill">转化</span></h4>
+        <p class="line"><b>老师：</b>「它还开得歪——想让它又稳又快、上正式赛道比赛、拿国家级科创证书和浙大教授推荐信吗？每周 2 小时，一步步练成你的参赛 AI 赛车。」</p>
+        <p class="line s"><b>发证：</b>现场颁发「📜 L0 · AI 自动驾驶体验认证」，仪式感收尾 + 报名转化。</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">CRAYXUS AI·GP　·　浙江大学 AI 教授团队领衔　·　中天模型强力支持　·　孩子的第一份创新履历</div>
+
+</div>
+</body>
+</html>

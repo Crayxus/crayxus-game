@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAYXUS AI·GP — 1 年技术课程·从 0 到击败人类</title>
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c; --green:#3ce29a;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.10); --glass:rgba(255,255,255,.045);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);line-height:1.62;
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(139,59,255,.35), transparent 60%),
+      radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.22), transparent 55%),
+      radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.16), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    background-attachment:fixed;padding:0 0 80px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  /* hero */
+  header{padding:64px 0 30px;text-align:center}
+  .kicker{letter-spacing:.4em;font-size:12px;color:var(--cyan);font-weight:800}
+  h1{font-size:42px;line-height:1.2;margin:14px 0 8px;font-weight:900}
+  .sub{color:var(--dim);font-size:16px;max-width:720px;margin:10px auto 0}
+  .endorse{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .badge{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:40px;
+    background:var(--glass);border:1px solid var(--line);font-size:13.5px;backdrop-filter:blur(6px)}
+  .badge .dot{width:8px;height:8px;border-radius:50%} .badge b{color:var(--ink)} .badge span{color:var(--dim);font-size:11.5px}
+  /* goal banner */
+  .goal{margin-top:30px;padding:28px 26px;border-radius:20px;text-align:center;
+    background:linear-gradient(120deg,rgba(255,46,154,.18),rgba(139,59,255,.16),rgba(25,227,255,.14));
+    border:1px solid rgba(255,46,154,.4)}
+  .goal .t{font-size:12px;letter-spacing:.3em;color:var(--gold);font-weight:800}
+  .goal h2{font-size:27px;margin:8px 0 6px;font-weight:900}
+  .goal p{color:var(--dim);font-size:14.5px;max-width:760px;margin:6px auto 0}
+  .goal .cars{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .goal .car{font-size:13px;padding:8px 16px;border-radius:30px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+  .goal .car b{color:var(--cyan)}
+  /* section */
+  .section-t{font-size:13px;letter-spacing:.3em;color:var(--cyan);text-align:center;margin:58px 0 6px;font-weight:700}
+  .section-h{font-size:27px;text-align:center;font-weight:800;margin-bottom:8px}
+  .section-d{text-align:center;color:var(--dim);font-size:14px;max-width:720px;margin:0 auto 28px}
+  /* spine main lines */
+  .lines{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .linecard{padding:20px 22px;border-radius:16px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px)}
+  .linecard.vibe{border-color:rgba(255,207,92,.4);background:rgba(255,207,92,.05)}
+  .linecard.cert{border-color:rgba(60,226,154,.35);background:rgba(60,226,154,.05)}
+  .linecard .ic{font-size:26px} .linecard h3{font-size:18px;margin:8px 0 6px}
+  .linecard p{font-size:13.5px;color:var(--dim)}
+  /* timeline (terms) */
+  .tl{position:relative;padding-left:8px;margin-top:8px}
+  .tl::before{content:"";position:absolute;left:108px;top:10px;bottom:10px;width:2px;background:linear-gradient(var(--cyan),var(--pink),var(--gold))}
+  .term{display:grid;grid-template-columns:118px 1fr;gap:22px;margin-bottom:18px;position:relative}
+  .term .when{text-align:right;padding-top:16px}
+  .term .when .ph{font-size:18px;font-weight:900;color:var(--pink)}
+  .term .when .mo{display:block;font-size:11.5px;color:var(--dim);margin-top:3px}
+  .term .card{position:relative;padding:18px 22px;border-radius:16px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px)}
+  .term .card::before{content:"";position:absolute;left:-33px;top:22px;width:15px;height:15px;border-radius:50%;background:var(--bg1);border:3px solid var(--pink);box-shadow:0 0 12px var(--pink)}
+  .term.final .card{border-color:rgba(255,207,92,.55);background:rgba(255,207,92,.07)}
+  .term.final .card::before{border-color:var(--gold);box-shadow:0 0 18px var(--gold)}
+  .term h3{font-size:19px;margin-bottom:4px}
+  .term .topic{font-size:13px;color:var(--dim);margin-bottom:12px}
+  .term .kv{display:grid;grid-template-columns:64px 1fr;gap:6px 12px;font-size:13.5px}
+  .term .kv .k{color:var(--cyan);font-weight:700}
+  .term .kv .v{color:var(--ink)}
+  .term .ms{margin-top:12px;padding-top:11px;border-top:1px dashed rgba(255,255,255,.12);font-size:13.5px}
+  .term .ms b{color:var(--gold)}
+  .term .cert{display:inline-block;margin-top:9px;font-size:12px;padding:4px 11px;border-radius:20px;
+    background:rgba(60,226,154,.12);border:1px solid rgba(60,226,154,.4);color:var(--green)}
+  .term.final .cert{background:rgba(255,207,92,.14);border-color:rgba(255,207,92,.5);color:var(--gold)}
+  /* tech grid */
+  .tech{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .tcard{padding:17px 18px;border-radius:14px;background:var(--glass);border:1px solid var(--line)}
+  .tcard .ic{font-size:23px} .tcard h4{font-size:15.5px;margin:7px 0 5px} .tcard p{font-size:12.8px;color:var(--dim)}
+  .tcard.hi{border-color:rgba(255,207,92,.4);background:rgba(255,207,92,.05)}
+  /* cars */
+  .cars2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .carcard{padding:22px;border-radius:18px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px)}
+  .carcard.f1{border-color:rgba(255,46,154,.4);background:rgba(255,46,154,.06)}
+  .carcard .tag{font-size:11px;letter-spacing:.1em;font-weight:800}
+  .carcard.f1 .tag{color:var(--pink)} .carcard.std .tag{color:var(--cyan)}
+  .carcard h4{font-size:20px;margin:6px 0 8px}
+  .carcard ul{margin:0;padding-left:18px} .carcard li{font-size:13.5px;color:var(--dim);margin:5px 0}
+  .carcard li b{color:var(--ink)}
+  /* panel */
+  .panel{margin-top:14px;padding:22px 24px;border-radius:18px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px)}
+  .panel.win{border-color:rgba(25,227,255,.32);background:rgba(25,227,255,.05)}
+  .panel .pt{font-size:13px;letter-spacing:.15em;font-weight:800;color:var(--cyan);margin-bottom:12px}
+  .panel ul{margin:0;padding-left:20px} .panel li{font-size:14px;color:var(--dim);margin:8px 0}
+  .panel li b{color:var(--ink)}
+  .redline{margin-top:14px;font-size:13px;color:var(--gold);padding-top:12px;border-top:1px dashed rgba(255,255,255,.12)}
+  /* cert tiers */
+  .tiers{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .tier{padding:18px 20px;border-radius:16px;background:var(--glass);border:1px solid var(--line)}
+  .tier .n{font-size:12px;color:var(--pink);font-weight:800;letter-spacing:.1em}
+  .tier h4{font-size:17px;margin:6px 0} .tier p{font-size:13.5px;color:var(--dim)}
+  .tier.hard{border-color:rgba(255,207,92,.5);background:rgba(255,207,92,.06)}
+  /* raceday */
+  .raceday{margin-top:24px;padding:30px 26px;border-radius:20px;text-align:center;
+    background:linear-gradient(120deg,rgba(255,46,154,.2),rgba(139,59,255,.18),rgba(25,227,255,.14));
+    border:1px solid rgba(255,46,154,.45)}
+  .raceday h3{font-size:26px;margin-bottom:8px}
+  .raceday p{color:var(--dim);font-size:14.5px;max-width:700px;margin:0 auto}
+  .foot{text-align:center;margin-top:58px;color:var(--dim);font-size:12px;letter-spacing:.2em}
+  @media(max-width:740px){
+    h1{font-size:30px} .lines,.cars2,.tiers{grid-template-columns:1fr} .tech{grid-template-columns:1fr 1fr}
+    .term{grid-template-columns:80px 1fr;gap:14px} .tl::before{left:70px} .term .card::before{left:-27px}
+    .term .kv{grid-template-columns:58px 1fr}
+  }
+  @media(max-width:480px){ .tech{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <header>
+    <div class="kicker">CRAYXUS AI·GP　|　1-YEAR TECHNICAL PROGRAM</div>
+    <h1>从 0 到<span class="neon">击败人类</span><br>1 年 · AI 赛车手养成计划</h1>
+    <p class="sub">零基础起步,一整年,亲手打造并训练一台 1/10 AI 赛车——
+      在<b style="color:#fff">室内与室外标准场地,击败人类遥控选手</b>。全程不背语法,用 AI 写代码(vibe coding)造真东西。</p>
+    <div class="endorse">
+      <div class="badge"><span class="dot" style="background:var(--cyan)"></span><b>浙江大学 AI 教授团队</b><span>学术指导</span></div>
+      <div class="badge"><span class="dot" style="background:var(--pink)"></span><b>中天模型 ZT&nbsp;Model</b><span>赛事 · 产业落地</span></div>
+    </div>
+
+    <div class="goal">
+      <div class="t">THE ENDGAME · 终极目标</div>
+      <h2>室内 + 室外标准场地,<span class="neon">击败人类遥控选手</span></h2>
+      <p>不是"跑完赛道",而是与真人同场竞速并取胜。AI 车的天然优势——感知反应快、赛车线一致、不疲劳——在标准场地与合适赛制下,这是可设计达成的目标(参考 F1TENTH 自动驾驶赛车生态)。</p>
+      <div class="cars">
+        <div class="car">🏎️ <b>F1 款 1/10</b> · 室外竞技 / 对决车</div>
+        <div class="car">🚗 <b>普通款 1/10</b> · 室内训练 / 入门车</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- TWO MAIN LINES -->
+  <div class="section-t">TWO THREADS · 贯穿全程</div>
+  <h2 class="section-h">两条主线,贯穿一整年</h2>
+  <div class="lines">
+    <div class="linecard vibe">
+      <div class="ic">🛠️</div>
+      <h3>Vibe Coding 主线</h3>
+      <p>学生不背语法、不啃 C/Python。全程用 <b style="color:var(--gold)">提示词工程 + vibe coding</b>(Claude / Cursor 等 AI)把想法变成能跑的车代码——这是 AI·GP 区别于传统机器人课的教学内核,也是 0 基础也能造出高级系统的关键。</p>
+    </div>
+    <div class="linecard cert">
+      <div class="ic">🏆</div>
+      <h3>成果 / 证书主线</h3>
+      <p>边学边拿,越往后越硬:每阶段结课发 <b style="color:var(--green)">阶梯认证</b>;后程对接 <b style="color:var(--green)">白名单赛事证书 + 浙大教授推荐信 + 科研实践证明</b>。所有承诺,逐阶段兑现。</p>
+    </div>
+  </div>
+
+  <!-- 4 TERMS -->
+  <div class="section-t">THE ROADMAP · 4 阶段 · 全年约 40 周</div>
+  <h2 class="section-h">一年路线图</h2>
+  <p class="section-d">每周约 2 小时,全程课上完成、不留作业。能力逐级跃迁,车与场地随之升级。</p>
+  <div class="tl">
+
+    <div class="term">
+      <div class="when"><span class="ph">T1</span><span class="mo">第 1–3 月 · 启程</span></div>
+      <div class="card">
+        <h3>看懂 AI 自动驾驶 + 第一次让车动</h3>
+        <div class="topic">从"它是什么"到"我让它动起来"</div>
+        <div class="kv">
+          <div class="k">车 / 场地</div><div class="v">普通款 1/10 · 室内</div>
+          <div class="k">核心技术</div><div class="v">视觉感知入门(摄像头)、<b>提示词基础</b>、<b>vibe coding 写第一个控制程序</b></div>
+          <div class="k">AI 工具</div><div class="v">用 AI 把"沿蓝线走/遇障停"变成可上车的代码</div>
+        </div>
+        <div class="ms">🎯 里程碑:<b>车在室内自主跑一圈 / 自动避障</b></div>
+        <span class="cert">📜 L1–L2 阶梯认证</span>
+      </div>
+    </div>
+
+    <div class="term">
+      <div class="when"><span class="ph">T2</span><span class="mo">第 4–6 月 · 学习</span></div>
+      <div class="card">
+        <h3>教车开:数据 + 训练第一个模型</h3>
+        <div class="topic">从"写规则"到"用例子教 AI"</div>
+        <div class="kv">
+          <div class="k">车 / 场地</div><div class="v">普通款 1/10 · 室内</div>
+          <div class="k">核心技术</div><div class="v">模仿学习、神经网络训练、<b>vibe coding 搭训练管线</b>、数据集质量</div>
+          <div class="k">AI 工具</div><div class="v">用 AI 生成采数据 / 训练 / 部署脚本,看懂 loss 曲线</div>
+        </div>
+        <div class="ms">🎯 里程碑:<b>「我训练的模型让车自动跑起来」</b></div>
+        <span class="cert">📜 L3 · 神经网络训练认证</span>
+      </div>
+    </div>
+
+    <div class="term">
+      <div class="when"><span class="ph">T3</span><span class="mo">第 7–9 月 · 进化</span></div>
+      <div class="card">
+        <h3>提速 + 上室外:感知融合 + 强化学习</h3>
+        <div class="topic">从"能跑"到"跑得快、跑得稳"</div>
+        <div class="kv">
+          <div class="k">车 / 场地</div><div class="v">切换 <b style="color:var(--pink)">F1 款 1/10</b> · 室外标准场地</div>
+          <div class="k">核心技术</div><div class="v"><b>LiDAR + 视觉大模型 融合感知</b>、强化学习(仿真自学最优赛车线)、高速控制</div>
+          <div class="k">AI 工具</div><div class="v">用 AI 调感知融合 / 设强化学习奖励 / 优化赛车线</div>
+        </div>
+        <div class="ms">🎯 里程碑:<b>室外标准场地跑出有竞争力的圈速</b></div>
+        <span class="cert">📜 进阶认证 + 白名单赛事备赛</span>
+      </div>
+    </div>
+
+    <div class="term final">
+      <div class="when"><span class="ph">T4</span><span class="mo">第 10–12 月 · 对决</span></div>
+      <div class="card">
+        <h3>人机对决 + 打赛事 + 科研答辩</h3>
+        <div class="topic">从"跑得快"到"赢过真人"</div>
+        <div class="kv">
+          <div class="k">车 / 场地</div><div class="v">F1 款 1/10 · 室内外标准场地</div>
+          <div class="k">核心技术</div><div class="v">高速决策调优、对手博弈策略、科研表达与答辩</div>
+          <div class="k">AI 工具</div><div class="v">用 AI 做数据分析 / 生成实验报告 / 打磨答辩与海报</div>
+        </div>
+        <div class="ms">🏁 里程碑:<b>击败人类遥控选手 + 完成一份可投科创的研究</b></div>
+        <span class="cert">🏆 赛事证书 + 教授推荐信 + 科研实践证明</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TECH STACK -->
+  <div class="section-t">TECH STACK · 真技术、真前沿</div>
+  <h2 class="section-h">课程里学的技术</h2>
+  <p class="section-d">理论 + 装配只是地基,真正的主角是这些——而且全部通过"指挥 AI"来掌握。</p>
+  <div class="tech">
+    <div class="tcard hi"><div class="ic">💬</div><h4>提示词工程</h4><p>把需求拆成精准提示,学会"指挥 AI"——贯穿全程的元技能,也是未来最值钱的能力之一。</p></div>
+    <div class="tcard hi"><div class="ic">⌨️</div><h4>Vibe Coding</h4><p>用 AI 自然语言生成、调试、迭代车的控制与感知代码。0 基础也能造复杂系统的核心打法。</p></div>
+    <div class="tcard"><div class="ic">👁️</div><h4>视觉识别大模型</h4><p>摄像头 + 视觉大模型理解赛道、识别对手车与障碍——让车"看懂"场景,而不只是看见颜色。</p></div>
+    <div class="tcard"><div class="ic">📡</div><h4>LiDAR 激光雷达</h4><p>室外高速下的精确测距、定位与避障(F1TENTH 标配),与视觉融合,撑起高速竞技的感知底座。</p></div>
+    <div class="tcard"><div class="ic">🎓</div><h4>模仿学习</h4><p>采集人类驾驶数据,训练端到端神经网络——让车学会"看到画面就知道怎么开"。</p></div>
+    <div class="tcard"><div class="ic">🔁</div><h4>强化学习</h4><p>在仿真里设奖励,车自学最优赛车线(DeepRacer / F1TENTH 路线),超越模仿、逼近极限。</p></div>
+  </div>
+
+  <!-- TWO CARS -->
+  <div class="section-t">TWO CARS · 双车型</div>
+  <h2 class="section-h">两台 1/10 赛车,各司其职</h2>
+  <div class="cars2">
+    <div class="carcard std">
+      <div class="tag">TRAINER · 训练入门车</div>
+      <h4>🚗 普通款 1/10</h4>
+      <ul>
+        <li><b>角色</b>:室内训练 / 入门,T1–T2 主力</li>
+        <li><b>优势</b>:耐操、平价、安全,适合大量采数据与试错</li>
+        <li><b>用途</b>:感知调参、模仿学习采数据、训练第一个模型</li>
+      </ul>
+    </div>
+    <div class="carcard f1">
+      <div class="tag">RACER · 竞技对决车</div>
+      <h4>🏎️ F1 款 1/10</h4>
+      <ul>
+        <li><b>角色</b>:室外竞技 / 人机对决,T3–T4 主力</li>
+        <li><b>优势</b>:高速、品牌感强,贴近真实赛车竞技</li>
+        <li><b>用途</b>:LiDAR+视觉融合、强化学习赛车线、打赛事、击败人类</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- HOW TO BEAT HUMANS -->
+  <div class="section-t">HOW · 可达性与红线</div>
+  <h2 class="section-h">"击败人类"如何做到——且学生贡献真实</h2>
+  <div class="panel win">
+    <div class="pt">可达的逻辑</div>
+    <ul>
+      <li><b>AI 车的天然优势</b>:感知反应快、赛车线一致、不疲劳、不上头——在标准场地 + 合适赛制下,这是可设计达成的,而非噱头。</li>
+      <li><b>平台扛底层(turnkey)</b>:成熟的感知 / 控制 / 强化学习底座 + 仿真环境 + 公司算力,学生不必从轮子造起。</li>
+      <li><b>学生做有意义的真活</b>:用 vibe coding 完成真实的集成、采数据、训练、传感器融合与赛车线调优——每一步都可答辩、可写进研究。</li>
+    </ul>
+    <div class="redline">🚥 <b>红线</b>:平台是脚手架,不是代笔。学生的成果必须基于真动手、真理解;证书与推荐只背书真实的工作——这样升学审查才站得住。</div>
+  </div>
+
+  <!-- CERTIFICATES -->
+  <div class="section-t">CREDENTIALS · 承诺一并兑现</div>
+  <h2 class="section-h">证书与成果体系</h2>
+  <p class="section-d">边学边拿,越往后越硬。内部认证作激励,真正升学价值来自外部权威赛事 + 真实科研 + 教授推荐。</p>
+  <div class="tiers">
+    <div class="tier"><div class="n">TIER 1 · 激励</div><h4>阶梯认证(内部)</h4>
+      <p>T1–T3 每阶段结课发 Crayxus AI·GP 分级证书 / 徽章。学生每阶段有获得感、家长见进展——续费与口碑引擎。</p></div>
+    <div class="tier hard"><div class="n">TIER 2 · 硬通货 ★</div><h4>赛事证书(外部权威)</h4>
+      <p>T4 用 AI 赛车项目打白名单 AI·科创·机器人赛事,拿参赛 / 名次证书。<b style="color:var(--gold)">这才是留学 / 升学真正认的。</b></p></div>
+    <div class="tier"><div class="n">TIER 3 · 背书</div><h4>教授推荐信 + 科研实践证明</h4>
+      <p>基于 T3 / T4 学生真实实验与答辩,由浙大 AI 指导教授出具——真实、可辩护。</p></div>
+    <div class="tier"><div class="n">TIER 4 · 加固</div><h4>课时 / 科研实践证明</h4>
+      <p>可联合大学 / 协会出具,强化 Common App 的 Research × Entrepreneurship 履历。</p></div>
+  </div>
+
+  <!-- RACE DAY -->
+  <div class="raceday">
+    <h3>🏁 毕业战:人机对决 Race Day</h3>
+    <p>真实标准赛道、计时赛 + 人机同场对决、家长与媒体到场、现场颁奖。一身三用——教学高潮、最强招生素材,以及学生最亮眼的成果与推荐信背景:<b style="color:#fff">「我的 AI 赛车,在正式场地击败了人类选手。」</b></p>
+  </div>
+
+  <div class="foot">CRAYXUS AI·GP　·　1 年技术课程　·　浙江大学 AI 教授团队领衔　·　中天模型强力支持</div>
+
+</div>
+</body>
+</html>

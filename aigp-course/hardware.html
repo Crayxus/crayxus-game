@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAYXUS AI·GP — 软硬件方案 & 采购清单</title>
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c; --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.10); --glass:rgba(255,255,255,.045);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);line-height:1.6;
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(139,59,255,.32), transparent 60%),
+      radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.2), transparent 55%),
+      radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.14), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    background-attachment:fixed;padding:0 0 80px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header{padding:58px 0 22px;text-align:center}
+  .kicker{letter-spacing:.4em;font-size:12px;color:var(--cyan);font-weight:800}
+  h1{font-size:38px;line-height:1.2;margin:13px 0 8px;font-weight:900}
+  .sub{color:var(--dim);font-size:15px;max-width:780px;margin:8px auto 0}
+  .disc{margin:18px auto 0;max-width:860px;font-size:12.5px;color:var(--dim);background:rgba(25,227,255,.05);
+    border:1px solid rgba(25,227,255,.25);border-radius:12px;padding:12px 16px;text-align:left}
+  .disc b{color:var(--cyan)}
+  .section-t{font-size:13px;letter-spacing:.3em;color:var(--cyan);text-align:center;margin:54px 0 6px;font-weight:700}
+  .section-h{font-size:26px;text-align:center;font-weight:800;margin-bottom:8px}
+  .section-d{text-align:center;color:var(--dim);font-size:13.5px;max-width:800px;margin:0 auto 24px}
+  .arch{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px}
+  .ac{padding:16px 18px;border-radius:14px;background:var(--glass);border:1px solid var(--line)}
+  .ac .ic{font-size:22px} .ac h4{font-size:15px;margin:6px 0 4px} .ac p{font-size:12.8px;color:var(--dim)}
+  .ac b{color:var(--ink)}
+  .pkg{margin-top:18px;border-radius:18px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(8px);overflow:hidden}
+  .pkg .head{padding:18px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .pkg.indoor .head{background:linear-gradient(100deg,rgba(25,227,255,.16),transparent)}
+  .pkg.f1 .head{background:linear-gradient(100deg,rgba(255,46,154,.16),transparent)}
+  .pkg .head .em{font-size:30px}
+  .pkg .head h3{font-size:21px;font-weight:900}
+  .pkg .head .tagline{font-size:12.5px;color:var(--dim)}
+  .pkg .head .price{margin-left:auto;text-align:right}
+  .pkg .head .price .rrp{font-size:24px;font-weight:900;color:var(--gold)}
+  .pkg .head .price .rrpl{font-size:11px;color:var(--dim);letter-spacing:.1em}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead td{color:var(--cyan);font-weight:700;font-size:11.5px;letter-spacing:.06em;padding:10px 12px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.03)}
+  tbody td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+  tbody tr:hover{background:rgba(255,255,255,.025)}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.part{color:var(--ink);font-weight:600;white-space:nowrap}
+  td.model{color:var(--dim)} td.use{color:var(--dim);font-size:12.3px}
+  .chk{font-size:11px;padding:1px 7px;border-radius:10px;white-space:nowrap}
+  .chk.ok{color:var(--green);background:rgba(60,226,154,.12);border:1px solid rgba(60,226,154,.3)}
+  .chk.v{color:var(--gold);background:rgba(255,207,92,.12);border:1px solid rgba(255,207,92,.32)}
+  tfoot td{padding:12px;font-weight:800;border-top:1px solid var(--line)}
+  .costrow{display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line)}
+  .costrow .cell{flex:1;min-width:130px;padding:14px 18px;border-right:1px solid var(--line)}
+  .costrow .cell:last-child{border-right:none}
+  .costrow .l{font-size:11px;color:var(--dim);letter-spacing:.08em}
+  .costrow .v{font-size:20px;font-weight:900;margin-top:4px}
+  .costrow .cost .v{color:var(--cyan)} .costrow .rrp .v{color:var(--gold)} .costrow .mar .v{color:var(--green)}
+  .note{font-size:12.5px;color:var(--dim);padding:12px 18px;background:rgba(255,255,255,.02)}
+  .note b{color:var(--ink)}
+  .variant{padding:14px 18px;font-size:12.5px;color:var(--dim);border-top:1px dashed rgba(255,255,255,.12)}
+  .variant b{color:var(--pink)}
+  .panel{margin-top:14px;padding:20px 22px;border-radius:16px;background:var(--glass);border:1px solid var(--line)}
+  .panel.win{border-color:rgba(60,226,154,.3);background:rgba(60,226,154,.05)}
+  .panel.warn{border-color:rgba(255,93,115,.3);background:rgba(255,93,115,.05)}
+  .panel.key{border-color:rgba(255,207,92,.4);background:rgba(255,207,92,.06)}
+  .panel .pt{font-size:13px;letter-spacing:.12em;font-weight:800;margin-bottom:10px}
+  .panel.win .pt{color:var(--green)} .panel.warn .pt{color:var(--red)} .panel.key .pt{color:var(--gold)}
+  .panel ul{margin:0;padding-left:20px} .panel li{font-size:13.5px;color:var(--dim);margin:7px 0}
+  .panel li b{color:var(--ink)}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .ev{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px}
+  .foot{text-align:center;margin-top:50px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
+  @media(max-width:820px){
+    h1{font-size:28px} .arch,.twocol{grid-template-columns:1fr}
+    .pkg .head .price{margin-left:0;text-align:left;width:100%}
+    table{font-size:12px} td.use{display:none} .costrow .cell{min-width:50%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">CRAYXUS AI·GP　|　HARDWARE & SOFTWARE SOLUTION</div>
+    <h1>AI·GP <span class="neon">软硬件方案 & 采购清单</span></h1>
+    <p class="sub">目标:在中天<b style="color:#fff">平面竞速赛道</b>上,让 1/10 AI 赛车<b style="color:#fff">超过人类遥控选手</b>。方案路线经业界标杆(F1TENTH / Indy Autonomous Challenge / A2RL / 苏黎世 Swift)调研审核后确定。</p>
+    <div class="disc">
+      💡 <b>价格说明</b>:2026 国内采购参考价(人民币),逐项核源。<span class="chk ok">✓</span> 公开明码;<span class="chk v">⚠</span> 区间估算 / 需现场核价。<b>定位方案已升级</b>:中天是平面无墙赛道,且 UWB / ArUco贴标 / 普通顶置摄像头均已实测失败 → <b>室内两档:OptiTrack 动捕旗舰(稳超人类)/ 车载 LiDAR+地标 经济起步(¥1–3 万级)</b>,室外用 RTK-GPS。RRP 不含一年课程学费。
+    </div>
+  </header>
+
+  <!-- ARCHITECTURE -->
+  <div class="section-t">ARCHITECTURE · 技术路线</div>
+  <h2 class="section-h">为什么这样设计(经业界验证)</h2>
+  <p class="section-d">纯竞速里,<b style="color:#fff">模块化(高精定位 → 赛车线优化 → MPC/Pure Pursuit 跟踪)碾压端到端 RL</b>(F1TENTH 基准:端到端慢约 18%;IAC/A2RL 全尺寸队伍清一色模块化)。RL 只用在<b style="color:#fff">超车决策 + 参数自整定</b>。而<b style="color:#fff">定位精度是整件事的命门</b>——这正是之前栽的地方。</p>
+  <div class="arch">
+    <div class="ac"><div class="ic">📐</div><h4>高精定位(命门)</h4><p><b>室内 OptiTrack 动捕</b>(&lt;0.3mm/4.5ms)+ 车载 LiDAR 冗余;<b>室外 RTK-GPS</b>(厘米级)+ IMU + 轮速 EKF。定位准,赛车线才准。</p></div>
+    <div class="ac"><div class="ic">🏁</div><h4>赛车线 + 控制</h4><p>离线算<b>最优赛车线</b>(最小曲率)→ MPC/Pure Pursuit 高频跟踪。再用 <b>RL 做超车与参数自整定</b>。这是 AI 跑赢人类的核心。</p></div>
+    <div class="ac"><div class="ic">🔁</div><h4>训练 + sim2real</h4><p>仿真里 RL 练到极限 → 用真车数据做 <b>sim-to-real 残差补偿</b>(Swift 击败人类冠军的关键步)→ 上车。固定赛道 + 控光。</p></div>
+  </div>
+
+  <!-- PACKAGE 1: INDOOR -->
+  <div class="section-t">PACKAGE 1</div>
+  <h2 class="section-h">室内 · AI·GP Package(单车)</h2>
+  <p class="section-d">普通款 1/10 · 室内训练 + 竞技车 · 视觉识别路肩/对手 + 车载 LiDAR 冗余定位(全局定位由场地 OptiTrack 提供,见"赛道与场地")</p>
+  <div class="pkg indoor">
+    <div class="head">
+      <span class="em">🚗</span>
+      <div><h3>AI·GP Indoor Package</h3><div class="tagline">单车成本,场地定位系统另计</div></div>
+      <div class="price"><div class="rrpl">建议零售价 RRP</div><div class="rrp">¥9,800</div></div>
+    </div>
+    <table>
+      <thead><tr><td>部件</td><td>选型</td><td>用途</td><td class="num">成本¥</td><td class="num">可信度</td></tr></thead>
+      <tbody>
+        <tr><td class="part">算力主板</td><td class="model">Jetson Orin Nano Super 8GB</td><td class="use">车载推理 67 TOPS</td><td class="num">2,070</td><td class="num"><span class="chk v">⚠ 缺货溢价</span></td></tr>
+        <tr><td class="part">1/10 底盘</td><td class="model">国产无刷四驱(美嘉欣/飞神)</td><td class="use">行走机构,金属传动</td><td class="num">450</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">主摄像头</td><td class="model">CSI IMX219 广角 120°</td><td class="use">识别路肩/对手,端到端视觉</td><td class="num">90</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">车载 LiDAR</td><td class="model">思岚 RPLIDAR C1</td><td class="use">避障 + 定位冗余(动捕掉帧兜底)</td><td class="num">449</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">动捕标记</td><td class="model">被动反光标记球 ×4-6</td><td class="use">供场地 OptiTrack 追踪本车位姿</td><td class="num">120</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">电调</td><td class="model">VESC 6(兼容版)</td><td class="use">闭环限速 + 里程计</td><td class="num">300</td><td class="num"><span class="chk v">⚠ 验正品</span></td></tr>
+        <tr><td class="part">IMU</td><td class="model">BNO055</td><td class="use">姿态/航向</td><td class="num">140</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">动力电池×2 + 充电器</td><td class="model">3S LiPo + B6</td><td class="use">供电(双电池轮换)</td><td class="num">350</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">无线急停 / 接管</td><td class="model">工业无线急停按钮 + 软件看门狗</td><td class="use">一键安全停车(非遥控开车,失联自动刹停)</td><td class="num">300</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">系统盘</td><td class="model">NVMe SSD 256G</td><td class="use">系统/数据集</td><td class="num">160</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">集成杂项</td><td class="model">降压供电/USB Hub/支架/散热/线材</td><td class="use">系统集成</td><td class="num">350</td><td class="num"><span class="chk ok">✓</span></td></tr>
+      </tbody>
+    </table>
+    <div class="costrow">
+      <div class="cell cost"><div class="l">单车硬件成本</div><div class="v">¥4,780</div></div>
+      <div class="cell rrp"><div class="l">建议零售价 RRP</div><div class="v">¥9,800</div></div>
+      <div class="cell mar"><div class="l">毛利 / 毛利率</div><div class="v">¥5,020 · 51%</div></div>
+    </div>
+    <div class="note">🎯 <b>车的角色</b>:车载视觉识别路肩/对手做端到端贴线,LiDAR 兼避障与定位冗余,车上贴反光球让场地动捕实时算它的精确位姿。<b>全局厘米/毫米级定位由场地 OptiTrack 提供</b>(单独成本,多车共享)。</div>
+  </div>
+
+  <!-- PACKAGE 2: F1 OUTDOOR -->
+  <div class="section-t">PACKAGE 2</div>
+  <h2 class="section-h">室外 · AI·GP F1 Package(单车)</h2>
+  <p class="section-d">F1 款 1/10 · 室外竞技对决车 · RTK+IMU+轮速 融合定位 + 视觉/LiDAR 对手感知。<b style="color:var(--gold)">性价比款</b>(主推)与 <b style="color:var(--pink)">竞技款</b>(高配)两档。</p>
+  <div class="pkg f1">
+    <div class="head">
+      <span class="em">🏎️</span>
+      <div><h3>F1 Package · 性价比款</h3><div class="tagline">国产化强化 · 主推</div></div>
+      <div class="price"><div class="rrpl">建议零售价 RRP</div><div class="rrp">¥32,800</div></div>
+    </div>
+    <table>
+      <thead><tr><td>部件</td><td>选型</td><td>用途</td><td class="num">成本¥</td><td class="num">可信度</td></tr></thead>
+      <tbody>
+        <tr><td class="part">底盘 + F1 车壳</td><td class="model">国产高速无刷四驱 + 1/10 F1 壳</td><td class="use">高速行走(限速使用)</td><td class="num">1,500</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">算力主板</td><td class="model">Jetson Orin NX 16GB 套件</td><td class="use">融合感知 + 规划 157 TOPS</td><td class="num">5,000</td><td class="num"><span class="chk v">⚠ 核价</span></td></tr>
+        <tr><td class="part">RTK-GPS(车载)</td><td class="model">国产 UM982 移动站 + 双天线</td><td class="use">室外厘米级绝对定位 + 定向</td><td class="num">2,000</td><td class="num"><span class="chk v">⚠ 核价</span></td></tr>
+        <tr><td class="part">深度相机</td><td class="model">奥比中光 Gemini 335</td><td class="use">视觉:路肩/对手,强光优于 RealSense</td><td class="num">2,000</td><td class="num"><span class="chk v">⚠ 核价</span></td></tr>
+        <tr><td class="part">车载 LiDAR</td><td class="model">思岚 RPLIDAR S3(40m 抗强光)</td><td class="use">对手检测 + 避障</td><td class="num">3,800</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">IMU</td><td class="model">ICM-42688-P / BMI088</td><td class="use">高频姿态(填补 RTK 间隙)</td><td class="num">80</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">电调</td><td class="model">Flipsky VESC</td><td class="use">FOC 闭环 + 里程计</td><td class="num">700</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">动力电池 + 主板供电</td><td class="model">2-3S LiPo + 独立稳压</td><td class="use">供电(主板独立电源防重启)</td><td class="num">500</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">安全系统</td><td class="model">无线急停按钮 + 看门狗 + 物理断电</td><td class="use">竞技三重安全(全自主,非遥控)</td><td class="num">300</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">支架/线材/杂项</td><td class="model">3D 打印传感器塔架 + 防振 + 线材</td><td class="use">集成</td><td class="num">500</td><td class="num"><span class="chk ok">✓</span></td></tr>
+      </tbody>
+    </table>
+    <div class="costrow">
+      <div class="cell cost"><div class="l">单车硬件成本</div><div class="v">¥16,380</div></div>
+      <div class="cell rrp"><div class="l">建议零售价 RRP</div><div class="v">¥32,800</div></div>
+      <div class="cell mar"><div class="l">毛利 / 毛利率</div><div class="v">¥16,420 · 50%</div></div>
+    </div>
+    <div class="variant">⚡ <b>竞技款(高配可选,RRP ¥69,800)</b>:Traxxas 4-Tec 2.0 + AGX Orin 64GB(275 TOPS)+ Hokuyo UST-10LX(40Hz 低延迟)+ Xsens 工业 IMU + ArduSimple RTK + Trampa VESC —— 单车成本约 <b>¥41,000</b>。冲顶尖竞速 / 科研标杆时上。</div>
+    <div class="note">🎯 <b>车的角色</b>:室外靠 <b>RTK+IMU+轮速 EKF</b> 厘米级定位,视觉/LiDAR 管对手与避障;30km/h 是被限速的保守目标(底盘机械裕量到 60-110km/h)。⚠️ F1 开轮壳与传感器搭载冲突——<b>展示用 F1 壳,实战用平顶塔架</b>。</div>
+  </div>
+
+  <!-- TRACK / SENSING -->
+  <div class="section-t">TRACK · 赛道与场地(关键决策)</div>
+  <h2 class="section-h">定位怎么做——这是能否超人类的命门</h2>
+  <p class="section-d">中天是平面竞速赛道(无立体墙、室外无 GPS 精度),且你已实测 <b style="color:var(--red)">UWB / ArUco贴标 / 普通顶置摄像头全部失败</b>(高速 + 大场地下精度/延迟/运动模糊扛不住)。审核后的最终方案——</p>
+  <div class="twocol">
+    <div class="panel key">
+      <div class="pt">🏠 室内定位:两档可选</div>
+      <ul>
+        <li><b>🅰 旗舰档 · OptiTrack 动捕(稳超人类,推荐)</b>:红外相机+反光球三角测量,≠失败的顶置摄像头,不受运动模糊/光照拖累。延迟 4.5ms、精度 &lt;0.3mm,高速竞速金标准。16×8 需 16–24 台,场地一次性 <b>¥15–25 万</b>(多车共享)+ 车载 LiDAR 冗余。</li>
+        <li><b>🅱 经济档 · 车载 LiDAR + 人造立体地标(¥1–3 万级起步)</b>:沿赛道布反光柱/矮桩给 LiDAR 特征 → 粒子滤波定位(F1TENTH 验证,cm 级)。<b>不上动捕、不大改场地、省钱起步</b>;精度 cm 级(vs 动捕 mm),<b>超人类把握略低</b>。LiDAR 车上已含,额外只是地标桩(几百元)。</li>
+        <li>⚠️ 中天是<b>平面无墙</b>赛道:经济档必须<b>加立体地标</b>(纯平面 LiDAR 无特征也定不了位);旗舰档动捕不依赖赛道特征。</li>
+      </ul>
+    </div>
+    <div class="panel win">
+      <div class="pt">🏞️ 室外:RTK-GPS 基站 + 车载移动站</div>
+      <ul>
+        <li>室外无墙、GPS 米级不够 → <b>RTK 厘米级</b>(基站架场地、车载移动站),这是 Indy/A2RL 全尺寸 AI 赛车的标配。</li>
+        <li><b>RTK + IMU + 轮速 EKF 紧耦合</b>:RTK 给绝对位置,IMU 在两帧间高频推算,扛住高速急转。</li>
+        <li>赛道边界用<b>锥桶 + 标线</b>,车载摄像头/LiDAR 识别;加一个<b>边线计圈摄像头</b>做裁判。</li>
+        <li>基站是场地基础设施、一次性、多车共享。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="panel warn">
+    <div class="pt">✖ 已排除(实测/调研否决)</div>
+    <ul>
+      <li><b>UWB</b>:精度 10–30cm,贴线不够(你已弃)。 <b>ArUco/AprilTag 贴标</b>:高速运动模糊、转弯姿态误差飙到 20°+。 <b>普通 RGB 顶置摄像头</b>:大场地分辨率/精度掉 + 图像处理延迟,高速糊掉。</li>
+      <li><b>纯车载视觉端到端 RL</b>:DeepRacer 平台限速 ~14km/h,高速"赢人类"无公开实证,不作主方案(可作长期研究)。 <b>Vive Lighthouse</b>:覆盖上限 ~24m² &lt; 128m²,accuracy 仅 2-3cm,不适合。</li>
+    </ul>
+  </div>
+
+  <!-- SOFTWARE -->
+  <div class="section-t">SOFTWARE · 技术栈</div>
+  <h2 class="section-h">软件栈(几乎全开源免费)</h2>
+  <p class="section-d">主干模块化、RL 辅助;F1TENTH 生态把感知/规划/控制/RL 全链路备好了,可直接 fork。</p>
+  <div class="pkg">
+    <table>
+      <thead><tr><td>层</td><td>方案</td><td>角色</td><td class="num">成本</td></tr></thead>
+      <tbody>
+        <tr><td class="part">中间件</td><td class="model">ROS2 Humble</td><td class="use">机器人通信框架</td><td class="num"><span class="chk ok">免费</span></td></tr>
+        <tr><td class="part">仿真</td><td class="model">f1tenth_gym + gym_ros(Docker)</td><td class="use">训练环境,一键起</td><td class="num"><span class="chk ok">免费 MIT</span></td></tr>
+        <tr><td class="part">定位融合</td><td class="model">OptiTrack Motive / RTK + robot_localization EKF</td><td class="use">动捕/RTK 位姿 → 状态估计</td><td class="num"><span class="chk ok">开源 EKF</span></td></tr>
+        <tr><td class="part">赛车线 + 控制</td><td class="model">最小曲率赛车线 + Pure Pursuit / MPC</td><td class="use">最优线跟踪(竞速最强)</td><td class="num"><span class="chk ok">免费</span></td></tr>
+        <tr><td class="part">强化学习(辅助)</td><td class="model">Stable-Baselines3(PPO/SAC)</td><td class="use">超车决策 + 参数自整定</td><td class="num"><span class="chk ok">免费 MIT</span></td></tr>
+        <tr><td class="part">sim2real</td><td class="model">残差模型补偿(Swift 范式)</td><td class="use">仿真→真车校准,超人类关键步</td><td class="num"><span class="chk ok">自研/开源</span></td></tr>
+        <tr><td class="part">视觉大模型</td><td class="model">YOLO(对手/锥桶检测)/ SAM(分割)</td><td class="use">识别对手/可行驶区</td><td class="num"><span class="chk v">YOLO商用AGPL</span></td></tr>
+        <tr><td class="part">Vibe Coding</td><td class="model">GitHub Copilot / Cursor / Claude Code</td><td class="use">学生用 AI 写代码</td><td class="num"><span class="chk ok">学生版免费起</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note">🖥️ <b>训练算力</b>:本地 RTX 2070(8GB)够入门 SB3 + f1tenth_gym;并行 RL / Isaac Lab 建议 ≥12GB(4070Ti/4090)。软件几乎全开源,真正花钱的是整车 + 场地定位系统 + 一块训练 GPU。</div>
+  </div>
+
+  <!-- COST SUMMARY -->
+  <div class="section-t">SUMMARY · 成本与定价一览</div>
+  <h2 class="section-h">单车套装 + 场地侧投入</h2>
+  <div class="pkg">
+    <table>
+      <thead><tr><td>项目</td><td>定位</td><td class="num">硬件成本</td><td class="num">建议 RRP</td><td class="num">说明</td></tr></thead>
+      <tbody>
+        <tr><td class="part">🚗 室内 Package</td><td class="use">单车·室内</td><td class="num">¥4,780</td><td class="num" style="color:var(--gold);font-weight:800">¥9,800</td><td class="use">毛利 51%</td></tr>
+        <tr><td class="part">🏎️ F1 性价比款</td><td class="use">单车·室外(主推)</td><td class="num">¥16,380</td><td class="num" style="color:var(--gold);font-weight:800">¥32,800</td><td class="use">毛利 50%</td></tr>
+        <tr><td class="part">🏁 F1 竞技款</td><td class="use">单车·室外(高配)</td><td class="num">¥41,000</td><td class="num" style="color:var(--gold);font-weight:800">¥69,800</td><td class="use">毛利 41%</td></tr>
+        <tr><td colspan="5" style="padding:8px 12px;color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.1em">▼ 场地侧基础设施(一次性,多车共享,不进单车)</td></tr>
+        <tr><td class="part">📐 室内定位·旗舰 OptiTrack</td><td class="use">16×8 动捕主定位,稳超人类</td><td class="num">¥15-25 万</td><td class="num">—</td><td class="use">⚠ 厂商按场地出报价</td></tr>
+        <tr><td class="part">📐 室内定位·经济(替代)</td><td class="use">车载 LiDAR + 人造立体地标,粒子滤波</td><td class="num">¥500-2,000</td><td class="num">—</td><td class="use">不上动捕,cm级,省钱起步</td></tr>
+        <tr><td class="part">📡 室外 RTK 基站</td><td class="use">厘米级全局定位</td><td class="num">¥1,500-2,500</td><td class="num">—</td><td class="use">多车共享</td></tr>
+        <tr><td class="part">🛡️ 控光/锥桶/标线/计圈</td><td class="use">固定赛道 + 裁判</td><td class="num">¥3,000-1万</td><td class="use">—</td><td class="use">室内控光是 sim2real 成败项</td></tr>
+        <tr><td class="part">🖥️ 训练 GPU 工作站</td><td class="use">可选,并行 RL</td><td class="num">¥8,000-2万</td><td class="num">—</td><td class="use">本地 2070 可起步</td></tr>
+      </tbody>
+    </table>
+    <div class="note">💡 <b>关键结构</b>:单车成本不高,<b>室内 OptiTrack(¥15-25万)是最大的一次性场地投入</b>——但它是"稳定超过人类"的定位命门,且多车共享、可办赛事。室外靠便宜得多的 RTK 基站即可。</div>
+  </div>
+
+  <!-- FEASIBILITY -->
+  <div class="section-t">FEASIBILITY · 能不能超人类(业界证据)</div>
+  <h2 class="section-h">可行性与诚实边界</h2>
+  <div class="pkg">
+    <table>
+      <thead><tr><td>标杆</td><td>AI vs 人类结果</td><td>用的什么</td></tr></thead>
+      <tbody>
+        <tr><td class="part">苏黎世 Swift 无人机</td><td class="use">✅ 25:15 击败人类世界冠军(Nature 2023)</td><td class="use">训练用动捕真值 + sim2real,比赛机载视觉</td></tr>
+        <tr><td class="part">A2RL 全尺寸(vs 前 F1 车手)</td><td class="use">2024 落后 ~10 秒/圈 → 2025 单圈反超 1.58 秒</td><td class="use">模块化:RTK 定位 + 赛车线优化 + MPC</td></tr>
+        <tr><td class="part">F1TENTH(1/10)</td><td class="use">赛车线优化+Pure Pursuit 最快 > 端到端 RL(慢 ~18%)</td><td class="use">粒子滤波定位;定位误差=命门</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="panel win">
+    <div class="pt">✅ 现实的突破口</div>
+    <ul>
+      <li><b>先打单圈计时赛</b>:AI 跑线一致、零疲劳、毫秒反应,在单圈极限速度上有现实潜力<b>超过人类遥控手</b>(人类缺第一视角、缺轮胎极限感知)。这是最稳的取胜赛制。</li>
+      <li>路线已被业界验证:<b>高精定位(动捕/RTK)+ 最优赛车线 + MPC,RL 调超车/参数</b>。照抄即可,不走没实证的纯端到端。</li>
+    </ul>
+  </div>
+  <div class="panel warn">
+    <div class="pt">⚠ 诚实边界 + 必做工程(不做会塌)</div>
+    <ul>
+      <li><b>1/10 目前无公开"战胜人类"记录</b>——我们是在做前沿,单圈可超、贴身缠斗 AI 仍弱(全尺寸 AI 都还在摔),对外别把多车对决说满。</li>
+      <li><b>sim-to-real 残差补偿必做</b>(Swift 的关键步),否则仿真训的策略上真车会崩。</li>
+      <li><b>固定赛道 + 室内控光</b>(Swift 失败模式就是光照变化)、室外防 GPS 多径。</li>
+      <li><b>需现场核价</b>:OptiTrack 按 16×8 出正式报价;Jetson/VESC/Orbbec/UM982 国内到手价。</li>
+    </ul>
+  </div>
+
+  <div class="foot">CRAYXUS AI·GP　·　软硬件方案 & 采购清单　·　路线经 F1TENTH / IAC / A2RL / Swift 调研审核　·　价格 2026 国内参考,以实时报价为准</div>
+
+</div>
+</body>
+</html>
