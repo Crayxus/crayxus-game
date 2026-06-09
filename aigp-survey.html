@@ -114,9 +114,16 @@
   .route h4{color:var(--cyan)} .risk h4{color:var(--red)} .raw h4{color:var(--dim)}
   .route .rn{font-size:17px;font-weight:800;color:#fff;margin-bottom:4px}
   .route .rd{font-size:13.5px;color:var(--dim);margin-bottom:10px}
-  .route .steps{display:flex;gap:6px;flex-wrap:wrap}
-  .route .steps span{font-size:12px;padding:5px 10px;border-radius:20px;background:rgba(25,227,255,.12);
+  .route .steps,.plan .steps{display:flex;gap:6px;flex-wrap:wrap}
+  .route .steps span,.plan .steps span{font-size:12px;padding:5px 10px;border-radius:20px;background:rgba(25,227,255,.12);
     border:1px solid rgba(25,227,255,.35);color:var(--cyan);font-weight:700}
+  .plan h4{color:var(--gold)}
+  .plan .rn{font-size:16px;font-weight:800;color:#fff;margin-bottom:8px}
+  .plan .pmeta{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:13px;margin:10px 0;color:var(--dim)}
+  .plan .pmeta b{color:var(--cyan);font-weight:600;white-space:nowrap}
+  .plan .pitch{margin-top:10px;padding:11px 13px;border-radius:10px;background:rgba(255,207,92,.08);border:1px solid rgba(255,207,92,.32);font-size:13px;color:var(--ink);line-height:1.6}
+  .plan .tnotes{margin-top:8px;font-size:12.5px;color:var(--dim);line-height:1.6}
+  .plan .pitch b,.plan .tnotes b{color:var(--gold)}
   .risk ul{margin:0;padding-left:18px} .risk li{font-size:13px;margin:6px 0;color:#ffd0d6}
   .risk li b{color:#fff} .risk .ok{color:var(--green);list-style:none;margin-left:-18px}
   .raw table{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -234,6 +241,20 @@
         <div class="rn" id="r_name">—</div>
         <div class="rd" id="r_desc">—</div>
         <div class="steps" id="r_steps"></div>
+      </div>
+
+      <div class="block plan">
+        <h4>📦 推荐课程包</h4>
+        <div class="rn" id="p_title">—</div>
+        <div class="steps" id="p_steps"></div>
+        <div class="pmeta">
+          <b>课时</b><span id="p_sessions">—</span>
+          <b>起点</b><span id="p_start">—</span>
+          <b>成果</b><span id="p_outcome">—</span>
+          <b>陪伴</b><span id="p_support">—</span>
+        </div>
+        <div class="pitch" id="p_pitch">—</div>
+        <div class="tnotes" id="p_tnotes">—</div>
       </div>
 
       <div class="block risk">
@@ -459,20 +480,36 @@ function buildProfile(r){
   else if(wants.includes("story")) gtype="履历活动型";
   const goal = {lv:gtype, d:`方向契合 ${fit}`};
 
-  // ROUTE
+  // ROUTE + 课程包
   let route;
   const tight = time.k==="lo";
   if(tight){
-    if(wants.includes("comp")) route={name:"压缩冲刺 · 竞赛线",desc:"砍掉铺垫，最快路径打白名单赛事；L4 精简、L6 跳过。",steps:["Demo","L1+L2 合并","L3 训练","L5 优化","L7 竞赛"]};
-    else if(wants.includes("paper")) route={name:"精炼科研线",desc:"聚焦 1 篇可提交论文，围绕一个清晰实验展开。",steps:["L1","L2","L3","L4 实验","L7 成文答辩"]};
-    else route={name:"核心成果线",desc:"时间有限，先稳拿一个亮眼成果与体验。",steps:["Demo","L1","L3 训练","L5","L7"]};
+    if(wants.includes("comp")) route={name:"压缩冲刺 · 竞赛线",desc:"砍掉铺垫，最快路径打白名单赛事；L4 精简、L6 跳过。",steps:["Demo","L1+L2 合并","L3 训练","L5 优化","L7 竞赛"],sessions:"约 8 次课（每周 2h，~2 个月冲刺）",start:"概念精简，直奔上手与训练",outcome:"锁定 1 个白名单赛事，产出可参赛 AI 赛车 + 答辩材料"};
+    else if(wants.includes("paper")) route={name:"精炼科研线",desc:"聚焦 1 篇可提交论文，围绕一个清晰实验展开。",steps:["L1","L2","L3","L4 实验","L7 成文答辩"],sessions:"约 10 次课（每周 2h）",start:"围绕一个清晰实验切入",outcome:"1 篇可提交 / 可投科创的论文 + 答辩材料"};
+    else route={name:"核心成果线",desc:"时间有限，先稳拿一个亮眼成果与体验。",steps:["Demo","L1","L3 训练","L5","L7"],sessions:"约 8 次课",start:"先跑通最短闭环，拿到第一个成果",outcome:"一个亮眼成果 + 完整体验，可作申请活动"};
   } else if(drive.k==="hi" && fit==="高"){
-    route={name:"科研深耕 · 全程线",desc:"自驱强、方向契合，走满全程含强化学习，论文+竞赛+推荐三收。",steps:["L1","L2","L3","L4","L5","L6 RL","L7"]};
+    route={name:"科研深耕 · 全程线",desc:"自驱强、方向契合，走满全程含强化学习，论文+竞赛+推荐三收。",steps:["L1","L2","L3","L4","L5","L6 RL","L7"],sessions:"约 12–16 次课（整学期 +）",start:"完整起步，逐级深入",outcome:"论文 + 竞赛 + 教授推荐 三收，含强化学习进阶亮点"};
   } else if(base.k==="lo" || drive.k==="lo"){
-    route={name:"兴趣养成线",desc:"放慢前段、多动手少概念，先用成就感留住兴趣，再谈硬成果。",steps:["Demo","L1 慢","L2","L3 高光","L4","L5"]};
+    route={name:"兴趣养成线",desc:"放慢前段、多动手少概念，先用成就感留住兴趣，再谈硬成果。",steps:["Demo","L1 慢","L2","L3 高光","L4","L5"],sessions:"约 10–12 次课（节奏放慢）",start:"从最基础 + 多动手，先用成就感留住兴趣",outcome:"稳定兴趣 + 一个能讲的项目故事，再谈硬成果"};
   } else {
-    route={name:"标准成长线",desc:"按部就班走完主线，L6 视进度选修。",steps:["L1","L2","L3","L4","L5","L6?","L7"]};
+    route={name:"标准成长线",desc:"按部就班走完主线，L6 视进度选修。",steps:["L1","L2","L3","L4","L5","L6?","L7"],sessions:"约 10–12 次课",start:"按部就班完整起步",outcome:"完整作品 + 可选竞赛 / 论文方向"};
   }
+
+  // 给家长话术 + 给老师带课要点
+  const MAJOR_CN = { cs:"计算机 / AI", eng:"工程 / 机器人", sci:"理科（数/物）", biz:"商科 / 经济", social:"文科 / 社科", med:"医学 / 生化", undecided:"待定方向" };
+  const majorCN = MAJOR_CN[major] || "待定方向";
+  const GOAL_TEXT = { "竞赛冲刺型":"冲白名单 / 国家级赛事名次", "论文科研型":"产出可提交的论文", "推荐背书型":"拿到教授推荐 + 科研实证", "履历活动型":"打磨一个亮眼的申请活动故事", "兴趣探索型":"先培养兴趣、跑通完整项目" };
+  const support = drive.k==="hi" ? "轻陪伴（可放手、可委以挑战）" : drive.k==="lo" ? "强陪伴（勤反馈 + 家长周报）" : "中等陪伴（阶段性激励）";
+  const parentPitch = `为「${r.name||"该学生"}」定制【${route.name}】：${route.sessions}，主攻「${GOAL_TEXT[gtype]||"综合成长"}」，结合 ${majorCN} 方向，终点上赛道 + 攒科创证书与教授推荐。`;
+  const tn = [support];
+  if(base.k==="lo") tn.push("前段放慢、多动手少概念"); else if(base.k==="hi") tn.push("可跳过基础、直接进阶");
+  if(drive.k==="lo") tn.push("勤给阶段性正反馈、与家长保持沟通");
+  if(wants.includes("comp")) tn.push("盯紧竞赛 deadline 与成果产出");
+  if(wants.includes("paper")) tn.push("围绕一个可写成论文的实验推进");
+  if(["daily","read"].includes(g("mathen.en")) && (wants.includes("paper")||wants.includes("rec"))) tn.push("配套英文写作 / 答辩扶持");
+  if(g("aiexp")==="none") tn.push("先补一节 AI 工具入门");
+  const teacherNotes = tn.join("；") + "。";
+  const plan = { title:route.name, steps:route.steps, sessions:route.sessions, start:route.start, outcome:route.outcome, support:support, parentPitch:parentPitch, teacherNotes:teacherNotes };
 
   // RISKS
   const risks=[];
@@ -486,7 +523,7 @@ function buildProfile(r){
   if(g("aiexp")==="deep") risks.push("__OK__AI 使用经验深（会调提示词/碰过编程）：<b>上手会很快，可适当拔高起点与目标</b>。");
   if(time.k==="hi" && drive.k==="hi" && risks.length===0) risks.push("__OK__时间足、自驱强、无明显风险——<b>可大胆拔高目标</b>。");
 
-  return {time, base, drive, goal, fit, route, risks};
+  return {time, base, drive, goal, fit, route, plan, risks};
 }
 
 /* ========== STAFF UI（数据来自后端） ========== */
@@ -538,7 +575,7 @@ function renderDash(idx){
     document.getElementById("r_raw").innerHTML=""; document.getElementById("r_remark").textContent="";
     return;
   }
-  curIdx=idx; const r=all[idx]; const p=r.profile||buildProfile(r);
+  curIdx=idx; const r=all[idx]; const p=(r.profile&&r.profile.plan)?r.profile:buildProfile(r);
   document.getElementById("d_name").textContent=r.name;
   document.getElementById("d_meta").textContent=
     `提交于 ${fmt(r.ts)}　·　${r.contact?("联系："+r.contact):"未留联系方式"}`;
@@ -552,6 +589,16 @@ function renderDash(idx){
     : `<li class="ok">✅ 无明显风险。</li>`;
   document.getElementById("r_raw").innerHTML = rawRows(r);
   document.getElementById("r_remark").innerHTML = r.remark?`<b style="color:var(--cyan)">备注：</b>${esc(r.remark)}`:"";
+  // 推荐课程包
+  const pl = p.plan || {};
+  document.getElementById("p_title").textContent = pl.title || p.route.name;
+  document.getElementById("p_steps").innerHTML = (pl.steps||p.route.steps||[]).map(s=>`<span>${s}</span>`).join("");
+  document.getElementById("p_sessions").textContent = pl.sessions || "—";
+  document.getElementById("p_start").textContent = pl.start || "—";
+  document.getElementById("p_outcome").textContent = pl.outcome || "—";
+  document.getElementById("p_support").textContent = pl.support || "—";
+  document.getElementById("p_pitch").innerHTML = pl.parentPitch ? `<b>给家长：</b>${esc(pl.parentPitch)}` : "—";
+  document.getElementById("p_tnotes").innerHTML = pl.teacherNotes ? `<b>给老师：</b>${esc(pl.teacherNotes)}` : "—";
 }
 function setPC(k,v,vv){ document.getElementById("pf_"+k).textContent=v; document.getElementById("pv_"+k).textContent=vv; }
 
@@ -595,6 +642,7 @@ function recordText(r){
   s+=`【CRAYXUS AI·GP 学情档案】\n姓名：${r.name}\n联系：${r.contact||"—"}\n提交：${fmt(r.ts)}\n`;
   s+=`\n— 画像 —\n时间：${p.time.lv}（${p.time.d}）\n基础：${p.base.lv}（${p.base.d}）\n自驱：${p.drive.lv}（${p.drive.d}）\n目标：${p.goal.lv}（${p.goal.d}）\n`;
   s+=`\n— 建议路线 —\n${p.route.name}：${p.route.desc}\n路径：${p.route.steps.join(" → ")}\n`;
+  if(p.plan){ s+=`\n— 推荐课程包 —\n${p.plan.title}\n课时：${p.plan.sessions}\n起点：${p.plan.start}\n成果：${p.plan.outcome}\n陪伴：${p.plan.support}\n给家长：${p.plan.parentPitch}\n给老师：${p.plan.teacherNotes}\n`; }
   s+=`\n— 风险与提醒 —\n`+ (p.risks.length? p.risks.map(x=>"· "+strip(x)).join("\n") : "· 无明显风险");
   s+=`\n\n— 原始回答 —\n`;
   Object.keys(LB).forEach(k=>{ const v=r.answers[k]; if(v===undefined) return;
