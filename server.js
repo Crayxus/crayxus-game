@@ -18,6 +18,10 @@ const { simulateGameWithMMR } = require('./game-simulator');
 const PORT = process.env.PORT || 3000;
 const SERVER_VERSION = 'V43';
 app.get('/api/version', (req, res) => res.json({ version: SERVER_VERSION }));
+app.post('/api/cli-log', (req, res) => {
+    try { gameLog('[ClientLog] ' + JSON.stringify(req.body)); } catch(e) {}
+    res.json({ ok: true });
+});
 
 // Replay analysis page
 app.get('/replay', (req, res) => res.sendFile(path.join(__dirname, 'replay.html')));
@@ -430,6 +434,94 @@ app.get('/api/progress/:userId', (req, res) => {
         res.json({ success: false, msg: e.message });
     }
 });
+
+// ============ AI·GP 课前调查表（统一收集 + 邮件双保险）============
+const AIGP_SURVEY_DIR = path.join(__dirname, 'aigp_surveys');
+if (!fs.existsSync(AIGP_SURVEY_DIR)) fs.mkdirSync(AIGP_SURVEY_DIR);
+const AIGP_SURVEY_KEY = process.env.AIGP_SURVEY_KEY || '2580'; // 工作人员查看口令，建议在 Render 环境变量覆盖
+
+// 邮件通知：仅当配置了 GMAIL_USER + GMAIL_APP_PASS 时启用（否则只存 JSON，不报错）
+let aigpMailer = null;
+(function () {
+    try {
+        if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASS) {
+            const nodemailer = require('nodemailer');
+            aigpMailer = nodemailer.createTransport({
+                service: 'gmail',
+                auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASS }
+            });
+            gameLog('[AIGP] Survey mailer ready');
+        } else {
+            gameLog('[AIGP] Survey mailer disabled (set GMAIL_USER & GMAIL_APP_PASS to enable)');
+        }
+    } catch (e) { gameLog('[AIGP] Mailer init error: ' + e.message); }
+})();
+
+function sendAigpSurveyMail(rec) {
+    if (!aigpMailer) return;
+    const to = process.env.SURVEY_NOTIFY_TO || process.env.GMAIL_USER;
+    const p = rec.profile || {};
+    const L = [];
+    L.push('🚗 新的 AI·GP 课前调查');
+    L.push('姓名：' + rec.name);
+    L.push('联系：' + (rec.contact || '—'));
+    L.push('提交时间：' + (rec.ts || ''));
+    if (p.time)  L.push('时间档：' + p.time.lv);
+    if (p.base)  L.push('基础档：' + p.base.lv);
+    if (p.drive) L.push('自驱档：' + p.drive.lv);
+    if (p.goal)  L.push('目标档：' + p.goal.lv);
+    if (p.route) L.push('建议路线：' + p.route.name + '（' + (p.route.desc || '') + '）');
+    if (rec.remark) L.push('备注：' + rec.remark);
+    L.push('');
+    L.push('—— 完整档案（JSON）——');
+    L.push(JSON.stringify(rec, null, 2));
+    aigpMailer.sendMail({
+        from: process.env.GMAIL_USER,
+        to: to,
+        subject: '【AI·GP课前调查】' + rec.name,
+        text: L.join('\n')
+    }, function (err) {
+        if (err) gameLog('[AIGP] Mail error: ' + err.message);
+        else gameLog('[AIGP] Mail sent: ' + rec.name);
+    });
+}
+
+// 学生提交
+app.post('/api/aigp-survey', (req, res) => {
+    try {
+        const rec = req.body || {};
+        if (!rec.name) return res.json({ success: false, msg: 'Missing name' });
+        rec.ts = rec.ts || new Date().toISOString();
+        rec.serverReceivedAt = new Date().toISOString();
+        const safe = String(rec.name).replace(/[^\w一-龥]/g, '').slice(0, 20) || 'student';
+        const fname = 'survey_' + Date.now() + '_' + safe + '.json';
+        fs.writeFileSync(path.join(AIGP_SURVEY_DIR, fname), JSON.stringify(rec, null, 2), 'utf8');
+        gameLog('[AIGP] Survey saved: ' + fname);
+        sendAigpSurveyMail(rec); // 双保险：邮件永久留底
+        res.json({ success: true });
+    } catch (e) {
+        gameLog('[AIGP] Survey save error: ' + e.message);
+        res.json({ success: false, msg: e.message });
+    }
+});
+
+// 工作人员查看全部（口令保护）
+app.get('/api/aigp-survey/list', (req, res) => {
+    if ((req.query.key || '') !== AIGP_SURVEY_KEY) {
+        return res.status(403).json({ success: false, msg: 'forbidden' });
+    }
+    try {
+        const files = fs.readdirSync(AIGP_SURVEY_DIR).filter(f => f.endsWith('.json')).sort().reverse();
+        const list = files.map(f => {
+            try { return JSON.parse(fs.readFileSync(path.join(AIGP_SURVEY_DIR, f), 'utf8')); }
+            catch (e) { return null; }
+        }).filter(Boolean);
+        res.json({ success: true, count: list.length, list: list });
+    } catch (e) { res.json({ success: false, msg: e.message, list: [] }); }
+});
+
+// 调查表页面（学生入口：/aigp-survey）
+app.get('/aigp-survey', (req, res) => res.sendFile(path.join(__dirname, 'aigp-survey.html')));
 
 // Redirect for /wxlogin QR scan (in case someone opens QR URL in browser)
 app.get('/wxlogin', (req, res) => {
