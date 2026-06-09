@@ -436,8 +436,10 @@ app.get('/api/progress/:userId', (req, res) => {
 });
 
 // ============ AI·GP 课前调查表（统一收集 + 邮件双保险）============
-const AIGP_SURVEY_DIR = path.join(__dirname, 'aigp_surveys');
-if (!fs.existsSync(AIGP_SURVEY_DIR)) fs.mkdirSync(AIGP_SURVEY_DIR);
+// 数据写到持久盘挂载点（Render Persistent Disk，DATA_DIR 如 /var/data）；未设则回退到代码目录（本地开发）
+const DATA_ROOT = process.env.DATA_DIR || __dirname;
+const AIGP_SURVEY_DIR = path.join(DATA_ROOT, 'aigp_surveys');
+if (!fs.existsSync(AIGP_SURVEY_DIR)) fs.mkdirSync(AIGP_SURVEY_DIR, { recursive: true });
 const AIGP_SURVEY_KEY = process.env.AIGP_SURVEY_KEY || '2580'; // 工作人员查看口令，建议在 Render 环境变量覆盖
 
 // 邮件通知：仅当配置了 GMAIL_USER + GMAIL_APP_PASS 时启用（否则只存 JSON，不报错）
