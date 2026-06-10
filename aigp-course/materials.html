@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CRAYXUS AI·GP — 四阶段物料清单 · 试点版</title>
 <meta property="og:title" content="CRAYXUS AI·GP · 四阶段物料清单(试点版)">
-<meta property="og:description" content="T1–T4 全部采购物料 · 1 学生试点口径(中天车+中天5×10赛道) · 下单节奏与复用清单。">
+<meta property="og:description" content="T1–T4 采购概览 · 1 学生试点口径(中天车+中天5×10赛道) · 下单节奏与复用清单。">
 <style>
   :root{
     --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
@@ -20,7 +20,7 @@
       radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.14), transparent 55%),
       linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
     background-attachment:fixed;padding:0 0 80px}
-  .wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+  .wrap{max-width:980px;margin:0 auto;padding:0 22px}
   .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
   header{padding:58px 0 22px;text-align:center}
   .kicker{letter-spacing:.4em;font-size:12px;color:var(--cyan);font-weight:800}
@@ -33,25 +33,17 @@
   .glance .g .gv{font-size:18px;font-weight:900;margin-top:3px}
   .glance .g.c1 .gv{color:var(--cyan)} .glance .g.c2 .gv{color:var(--purple)}
   .glance .g.c3 .gv{color:var(--pink)} .glance .g.c4 .gv{color:var(--green)} .glance .g.c5 .gv{color:var(--gold)}
-  .section-t{font-size:13px;letter-spacing:.3em;text-align:center;margin:50px 0 6px;font-weight:700}
-  .t1 .section-t{color:var(--cyan)} .t2 .section-t{color:var(--purple)} .t3 .section-t{color:var(--pink)} .t4 .section-t{color:var(--gold)}
-  .section-h{font-size:24px;text-align:center;font-weight:800;margin-bottom:6px}
-  .section-d{text-align:center;color:var(--dim);font-size:13px;max-width:760px;margin:0 auto 20px}
-  .pkg{margin-top:14px;border-radius:18px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(8px);overflow:hidden}
-  .pkg .head{padding:13px 20px;font-size:14px;font-weight:800;border-bottom:1px solid var(--line)}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  thead td{color:var(--cyan);font-weight:700;font-size:11.5px;letter-spacing:.06em;padding:10px 12px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.03)}
-  tbody td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
-  tbody tr:hover{background:rgba(255,255,255,.025)}
-  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
-  td.part{color:var(--ink);font-weight:600}
-  td.model{color:var(--dim)} td.use{color:var(--dim);font-size:12.3px}
-  td.warn{color:var(--gold)}
-  td.zero{color:var(--green)}
-  tr.sum td{font-weight:900;border-top:1px solid var(--line);background:rgba(255,255,255,.03)}
-  tr.sum .num{color:var(--gold);font-size:14px}
-  .note{font-size:12.5px;color:var(--dim);padding:12px 18px;background:rgba(255,255,255,.02)}
-  .note b{color:var(--ink)}
+  .pkg{margin-top:34px;border-radius:18px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(8px);overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead td{color:var(--cyan);font-weight:700;font-size:11.5px;letter-spacing:.06em;padding:11px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.03)}
+  tbody td{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:800}
+  td.stage{font-weight:900;white-space:nowrap}
+  td.stage small{display:block;font-weight:500;color:var(--dim);font-size:11px}
+  td.what{color:var(--dim);font-size:13.5px} td.what b{color:var(--ink)}
+  tr.t1 td.stage{color:var(--cyan)} tr.t2 td.stage{color:var(--purple)} tr.t3 td.stage{color:var(--pink)} tr.t4 td.stage{color:var(--gold)}
+  tr.sum td{font-weight:900;font-size:15px;border-top:1px solid var(--line);background:rgba(255,207,92,.06)}
+  tr.sum .num{color:var(--gold);font-size:17px}
   .panel{margin-top:14px;padding:18px 22px;border-radius:16px;background:var(--glass);border:1px solid var(--line)}
   .panel.win{border-color:rgba(60,226,154,.3);background:rgba(60,226,154,.05)}
   .panel.key{border-color:rgba(255,207,92,.4);background:rgba(255,207,92,.06)}
@@ -59,13 +51,13 @@
   .panel.win .pt{color:var(--green)} .panel.key .pt{color:var(--gold)}
   .panel ul{margin:0;padding-left:20px} .panel li{font-size:13.5px;color:var(--dim);margin:7px 0}
   .panel li b{color:var(--ink)}
-  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}
   .foot{text-align:center;margin-top:50px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
   @media(max-width:820px){
     h1{font-size:27px}
     .glance{grid-template-columns:repeat(2,1fr)} .glance .g.c5{grid-column:1 / -1}
     .twocol{grid-template-columns:1fr}
-    table{font-size:12px} td.use{display:none}
+    table{font-size:13px}
   }
 </style>
 </head>
@@ -75,151 +67,77 @@
   <header>
     <div class="kicker">CRAYXUS AI·GP　|　STAGED MATERIALS · PILOT</div>
     <h1>四阶段物料清单 <span class="neon">· 试点版</span></h1>
-    <p class="sub">口径:<b style="color:#fff">1 学生试点 @ 中天</b> · 车用<b style="color:#fff">中天模型车 ×2</b>(ZT THUNDER 房车,加装 AI 套件)· 赛道用<b style="color:#fff">中天现成 5×10 室内赛道</b>。价格为 2026 国内成本参考价。
-      12 人班口径与单车 BOM 明细见 <a href="hardware.html">软硬件方案 & 采购清单</a>。</p>
+    <p class="sub">口径:<b style="color:#fff">1 学生试点 @ 中天</b> · 车用<b style="color:#fff">中天模型车</b>(加装 AI 套件)· 赛道用<b style="color:#fff">中天现成 5×10 室内赛道</b>。
+      逐件 BOM 与 12 人班口径见 <a href="hardware.html">软硬件方案 & 采购清单</a>。</p>
     <div class="glance">
       <div class="g c1"><div class="gl">T1 第 1–3 月</div><div class="gv">≈¥0.8–0.9 万</div></div>
-      <div class="g c2"><div class="gl">T2 第 4–6 月</div><div class="gv">≈¥0.16–0.4 万</div></div>
+      <div class="g c2"><div class="gl">T2 第 4–6 月</div><div class="gv">≈¥0.2–0.4 万</div></div>
       <div class="g c3"><div class="gl">T3 第 7–9 月</div><div class="gv">≈¥1.8–2.1 万</div></div>
       <div class="g c4"><div class="gl">T4 第 10–12 月</div><div class="gv">≈¥0.1–0.3 万</div></div>
       <div class="g c5"><div class="gl">💰 全年合计(动捕不买)</div><div class="gv">≈¥2.8–3.7 万</div></div>
     </div>
   </header>
 
-  <!-- T1 -->
-  <div class="t1">
-    <div class="section-t">T1 · 第 1–3 月</div>
-    <h2 class="section-h">看懂 AI · 让车动 —— 全年最大一批</h2>
-    <p class="section-d">中天车 ×2(学生 1 + 教具 1)各加装一套 AI 改装套件。LiDAR 随套件买(T1 里程碑含"遇障停",不缓买);VESC 暂缓到 T3。</p>
-  </div>
   <div class="pkg">
-    <div class="head">🔧 AI 改装套件 ×2(装上中天车)· 单套 ≈¥3,450</div>
     <table>
-      <thead><tr><td>物料</td><td>选型</td><td>用途</td><td class="num">数量</td><td class="num">金额¥</td></tr></thead>
+      <thead><tr><td>阶段</td><td>采购什么(概要)</td><td class="num">金额</td></tr></thead>
       <tbody>
-        <tr><td class="part">底盘整车</td><td class="model">中天 ZT THUNDER 房车(RTR,含电调/舵机/电池)</td><td class="use">合作方提供;与中天杯赛事同款,人机对决可比</td><td class="num">2</td><td class="num zero">¥0</td></tr>
-        <tr><td class="part">算力主板</td><td class="model">Jetson Orin Nano Super 8GB</td><td class="use">车载推理 67 TOPS</td><td class="num">2</td><td class="num warn">4,600 ⚠最先下单</td></tr>
-        <tr><td class="part">摄像头</td><td class="model">IMX219 广角 CSI 120–160°</td><td class="use">主感知:沿蓝边走的"眼睛"</td><td class="num">2</td><td class="num">180</td></tr>
-        <tr><td class="part">车载 LiDAR</td><td class="model">思岚 RPLIDAR C1</td><td class="use">T1 遇障停 + T2 起当定位主力</td><td class="num">2</td><td class="num">900</td></tr>
-        <tr><td class="part">电调</td><td class="model">原车电调复用 + ESP32 出 PWM 限速/失联刹停</td><td class="use">VESC 暂缓到 T3 提速时再上(省 ¥600)</td><td class="num">—</td><td class="num zero">¥0</td></tr>
-        <tr><td class="part">IMU</td><td class="model">现有 1 颗复用 + 补 1 颗 MPU6050</td><td class="use">T2/T3 融合才用,教学精度够</td><td class="num">1</td><td class="num">30</td></tr>
-        <tr><td class="part">电池补充</td><td class="model">备用电池 1–2 块(RTR 自带 1 块)</td><td class="use">双车轮换;锂电陆运,早下单</td><td class="num">1–2</td><td class="num">300</td></tr>
-        <tr><td class="part">系统盘</td><td class="model">NVMe SSD 256G</td><td class="use">系统 / 数据集</td><td class="num">2</td><td class="num">320</td></tr>
-        <tr><td class="part">急停</td><td class="model">继电器 + 物理总断电开关</td><td class="use">软件急停外的最后兜底</td><td class="num">2</td><td class="num">300</td></tr>
-        <tr><td class="part">集成杂项</td><td class="model">降压模块 / USB Hub / 散热 / 线材</td><td class="use">系统集成;支架用 Bambu A1 自打印</td><td class="num">2</td><td class="num">600</td></tr>
-        <tr class="sum"><td colspan="4">套件小计(×2,含电池/IMU 补充)</td><td class="num">≈7,230</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="pkg">
-    <div class="head">🏫 场地与教学</div>
-    <table>
-      <thead><tr><td>物料</td><td>选型</td><td>用途</td><td class="num">数量</td><td class="num">金额¥</td></tr></thead>
-      <tbody>
-        <tr><td class="part">赛道</td><td class="model">中天现成 5×10 室内赛道</td><td class="use">T1–T2 室内主场(环线约 22–26m,直道 8–9m)</td><td class="num">—</td><td class="num zero">¥0</td></tr>
-        <tr><td class="part">赛道辅料</td><td class="model">蓝色胶带压边 + 小锥桶 + 软障碍物</td><td class="use">边线对比度不够时压蓝边;遇障停教学</td><td class="num">1 批</td><td class="num">150–350</td></tr>
-        <tr><td class="part">WiFi 路由器</td><td class="model">家用即可</td><td class="use">车↔PC 自组局域网,不依赖场地网络</td><td class="num">1</td><td class="num">200</td></tr>
-        <tr><td class="part">工具与备件</td><td class="model">工具箱 + 原厂配件(轮胎/舵机,向中天直采)</td><td class="use">整车厂配件供应链,成本最低、型号必配</td><td class="num">1 套</td><td class="num">500–1,000</td></tr>
-        <tr><td class="part">证书物料</td><td class="model">L0–L2 证书打印</td><td class="use">阶梯认证</td><td class="num">1 批</td><td class="num">100</td></tr>
-        <tr><td class="part">AI 编程账号</td><td class="model">Copilot / 通义灵码</td><td class="use">vibe coding 主线;给学生独立账号</td><td class="num">1</td><td class="num">0–100/月</td></tr>
-        <tr class="sum"><td colspan="4">T1 合计(套件 + 场地教学)</td><td class="num">≈8,200–9,000</td></tr>
+        <tr class="t1">
+          <td class="stage">T1<small>第 1–3 月</small></td>
+          <td class="what"><b>AI 改装套件 ×2</b>(车载电脑 + 摄像头 + 激光雷达等,装上中天车)+ <b>教学物资一批</b>(工具备件、蓝胶带、路由器、证书)。车与赛道由中天提供,零采购。</td>
+          <td class="num">≈¥8,000–9,000</td>
+        </tr>
+        <tr class="t2">
+          <td class="stage">T2<small>第 4–6 月</small></td>
+          <td class="what"><b>计时门 + 定位地标 + 数据存储</b>。训练算力用现有显卡,零采购。</td>
+          <td class="num">≈¥2,000–4,000</td>
+        </tr>
+        <tr class="t3">
+          <td class="stage">T3<small>第 7–9 月</small></td>
+          <td class="what"><b>竞速级改装套件 ×1</b>(算力升级 + RTK 厘米级定位 + 深度相机等,装上中天无刷高速版)+ <b>室外赛道物料</b>(锥桶、标线、计圈相机)。</td>
+          <td class="num">≈¥18,000–21,000</td>
+        </tr>
+        <tr class="t4">
+          <td class="stage">T4<small>第 10–12 月</small></td>
+          <td class="what"><b>Race Day 物料</b>(奖杯、证书、直播支架)。对决设备全部复用 T2/T3,动捕不买(扩班 ≥8–10 人付费才考虑)。</td>
+          <td class="num">≈¥1,000–3,000</td>
+        </tr>
+        <tr class="sum"><td colspan="2">全年合计</td><td class="num">≈¥2.8–3.7 万</td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- T2 -->
-  <div class="t2">
-    <div class="section-t">T2 · 第 4–6 月</div>
-    <h2 class="section-h">训模型 · 开始计圈</h2>
-  </div>
-  <div class="pkg">
-    <table>
-      <thead><tr><td>物料</td><td>选型</td><td>用途</td><td class="num">数量</td><td class="num">金额¥</td></tr></thead>
-      <tbody>
-        <tr><td class="part">起跑线计时门</td><td class="model">红外 / 光电门 + 成绩显示</td><td class="use">单圈成绩从此有官方计时</td><td class="num">1 套</td><td class="num">500–1,500</td></tr>
-        <tr><td class="part">立体地标</td><td class="model">反光柱 / 矮桩</td><td class="use">给车载 LiDAR 特征 → 粒子滤波 cm 级定位</td><td class="num">8–12 根</td><td class="num">500–2,000</td></tr>
-        <tr><td class="part">数据盘</td><td class="model">移动硬盘 2TB</td><td class="use">驾驶数据集存储</td><td class="num">1</td><td class="num">500</td></tr>
-        <tr><td class="part">轮速传感器</td><td class="model">霍尔 / 光电 DIY</td><td class="use">里程计(原车电调无里程计,粒子滤波/EKF 用)</td><td class="num">1–2</td><td class="num">50–100</td></tr>
-        <tr><td class="part">训练算力</td><td class="model">RTX 2070 复用</td><td class="use">模仿学习 / RL 训练;嫌慢再升 ¥8k–2万(可选)</td><td class="num">—</td><td class="num zero">¥0</td></tr>
-        <tr class="sum"><td colspan="4">T2 合计</td><td class="num">≈1,600–4,100</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- T3 -->
-  <div class="t3">
-    <div class="section-t">T3 · 第 7–9 月</div>
-    <h2 class="section-h">提速 · 上室外</h2>
-    <p class="section-d">⚠ F1 整车第 5 月就要下单——Orin NX 同样有交期。</p>
-  </div>
-  <div class="pkg">
-    <table>
-      <thead><tr><td>物料</td><td>选型</td><td>用途</td><td class="num">数量</td><td class="num">金额¥</td></tr></thead>
-      <tbody>
-        <tr><td class="part">高速底盘 + 壳</td><td class="model">中天无刷高速版(待确认提供条件)</td><td class="use">合作方提供;与赛事同款,人机对决可比</td><td class="num">1 台</td><td class="num zero">¥0</td></tr>
-        <tr><td class="part">竞速级改装套件</td><td class="model">Orin NX 16GB + UM982 RTK + Gemini 335 + RPLIDAR S3 + Flipsky VESC 等(BOM 见<a href="hardware.html" style="color:var(--cyan)">采购清单</a>)</td><td class="use">室外竞技 / 对决,师生共用;此时把 VESC 一并上车</td><td class="num">1 套</td><td class="num warn">≈14,880 ⚠第 5 月下单</td></tr>
-        <tr><td class="part">RTK 基站</td><td class="model">国产基站 + 数传电台</td><td class="use">室外厘米级定位(场地侧)</td><td class="num">1 套</td><td class="num">1,500–2,500</td></tr>
-        <tr><td class="part">室外物料</td><td class="model">锥桶 / 标线 / 遮阳控光</td><td class="use">固定赛道 = sim2real 成败项(1 人规模缩减版)</td><td class="num">1 批</td><td class="num">1,000–3,000</td></tr>
-        <tr><td class="part">计圈摄像头</td><td class="model">边线 USB / IP 相机</td><td class="use">裁判 + 成绩存证</td><td class="num">1</td><td class="num">200–500</td></tr>
-        <tr class="sum"><td colspan="4">T3 合计</td><td class="num">≈17,600–20,900</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- T4 -->
-  <div class="t4">
-    <div class="section-t">T4 · 第 10–12 月</div>
-    <h2 class="section-h">对决 · 赛事 —— 必需新增为零</h2>
-  </div>
-  <div class="pkg">
-    <table>
-      <thead><tr><td>物料</td><td>选型</td><td>用途</td><td class="num">数量</td><td class="num">金额¥</td></tr></thead>
-      <tbody>
-        <tr><td class="part">单圈人机对决</td><td class="model">—</td><td class="use">全部复用 T2 计时门 + T3 RTK</td><td class="num">—</td><td class="num zero">¥0</td></tr>
-        <tr><td class="part">Race Day 物料</td><td class="model">奖杯 / 证书 / 横幅 / 手机直播支架</td><td class="use">毕业战 + 最强招生素材</td><td class="num">1 批</td><td class="num">1,000–3,000</td></tr>
-        <tr><td class="part" style="text-decoration:line-through;opacity:.6">NOKOV 动捕</td><td class="model" style="opacity:.6">¥20–40 万</td><td class="use">1 人无多车对决,<b>不买</b>;扩班 ≥8–10 人付费才考虑</td><td class="num">—</td><td class="num zero">¥0</td></tr>
-        <tr><td class="part" style="text-decoration:line-through;opacity:.6">反光标记球</td><td class="model" style="opacity:.6">随动捕</td><td class="use">同上不买</td><td class="num">—</td><td class="num zero">¥0</td></tr>
-        <tr class="sum"><td colspan="4">T4 合计</td><td class="num">≈1,000–3,000</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- REUSE + TIMING -->
-  <div class="twocol" style="margin-top:24px">
+  <div class="twocol">
     <div class="panel win">
       <div class="pt">♻️ 复用不买的</div>
       <ul>
-        <li><b>中天 ZT 房车 ×2 + 原车电调/舵机/电池</b>(合作方提供)→ 底盘与 VESC 预算全省</li>
-        <li><b>中天 5×10 室内赛道</b> → T1–T2 主场,赛道垫/EVA 垫全省</li>
-        <li><b>现有 IMU(MPU6050 级)</b> → 顶替 BNO055,T2 才上车</li>
-        <li><b>ESP32-S3 板</b>(esp32-car 库存)→ 安全中枢:Jetson 决策 → ESP32 出 PWM + 失联刹停</li>
-        <li><b>RTX 2070</b> → 训练端起步算力</li>
-        <li><b>笔记本 / 手机</b> → PC 控制台 + 等货期开发</li>
-        <li><b>Bambu A1</b> → 传感器支架全部自打印</li>
+        <li><b>中天模型车 ×2 + 原厂配件</b>(合作方提供)——底盘与电调预算全省,且与赛事同款、人机对决可比</li>
+        <li><b>中天 5×10 室内赛道</b>——T1–T2 主场,赛道物料几乎归零</li>
+        <li><b>现有 IMU / ESP32 板 / RTX 2070 / 3D 打印机</b>——传感、安全中枢、训练算力、支架全复用</li>
       </ul>
     </div>
     <div class="panel key">
-      <div class="pt">⏰ 下单节奏 · 只有三个死线</div>
+      <div class="pt">⏰ 下单节奏 · 三个死线</div>
       <ul>
-        <li><b>① 开课前 4–6 周:Jetson Orin Nano ×2</b>(全球缺货溢价,唯一交期不可控)+ 备用锂电(陆运慢)</li>
-        <li><b>② 第 3 月底:计时门 + 立体地标</b>(T2 开圈前到位)</li>
-        <li><b>③ 第 5 月:竞速级改装套件</b>(Orin NX 交期,给足 4–6 周)</li>
-        <li>其余全是现货,随用随买;<b>绝不提前买后面阶段的设备</b></li>
+        <li><b>① 开课前 4–6 周</b>:车载电脑 ×2(唯一交期不可控)</li>
+        <li><b>② 第 3 月底</b>:计时门 + 地标</li>
+        <li><b>③ 第 5 月</b>:竞速级改装套件</li>
+        <li>其余现货随用随买;<b>绝不提前买后面阶段的设备</b></li>
       </ul>
     </div>
   </div>
 
   <div class="panel key" style="margin-top:14px">
-    <div class="pt">⚠️ 本表生效前提 · 装机前四件待核对</div>
+    <div class="pt">⚠️ 装机前四件待核对(每件 10 分钟级)</div>
     <ul>
-      <li><b>① 量中天车的空间</b>:车壳下 / 车架上可用面积——Jetson Orin Nano 载板约 100×80mm,1/10 房车装得下;偏小则做加高支架板(Bambu 打印,壳展示用、实战平顶)</li>
-      <li><b>② 确认有刷 / 无刷</b>:有刷版 T1–T2 完全够用(低速更平顺);T3 提速需无刷——现在就和中天打招呼要无刷高速版</li>
-      <li><b>③ 测原车电调</b>:确认接受标准 50Hz PWM(ESP32 直接接管,开箱 10 分钟验证)</li>
-      <li><b>④ 验 5×10 赛道边线</b>:拍照用 lane_follow_cv.py 跑一遍,对比度不够则蓝胶带压边(¥50 解决)</li>
+      <li><b>① 量中天车空间</b>:车壳下能否装下车载电脑(约 100×80mm),不够则打印加高支架</li>
+      <li><b>② 确认有刷 / 无刷</b>:有刷够 T1–T2 用;T3 提速需无刷高速版,提前和中天打招呼</li>
+      <li><b>③ 测原车电调</b>:确认接受标准 PWM 信号(开箱即测)</li>
+      <li><b>④ 验 5×10 赛道边线</b>:拍照验对比度,不够则蓝胶带压边</li>
     </ul>
   </div>
 
-  <div class="foot">CRAYXUS AI·GP　·　四阶段物料清单(1 人试点版)　·　12 人班口径见 hardware.html　·　价格 2026 国内参考</div>
+  <div class="foot">CRAYXUS AI·GP　·　四阶段物料清单(1 人试点版)　·　逐件 BOM 见 hardware.html　·　价格 2026 国内参考</div>
 
 </div>
 </body>
