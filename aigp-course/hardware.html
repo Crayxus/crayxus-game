@@ -27,6 +27,13 @@
   .disc{margin:18px auto 0;max-width:860px;font-size:12.5px;color:var(--dim);background:rgba(25,227,255,.05);
     border:1px solid rgba(25,227,255,.25);border-radius:12px;padding:12px 16px;text-align:left}
   .disc b{color:var(--cyan)}
+  .glance{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+  .glance .g{padding:14px 16px;border-radius:14px;background:var(--glass);border:1px solid var(--line);text-align:left}
+  .glance .g .gl{font-size:11.5px;color:var(--dim);letter-spacing:.04em}
+  .glance .g .gv{font-size:21px;font-weight:900;margin-top:3px}
+  .glance .g .gs{font-size:11px;color:var(--dim);margin-top:2px}
+  .glance .g.c1 .gv{color:var(--cyan)} .glance .g.c2 .gv{color:var(--pink)} .glance .g.c3 .gv{color:var(--purple)}
+  .glance .g.c4 .gv{color:var(--gold)} .glance .g.c5 .gv{color:var(--green)} .glance .g.c6 .gv{color:var(--gold)}
   .section-t{font-size:13px;letter-spacing:.3em;color:var(--cyan);text-align:center;margin:54px 0 6px;font-weight:700}
   .section-h{font-size:26px;text-align:center;font-weight:800;margin-bottom:8px}
   .section-d{text-align:center;color:var(--dim);font-size:13.5px;max-width:800px;margin:0 auto 24px}
@@ -78,6 +85,7 @@
   .foot{text-align:center;margin-top:50px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
   @media(max-width:820px){
     h1{font-size:28px} .arch,.twocol{grid-template-columns:1fr}
+    .glance{grid-template-columns:repeat(2,1fr)} .glance .g .gv{font-size:18px}
     .pkg .head .price{margin-left:0;text-align:left;width:100%}
     table{font-size:12px} td.use{display:none} .costrow .cell{min-width:50%}
   }
@@ -91,7 +99,15 @@
     <h1>AI·GP <span class="neon">软硬件方案 & 采购清单</span></h1>
     <p class="sub">目标:在中天<b style="color:#fff">平面竞速赛道</b>上,让 1/10 AI 赛车<b style="color:#fff">超过人类遥控选手</b>。方案路线经业界标杆(F1TENTH / Indy Autonomous Challenge / A2RL / 苏黎世 Swift)调研审核后确定。</p>
     <div class="disc">
-      💡 <b>价格说明</b>:2026 国内采购参考价(人民币),逐项核源。<span class="chk ok">✓</span> 公开明码;<span class="chk v">⚠</span> 区间估算 / 需现场核价。<b>定位方案已升级</b>:中天是平面无墙赛道,且 UWB / ArUco贴标 / 普通顶置摄像头均已实测失败 → <b>室内两档:OptiTrack 动捕旗舰(稳超人类)/ 车载 LiDAR+地标 经济起步(¥1–3 万级)</b>,室外用 RTK-GPS。RRP 不含一年课程学费。
+      💡 <b>价格说明</b>:2026 国内采购参考价(人民币),逐项核源。<span class="chk ok">✓</span> 公开明码;<span class="chk v">⚠</span> 区间估算 / 需现场核价。<b>定位方案已定稿</b>:中天是平面无墙赛道,且 UWB / ArUco贴标 / 普通顶置摄像头均已实测失败 → <b>室内两档:NOKOV 光学动捕旗舰(¥20–40 万,稳超人类;OptiTrack 备选)/ 车载 LiDAR+地标 经济起步(¥1–3 万级)</b>,室外用 RTK-GPS。RRP 不含一年课程学费。
+    </div>
+    <div class="glance">
+      <div class="g c1"><div class="gl">🚗 室内 AI 赛车(单车 RRP)</div><div class="gv">¥9,800</div><div class="gs">成本 ¥4,780 · 归学生所有</div></div>
+      <div class="g c2"><div class="gl">🏎️ 室外 F1 性价比款(RRP)</div><div class="gv">¥32,800</div><div class="gs">竞技款高配 ¥69,800</div></div>
+      <div class="g c3"><div class="gl">📐 NOKOV 动捕(场地·共享)</div><div class="gv">¥20–40 万</div><div class="gs">18×10 标准场 ≈¥28 万</div></div>
+      <div class="g c4"><div class="gl">🏁 AI·GP 标准赛道</div><div class="gv">18×10 m</div><div class="gs">16×8 起步 ~ 20×12 旗舰</div></div>
+      <div class="g c5"><div class="gl">🎓 学生一年全包(12 人分摊)</div><div class="gv">≈¥13.6 万</div><div class="gs">学费 10 万 + 车 + 设备分摊</div></div>
+      <div class="g c6"><div class="gl">💰 一届 12 人总收款</div><div class="gv">≈¥163 万</div><div class="gs">设备多届共享 · 首届回本</div></div>
     </div>
   </header>
 
@@ -100,7 +116,7 @@
   <h2 class="section-h">为什么这样设计(经业界验证)</h2>
   <p class="section-d">纯竞速里,<b style="color:#fff">模块化(高精定位 → 赛车线优化 → MPC/Pure Pursuit 跟踪)碾压端到端 RL</b>(F1TENTH 基准:端到端慢约 18%;IAC/A2RL 全尺寸队伍清一色模块化)。RL 只用在<b style="color:#fff">超车决策 + 参数自整定</b>。而<b style="color:#fff">定位精度是整件事的命门</b>——这正是之前栽的地方。</p>
   <div class="arch">
-    <div class="ac"><div class="ic">📐</div><h4>高精定位(命门)</h4><p><b>室内 OptiTrack 动捕</b>(&lt;0.3mm/4.5ms)+ 车载 LiDAR 冗余;<b>室外 RTK-GPS</b>(厘米级)+ IMU + 轮速 EKF。定位准,赛车线才准。</p></div>
+    <div class="ac"><div class="ic">📐</div><h4>高精定位(命门)</h4><p><b>室内 NOKOV 光学动捕</b>(亚毫米/毫秒级,OptiTrack 备选)+ 车载 LiDAR 冗余;<b>室外 RTK-GPS</b>(厘米级)+ IMU + 轮速 EKF。定位准,赛车线才准。</p></div>
     <div class="ac"><div class="ic">🏁</div><h4>赛车线 + 控制</h4><p>离线算<b>最优赛车线</b>(最小曲率)→ MPC/Pure Pursuit 高频跟踪。再用 <b>RL 做超车与参数自整定</b>。这是 AI 跑赢人类的核心。</p></div>
     <div class="ac"><div class="ic">🔁</div><h4>训练 + sim2real</h4><p>仿真里 RL 练到极限 → 用真车数据做 <b>sim-to-real 残差补偿</b>(Swift 击败人类冠军的关键步)→ 上车。固定赛道 + 控光。</p></div>
   </div>
@@ -108,7 +124,7 @@
   <!-- PACKAGE 1: INDOOR -->
   <div class="section-t">PACKAGE 1</div>
   <h2 class="section-h">室内 · AI·GP Package(单车)</h2>
-  <p class="section-d">普通款 1/10 · 室内训练 + 竞技车 · 视觉识别路肩/对手 + 车载 LiDAR 冗余定位(全局定位由场地 OptiTrack 提供,见"赛道与场地")</p>
+  <p class="section-d">普通款 1/10 · 室内训练 + 竞技车 · 视觉识别路肩/对手 + 车载 LiDAR 冗余定位(全局定位由场地动捕 NOKOV 提供,见"赛道与场地")</p>
   <div class="pkg indoor">
     <div class="head">
       <span class="em">🚗</span>
@@ -122,7 +138,7 @@
         <tr><td class="part">1/10 底盘</td><td class="model">国产无刷四驱(美嘉欣/飞神)</td><td class="use">行走机构,金属传动</td><td class="num">450</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">主摄像头</td><td class="model">CSI IMX219 广角 120°</td><td class="use">识别路肩/对手,端到端视觉</td><td class="num">90</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">车载 LiDAR</td><td class="model">思岚 RPLIDAR C1</td><td class="use">避障 + 定位冗余(动捕掉帧兜底)</td><td class="num">449</td><td class="num"><span class="chk ok">✓</span></td></tr>
-        <tr><td class="part">动捕标记</td><td class="model">被动反光标记球 ×4-6</td><td class="use">供场地 OptiTrack 追踪本车位姿</td><td class="num">120</td><td class="num"><span class="chk ok">✓</span></td></tr>
+        <tr><td class="part">动捕标记</td><td class="model">被动反光标记球 ×4-6</td><td class="use">供场地动捕(NOKOV)追踪本车位姿</td><td class="num">120</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">电调</td><td class="model">VESC 6(兼容版)</td><td class="use">闭环限速 + 里程计</td><td class="num">300</td><td class="num"><span class="chk v">⚠ 验正品</span></td></tr>
         <tr><td class="part">IMU</td><td class="model">BNO055</td><td class="use">姿态/航向</td><td class="num">140</td><td class="num"><span class="chk ok">✓</span></td></tr>
         <tr><td class="part">动力电池×2 + 充电器</td><td class="model">3S LiPo + B6</td><td class="use">供电(双电池轮换)</td><td class="num">350</td><td class="num"><span class="chk ok">✓</span></td></tr>
@@ -136,7 +152,7 @@
       <div class="cell rrp"><div class="l">建议零售价 RRP</div><div class="v">¥9,800</div></div>
       <div class="cell mar"><div class="l">毛利 / 毛利率</div><div class="v">¥5,020 · 51%</div></div>
     </div>
-    <div class="note">🎯 <b>车的角色</b>:车载视觉识别路肩/对手做端到端贴线,LiDAR 兼避障与定位冗余,车上贴反光球让场地动捕实时算它的精确位姿。<b>全局厘米/毫米级定位由场地 OptiTrack 提供</b>(单独成本,多车共享)。</div>
+    <div class="note">🎯 <b>车的角色</b>:车载视觉识别路肩/对手做端到端贴线,LiDAR 兼避障与定位冗余,车上贴反光球让场地动捕实时算它的精确位姿。<b>全局亚毫米级定位由场地动捕(NOKOV 首选)提供</b>(单独成本,多车共享)。</div>
   </div>
 
   <!-- PACKAGE 2: F1 OUTDOOR -->
@@ -176,12 +192,13 @@
   <!-- TRACK / SENSING -->
   <div class="section-t">TRACK · 赛道与场地(关键决策)</div>
   <h2 class="section-h">定位怎么做——这是能否超人类的命门</h2>
-  <p class="section-d">中天是平面竞速赛道(无立体墙、室外无 GPS 精度),且你已实测 <b style="color:var(--red)">UWB / ArUco贴标 / 普通顶置摄像头全部失败</b>(高速 + 大场地下精度/延迟/运动模糊扛不住)。审核后的最终方案——</p>
+  <p class="section-d">中天是平面竞速赛道(无立体墙、室外无 GPS 精度),且你已实测 <b style="color:var(--red)">UWB / ArUco贴标 / 普通顶置摄像头全部失败</b>(高速 + 大场地下精度/延迟/运动模糊扛不住)。审核后的最终方案——<b style="color:var(--gold)">AI·GP 标准赛道 18×10 m</b>(16×8 起步 ~ 20×12 旗舰,规格详见《一年学习路线》)。</p>
   <div class="twocol">
     <div class="panel key">
       <div class="pt">🏠 室内定位:两档可选</div>
       <ul>
-        <li><b>🅰 旗舰档 · OptiTrack 动捕(稳超人类,推荐)</b>:红外相机+反光球三角测量,≠失败的顶置摄像头,不受运动模糊/光照拖累。延迟 4.5ms、精度 &lt;0.3mm,高速竞速金标准。16×8 需 16–24 台,场地一次性 <b>¥15–25 万</b>(多车共享)+ 车载 LiDAR 冗余。</li>
+        <li><b>🅰 旗舰档 · NOKOV 光学动捕(首选,稳超人类)</b>:红外相机+反光球三角测量,≠失败的顶置摄像头,不受运动模糊/光照拖累,亚毫米精度、毫秒级延迟,高速竞速金标准。<b>18×10 标准场 12–18 台 ≈¥28 万;16×8 起步 8–12 台 ≈¥20 万</b>(整套 ¥20–40 万区间,多车共享)+ 车载 LiDAR 冗余。</li>
+        <li><b>为什么选 NOKOV(度量科技,北京)</b>:国产、整套更便宜、服务响应快,标杆案例最贴合(华南理工无人机+无人车集群 40+ 目标同场追踪)。<b>OptiTrack 作备选</b>:已被利亚德收购,中国代理=虚拟动点(vopoint.com),无淘宝整套渠道,需走厂商报价。</li>
         <li><b>🅱 经济档 · 车载 LiDAR + 人造立体地标(¥1–3 万级起步)</b>:沿赛道布反光柱/矮桩给 LiDAR 特征 → 粒子滤波定位(F1TENTH 验证,cm 级)。<b>不上动捕、不大改场地、省钱起步</b>;精度 cm 级(vs 动捕 mm),<b>超人类把握略低</b>。LiDAR 车上已含,额外只是地标桩(几百元)。</li>
         <li>⚠️ 中天是<b>平面无墙</b>赛道:经济档必须<b>加立体地标</b>(纯平面 LiDAR 无特征也定不了位);旗舰档动捕不依赖赛道特征。</li>
       </ul>
@@ -214,7 +231,7 @@
       <tbody>
         <tr><td class="part">中间件</td><td class="model">ROS2 Humble</td><td class="use">机器人通信框架</td><td class="num"><span class="chk ok">免费</span></td></tr>
         <tr><td class="part">仿真</td><td class="model">f1tenth_gym + gym_ros(Docker)</td><td class="use">训练环境,一键起</td><td class="num"><span class="chk ok">免费 MIT</span></td></tr>
-        <tr><td class="part">定位融合</td><td class="model">OptiTrack Motive / RTK + robot_localization EKF</td><td class="use">动捕/RTK 位姿 → 状态估计</td><td class="num"><span class="chk ok">开源 EKF</span></td></tr>
+        <tr><td class="part">定位融合</td><td class="model">NOKOV 形影/SDK(或 OptiTrack Motive)/ RTK + robot_localization EKF</td><td class="use">动捕/RTK 位姿 → 状态估计</td><td class="num"><span class="chk ok">开源 EKF</span></td></tr>
         <tr><td class="part">赛车线 + 控制</td><td class="model">最小曲率赛车线 + Pure Pursuit / MPC</td><td class="use">最优线跟踪(竞速最强)</td><td class="num"><span class="chk ok">免费</span></td></tr>
         <tr><td class="part">强化学习(辅助)</td><td class="model">Stable-Baselines3(PPO/SAC)</td><td class="use">超车决策 + 参数自整定</td><td class="num"><span class="chk ok">免费 MIT</span></td></tr>
         <tr><td class="part">sim2real</td><td class="model">残差模型补偿(Swift 范式)</td><td class="use">仿真→真车校准,超人类关键步</td><td class="num"><span class="chk ok">自研/开源</span></td></tr>
@@ -236,14 +253,22 @@
         <tr><td class="part">🏎️ F1 性价比款</td><td class="use">单车·室外(主推)</td><td class="num">¥16,380</td><td class="num" style="color:var(--gold);font-weight:800">¥32,800</td><td class="use">毛利 50%</td></tr>
         <tr><td class="part">🏁 F1 竞技款</td><td class="use">单车·室外(高配)</td><td class="num">¥41,000</td><td class="num" style="color:var(--gold);font-weight:800">¥69,800</td><td class="use">毛利 41%</td></tr>
         <tr><td colspan="5" style="padding:8px 12px;color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.1em">▼ 场地侧基础设施(一次性,多车共享,不进单车)</td></tr>
-        <tr><td class="part">📐 室内定位·旗舰 OptiTrack</td><td class="use">16×8 动捕主定位,稳超人类</td><td class="num">¥15-25 万</td><td class="num">—</td><td class="use">⚠ 厂商按场地出报价</td></tr>
+        <tr><td class="part">📐 室内定位·旗舰 NOKOV 动捕</td><td class="use">18×10 主定位,稳超人类(OptiTrack 备选)</td><td class="num">¥20-40 万</td><td class="num">—</td><td class="use">⚠ 18×10≈¥28万 / 16×8≈¥20万,厂商报价</td></tr>
         <tr><td class="part">📐 室内定位·经济(替代)</td><td class="use">车载 LiDAR + 人造立体地标,粒子滤波</td><td class="num">¥500-2,000</td><td class="num">—</td><td class="use">不上动捕,cm级,省钱起步</td></tr>
         <tr><td class="part">📡 室外 RTK 基站</td><td class="use">厘米级全局定位</td><td class="num">¥1,500-2,500</td><td class="num">—</td><td class="use">多车共享</td></tr>
         <tr><td class="part">🛡️ 控光/锥桶/标线/计圈</td><td class="use">固定赛道 + 裁判</td><td class="num">¥3,000-1万</td><td class="use">—</td><td class="use">室内控光是 sim2real 成败项</td></tr>
         <tr><td class="part">🖥️ 训练 GPU 工作站</td><td class="use">可选,并行 RL</td><td class="num">¥8,000-2万</td><td class="num">—</td><td class="use">本地 2070 可起步</td></tr>
       </tbody>
     </table>
-    <div class="note">💡 <b>关键结构</b>:单车成本不高,<b>室内 OptiTrack(¥15-25万)是最大的一次性场地投入</b>——但它是"稳定超过人类"的定位命门,且多车共享、可办赛事。室外靠便宜得多的 RTK 基站即可。</div>
+    <div class="note">💡 <b>关键结构</b>:单车成本不高,<b>室内 NOKOV 动捕(¥20-40万)是最大的一次性场地投入</b>——但它是"稳定超过人类"的定位命门,且多车共享、可办赛事。室外靠便宜得多的 RTK 基站即可。</div>
+  </div>
+
+  <div class="panel key">
+    <div class="pt">🎓 分摊口径:一届 12 人,设备全成本进学费(详见《一年学习路线 & 费用》)</div>
+    <ul>
+      <li><b>学生一年总价 ≈¥13.6 万</b>(18×10 标准场;16×8 起步约 ¥12.9 万)= 学费 ¥10 万 + 自购室内赛车 ¥9,800 + 分摊动捕 ¥23,300 + 分摊 RTK/计时门/GPU 约 ¥2,500。</li>
+      <li><b>一届 12 人总收款 ≈¥163 万</b>(学费 120 万 + 车与设备分摊 ~43 万)。设备是<b>多届共享资产</b>:机构<b>第一届即收回全部设备成本</b>,第二届起转为净利润或降价扩招空间。</li>
+    </ul>
   </div>
 
   <!-- FEASIBILITY -->
@@ -273,7 +298,7 @@
       <li><b>sim-to-real 残差补偿必做</b>(Swift 的关键步),否则仿真训的策略上真车会崩。</li>
       <li><b>固定赛道 + 室内控光</b>(Swift 失败模式就是光照变化)、室外防 GPS 多径。</li>
       <li><b>全自主、零遥控器</b>:操控/急停走<b>网页/PC 控制台</b> + 车端看门狗失联自动刹停。但软件急停依赖网络,高速车<b>强烈建议保留一个独立物理总断电</b>作最后兜底(非遥控器,安全规范)。</li>
-      <li><b>需现场核价</b>:OptiTrack 按 16×8 出正式报价;Jetson/VESC/Orbbec/UM982 国内到手价。</li>
+      <li><b>需现场核价</b>:NOKOV(度量科技)按 18×10 出正式报价(备选 OptiTrack/虚拟动点);Jetson/VESC/Orbbec/UM982 国内到手价。</li>
     </ul>
   </div>
 
