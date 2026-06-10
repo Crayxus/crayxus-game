@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAYXUS AI·GP — 入学学情摸底</title>
+<meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share.jpg">
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c;
+    --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.10); --glass:rgba(255,255,255,.045);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);line-height:1.6;
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(139,59,255,.35), transparent 60%),
+      radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.22), transparent 55%),
+      radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.16), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    background-attachment:fixed;padding:0 0 90px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  header{padding:54px 0 18px}
+  .kicker{letter-spacing:.34em;font-size:12px;color:var(--cyan);font-weight:800}
+  h1{font-size:32px;line-height:1.25;margin:12px 0 6px;font-weight:800}
+  .sub{color:var(--dim);font-size:15px;max-width:680px}
+  /* progress */
+  .pbar{position:sticky;top:0;z-index:20;margin:18px 0 6px;padding:10px 0;backdrop-filter:blur(8px)}
+  .pbar .track{height:8px;border-radius:20px;background:rgba(255,255,255,.08);overflow:hidden}
+  .pbar .fill{height:100%;width:0;border-radius:20px;background:linear-gradient(92deg,var(--cyan),var(--pink),var(--gold));transition:width .25s}
+  .pbar .ptxt{font-size:12px;color:var(--dim);margin-top:6px;text-align:right}
+  /* card / question */
+  .q{margin-top:16px;border-radius:16px;background:var(--glass);border:1px solid var(--line);
+    backdrop-filter:blur(8px);padding:18px 20px}
+  .q .qh{display:flex;gap:10px;align-items:flex-start;margin-bottom:13px}
+  .q .qn{flex:none;width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;color:#fff;background:linear-gradient(150deg,var(--pink),var(--purple))}
+  .q .qt{font-size:16px;font-weight:700;line-height:1.4}
+  .q .qt .req{color:var(--pink);margin-left:3px}
+  .q .qt .tag{font-size:11px;color:var(--dim);font-weight:500;margin-left:8px}
+  .q .hint{font-size:12.5px;color:var(--dim);margin:-6px 0 12px 36px}
+  .opts{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .opts.one{grid-template-columns:1fr}
+  .opt{position:relative;display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:11px;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);cursor:pointer;font-size:13.5px;transition:.13s}
+  .opt:hover{border-color:rgba(255,46,154,.5);background:rgba(255,46,154,.06)}
+  .opt .bx{flex:none;width:17px;height:17px;border-radius:50%;border:2px solid var(--dim);transition:.13s}
+  .opt.cb .bx{border-radius:5px}
+  .opt.sel{border-color:var(--pink);background:rgba(255,46,154,.12)}
+  .opt.sel .bx{border-color:var(--pink);background:var(--pink);box-shadow:0 0 8px rgba(255,46,154,.7)}
+  .subq{margin-top:6px}
+  .subq .sl{font-size:13px;color:var(--cyan);font-weight:700;margin:12px 0 7px}
+  input[type=text]{width:100%;padding:11px 13px;border-radius:11px;background:rgba(255,255,255,.04);
+    border:1px solid var(--line);color:var(--ink);font-size:14px;font-family:inherit}
+  input[type=text]:focus{outline:none;border-color:var(--cyan)}
+  textarea{width:100%;min-height:84px;padding:11px 13px;border-radius:11px;background:rgba(255,255,255,.04);
+    border:1px solid var(--line);color:var(--ink);font-size:14px;font-family:inherit;resize:vertical}
+  textarea:focus{outline:none;border-color:var(--cyan)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .err{color:var(--red);font-size:12.5px;margin-top:8px;display:none}
+  .q.invalid{border-color:rgba(255,93,115,.6)}
+  /* submit */
+  .submit{margin-top:24px;width:100%;padding:16px;border:none;border-radius:14px;cursor:pointer;
+    font-size:16px;font-weight:800;color:#fff;font-family:inherit;
+    background:linear-gradient(92deg,var(--pink),var(--purple));box-shadow:0 10px 30px rgba(255,46,154,.3)}
+  .submit:hover{filter:brightness(1.08)}
+  .note{margin-top:14px;font-size:12px;color:var(--dim);text-align:center}
+  /* thanks */
+  .thanks{display:none;text-align:center;padding:90px 20px}
+  .thanks .ic{font-size:64px}
+  .thanks h2{font-size:28px;margin:16px 0 8px}
+  .thanks p{color:var(--dim);font-size:15px;max-width:460px;margin:0 auto}
+  /* staff btn + overlay */
+  .staffbtn{position:fixed;right:14px;bottom:14px;z-index:40;width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--line);background:rgba(20,10,53,.7);color:var(--dim);font-size:14px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);opacity:.45}
+  .staffbtn:hover{opacity:1}
+  .overlay{display:none;position:fixed;inset:0;z-index:60;background:rgba(5,2,15,.86);backdrop-filter:blur(7px);
+    overflow:auto;padding:30px 16px}
+  .modal{max-width:920px;margin:0 auto;background:linear-gradient(160deg,#120a30,#1a0c44);border:1px solid var(--line);
+    border-radius:18px;padding:26px 26px 30px}
+  .modal .x{float:right;font-size:22px;color:var(--dim);cursor:pointer;background:none;border:none}
+  .pinwrap{text-align:center;padding:30px 10px}
+  .pinwrap input{max-width:220px;margin:14px auto 0;text-align:center;letter-spacing:.4em;font-size:20px}
+  .pinwrap .go{margin-top:14px;padding:11px 26px;border:none;border-radius:10px;cursor:pointer;font-weight:800;
+    color:#fff;background:linear-gradient(92deg,var(--cyan),var(--purple));font-family:inherit}
+  .pinwrap .pe{color:var(--red);font-size:13px;margin-top:10px;min-height:18px}
+  /* staff dashboard */
+  .dash{display:none}
+  .dhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .dhead h3{font-size:20px}
+  .dhead .who{color:var(--cyan);font-weight:800}
+  .dtools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .btn{padding:8px 13px;border-radius:9px;border:1px solid var(--line);background:var(--glass);color:var(--ink);
+    font-size:12.5px;cursor:pointer;font-family:inherit}
+  .btn:hover{border-color:var(--cyan)} .btn.warn:hover{border-color:var(--red);color:var(--red)}
+  .meta{color:var(--dim);font-size:12.5px;margin-bottom:16px}
+  .cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+  .pc{padding:13px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line);text-align:center}
+  .pc .l{font-size:11px;color:var(--dim);letter-spacing:.1em}
+  .pc .v{font-size:17px;font-weight:800;margin-top:5px}
+  .pc.t .v{color:var(--cyan)} .pc.b .v{color:var(--gold)} .pc.d .v{color:var(--pink)} .pc.g .v{color:var(--green)}
+  .pc .vv{font-size:11.5px;color:var(--dim);margin-top:3px}
+  .block{margin-top:14px;padding:15px 17px;border-radius:13px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+  .block h4{font-size:13px;letter-spacing:.12em;margin-bottom:10px}
+  .route h4{color:var(--cyan)} .risk h4{color:var(--red)} .raw h4{color:var(--dim)}
+  .route .rn{font-size:17px;font-weight:800;color:#fff;margin-bottom:4px}
+  .route .rd{font-size:13.5px;color:var(--dim);margin-bottom:10px}
+  .route .steps{display:flex;gap:6px;flex-wrap:wrap}
+  .route .steps span{font-size:12px;padding:5px 10px;border-radius:20px;background:rgba(25,227,255,.12);
+    border:1px solid rgba(25,227,255,.35);color:var(--cyan);font-weight:700}
+  .risk ul{margin:0;padding-left:18px} .risk li{font-size:13px;margin:6px 0;color:#ffd0d6}
+  .risk li b{color:#fff} .risk .ok{color:var(--green);list-style:none;margin-left:-18px}
+  .raw table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .raw td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+  .raw td.k{color:var(--cyan);width:38%;font-weight:600}
+  .raw td.v{color:var(--ink)}
+  /* history list */
+  .hist{margin-top:22px;border-top:1px dashed rgba(255,255,255,.14);padding-top:16px}
+  .hist h4{font-size:13px;letter-spacing:.12em;color:var(--purple);margin-bottom:10px}
+  .hrow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.03);
+    border:1px solid var(--line);margin-bottom:7px;font-size:13px;cursor:pointer}
+  .hrow:hover{border-color:var(--pink)} .hrow.active{border-color:var(--pink);background:rgba(255,46,154,.1)}
+  .hrow .hn{font-weight:700} .hrow .ht{color:var(--dim);font-size:11.5px}
+  .hrow .badge{font-size:10.5px;padding:2px 8px;border-radius:20px;border:1px solid var(--line);color:var(--dim)}
+  .hrow .sp{margin-left:auto}
+  .empty{color:var(--dim);font-size:13px;text-align:center;padding:24px}
+  .foot{text-align:center;margin-top:44px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
+  @media(max-width:680px){
+    h1{font-size:26px} .opts{grid-template-columns:1fr} .row2{grid-template-columns:1fr}
+    .cards4{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ STUDENT FORM ============ -->
+  <div id="formView">
+    <header>
+      <div class="kicker">CRAYXUS AI·GP　|　入学学情摸底</div>
+      <h1>开始之前，<span class="neon">先认识你</span></h1>
+      <p class="sub">这不是考试，没有标准答案。花 3–5 分钟如实填写，我们才能为你<b style="color:#fff">量身定制学习节奏与成果路线</b>——把时间花在真正能帮到你的地方。家长可与孩子一起填。</p>
+    </header>
+
+    <div class="pbar">
+      <div class="track"><div class="fill" id="pfill"></div></div>
+      <div class="ptxt"><span id="pdone">0</span> / <span id="ptotal">0</span> 已完成</div>
+    </div>
+
+    <!-- basic info -->
+    <div class="q" data-q="base">
+      <div class="qh"><div class="qn">👤</div><div class="qt">基本信息<span class="req">*</span></div></div>
+      <div class="row2">
+        <input type="text" id="f_name" placeholder="学生姓名 / 称呼（必填）">
+        <input type="text" id="f_contact" placeholder="联系方式 / 家长微信（选填）">
+      </div>
+      <div class="err" id="e_base">请填写学生姓名</div>
+    </div>
+
+    <div id="questions"></div>
+
+    <!-- open remark -->
+    <div class="q">
+      <div class="qh"><div class="qn">💬</div><div class="qt">还有什么想让我们知道的？<span class="tag">选填</span></div></div>
+      <div class="hint" style="margin-left:0">比如：特别的兴趣、担心的地方、家长的期望、时间上的特殊安排……</div>
+      <textarea id="f_remark" placeholder="随便写几句，越了解你，我们带得越准。"></textarea>
+    </div>
+
+    <button class="submit" id="submitBtn">提交摸底 · 让我们为你定制路线</button>
+    <p class="note">🔒 你的信息仅用于课程定制，不会对外分享。</p>
+    <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="CRAYXUS AI·GP" style="display:block;margin:34px auto 0;width:300px;max-width:80%;border-radius:16px;border:1px solid rgba(255,255,255,.15)">
+<div class="foot">CRAYXUS AI·GP　·　浙江大学 AI 教授团队领衔　·　中天模型强力支持</div>
+  </div>
+
+  <!-- ============ THANKS ============ -->
+  <div class="thanks" id="thanksView">
+    <div class="ic">🎉</div>
+    <h2>收到啦，<span id="t_name" class="neon">同学</span>！</h2>
+    <p>感谢你的认真填写。我们的老师会根据你的情况，为你定制专属的学习节奏与成果路线，很快和你联系。准备好开启你的 AI 赛车科研之旅吧！</p>
+  </div>
+
+</div>
+
+<!-- staff entry -->
+<button class="staffbtn" id="staffBtn" title="工作人员">🔒</button>
+
+<!-- ============ STAFF OVERLAY ============ -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="x" id="closeStaff">✕</button>
+
+    <!-- pin gate -->
+    <div class="pinwrap" id="pinGate">
+      <div style="font-size:34px">🔐</div>
+      <div style="font-size:17px;font-weight:800;margin-top:8px">工作人员入口</div>
+      <div style="color:var(--dim);font-size:13px;margin-top:4px">学生画像与诊断仅内部可见</div>
+      <input type="password" id="pinInput" placeholder="PIN" maxlength="8" inputmode="numeric">
+      <div><button class="go" id="pinGo">进入</button></div>
+      <div class="pe" id="pinErr"></div>
+    </div>
+
+    <!-- dashboard -->
+    <div class="dash" id="dash">
+      <button class="x" id="closeStaff2" style="margin-top:-4px">✕</button>
+      <div class="dhead">
+        <h3>学生画像 · <span class="who" id="d_name">—</span></h3>
+        <div class="dtools">
+          <button class="btn" id="copyOne">📋 复制档案</button>
+          <button class="btn" id="dlOne">⬇️ 下载报告</button>
+          <button class="btn" id="dlAll">⬇️ 导出全部 JSON</button>
+        </div>
+      </div>
+      <div class="meta" id="d_meta">—</div>
+
+      <div class="cards4">
+        <div class="pc t"><div class="l">时间</div><div class="v" id="pf_t">—</div><div class="vv" id="pv_t"></div></div>
+        <div class="pc b"><div class="l">基础</div><div class="v" id="pf_b">—</div><div class="vv" id="pv_b"></div></div>
+        <div class="pc d"><div class="l">自驱 / 态度</div><div class="v" id="pf_d">—</div><div class="vv" id="pv_d"></div></div>
+        <div class="pc g"><div class="l">目标导向</div><div class="v" id="pf_g">—</div><div class="vv" id="pv_g"></div></div>
+      </div>
+
+      <div class="block route">
+        <h4>🎯 建议路线</h4>
+        <div class="rn" id="r_name">—</div>
+        <div class="rd" id="r_desc">—</div>
+        <div class="steps" id="r_steps"></div>
+      </div>
+
+      <div class="block risk">
+        <h4>⚠️ 风险与提醒（给带课老师）</h4>
+        <ul id="r_risks"></ul>
+      </div>
+
+      <div class="block raw">
+        <h4>📄 原始回答</h4>
+        <table><tbody id="r_raw"></tbody></table>
+        <div id="r_remark" style="margin-top:10px;font-size:13px;color:var(--ink)"></div>
+      </div>
+
+      <div class="hist">
+        <h4>🗂 本机已存档（<span id="h_count">0</span>）</h4>
+        <div id="histList"></div>
+        <div style="text-align:right;margin-top:8px">
+          <button class="btn warn" id="clearAll">清空本机存档</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========== CONFIG ========== */
+const STAFF_PIN = "2580";              // ← 工作人员 PIN，可自行修改
+const LS_KEY = "aigp_assessments";
+
+/* ========== QUESTION SCHEMA ========== */
+const QS = [
+  {id:"grade", type:"group", required:true, title:"年级 & 学校体系", tag:"定时间线",
+   subs:[
+     {id:"yr", label:"当前年级", opts:[["g6_8","初中(6–8年级)"],["g9","高一/9年级"],["g10","高二/10年级"],["g11","11年级"],["g12","12年级/高三"]]},
+     {id:"sys", label:"学校体系", opts:[["basis","贝赛思 BASIS"],["intl","其他国际学校"],["pub_intl","公立国际部"],["regular","普通高中"],["other","其他"]]}
+   ]},
+  {id:"goal", type:"group", required:true, title:"留学目标", tag:"定含金量",
+   subs:[
+     {id:"country", label:"目标国家 / 地区", opts:[["us","美国"],["uk","英国"],["ca","加拿大"],["au","澳洲"],["hksg","香港 / 新加坡"],["undecided","还没定"]]},
+     {id:"major", label:"想冲的专业方向", opts:[["cs","计算机 / AI"],["eng","工程 / 机器人"],["sci","理科(数学/物理)"],["biz","商科 / 经济"],["social","文科 / 社科"],["med","医学 / 生化"],["undecided","还没定"]]}
+   ]},
+  {id:"urgency", type:"radio", required:true, title:"你大概什么时候要用到这份成果？", tag:"定进度",
+   hint:"申请季、竞赛报名、或想要成果的时间点。",
+   opts:[["soon","半年内（很紧）"],["y1","1 年内"],["y12","1–2 年"],["y2p","2 年以上（从容）"],["unsure","还不确定"]]},
+  {id:"weekly", type:"radio", required:true, title:"每周课外，你真正能投入多少时间？", tag:"定强度",
+   hint:"扣掉作业、补习之后，能稳定给这个项目的时间。",
+   opts:[["lt1","不到 1 小时"],["h12","1–2 小时"],["h24","2–4 小时"],["h4p","4 小时以上"]]},
+  {id:"coding", type:"radio", required:true, title:"你的编程基础大概在哪一档？", tag:"定起点",
+   opts:[["zero","完全零基础"],["scratch","玩过 Scratch 等图形化"],["py","Python/其他入门(能改例子)"],["indep","能独立写小程序"],["oi","有竞赛/信奥经历"]]},
+  {id:"mathen", type:"group", required:true, title:"数学 & 英语自评", tag:"定论文/答辩承载",
+   subs:[
+     {id:"math", label:"数学", opts:[["low","有点吃力"],["mid","中等"],["good","不错"],["strong","很强"]]},
+     {id:"en", label:"英语", opts:[["daily","日常够用"],["read","能读英文资料"],["write","能写英文短文"],["present","能英文报告/答辩"]]}
+   ]},
+  {id:"exp", type:"radio", required:true, title:"以前做过科研 / 竞赛 / 背景提升项目吗？", tag:"定预期",
+   opts:[["none","完全没有"],["tried","参加过但没成果"],["result","有过竞赛/项目成果"],["ai","做过 AI/编程相关"]]},
+  {id:"wants", type:"checkbox", required:true, max:2, title:"你最看重哪种成果？（最多选 2 项）", tag:"定资源倾斜",
+   opts:[["comp","白名单/国家级竞赛名次"],["paper","可发表/可提交的论文"],["rec","教授推荐信"],["skill","真本事 & 兴趣探索"],["story","亮眼的申请活动故事"]]},
+  {id:"motive", type:"radio", required:true, title:"参加这个项目，主要是谁的主意？", tag:"★ 自驱核心",
+   opts:[["self","主要我自己想做"],["joint","我和家长一起决定"],["try","家长建议，我先试试"],["passive","家长安排，我兴趣一般"]]},
+  {id:"grit", type:"radio", required:true, title:"遇到难题时，你通常会？", tag:"定陪伴方式",
+   opts:[["dig","自己钻研直到搞懂"],["tryask","先试试，卡住就找老师"],["wait","倾向等老师讲解"],["quit","容易卡住就想放弃"]]}
+];
+
+/* ========== RENDER ========== */
+const answers = {};   // {qid: value | [values] | {subId:value}}
+const qRoot = document.getElementById("questions");
+let qNum = 0;
+QS.forEach(q=>{
+  qNum++;
+  const el = document.createElement("div");
+  el.className = "q"; el.dataset.q = q.id;
+  // NOTE: q.tag 是内部用途标注（这题摸什么），故意不渲染——绝不让学生看到评估意图
+  let inner = `<div class="qh"><div class="qn">${qNum}</div><div class="qt">${q.title}`
+            + (q.required?'<span class="req">*</span>':'') + `</div></div>`;
+  if(q.hint) inner += `<div class="hint">${q.hint}</div>`;
+
+  if(q.type==="group"){
+    q.subs.forEach(s=>{
+      inner += `<div class="subq"><div class="sl">${s.label}</div><div class="opts">`;
+      s.opts.forEach(([v,t])=> inner += optHtml(q.id+"."+s.id, v, t, false));
+      inner += `</div></div>`;
+    });
+  } else {
+    const cb = q.type==="checkbox";
+    inner += `<div class="opts${q.opts.length<=2?' one':''}">`;
+    q.opts.forEach(([v,t])=> inner += optHtml(q.id, v, t, cb));
+    inner += `</div>`;
+  }
+  inner += `<div class="err" id="e_${q.id}">请作答此题</div>`;
+  el.innerHTML = inner;
+  qRoot.appendChild(el);
+});
+document.getElementById("ptotal").textContent = QS.length + 1; // +basic info
+
+function optHtml(key, v, t, cb){
+  return `<div class="opt${cb?' cb':''}" data-key="${key}" data-v="${v}"><div class="bx"></div><div>${t}</div></div>`;
+}
+
+/* click handling */
+qRoot.addEventListener("click", e=>{
+  const opt = e.target.closest(".opt"); if(!opt) return;
+  const key = opt.dataset.key, v = opt.dataset.v, cb = opt.classList.contains("cb");
+  const group = opt.closest(".opts");
+  const qid = key.split(".")[0];
+  const qdef = QS.find(x=>x.id===qid);
+
+  if(cb){
+    const arr = Array.isArray(answers[key])?answers[key]:[];
+    const i = arr.indexOf(v);
+    if(i>=0){ arr.splice(i,1); opt.classList.remove("sel"); }
+    else {
+      if(qdef.max && arr.length>=qdef.max){ // enforce max: drop oldest
+        const drop = arr.shift();
+        const old = group.querySelector(`.opt[data-v="${drop}"]`); if(old) old.classList.remove("sel");
+      }
+      arr.push(v); opt.classList.add("sel");
+    }
+    answers[key] = arr;
+  } else {
+    group.querySelectorAll(".opt").forEach(o=>o.classList.remove("sel"));
+    opt.classList.add("sel");
+    answers[key] = v;
+  }
+  clearErr(qid);
+  updateProgress();
+});
+
+function isAnswered(q){
+  if(q.type==="group") return q.subs.every(s=> answers[q.id+"."+s.id]);
+  if(q.type==="checkbox") return Array.isArray(answers[q.id]) && answers[q.id].length>0;
+  return !!answers[q.id];
+}
+function updateProgress(){
+  let done = document.getElementById("f_name").value.trim()?1:0;
+  QS.forEach(q=>{ if(isAnswered(q)) done++; });
+  const total = QS.length+1;
+  document.getElementById("pdone").textContent = done;
+  document.getElementById("pfill").style.width = (done/total*100)+"%";
+}
+document.getElementById("f_name").addEventListener("input", updateProgress);
+function clearErr(qid){
+  const el = document.querySelector(`.q[data-q="${qid}"]`); if(el) el.classList.remove("invalid");
+  const e = document.getElementById("e_"+qid); if(e) e.style.display="none";
+}
+
+/* ========== SUBMIT ========== */
+document.getElementById("submitBtn").addEventListener("click", ()=>{
+  let firstBad=null;
+  const name = document.getElementById("f_name").value.trim();
+  if(!name){ markBad("base", firstBad); document.getElementById("e_base").style.display="block";
+    if(!firstBad) firstBad = document.querySelector('.q[data-q="base"]'); }
+  QS.forEach(q=>{
+    if(q.required && !isAnswered(q)){
+      const el = document.querySelector(`.q[data-q="${q.id}"]`);
+      el.classList.add("invalid"); document.getElementById("e_"+q.id).style.display="block";
+      if(!firstBad) firstBad = el;
+    }
+  });
+  if(firstBad){ firstBad.scrollIntoView({behavior:"smooth",block:"center"}); return; }
+
+  const record = {
+    name, contact: document.getElementById("f_contact").value.trim(),
+    remark: document.getElementById("f_remark").value.trim(),
+    ts: new Date().toISOString(), answers: JSON.parse(JSON.stringify(answers))
+  };
+  record.profile = buildProfile(record);
+  saveRecord(record);
+
+  // student sees only thanks
+  document.getElementById("t_name").textContent = name;
+  document.getElementById("formView").style.display="none";
+  document.getElementById("thanksView").style.display="block";
+  window.scrollTo({top:0});
+});
+function markBad(qid){ const el=document.querySelector(`.q[data-q="${qid}"]`); if(el) el.classList.add("invalid"); }
+
+/* ========== PROFILE ENGINE ========== */
+function buildProfile(r){
+  const a = r.answers;
+  const g = k => a[k];                       // single
+  const W = { lt1:0,h12:1,h24:2,h4p:3 };
+  const U = { soon:0,y1:1,y12:2,y2p:3,unsure:2 };
+  const C = { zero:0,scratch:1,py:2,indep:3,oi:4 };
+  const M = { low:0,mid:1,good:2,strong:3 };
+  const MV= { self:3,joint:2,try:1,passive:0 };
+  const GR= { dig:3,tryask:2,wait:1,quit:0 };
+
+  // TIME
+  const tScore = (W[g("weekly")]??1) + (U[g("urgency")]??2);
+  const time = tScore>=4 ? {lv:"充裕",k:"hi",d:"带宽足、节点从容"} :
+               tScore>=2 ? {lv:"适中",k:"mid",d:"节奏需把控"} :
+                           {lv:"紧张",k:"lo",d:"时间紧，需压缩聚焦"};
+  // BASE
+  const cv=C[g("coding")]??0, mv=M[g("mathen.math")]??1;
+  const bScore = cv*1.4 + mv;
+  const base = (cv>=3||bScore>=5) ? {lv:"较强",k:"hi",d:"可直接进阶"} :
+               (cv>=1||bScore>=2) ? {lv:"有基础",k:"mid",d:"常规起点"} :
+                                    {lv:"零基础",k:"lo",d:"需放慢前段"};
+  // DRIVE
+  const dScore = (MV[g("motive")]??1)*1.3 + (GR[g("grit")]??1);
+  const drive = dScore>=5.5 ? {lv:"高自驱",k:"hi",d:"可委以挑战"} :
+                dScore>=3   ? {lv:"中等",k:"mid",d:"需阶段激励"} :
+                              {lv:"需激发",k:"lo",d:"先养兴趣、勤反馈"};
+  // GOAL
+  const wants = Array.isArray(a.wants)?a.wants:[];
+  const major = g("goal.major");
+  const fit = ["cs","eng","sci"].includes(major) ? "高" : (major==="undecided"?"待定":"中(需转译)");
+  let gtype="兴趣探索型";
+  if(wants.includes("comp")) gtype="竞赛冲刺型";
+  else if(wants.includes("paper")) gtype="论文科研型";
+  else if(wants.includes("rec")) gtype="推荐背书型";
+  else if(wants.includes("story")) gtype="履历活动型";
+  const goal = {lv:gtype, d:`方向契合 ${fit}`};
+
+  // ROUTE
+  let route;
+  const tight = time.k==="lo";
+  if(tight){
+    if(wants.includes("comp")) route={name:"压缩冲刺 · 竞赛线",desc:"砍掉铺垫，最快路径打白名单赛事；L4 精简、L6 跳过。",steps:["Demo","L1+L2 合并","L3 训练","L5 优化","L7 竞赛"]};
+    else if(wants.includes("paper")) route={name:"精炼科研线",desc:"聚焦 1 篇可提交论文，围绕一个清晰实验展开。",steps:["L1","L2","L3","L4 实验","L7 成文答辩"]};
+    else route={name:"核心成果线",desc:"时间有限，先稳拿一个亮眼成果与体验。",steps:["Demo","L1","L3 训练","L5","L7"]};
+  } else if(drive.k==="hi" && fit==="高"){
+    route={name:"科研深耕 · 全程线",desc:"自驱强、方向契合，走满全程含强化学习，论文+竞赛+推荐三收。",steps:["L1","L2","L3","L4","L5","L6 RL","L7"]};
+  } else if(base.k==="lo" || drive.k==="lo"){
+    route={name:"兴趣养成线",desc:"放慢前段、多动手少概念，先用成就感留住兴趣，再谈硬成果。",steps:["Demo","L1 慢","L2","L3 高光","L4","L5"]};
+  } else {
+    route={name:"标准成长线",desc:"按部就班走完主线，L6 视进度选修。",steps:["L1","L2","L3","L4","L5","L6?","L7"]};
+  }
+
+  // RISKS
+  const risks=[];
+  if(time.k==="lo" && wants.length>=2) risks.push("时间紧 + 目标偏多：建议<b>聚焦 1 个核心成果</b>，避免样样浅尝。");
+  if(drive.k==="lo") risks.push("<b>自驱偏低</b>：真成果产出有风险，建议加强阶段正反馈、与家长建立共识，慎许诺高强度产出。");
+  if(g("motive")==="passive") risks.push("动机以家长安排为主、孩子兴趣一般：<b>第一阶段以激发兴趣为先</b>，用 Demo 高光抓住他。");
+  if(cv===0 && g("urgency")==="soon") risks.push("零基础 + 节点很近：<b>进度风险高</b>，建议延长周期或下调首期目标。");
+  const enLow = ["daily","read"].includes(g("mathen.en"));
+  if(enLow && (wants.includes("paper")||wants.includes("rec"))) risks.push("英语偏弱但想要论文/推荐：需<b>配套英文写作与答辩扶持</b>。");
+  if((major==="biz"||major==="social") && (wants.includes("comp")||wants.includes("paper"))) risks.push("商科/文社科方向：把 AI 项目<b>叙事转译</b>到目标专业角度（如 AI×商业/社会议题）。");
+  if(time.k==="hi" && drive.k==="hi" && risks.length===0) risks.push("__OK__时间足、自驱强、无明显风险——<b>可大胆拔高目标</b>。");
+
+  return {time, base, drive, goal, fit, route, risks};
+}
+
+/* ========== STORAGE ========== */
+function loadAll(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch(e){ return []; } }
+function saveRecord(r){ const all=loadAll(); all.unshift(r); localStorage.setItem(LS_KEY, JSON.stringify(all)); }
+
+/* ========== STAFF UI ========== */
+const overlay=document.getElementById("overlay");
+function openStaff(){ overlay.style.display="block";
+  document.getElementById("pinGate").style.display="block";
+  document.getElementById("dash").style.display="none";
+  document.getElementById("pinInput").value=""; document.getElementById("pinErr").textContent="";
+  document.getElementById("pinInput").focus(); }
+function closeStaff(){ overlay.style.display="none"; }
+document.getElementById("staffBtn").onclick=openStaff;
+document.getElementById("closeStaff").onclick=closeStaff;
+document.getElementById("closeStaff2").onclick=closeStaff;
+if(location.hash==="#staff") openStaff();
+
+document.getElementById("pinGo").onclick=tryPin;
+document.getElementById("pinInput").addEventListener("keydown",e=>{ if(e.key==="Enter") tryPin(); });
+function tryPin(){
+  if(document.getElementById("pinInput").value===STAFF_PIN){
+    document.getElementById("pinGate").style.display="none";
+    document.getElementById("dash").style.display="block";
+    renderDash(0);
+  } else { document.getElementById("pinErr").textContent="PIN 不正确"; }
+}
+
+let curIdx=0;
+function renderDash(idx){
+  const all=loadAll();
+  document.getElementById("h_count").textContent=all.length;
+  renderHist(all, idx);
+  if(all.length===0){
+    document.getElementById("d_name").textContent="暂无档案";
+    document.getElementById("d_meta").textContent="还没有学生提交摸底。";
+    ["pf_t","pf_b","pf_d","pf_g","r_name","r_desc"].forEach(i=>document.getElementById(i).textContent="—");
+    document.getElementById("r_steps").innerHTML=""; document.getElementById("r_risks").innerHTML="";
+    document.getElementById("r_raw").innerHTML=""; document.getElementById("r_remark").textContent="";
+    return;
+  }
+  curIdx=idx; const r=all[idx]; const p=r.profile||buildProfile(r);
+  document.getElementById("d_name").textContent=r.name;
+  document.getElementById("d_meta").textContent=
+    `提交于 ${fmt(r.ts)}　·　${r.contact?("联系："+r.contact):"未留联系方式"}`;
+  setPC("t",p.time.lv,p.time.d); setPC("b",p.base.lv,p.base.d);
+  setPC("d",p.drive.lv,p.drive.d); setPC("g",p.goal.lv,p.goal.d);
+  document.getElementById("r_name").textContent=p.route.name;
+  document.getElementById("r_desc").textContent=p.route.desc;
+  document.getElementById("r_steps").innerHTML=p.route.steps.map(s=>`<span>${s}</span>`).join("");
+  document.getElementById("r_risks").innerHTML = p.risks.length
+    ? p.risks.map(x=> x.startsWith("__OK__")?`<li class="ok">✅ ${x.replace("__OK__","")}</li>`:`<li>${x}</li>`).join("")
+    : `<li class="ok">✅ 无明显风险。</li>`;
+  document.getElementById("r_raw").innerHTML = rawRows(r);
+  document.getElementById("r_remark").innerHTML = r.remark?`<b style="color:var(--cyan)">备注：</b>${esc(r.remark)}`:"";
+}
+function setPC(k,v,vv){ document.getElementById("pf_"+k).textContent=v; document.getElementById("pv_"+k).textContent=vv; }
+
+function renderHist(all, active){
+  const wrap=document.getElementById("histList");
+  if(all.length===0){ wrap.innerHTML=`<div class="empty">本机暂无存档</div>`; return; }
+  wrap.innerHTML = all.map((r,i)=>{
+    const p=r.profile||buildProfile(r);
+    return `<div class="hrow ${i===active?'active':''}" data-i="${i}">
+      <span class="hn">${esc(r.name)}</span>
+      <span class="badge">${p.time.lv}</span><span class="badge">${p.drive.lv}</span><span class="badge">${p.goal.lv}</span>
+      <span class="ht sp">${fmt(r.ts)}</span></div>`;
+  }).join("");
+  wrap.querySelectorAll(".hrow").forEach(row=> row.onclick=()=>renderDash(+row.dataset.i));
+}
+
+/* labels for export/raw */
+const LB = buildLabelMap();
+function buildLabelMap(){
+  const m={};
+  QS.forEach(q=>{
+    if(q.type==="group") q.subs.forEach(s=>{ m[q.id+"."+s.id]={t:q.title+" · "+s.label, o:Object.fromEntries(s.opts)}; });
+    else m[q.id]={t:q.title, o:Object.fromEntries(q.opts)};
+  });
+  return m;
+}
+function valLabel(key,v){ const e=LB[key]; if(!e) return v; return e.o[v]||v; }
+function rawRows(r){
+  let rows="";
+  Object.keys(LB).forEach(k=>{
+    const v=r.answers[k]; if(v===undefined) return;
+    const txt = Array.isArray(v)? v.map(x=>valLabel(k,x)).join("、") : valLabel(k,v);
+    rows += `<tr><td class="k">${LB[k].t}</td><td class="v">${esc(txt)}</td></tr>`;
+  });
+  return rows;
+}
+
+/* ========== EXPORT ========== */
+function recordText(r){
+  const p=r.profile||buildProfile(r); let s="";
+  s+=`【CRAYXUS AI·GP 学情档案】\n姓名：${r.name}\n联系：${r.contact||"—"}\n提交：${fmt(r.ts)}\n`;
+  s+=`\n— 画像 —\n时间：${p.time.lv}（${p.time.d}）\n基础：${p.base.lv}（${p.base.d}）\n自驱：${p.drive.lv}（${p.drive.d}）\n目标：${p.goal.lv}（${p.goal.d}）\n`;
+  s+=`\n— 建议路线 —\n${p.route.name}：${p.route.desc}\n路径：${p.route.steps.join(" → ")}\n`;
+  s+=`\n— 风险与提醒 —\n`+ (p.risks.length? p.risks.map(x=>"· "+strip(x)).join("\n") : "· 无明显风险");
+  s+=`\n\n— 原始回答 —\n`;
+  Object.keys(LB).forEach(k=>{ const v=r.answers[k]; if(v===undefined) return;
+    s+=`${LB[k].t}：${Array.isArray(v)?v.map(x=>valLabel(k,x)).join("、"):valLabel(k,v)}\n`; });
+  if(r.remark) s+=`备注：${r.remark}\n`;
+  return s;
+}
+document.getElementById("copyOne").onclick=()=>{ const all=loadAll(); if(!all[curIdx])return;
+  navigator.clipboard.writeText(recordText(all[curIdx])).then(()=>toast("copyOne","✓ 已复制")); };
+document.getElementById("dlOne").onclick=()=>{ const all=loadAll(); if(!all[curIdx])return;
+  download(`学情档案_${all[curIdx].name}.txt`, recordText(all[curIdx])); };
+document.getElementById("dlAll").onclick=()=>{ const all=loadAll(); if(!all.length)return;
+  download(`AIGP摸底_全部_${all.length}份.json`, JSON.stringify(all,null,2)); };
+document.getElementById("clearAll").onclick=()=>{ if(confirm("确认清空本机所有存档？此操作不可恢复。")){
+  localStorage.removeItem(LS_KEY); renderDash(0); } };
+
+function download(fn, txt){ const b=new Blob([txt],{type:"text/plain;charset=utf-8"});
+  const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=fn; a.click(); URL.revokeObjectURL(u); }
+function toast(id,msg){ const b=document.getElementById(id); const o=b.textContent; b.textContent=msg; setTimeout(()=>b.textContent=o,1200); }
+
+/* ========== utils ========== */
+function fmt(iso){ const d=new Date(iso); const p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function esc(s){ return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function strip(s){ return s.replace(/<[^>]+>/g,""); }
+updateProgress();
+</script>
+</body>
+</html>
