@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAYXUS AI·GP — 一年学习路线 & 费用</title>
+<meta property="og:title" content="CRAYXUS AI·GP · 一年学习路线 & 费用">
+<meta property="og:description" content="从 0 到击败人类单圈的一年逐级学习流程 + 透明费用结构。">
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c; --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.10); --glass:rgba(255,255,255,.045);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);line-height:1.62;
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(139,59,255,.34), transparent 60%),
+      radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.2), transparent 55%),
+      radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.14), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    background-attachment:fixed;padding:0 0 80px}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header{padding:60px 0 26px;text-align:center}
+  .kicker{letter-spacing:.4em;font-size:12px;color:var(--cyan);font-weight:800}
+  h1{font-size:38px;line-height:1.2;margin:13px 0 8px;font-weight:900}
+  .sub{color:var(--dim);font-size:15px;max-width:740px;margin:8px auto 0}
+  .climb{display:flex;align-items:flex-end;gap:8px;justify-content:center;margin:30px 0 6px;height:90px}
+  .climb .b{flex:1;max-width:200px;border-radius:10px 10px 0 0;border:1px solid var(--line);border-bottom:none;
+    display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding-top:8px}
+  .climb .b1{height:38%;background:linear-gradient(180deg,rgba(25,227,255,.22),transparent)}
+  .climb .b2{height:58%;background:linear-gradient(180deg,rgba(139,59,255,.26),transparent)}
+  .climb .b3{height:80%;background:linear-gradient(180deg,rgba(255,46,154,.28),transparent)}
+  .climb .b4{height:100%;background:linear-gradient(180deg,rgba(255,207,92,.32),transparent)}
+  .climb .b .t{font-size:12px;font-weight:800}.climb .b .s{font-size:10.5px;color:var(--dim)}
+  .climbcap{text-align:center;color:var(--dim);font-size:12.5px;margin-bottom:8px}
+  .section-t{font-size:13px;letter-spacing:.3em;color:var(--cyan);text-align:center;margin:52px 0 6px;font-weight:700}
+  .section-h{font-size:26px;text-align:center;font-weight:800;margin-bottom:8px}
+  .section-d{text-align:center;color:var(--dim);font-size:13.5px;max-width:780px;margin:0 auto 26px}
+  .phase{margin-top:16px;border-radius:18px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(8px);overflow:hidden}
+  .phase .ph{padding:16px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .phase.p1 .ph{background:linear-gradient(100deg,rgba(25,227,255,.14),transparent)}
+  .phase.p2 .ph{background:linear-gradient(100deg,rgba(139,59,255,.16),transparent)}
+  .phase.p3 .ph{background:linear-gradient(100deg,rgba(255,46,154,.16),transparent)}
+  .phase.p4 .ph{background:linear-gradient(100deg,rgba(255,207,92,.16),transparent)}
+  .phase .lv{font-size:24px;font-weight:900}
+  .phase.p1 .lv{color:var(--cyan)}.phase.p2 .lv{color:var(--purple)}.phase.p3 .lv{color:var(--pink)}.phase.p4 .lv{color:var(--gold)}
+  .phase .ph .ti{font-size:19px;font-weight:800}
+  .phase .ph .mo{font-size:12px;color:var(--dim)}
+  .phase .ph .ms{margin-left:auto;font-size:12px;color:var(--gold);text-align:right;max-width:260px}
+  .phase .body{padding:16px 22px}
+  .row{display:grid;grid-template-columns:84px 1fr;gap:8px 14px;font-size:13.5px;margin:7px 0}
+  .row .k{color:var(--cyan);font-weight:700}
+  .row .v{color:var(--ink)} .row .v b{color:var(--gold)}
+  .cert{display:inline-block;margin-top:10px;font-size:12px;padding:4px 11px;border-radius:20px;background:rgba(60,226,154,.12);border:1px solid rgba(60,226,154,.4);color:var(--green)}
+  .phase.p4 .cert{background:rgba(255,207,92,.14);border-color:rgba(255,207,92,.5);color:var(--gold)}
+  .feebox{margin-top:16px;border-radius:18px;border:1px solid var(--line);background:var(--glass);overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  thead td{color:var(--cyan);font-weight:700;font-size:11.5px;letter-spacing:.06em;padding:11px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.03)}
+  tbody td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+  td.it{font-weight:600}
+  td.de{color:var(--dim);font-size:12.5px}
+  tr.total td{font-weight:900;font-size:15px;border-top:1px solid var(--line);background:rgba(255,207,92,.06)}
+  tr.total .num{color:var(--gold)}
+  .feenote{font-size:12.5px;color:var(--dim);padding:13px 16px;background:rgba(255,255,255,.02)}
+  .feenote b{color:var(--ink)}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .scard{padding:18px 20px;border-radius:16px;border:1px solid var(--line);background:var(--glass)}
+  .scard.you{border-color:rgba(255,207,92,.4);background:rgba(255,207,92,.05)}
+  .scard h4{font-size:15px;margin-bottom:10px} .scard.you h4{color:var(--gold)} .scard.org h4{color:var(--cyan)}
+  .scard ul{margin:0;padding-left:18px} .scard li{font-size:13px;color:var(--dim);margin:6px 0} .scard li b{color:var(--ink)}
+  .panel{margin-top:16px;padding:18px 20px;border-radius:16px;background:rgba(60,226,154,.05);border:1px solid rgba(60,226,154,.3)}
+  .panel .pt{font-size:13px;letter-spacing:.12em;font-weight:800;color:var(--green);margin-bottom:10px}
+  .panel ul{margin:0;padding-left:20px} .panel li{font-size:13px;color:var(--dim);margin:6px 0} .panel li b{color:var(--ink)}
+  .foot{text-align:center;margin-top:52px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
+  @media(max-width:760px){
+    h1{font-size:29px} .split{grid-template-columns:1fr} .phase .ph .ms{margin-left:0;text-align:left;max-width:none}
+    .row{grid-template-columns:72px 1fr} td.de{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">CRAYXUS AI·GP　|　ONE-YEAR LEARNING PATH & FEES</div>
+    <h1>一年学习路线 <span class="neon">& 费用</span></h1>
+    <p class="sub">从 0 基础到<b style="color:#fff">击败人类单圈</b>的逐级流程,每一步都对齐已验证的硬件与定位能力。
+      全程<b style="color:#fff">零遥控器</b>(网页/PC 控制台操控),前期单车单圈<b style="color:#fff">几千元就能起步</b>,验证成了再上动捕做对决。</p>
+  </header>
+
+  <div class="climb">
+    <div class="b b1"><div class="t" style="color:var(--cyan)">阶段一</div><div class="s">看懂·让车动</div></div>
+    <div class="b b2"><div class="t" style="color:var(--purple)">阶段二</div><div class="s">教车·训模型</div></div>
+    <div class="b b3"><div class="t" style="color:var(--pink)">阶段三</div><div class="s">提速·攻单圈</div></div>
+    <div class="b b4"><div class="t" style="color:var(--gold)">阶段四</div><div class="s">击败人类</div></div>
+  </div>
+  <p class="climbcap">难度逐级上升 · 每周 ~2h · 全年约 40 周 · 终点:AI 单圈跑赢人类遥控手</p>
+
+  <div class="section-t">THE PATH · 逐级流程</div>
+  <h2 class="section-h">一年,四个台阶</h2>
+  <p class="section-d">操控一律走<b style="color:#fff">网页/PC 控制台</b>(键盘/虚拟摇杆),全程不碰遥控器。每阶段都有可交付的成果与证书。</p>
+
+  <div class="phase p1">
+    <div class="ph"><span class="lv">L1</span><div><div class="ti">看懂 AI 自驾 · 让车自己动</div><div class="mo">第 1–3 月 · 普通车 · 室内</div></div><div class="ms">🎯 车室内自主跑一圈 / 避障</div></div>
+    <div class="body">
+      <div class="row"><div class="k">学 AI</div><div class="v">自动驾驶全貌(感知→决策→控制)、机器学习直觉、图像/视觉感知入门</div></div>
+      <div class="row"><div class="k">Vibe Coding</div><div class="v">从<b>提示词基础</b>起,用 AI 写出第一个能跑的感知/控制脚本(不背语法)</div></div>
+      <div class="row"><div class="k">动手</div><div class="v">PC 控制台调感知、让车沿蓝路肩走 + 遇障停;读懂"车眼中的世界"</div></div>
+      <div class="row"><div class="k">车 / 定位</div><div class="v">室内 Package(普通 1/10)· 车载视觉(此阶段无需精确定位)</div></div>
+      <span class="cert">📜 L1–L2 阶梯认证</span>
+    </div>
+  </div>
+
+  <div class="phase p2">
+    <div class="ph"><span class="lv">L2</span><div><div class="ti">教车开 · 训练第一个模型</div><div class="mo">第 4–6 月 · 普通车 · 室内</div></div><div class="ms">🎯「我训练的模型让车自动跑」+ 首个单圈成绩</div></div>
+    <div class="body">
+      <div class="row"><div class="k">学 AI</div><div class="v">模仿学习、神经网络、训练与 loss 曲线、数据集质量</div></div>
+      <div class="row"><div class="k">Vibe Coding</div><div class="v">用 AI 搭采数据 / 训练 / 部署的整条管线,看懂每段在干什么</div></div>
+      <div class="row"><div class="k">动手</div><div class="v">PC 控制台开车采数据(画面→转向)→ 一键训练 → 部署上车;装<b>起跑线计时门</b>开始计单圈</div></div>
+      <div class="row"><div class="k">车 / 定位</div><div class="v">室内 Package · <b>车载 LiDAR + 沿赛道立体地标</b>(粒子滤波 cm 级)+ 计时门</div></div>
+      <span class="cert">📜 L3 · 神经网络训练认证</span>
+    </div>
+  </div>
+
+  <div class="phase p3">
+    <div class="ph"><span class="lv">L3</span><div><div class="ti">提速 · 强化学习攻单圈</div><div class="mo">第 7–9 月 · 普通车→F1 · 室内/室外</div></div><div class="ms">🎯 单圈圈速不断刷新,逼近人类</div></div>
+    <div class="body">
+      <div class="row"><div class="k">学 AI</div><div class="v">强化学习、最优赛车线(最小曲率)、MPC/Pure Pursuit 跟踪、sim-to-real</div></div>
+      <div class="row"><div class="k">Vibe Coding</div><div class="v">用 AI 在仿真里设奖励让车自学赛车线、调控制参数、做 sim2real 残差补偿</div></div>
+      <div class="row"><div class="k">动手</div><div class="v">仿真练最优线 → 残差校准 → 上真车 → 反复刷单圈,做受控实验记录</div></div>
+      <div class="row"><div class="k">车 / 定位</div><div class="v">室内优化 / 切 <b>F1 款</b>上室外 · 车载 LiDAR+地标 或 <b>室外 RTK-GPS</b> + 计时门</div></div>
+      <span class="cert">📜 进阶认证 + 白名单赛事备赛</span>
+    </div>
+  </div>
+
+  <div class="phase p4">
+    <div class="ph"><span class="lv">L4</span><div><div class="ti">击败人类 · 科研答辩 · 对决</div><div class="mo">第 10–12 月 · F1 · 室内外</div></div><div class="ms">🏁 击败人类单圈 + 可投科创的研究</div></div>
+    <div class="body">
+      <div class="row"><div class="k">学 AI</div><div class="v">高速决策调优、(可选)多车博弈、科研表达与答辩</div></div>
+      <div class="row"><div class="k">Vibe Coding</div><div class="v">用 AI 做数据分析、生成实验报告与海报、打磨答辩</div></div>
+      <div class="row"><div class="k">动手</div><div class="v">死磕单圈干掉人类成绩 → 整理研究 / 打白名单赛事 / 答辩;<b>(可选)机构上动捕做多车人机对决表演赛</b></div></div>
+      <div class="row"><div class="k">车 / 定位</div><div class="v">F1 Package · RTK + 计时门(单圈)/ <b>NOKOV 动捕</b>(多车对决,机构提供)</div></div>
+      <span class="cert">🏆 赛事证书 + 教授推荐信 + 科研实践证明</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="pt">💡 省钱关键:分阶段定位投入</div>
+    <ul>
+      <li><b>前期(单车单圈)</b>:车载 LiDAR+地标 / RTK + 起跑线计时门,<b>几千元就能起步</b>验证"AI 能不能跑赢人类单圈"。</li>
+      <li><b>后期(多车对决)</b>:验证成功后,机构再上 <b>NOKOV 动捕(¥20–40 万,场地共享)</b>做贴身竞速 / 人机同场表演赛。</li>
+      <li>这样投入小、风险低,还能用单圈战绩做招生与品牌素材。</li>
+    </ul>
+  </div>
+
+  <div class="section-t">TRACK STANDARD · AI·GP 标准赛道</div>
+  <h2 class="section-h">赛事标准赛道规格</h2>
+  <p class="section-d">作为 AI·GP 规则制定方,赛道标准取自 F1TENTH / DeepRacer 国际依据,平衡<b style="color:#fff">竞速观赏 + 动捕成本 + 场馆可复制 + 安全</b>。</p>
+  <div class="feebox">
+    <table>
+      <thead><tr><td>参数</td><td>标准值</td><td>依据</td></tr></thead>
+      <tbody>
+        <tr><td class="it">总占地(推荐)</td><td class="num" style="color:var(--gold)">18×10 m</td><td class="de">性价比拐点;范围 16×8(起步)~ 20×12(旗舰),介于 DeepRacer 与 F1TENTH(28.5×11)之间</td></tr>
+        <tr><td class="it">赛道宽度</td><td class="num">0.9–1.1 m</td><td class="de">≈4–5 车宽,对标 F1TENTH 90cm 超车线 + 无墙容错</td></tr>
+        <tr><td class="it">中线周长</td><td class="num">45–55 m</td><td class="de">够单圈计时,也够多车超车</td></tr>
+        <tr><td class="it">最长直道</td><td class="num">14–16 m</td><td class="de">拉得开极速差,提升观赏</td></tr>
+        <tr><td class="it">最小弯径</td><td class="num">≥0.8 m</td><td class="de">DeepRacer 工程下限之上加余量</td></tr>
+        <tr><td class="it">边界</td><td class="num">涂装路肩 + 软缘石</td><td class="de">无硬墙、安全;对动捕无遮挡</td></tr>
+        <tr><td class="it">赛制</td><td class="num">计时 → 头对头</td><td class="de">照搬 F1TENTH 演进:先单圈计时(AI 占优)→ 后多车贴身</td></tr>
+      </tbody>
+    </table>
+    <div class="feenote">💡 <b>16×8(中天现有)可直接作起步标准</b>:适合训练 + 单圈计时,动捕最省(8–12 台相机)。<b>若把"多车贴身竞速"做成招牌,标准定 18×10 最划算</b>——观赏逼近 F1TENTH,动捕只多约 50%(12–18 台)。超过 20×12 后动捕成本陡增,不建议作标准。</div>
+  </div>
+
+  <div class="section-t">FEES · 费用结构(全成本分摊)</div>
+  <h2 class="section-h">每个学生一年要花多少</h2>
+  <p class="section-d">小班精品<b style="color:#fff">一届 ~10 人</b>,所有硬件(含场地动捕)<b style="color:#fff">全成本分摊</b>到每位学生。下表按 18×10 标准场估算。</p>
+
+  <div class="feebox">
+    <table>
+      <thead><tr><td>学生支付项</td><td>金额</td><td>说明</td></tr></thead>
+      <tbody>
+        <tr><td class="it">一年学费</td><td class="num">¥100,000</td><td class="de">turnkey 教学 + 浙大 AI 教授指导 + 平台与云算力 + 证书/赛事对接</td></tr>
+        <tr><td class="it">自己的 AI 赛车(室内·必备)</td><td class="num">¥9,800</td><td class="de">归学生所有,贯穿全年、带得走</td></tr>
+        <tr><td class="it">分摊 · 室内动捕 NOKOV</td><td class="num">¥28,000</td><td class="de">18×10 场约 ¥28 万 ÷ 10 人(16×8 起步约 ¥20 万 ÷10 = ¥2 万/人)</td></tr>
+        <tr><td class="it">分摊 · 室外 RTK + 计时门 + 地标 + 锥桶</td><td class="num">¥1,500</td><td class="de">约 ¥1.5 万 ÷ 10 人</td></tr>
+        <tr><td class="it">分摊 · 训练 GPU 工作站</td><td class="num">¥1,500</td><td class="de">约 ¥1.5 万 ÷ 10 人</td></tr>
+        <tr class="total"><td>学生一年总价</td><td class="num">≈ ¥140,800</td><td class="de">18×10 标准场;改 16×8 起步约 ¥13.3 万</td></tr>
+      </tbody>
+    </table>
+    <div class="feenote">💡 <b>设备是资产、能用很多届</b>:按"一届 10 人全摊"定价,机构<b>第一届就收回全部设备成本</b>,第二届起这部分转为净利润、或用于降价扩招。室外共享 F1 车队若机构提供,另摊约 ¥5,000/人(或学生选配自购室外 F1)。</div>
+  </div>
+
+  <div class="split">
+    <div class="scard you">
+      <h4>🎒 学生自己买(归学生)</h4>
+      <ul>
+        <li><b>室内 AI 赛车套装 ¥9,800</b>:Jetson + 摄像头 + LiDAR + 底盘 + 电池等,一年都用、带得走</li>
+        <li>个人耗材(备用电池、反光标记球等)少量</li>
+        <li>(可选)室外 F1 升级,想要自己的竞技车再加</li>
+      </ul>
+    </div>
+    <div class="scard org">
+      <h4>🏟️ 机构先垫资 → 分摊收回</h4>
+      <ul>
+        <li><b>NOKOV 动捕 ¥20–40 万</b>(按一届 10 人分摊,第一届即回本)</li>
+        <li>室外 RTK 基站、起跑线计时门、立体地标、锥桶</li>
+        <li>训练 GPU 工作站 / 云算力、共享 F1 车队</li>
+        <li>赛道用中天 16×8(起步)/ 18×10(标准场)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel" style="background:rgba(25,227,255,.05);border-color:rgba(25,227,255,.3)">
+    <div class="pt" style="color:var(--cyan)">✅ 为什么这条路"能实现"(不是画饼)</div>
+    <ul>
+      <li><b>每一步都对齐已验证硬件</b>:感知/训练/赛车线/控制全用 F1TENTH 开源生态(ROS2 + f1tenth_gym + SB3),不自研底座。</li>
+      <li><b>击败人类有业界先例</b>:苏黎世无人机 25:15 胜人类世界冠军;A2RL 全尺寸 AI 一年内从落后 ~10 秒/圈 → 单圈反超前 F1 车手 1.58 秒。</li>
+      <li><b>选最稳的赛制</b>:先打<b>单圈计时赛</b>(AI 跑线一致、零疲劳、毫秒反应,占优),多车贴身对决作为后期进阶。</li>
+      <li><b>turnkey 兜底</b>:平台扛 90% 底层,学生用 vibe coding 做有意义的真活——成果真实、可答辩、撑得起证书与推荐。</li>
+    </ul>
+  </div>
+
+  <div class="foot">CRAYXUS AI·GP　·　一年学习路线 & 费用　·　浙江大学 AI 教授团队领衔　·　中天模型强力支持</div>
+
+</div>
+</body>
+</html>
