@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI·GP 决策流程图 — 第一个学生 → 中天研发 → 白名单</title>
 <meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share.jpg">
-<meta property="og:title" content="AI·GP 决策流程图 · 主线:学生→中天研发→白名单">
-<meta property="og:description" content="方块·菱形·YES/NO·概率——主线一条,警示一条,一张图看完。">
+<meta property="og:title" content="AI·GP 决策流程图 · 主线与两道生死闸门">
+<meta property="og:description" content="第一笔钱→中天研发→更多学生→基地与学校→白名单,每个闸门的YES/NO都画清楚。">
 <style>
   :root{
     --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
@@ -25,8 +25,8 @@
   .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
   header{padding:46px 0 8px;text-align:center}
   .kicker{letter-spacing:.4em;font-size:12px;color:var(--cyan);font-weight:800}
-  h1{font-size:32px;line-height:1.25;margin:12px 0 6px;font-weight:900}
-  .sub{color:var(--dim);font-size:14px;max-width:720px;margin:6px auto 0}
+  h1{font-size:31px;line-height:1.25;margin:12px 0 6px;font-weight:900}
+  .sub{color:var(--dim);font-size:14px;max-width:740px;margin:6px auto 0}
   .sub b{color:#fff}
   .legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px 0 6px}
   .lg{font-size:12px;color:var(--dim);padding:5px 12px;border-radius:20px;background:var(--glass);border:1px solid var(--line)}
@@ -36,16 +36,19 @@
   svg .box{fill:rgba(255,255,255,.05);stroke:rgba(25,227,255,.55);stroke-width:1.6}
   svg .boxL{fill:rgba(255,93,115,.07);stroke:rgba(255,93,115,.6);stroke-width:1.6}
   svg .boxR{fill:rgba(60,226,154,.07);stroke:rgba(60,226,154,.6);stroke-width:1.6}
+  svg .boxG{fill:rgba(169,163,207,.07);stroke:rgba(169,163,207,.5);stroke-width:1.6}
   svg .boxF{fill:rgba(25,227,255,.05);stroke:rgba(25,227,255,.5);stroke-width:1.6;stroke-dasharray:7 6}
   svg .dia{fill:rgba(139,59,255,.12);stroke:#8b3bff;stroke-width:1.8}
   svg .diaR{fill:rgba(60,226,154,.1);stroke:rgba(60,226,154,.75);stroke-width:1.8}
+  svg .diaY{fill:rgba(255,207,92,.1);stroke:rgba(255,207,92,.75);stroke-width:1.8}
   svg .term{fill:rgba(255,207,92,.12);stroke:var(--gold);stroke-width:2}
   svg .termR{fill:rgba(255,93,115,.13);stroke:var(--red);stroke-width:2}
   svg .termG{fill:rgba(169,163,207,.1);stroke:#a9a3cf;stroke-width:1.6}
   svg .start{fill:rgba(255,207,92,.14);stroke:var(--gold);stroke-width:2}
-  svg .ln{stroke:rgba(238,240,255,.55);stroke-width:2.4;fill:none}
-  svg .lnL{stroke:rgba(255,93,115,.8);stroke-width:2.4;fill:none}
+  svg .ln{stroke:rgba(238,240,255,.55);stroke-width:2.2;fill:none}
+  svg .lnL{stroke:rgba(255,93,115,.8);stroke-width:2.2;fill:none}
   svg .lnR{stroke:rgba(60,226,154,.85);stroke-width:2.8;fill:none}
+  svg .lnD{stroke:rgba(169,163,207,.6);stroke-width:2;fill:none;stroke-dasharray:6 6}
   svg .lnY{stroke:rgba(255,207,92,.85);stroke-width:2.2;fill:none;stroke-dasharray:8 6}
   svg .t{fill:#eef0ff;font-size:15.5px;font-weight:800;text-anchor:middle}
   svg .d{fill:#a9a3cf;font-size:12.5px;text-anchor:middle}
@@ -58,7 +61,7 @@
   .final .gold{background:linear-gradient(92deg,#ffe9b0,var(--gold) 55%,#ff9a4d);-webkit-background-clip:text;background-clip:text;color:transparent}
   .hint{text-align:center;color:var(--dim);font-size:12px;margin-top:10px}
   .foot{text-align:center;margin-top:40px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
-  @media(max-width:700px){h1{font-size:24px}}
+  @media(max-width:700px){h1{font-size:23px}}
 </style>
 </head>
 <body>
@@ -66,8 +69,9 @@
 
   <header>
     <div class="kicker">AI·GP DECISION FLOWCHART</div>
-    <h1>主线:<span class="neon">第一个学生 → 中天研发 → 白名单</span></h1>
-    <p class="sub">主线只有一条:<b>第一个学生进来,钱和人全部走向中天研发</b>。其余一切,要么零预算并行,要么等钥匙解锁。</p>
+    <h1>主线与<span class="neon">两道生死闸门</span></h1>
+    <p class="sub">主线:第一个学生 → 中天研发 → 跑赢人类 → 白名单。
+      闸门一:<b>第一笔钱不进来,项目直接扑街</b>;闸门二:<b>研发期没有更多学生,基地与学校路线不通</b>。全部画在明面上。</p>
   </header>
 
   <div class="legend">
@@ -75,124 +79,161 @@
     <span class="lg">▭ <b>方块</b> = 动作</span>
     <span class="lg">◇ <b>菱形</b> = YES / NO 判断</span>
     <span class="lg">🟢 <b>绿粗线</b> = 主线</span>
-    <span class="lg">🔴 <b>红线</b> = 警示支线</span>
-    <span class="lg">┄ <b>虚线框</b> = 零预算并行</span>
+    <span class="lg">🔴 <b>红线</b> = 失败路径</span>
+    <span class="lg">┄ <b>灰虚线</b> = 单线硬撑</span>
   </div>
 
   <div class="chart">
-  <svg viewBox="0 0 1000 1200" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 1000 1500" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#eef0ff" opacity=".75"/></marker>
       <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff5d73"/></marker>
       <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3ce29a"/></marker>
       <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ffcf5c"/></marker>
+      <marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a9a3cf"/></marker>
     </defs>
 
     <!-- START -->
-    <rect class="start" x="320" y="18" width="360" height="58" rx="29"/>
-    <text class="t" x="500" y="43">🎓 START · 第一个学生签约入学</text>
-    <text class="d" x="500" y="62">学费 ¥100,000 + 车款 ¥9,800</text>
-    <line class="lnR" x1="500" y1="76" x2="500" y2="104" marker-end="url(#ag)"/>
+    <rect class="start" x="330" y="16" width="340" height="56" rx="28"/>
+    <text class="t" x="500" y="40">🚀 START · 项目启动,招募创始学员</text>
+    <text class="d" x="500" y="59">目标:1 名 · 学费 ¥100,000 + 车款 ¥9,800</text>
+    <line class="lnR" x1="500" y1="72" x2="500" y2="102" marker-end="url(#ag)"/>
+
+    <!-- GATE 1 -->
+    <polygon class="diaY" points="500,104 652,162 500,220 348,162"/>
+    <text class="t" x="500" y="157">⛩ 闸门一</text>
+    <text class="d" x="500" y="178">第一笔钱进来了吗?</text>
+
+    <polyline class="lnL" points="348,162 180,162 180,238" marker-end="url(#ar)"/>
+    <text class="lab labR" x="216" y="148">NO · 招生失败</text>
+    <rect class="termR" x="40" y="240" width="280" height="60" rx="30"/>
+    <text class="t" x="180" y="265">💀 项目直接扑街</text>
+    <text class="d" x="180" y="284">市场未验证 · 止损 ≈ 0(尚未投入)</text>
+
+    <line class="lnR" x1="500" y1="220" x2="500" y2="250" marker-end="url(#ag)"/>
+    <text class="lab labG" x="516" y="244">YES</text>
 
     <!-- D0 资金纪律 -->
-    <polygon class="dia" points="500,106 648,166 500,226 352,166"/>
-    <text class="t" x="500" y="161">资金纪律</text>
-    <text class="d" x="500" y="182">钱 100% 跟研发主线走?</text>
+    <polygon class="dia" points="500,252 648,310 500,368 352,310"/>
+    <text class="t" x="500" y="305">资金纪律</text>
+    <text class="d" x="500" y="326">钱 100% 跟研发主线走?</text>
 
-    <!-- NO → 左警示支线 -->
-    <polyline class="lnL" points="352,166 180,166 180,250" marker-end="url(#ar)"/>
-    <text class="lab labR" x="206" y="152">NO · 摊开花</text>
-    <rect class="boxL" x="40" y="252" width="280" height="72" rx="12"/>
-    <text class="t" x="180" y="280">样板间 · 营 · 进校 · 研发</text>
-    <text class="d" x="180" y="300">每线只分到 2–3 万</text>
-    <text class="d" x="180" y="316">全都走不到终点,还欠着 T2–T4 的课</text>
-    <line class="lnL" x1="180" y1="324" x2="180" y2="358" marker-end="url(#ar)"/>
-    <rect class="termR" x="40" y="360" width="280" height="60" rx="30"/>
-    <text class="t" x="180" y="385">❌ 无战绩 · 交付违约</text>
-    <text class="d" x="180" y="404">口碑反噬 · 模式死亡</text>
-    <text class="prob" x="180" y="448" fill="#ff5d73">路径成功概率 ≈ 5%</text>
+    <polyline class="lnL" points="352,310 180,310 180,388" marker-end="url(#ar)"/>
+    <text class="lab labR" x="212" y="296">NO · 摊开花</text>
+    <rect class="boxL" x="40" y="390" width="280" height="70" rx="12"/>
+    <text class="t" x="180" y="417">样板间 · 营 · 进校 · 研发</text>
+    <text class="d" x="180" y="437">每线 2–3 万,全都到不了终点</text>
+    <text class="d" x="180" y="453">还欠着 T2–T4 的课</text>
+    <line class="lnL" x1="180" y1="460" x2="180" y2="492" marker-end="url(#ar)"/>
+    <rect class="termR" x="40" y="494" width="280" height="58" rx="29"/>
+    <text class="t" x="180" y="518">❌ 无战绩 · 交付违约</text>
+    <text class="d" x="180" y="537">模式死亡 · 概率 ≈ 5%</text>
 
-    <!-- YES → 主线 -->
-    <line class="lnR" x1="500" y1="226" x2="500" y2="260" marker-end="url(#ag)"/>
-    <text class="lab labG" x="516" y="250">YES · 主线</text>
+    <line class="lnR" x1="500" y1="368" x2="500" y2="398" marker-end="url(#ag)"/>
+    <text class="lab labG" x="516" y="392">YES · 主线</text>
 
-    <rect class="boxR" x="350" y="262" width="300" height="72" rx="12"/>
-    <text class="t" x="500" y="289">资金分配 · 账面闭环</text>
-    <text class="d" x="500" y="309">研发物料 4.7万 + 运营 3万 + 机动 2万</text>
-    <text class="d" x="500" y="326">刚好 = "跑赢人类"的全部弹药</text>
-    <line class="lnR" x1="500" y1="334" x2="500" y2="368" marker-end="url(#ag)"/>
+    <!-- 资金分配 + 研发主线 -->
+    <rect class="boxR" x="350" y="400" width="300" height="64" rx="12"/>
+    <text class="t" x="500" y="425">资金分配 · 账面闭环</text>
+    <text class="d" x="500" y="445">物料 4.7万 + 运营 3万 + 机动 2万</text>
+    <line class="lnR" x1="500" y1="464" x2="500" y2="494" marker-end="url(#ag)"/>
 
-    <rect class="boxR" x="350" y="370" width="300" height="98" rx="12"/>
-    <text class="t" x="500" y="398">🔧 中天研发主线(M1–M8)</text>
-    <text class="d" x="500" y="418">中天场地 + 中天同款车上跑通:</text>
-    <text class="d" x="500" y="435">T1 让车动 → T2 训模型·计时 → T3 圈速逼近</text>
-    <text class="d" x="500" y="452">学生全程亲手参与 = 课程与研发同一件事</text>
-    <text class="d" x="500" y="464" style="font-size:11.5px;fill:#3ce29a">每月圈速曲线 = 给中天的进度汇报</text>
-    <line class="lnR" x1="500" y1="468" x2="500" y2="502" marker-end="url(#ag)"/>
+    <rect class="boxR" x="350" y="496" width="300" height="96" rx="12"/>
+    <text class="t" x="500" y="523">🔧 中天研发主线(M1–M8)</text>
+    <text class="d" x="500" y="543">中天场地 + 中天同款车:</text>
+    <text class="d" x="500" y="559">T1 让车动 → T2 训模型·计时 → T3 圈速逼近</text>
+    <text class="d" x="500" y="575">课程与研发是同一件事 · 学费即研发经费</text>
+    <text class="d" x="500" y="587" style="font-size:11.5px;fill:#3ce29a">每月圈速曲线 = 给中天的进度汇报 + 招生素材</text>
+    <line class="lnR" x1="500" y1="592" x2="500" y2="622" marker-end="url(#ag)"/>
 
-    <rect class="boxF" x="350" y="504" width="300" height="68" rx="12"/>
-    <text class="t" x="500" y="530" style="font-size:14px">🆓 零预算占位 · 三线并行不花钱</text>
-    <text class="d" x="500" y="550">进校 demo 顺路做 · 赛车营只预售</text>
-    <text class="d" x="500" y="566">商场只谈点位不付租</text>
-    <line class="lnR" x1="500" y1="572" x2="500" y2="610" marker-end="url(#ag)"/>
+    <!-- GATE 2 -->
+    <polygon class="diaY" points="500,624 656,686 500,748 344,686"/>
+    <text class="t" x="500" y="676">⛩ 闸门二(M3–M8)</text>
+    <text class="d" x="500" y="697">研发过程吸引到更多学生?</text>
 
-    <!-- D1 M9 决战 -->
-    <polygon class="diaR" points="500,612 644,672 500,732 356,672"/>
-    <text class="t" x="500" y="667">M9 决战</text>
-    <text class="d" x="500" y="687">单圈跑赢人类?</text>
+    <!-- YES → 扩张支线(右) -->
+    <polyline class="lnR" points="656,686 815,686 815,742" marker-end="url(#ag)"/>
+    <text class="lab labG" x="680" y="672">YES · 滚动招生</text>
+    <rect class="boxR" x="685" y="744" width="260" height="68" rx="12"/>
+    <text class="t" x="815" y="770" style="font-size:14.5px">选择① 落地研发基地</text>
+    <text class="d" x="815" y="790">展示样板 + 招生中枢</text>
+    <text class="d" x="815" y="806">(新学费滚动投入,不动主线钱)</text>
+    <line class="lnR" x1="815" y1="812" x2="815" y2="842" marker-end="url(#ag)"/>
+    <rect class="boxR" x="685" y="844" width="260" height="64" rx="12"/>
+    <text class="t" x="815" y="870" style="font-size:14.5px">选择② 进校联合发起</text>
+    <text class="d" x="815" y="890">学校共建后续基地 · 模式开始复制</text>
+    <polyline class="lnR" points="815,908 815,930 574,930" marker-end="url(#ag)"/>
+    <text class="lab labG" x="700" y="922" text-anchor="middle">现金流汇入主线</text>
+
+    <!-- NO → 扩张不通(左) -->
+    <polyline class="lnL" points="344,686 180,686 180,742" marker-end="url(#ar)"/>
+    <text class="lab labR" x="212" y="672">NO · 只有 1 个学生</text>
+    <rect class="boxG" x="40" y="744" width="280" height="76" rx="12"/>
+    <text class="t" x="180" y="770" style="font-size:14.5px">❄ 扩张路线不通</text>
+    <text class="d" x="180" y="790">基地建不了 · 学校进不去</text>
+    <text class="d" x="180" y="807">大模式不成立</text>
+    <polyline class="lnD" points="180,820 180,962 352,962" marker-end="url(#ad)"/>
+    <text class="lab labD" x="172" y="898" text-anchor="end">单线硬撑:靠 10 万</text>
+    <text class="lab labD" x="172" y="916" text-anchor="end">死磕到 M9(无缓冲)</text>
+
+    <!-- M9 决战 -->
+    <polygon class="diaR" points="500,902 644,962 500,1022 356,962"/>
+    <text class="t" x="500" y="957">M9 决战</text>
+    <text class="d" x="500" y="977">单圈跑赢人类?</text>
+    <line class="lnR" x1="500" y1="748" x2="500" y2="900" marker-end="url(#ag)"/>
 
     <!-- YES 主线继续 -->
-    <text class="lab labG" x="516" y="756">YES · 70–80%</text>
-    <line class="lnR" x1="500" y1="732" x2="500" y2="766" marker-end="url(#ag)"/>
+    <text class="lab labG" x="516" y="1046">YES · 70–80%</text>
+    <line class="lnR" x1="500" y1="1022" x2="500" y2="1056" marker-end="url(#ag)"/>
 
-    <rect class="boxR" x="350" y="768" width="300" height="58" rx="12"/>
-    <text class="t" x="500" y="792">⚡ 决定性证据</text>
-    <text class="d" x="500" y="812">战绩 + 全程影像 = 一份证据 · 四处变现</text>
-    <line class="lnR" x1="500" y1="826" x2="500" y2="858" marker-end="url(#ag)"/>
+    <rect class="boxR" x="350" y="1058" width="300" height="56" rx="12"/>
+    <text class="t" x="500" y="1081">⚡ 决定性证据:战绩 + 全程影像</text>
+    <text class="d" x="500" y="1101">一份证据 · 四处变现</text>
+    <line class="lnR" x1="500" y1="1114" x2="500" y2="1144" marker-end="url(#ag)"/>
 
-    <rect class="boxR" x="350" y="860" width="300" height="56" rx="12"/>
-    <text class="t" x="500" y="883">🏆 白名单申报 × 中天联合立项</text>
-    <text class="d" x="500" y="903">身位跃迁:从机构 → 赛事规则制定方</text>
-    <line class="lnR" x1="500" y1="916" x2="500" y2="948" marker-end="url(#ag)"/>
+    <rect class="boxR" x="350" y="1146" width="300" height="54" rx="12"/>
+    <text class="t" x="500" y="1169">🏆 白名单申报 × 中天联合立项</text>
+    <text class="d" x="500" y="1189">身位跃迁:赛事规则制定方</text>
+    <line class="lnR" x1="500" y1="1200" x2="500" y2="1230" marker-end="url(#ag)"/>
 
-    <rect class="boxR" x="350" y="950" width="300" height="74" rx="12"/>
-    <text class="t" x="500" y="976">🔓 三线自动解锁</text>
-    <text class="d" x="500" y="996">进校=通行证 · 赛车营=招生引爆</text>
-    <text class="d" x="500" y="1013">样板间=有战绩内容可放</text>
-    <line class="lnR" x1="500" y1="1024" x2="500" y2="1056" marker-end="url(#ag)"/>
+    <rect class="boxR" x="350" y="1232" width="300" height="70" rx="12"/>
+    <text class="t" x="500" y="1258">🔓 全线解锁</text>
+    <text class="d" x="500" y="1278">进校=通行证 · 营=引爆 · 基地=旗舰化</text>
+    <text class="d" x="500" y="1294">(闸门二若曾是 NO,此刻重新打开)</text>
+    <line class="lnR" x1="500" y1="1302" x2="500" y2="1332" marker-end="url(#ag)"/>
 
-    <rect class="term" x="340" y="1058" width="320" height="60" rx="30"/>
-    <text class="t" x="500" y="1083">🏁 Y2:第二期现金流 · 规模化</text>
-    <text class="d" x="500" y="1103">营开营(已预售) · 学校签约 · 样板间落地</text>
-    <text class="prob" x="500" y="1148" fill="#ffcf5c">主线成功概率:高(70%+)</text>
+    <rect class="term" x="340" y="1334" width="320" height="58" rx="29"/>
+    <text class="t" x="500" y="1358">🏁 Y2:第二期现金流 · 规模化</text>
+    <text class="d" x="500" y="1378">营开营 · 学校签约 · 基地旗舰店</text>
+    <text class="prob" x="500" y="1424" fill="#ffcf5c">主线成功概率:高(70%+)</text>
 
-    <!-- NO 支线(右) -->
-    <polyline class="lnL" points="644,672 800,672 800,766" marker-end="url(#ar)"/>
-    <text class="lab labR" x="676" y="658">NO · 20–30%</text>
-    <rect class="box" x="670" y="768" width="260" height="74" rx="12"/>
-    <text class="t" x="800" y="794" style="font-size:14.5px">完整课程已交付</text>
-    <text class="d" x="800" y="814">+ 圈速曲线 + 研究成果</text>
-    <text class="d" x="800" y="831">信用保留,不归零</text>
-    <line class="ln" x1="800" y1="842" x2="800" y2="874" marker-end="url(#aw)"/>
+    <!-- M9 NO 支线(右) -->
+    <polyline class="lnL" points="644,962 840,962 840,1056" marker-end="url(#ar)"/>
+    <text class="lab labR" x="676" y="948">NO · 20–30%</text>
+    <rect class="box" x="710" y="1058" width="250" height="72" rx="12"/>
+    <text class="t" x="835" y="1084" style="font-size:14px">完整课程已交付</text>
+    <text class="d" x="835" y="1104">+ 圈速曲线 + 研究成果</text>
+    <text class="d" x="835" y="1120">信用保留,不归零</text>
+    <line class="ln" x1="835" y1="1130" x2="835" y2="1160" marker-end="url(#aw)"/>
 
-    <polygon class="dia" points="800,876 916,926 800,976 684,926"/>
-    <text class="t" x="800" y="921" style="font-size:14.5px">差距 &lt; 5%?</text>
-    <text class="d" x="800" y="941">(从轨迹数据看卡点)</text>
+    <polygon class="dia" points="835,1162 945,1210 835,1258 725,1210"/>
+    <text class="t" x="835" y="1205" style="font-size:14px">差距 &lt; 5%?</text>
+    <text class="d" x="835" y="1224">(轨迹数据看卡点)</text>
 
-    <polyline class="lnY" points="684,926 640,926 640,696 644,690" marker-end="url(#ay)"/>
-    <text class="lab labY" x="632" y="816" text-anchor="end">YES · 加练再战 ↺</text>
+    <polyline class="lnY" points="725,1210 678,1210 678,976 654,966" marker-end="url(#ay)"/>
+    <text class="lab labY" x="688" y="1226" text-anchor="middle">YES · 再战 ↺</text>
 
-    <text class="lab labD" x="816" y="996">NO</text>
-    <line class="ln" x1="800" y1="976" x2="800" y2="1008" marker-end="url(#aw)"/>
-    <rect class="termG" x="680" y="1010" width="240" height="56" rx="28"/>
-    <text class="t" x="800" y="1034" style="font-size:14.5px">转型纯课程产品</text>
-    <text class="d" x="800" y="1053">体面收场 · 客户拿到完整价值</text>
+    <text class="lab labD" x="851" y="1278">NO</text>
+    <line class="ln" x1="835" y1="1258" x2="835" y2="1288" marker-end="url(#aw)"/>
+    <rect class="termG" x="715" y="1290" width="240" height="54" rx="27"/>
+    <text class="t" x="835" y="1313" style="font-size:14px">转型纯课程产品</text>
+    <text class="d" x="835" y="1332">体面收场 · 客户拿到完整价值</text>
   </svg>
   </div>
   <p class="hint">手机查看:双指缩放,或横屏</p>
 
   <div class="final">
-    <h2>主线一条:学生进来 → 中天研发 → 跑赢人类 → 白名单。<br><span class="gold">课程与研发是同一件事,学费就是研发经费。</span></h2>
+    <h2>两道闸门都画在明面上:第一笔钱定生死,第二批学生定大小。<br><span class="gold">但只要主线打穿 M9,所有关过的门都会重新打开。</span></h2>
   </div>
 
   <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="CRAYXUS AI·GP" style="display:block;margin:30px auto 0;width:280px;max-width:78%;border-radius:16px;border:1px solid rgba(255,255,255,.15)">
