@@ -73,6 +73,10 @@
   .vs .ai h3{color:var(--cyan)} .vs .hu h3{color:var(--red)}
   .vs li{font-size:19px;color:var(--dim);margin:9px 0 9px 22px;line-height:1.45}
   .vs li b{color:#fff}
+  .split{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;max-width:1320px}
+  .shot{width:100%;max-height:64vh;object-fit:contain;border-radius:18px;border:1px solid var(--line);box-shadow:0 18px 60px rgba(0,0,0,.45)}
+  .shot.lt{background:#fff;padding:8px}
+  .cap{font-size:14px;color:var(--dim);margin-top:10px;text-align:center}
   .flow{display:flex;gap:12px;align-items:stretch;margin-top:32px;flex-wrap:wrap;max-width:1050px}
   .f{flex:1;min-width:170px;padding:20px 16px;border-radius:16px;background:var(--glass);border:1px solid var(--line);text-align:center}
   .f .i{font-size:30px} .f h3{font-size:19px;margin:8px 0 4px} .f p{font-size:14.5px;color:var(--dim);line-height:1.45}
@@ -82,6 +86,7 @@
     ul.pts li{font-size:17px} .cards,.ev{grid-template-columns:1fr 1fr;gap:12px}
     .vs{grid-template-columns:1fr} .slide{padding:5vh 6vw} table{font-size:17px}
     .flow{flex-direction:column} .arr{transform:rotate(90deg)}
+    .split{grid-template-columns:1fr;gap:18px} .shot{max-height:34vh}
   }
 </style>
 </head>
@@ -103,14 +108,19 @@
 
 <!-- 2 今天讲什么 -->
 <section class="slide">
-  <div class="kicker">TODAY</div>
-  <h2>上次,你们看到<span class="neon">车会自己跑</span></h2>
-  <p class="big" style="margin-top:6px">今天回答三个问题——</p>
-  <ul class="pts">
-    <li><b>它是怎么被造出来的?</b>(完整技术流程)</li>
-    <li><b>孩子在每个阶段,亲手学到什么?</b></li>
-    <li><b>一年结束,手里留下什么?</b>(成果与履历)</li>
-  </ul>
+  <div class="split">
+    <div>
+      <div class="kicker">TODAY</div>
+      <h2>上次,你们看到<span class="neon">车会自己跑</span></h2>
+      <p class="big" style="margin-top:6px">今天回答三个问题——</p>
+      <ul class="pts">
+        <li><b>它是怎么被造出来的?</b>(完整技术流程)</li>
+        <li><b>孩子在每个阶段,亲手学到什么?</b></li>
+        <li><b>一年结束,手里留下什么?</b>(成果与履历)</li>
+      </ul>
+    </div>
+    <div><img class="shot" src="img/usecase_training.jpg" alt="AI 座舱"><div class="cap">AI 驾驶座舱视角——这一年,孩子坐进"工程师席"</div></div>
+  </div>
 </section>
 
 <!-- 3 全景图 -->
@@ -128,16 +138,19 @@
 
 <!-- 4 技术本质 -->
 <section class="slide">
-  <div class="kicker">HOW IT WORKS</div>
-  <h2>自动驾驶 = <span class="neon">眼睛 + 大脑</span></h2>
-  <div class="flow">
-    <div class="f"><div class="i">📷</div><h3>眼睛</h3><p>车头摄像头<br>看见赛道边线</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">🧠</div><h3>大脑</h3><p>神经网络<br>看到画面就知道怎么开</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">🕹️</div><h3>手脚</h3><p>转向 + 油门<br>毫秒级执行</p></div>
+  <div class="split">
+    <div>
+      <div class="kicker">HOW IT WORKS</div>
+      <h2>自动驾驶 = <span class="neon">眼睛 + 大脑</span></h2>
+      <ul class="pts">
+        <li>📷 <b>眼睛</b>:车头摄像头,看见赛道边线</li>
+        <li>🧠 <b>大脑</b>:神经网络,看到画面就知道怎么开</li>
+        <li>🕹️ <b>手脚</b>:转向 + 油门,毫秒级执行</li>
+      </ul>
+      <p class="big" style="margin-top:24px">和 <b>Tesla / Waymo</b> 同一条技术路线——做成孩子能亲手掌握的 1/10 版。</p>
+    </div>
+    <div><img class="shot" src="img/brain_body.jpg" alt="软件大脑 × 硬件赛车"><div class="cap">CRAYXUS 软件大脑 × 精密硬件赛车</div></div>
   </div>
-  <p class="big" style="margin-top:30px">和 <b>Tesla / Waymo</b> 同一条技术路线——做成孩子能亲手掌握的 1/10 版。</p>
 </section>
 
 <!-- 5 两条主线 -->
@@ -152,13 +165,18 @@
 
 <!-- 6 零遥控器 -->
 <section class="slide">
-  <div class="kicker">ENGINEERING</div>
-  <h2>全程<span class="neon">零遥控器</span>——工程师的方式</h2>
-  <ul class="pts">
-    <li>操控全走 <b>PC 控制台</b>:启停、调参、部署、急停,全在屏幕上</li>
-    <li><b>软件一键急停</b> + 车端看门狗:失联自动刹停</li>
-    <li>这不是玩遥控车——是<b>按真实自动驾驶工程的方式</b>训练孩子</li>
-  </ul>
+  <div class="split">
+    <div>
+      <div class="kicker">ENGINEERING</div>
+      <h2>全程<span class="neon">零遥控器</span>——工程师的方式</h2>
+      <ul class="pts">
+        <li>操控全走 <b>PC 控制台</b>:启停、调参、部署、急停,全在屏幕上</li>
+        <li><b>软件一键急停</b> + 车端看门狗:失联自动刹停</li>
+        <li>这不是玩遥控车——是<b>按真实自动驾驶工程的方式</b>训练孩子</li>
+      </ul>
+    </div>
+    <div><img class="shot" src="img/esp32_macro.jpg" alt="车端安全中枢"><div class="cap">车端安全中枢:实时遥测 + 参数调校 + 失联自动刹停</div></div>
+  </div>
 </section>
 
 <!-- 7 双车型 -->
@@ -286,38 +304,51 @@
 
 <!-- 17 T3 赛车线 -->
 <section class="slide">
-  <div class="kicker pinkc">T3 · 第 7–9 月 · ②</div>
-  <h2>最优赛车线:<span class="neon">和 F1 车手同一门学问</span></h2>
-  <ul class="pts">
-    <li>同一个弯,走法不同,出弯速度差 20%——<b>外-内-外</b>、晚刹早给油</li>
-    <li>AI 用数学直接算出<b>最小曲率路线</b>,然后毫米不差地执行,圈圈一致</li>
-    <li>人类车手要练十年的"线",AI 一个下午算出来——<b>这就是它敢挑战人类的底气</b></li>
-  </ul>
+  <div class="split">
+    <div>
+      <div class="kicker pinkc">T3 · 第 7–9 月 · ②</div>
+      <h2>最优赛车线:<span class="neon">和 F1 车手同一门学问</span></h2>
+      <ul class="pts">
+        <li>同一个弯,走法不同,出弯速度差 20%——<b>外-内-外</b>、晚刹早给油</li>
+        <li>AI 用数学算出<b>最小曲率路线</b>,毫米不差地执行,圈圈一致</li>
+        <li>人类车手练十年的"线",AI 一个下午算出来——<b>这就是它敢挑战人类的底气</b></li>
+      </ul>
+    </div>
+    <div><img class="shot" src="img/racing_line.jpg" alt="赛车线算法对比"><div class="cap">同一条赛道,四种算法各自算出的赛车线——孩子会亲手比较它们谁更快</div></div>
+  </div>
 </section>
 
 <!-- 18 T3 sim2real -->
 <section class="slide">
-  <div class="kicker pinkc">T3 · 第 7–9 月 · ③</div>
-  <h2>仿真一万圈,真车来验证</h2>
-  <div class="flow">
-    <div class="f"><div class="i">🖥️</div><h3>仿真自学</h3><p>虚拟赛道日夜试错<br>一晚 = 一万圈</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">🔧</div><h3>校准修正</h3><p>仿真和现实的差距<br>用真车数据补上(sim2real)</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">🏁</div><h3>真车刷圈</h3><p>每周末上赛道<br>受控实验 + 记录</p></div>
+  <div class="split">
+    <div>
+      <div class="kicker pinkc">T3 · 第 7–9 月 · ③</div>
+      <h2>仿真一万圈,真车来验证</h2>
+      <ul class="pts">
+        <li>🖥️ <b>仿真自学</b>:虚拟赛道日夜试错,一晚 = 一万圈</li>
+        <li>🔧 <b>sim2real 校准</b>:仿真和现实的差距,用真车数据补上</li>
+        <li>🏁 <b>真车刷圈</b>:每周上赛道验证,受控实验 + 记录</li>
+      </ul>
+      <span class="demo-tag">👀 看一下:AI 在仿真里一轮比一轮快</span>
+    </div>
+    <div><img class="shot" src="img/sim_lap.jpg" alt="数字孪生"><div class="cap">数字孪生:左边是仿真,右边是真赛道——SIM ↔ REAL</div></div>
   </div>
-  <span class="demo-tag">👀 看一下:AI 在仿真里一轮比一轮快</span>
 </section>
 
 <!-- 19 T3 里程碑 -->
 <section class="slide">
-  <div class="kicker pinkc">T3 · MILESTONE</div>
-  <h2>装备升级,圈速<span class="neon">逼近人类</span></h2>
-  <ul class="pts">
-    <li>升级<b>竞速版赛车</b>:更快的车 + 室外赛道 + 厘米级 RTK 定位</li>
-    <li>每周做受控实验:改一个变量 → 跑 → 记录 → 分析——<b>真·科研方法</b></li>
-  </ul>
-  <p class="out">🎯 里程碑:圈速曲线持续下降,逼近人类基准　·　📜 进阶认证 + 白名单赛事备赛</p>
+  <div class="split">
+    <div>
+      <div class="kicker pinkc">T3 · MILESTONE</div>
+      <h2>装备升级,圈速<span class="neon">逼近人类</span></h2>
+      <ul class="pts">
+        <li>升级<b>竞速版赛车</b>:更快的车 + 室外赛道 + 厘米级 RTK 定位</li>
+        <li>每周做受控实验:改一个变量 → 跑 → 记录 → 分析——<b>真·科研方法</b></li>
+      </ul>
+      <p class="out">🎯 里程碑:圈速曲线持续下降,逼近人类基准　·　📜 进阶认证 + 白名单赛事备赛</p>
+    </div>
+    <div><img class="shot lt" src="img/demo_lap.png" alt="真实实验记录"><div class="cap">我们的真实实验记录:10.27×4.78m 赛道 · 单圈 22.6 秒 · 规划路径 vs 物理边界</div></div>
+  </div>
 </section>
 
 <!-- ═══ T4(P20–23) ═══ -->
@@ -356,13 +387,18 @@
 
 <!-- 22 Race Day -->
 <section class="slide">
-  <div class="kicker gold">T4 · 第 10–12 月 · ③</div>
-  <h2>🏁 毕业战:Race Day</h2>
-  <ul class="pts">
-    <li>正式赛道 + 计时系统,<b>他的 AI 对阵真人车手</b>,同款车、同条道</li>
-    <li>家长到场观赛,全程录像直播留档——<b>那段视频会被转发很多年</b></li>
-    <li>现场颁奖:完赛认证 + 战绩存档,<b>这是一年所有努力的加冕礼</b></li>
-  </ul>
+  <div class="split">
+    <div>
+      <div class="kicker gold">T4 · 第 10–12 月 · ③</div>
+      <h2>🏁 毕业战:Race Day</h2>
+      <ul class="pts">
+        <li>正式赛道 + 计时系统,<b>他的 AI 对阵真人车手</b>,同款车、同条道</li>
+        <li>家长到场观赛,全程录像直播留档——<b>那段视频会被转发很多年</b></li>
+        <li>现场颁奖:完赛认证 + 战绩存档,<b>这是一年所有努力的加冕礼</b></li>
+      </ul>
+    </div>
+    <div><img class="shot" src="img/genesis_track.jpg" alt="WHERE AI RACES"><div class="cap">WHERE AI RACES——人机同场,蓝橙对决</div></div>
+  </div>
 </section>
 
 <!-- 23 T4 产出 -->
@@ -456,10 +492,11 @@
   <div class="kicker">NEXT</div>
   <h1>下周第一课,<br>就从今天<span class="neon">那个滑块</span>开始</h1>
   <p class="big" style="margin-top:10px">孩子已经会了第一步——剩下的,我们一周一周带他走完。</p>
-  <div class="badge-row" style="margin-top:38px">
+  <div class="badge-row" style="margin-top:30px">
     <span class="badge">📅 开课时间:本周内敲定</span>
     <span class="badge">🏎️ <b>Code Your Champion. Drive the Future.</b></span>
   </div>
+  <img class="shot" src="img/genesis_hero.jpg" alt="CRAYXUS AI·GP" style="max-width:720px;max-height:34vh;margin-top:30px">
 </section>
 
 <div class="pager"><span id="cur">1</span> / <span id="total"></span></div>
