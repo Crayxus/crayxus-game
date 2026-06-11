@@ -73,6 +73,24 @@
   .vs .ai h3{color:var(--cyan)} .vs .hu h3{color:var(--red)}
   .vs li{font-size:19px;color:var(--dim);margin:9px 0 9px 22px;line-height:1.45}
   .vs li b{color:#fff}
+  .mock{background:#0b0820;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.5)}
+  .mock .bar{display:flex;gap:6px;padding:10px 14px;background:rgba(255,255,255,.05);border-bottom:1px solid var(--line);align-items:center}
+  .mock .dot{width:10px;height:10px;border-radius:50%}
+  .mock .ttl{margin-left:8px;font-size:12.5px;color:var(--dim);letter-spacing:.08em}
+  .mock .bd{padding:14px 16px}
+  .bub{border-radius:12px;padding:10px 14px;font-size:15px;margin:8px 0;line-height:1.5;color:var(--ink)}
+  .bub.u{background:rgba(25,227,255,.12);border:1px solid rgba(25,227,255,.3)}
+  .bub.a{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--dim)}
+  .codebox{font-family:Consolas,Menlo,monospace;font-size:14px;color:#9fe8ff;background:rgba(0,0,0,.5);border-radius:8px;padding:10px 14px;margin-top:8px;line-height:1.55}
+  .term{font-family:Consolas,Menlo,monospace;font-size:14px;color:var(--green);background:#04140c;border-top:1px solid var(--line);padding:11px 16px;line-height:1.6}
+  .term b{color:#fff}
+  .sl{display:grid;grid-template-columns:96px 1fr 52px;gap:10px;align-items:center;font-size:13.5px;color:var(--dim);margin:11px 0}
+  .sl .tr{height:6px;border-radius:3px;background:rgba(255,255,255,.12);position:relative}
+  .sl .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--purple))}
+  .sl .tr b{position:absolute;top:50%;transform:translate(-50%,-50%);width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 0 10px var(--cyan)}
+  .sl .vv{text-align:right;font-weight:800;color:var(--cyan);font-variant-numeric:tabular-nums}
+  .lap{display:flex;justify-content:space-between;font-size:16px;color:var(--dim);padding:7px 4px;border-bottom:1px solid rgba(255,255,255,.07);font-variant-numeric:tabular-nums}
+  .lap b{color:#fff}
   .wk{border-collapse:collapse;margin-top:22px;width:100%;max-width:1060px;font-size:17.5px}
   .wk td{padding:6px 14px;border-bottom:1px solid rgba(255,255,255,.07);color:var(--dim);line-height:1.45}
   .wk td.w{color:var(--cyan);font-weight:800;white-space:nowrap;width:96px}
@@ -256,19 +274,29 @@
 
 <!-- 5.5 vibe coding 实例 -->
 <section class="slide">
-  <div class="kicker gold">VIBE CODING · 长这样</div>
-  <h2>不背语法,是<span class="neon">真的写出代码</span></h2>
-  <p class="big">第 8 周的真实课堂任务——孩子对 AI 说:</p>
-  <div class="code">
-    <span class="cm"># 孩子的话:</span>"让车在离障碍物 30 厘米以内时自动刹停"<br><br>
-    <span class="cm"># AI 生成的代码(节选):</span><br>
-    if lidar.front_distance() &lt; 0.30:<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;car.brake()&nbsp;&nbsp;<span class="cm"># 立即刹停</span>
+  <div class="kicker gold">VIBE CODING · 真实课堂界面</div>
+  <h2>一句话 → 代码 → <span class="neon">车真的停了</span></h2>
+  <div class="split" style="grid-template-columns:1.15fr .85fr;margin-top:14px">
+    <div class="mock">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">AI 编程助手 · 第 8 周课堂任务</span></div>
+      <div class="bd">
+        <div class="bub u">👦 让车在离障碍物 30 厘米以内时自动刹停,并在屏幕上提示</div>
+        <div class="bub a">🤖 好的,用激光雷达的前向距离来判断:
+          <div class="codebox">dist = lidar.front_distance()<br>if dist &lt; 0.30:<br>&nbsp;&nbsp;&nbsp;&nbsp;car.brake()<br>&nbsp;&nbsp;&nbsp;&nbsp;console.show("⚠ 障碍物 " + dist + " m,已刹停")</div>
+        </div>
+      </div>
+      <div class="term">▶ 部署到赛车… 成功<br>▶ 实测:障碍物 <b>0.28 m</b> → <b>已刹停 ✓</b>　屏幕提示 ✓</div>
+    </div>
+    <div>
+      <ul class="pts" style="margin-top:0">
+        <li><b>① 说清需求</b>:用人话提需求</li>
+        <li><b>② AI 生成</b>:几秒钟出代码</li>
+        <li><b>③ 逐行读懂</b>:看不懂就让 AI 解释</li>
+        <li><b>④ 上车验证</b>:车在 28cm 真的停了</li>
+      </ul>
+      <p class="big" style="margin-top:16px;font-size:21px">需求 → 语言 → 代码 → 行为,<b>整条链他自己走通</b>。</p>
+    </div>
   </div>
-  <ul class="pts" style="margin-top:22px">
-    <li>部署上车 → 车真的在 30cm 处停住——<b>需求 → 语言 → 代码 → 行为,一条龙他自己走通</b></li>
-    <li>看不懂的行,让 AI 逐行解释——<b>理解跟着动手长出来</b>,这是未来十年的编程方式</li>
-  </ul>
 </section>
 
 <!-- 6 零遥控器 -->
@@ -344,17 +372,38 @@
 <!-- 10 T1 感知拆解 -->
 <section class="slide">
   <div class="kicker">T1 · 第 1–3 月 · ③</div>
-  <h2>"感知"拆给你看</h2>
-  <div class="flow">
-    <div class="f"><div class="i">🎥</div><h3>① 摄像头画面</h3><p>车眼中的原始世界</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">🔵</div><h3>② 认出蓝边</h3><p>把赛道边线从背景里抠出来</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">🛣️</div><h3>③ 算出路线</h3><p>蓝带 = AI 正在想的路</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">🎯</div><h3>④ 打方向</h3><p>沿着路线走 + 遇障停</p></div>
+  <h2>"感知"拆给你看——这就是学生的调参界面</h2>
+  <div class="split" style="margin-top:14px">
+    <div>
+      <ul class="pts" style="margin-top:0">
+        <li>🎥 <b>① 摄像头画面</b>:车眼中的原始世界</li>
+        <li>🔵 <b>② 认出蓝边</b>:拖滑块,把边线从背景里抠出来</li>
+        <li>🛣️ <b>③ 算出路线</b>:蓝带 = AI 正在想的路</li>
+        <li>🎯 <b>④ 打方向</b>:沿着路线走 + 遇障停</li>
+      </ul>
+      <span class="demo-tag" style="margin-top:20px">🖐 现场试一下:你来调 AI 的眼睛</span>
+    </div>
+    <div class="mock">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">感知调参台 · 学生界面</span></div>
+      <div class="bd">
+        <svg viewBox="0 0 360 165" style="width:100%;border-radius:8px;background:#0a0f1e">
+          <polygon points="55,165 305,165 232,38 128,38" fill="#1b2236"/>
+          <polygon points="128,38 232,38 305,165 55,165" fill="none"/>
+          <polygon points="146,55 214,55 252,165 108,165" fill="rgba(25,227,255,.14)"/>
+          <line x1="128" y1="38" x2="55" y2="165" stroke="#19e3ff" stroke-width="9" opacity=".22"/>
+          <line x1="128" y1="38" x2="55" y2="165" stroke="#19e3ff" stroke-width="4"/>
+          <line x1="232" y1="38" x2="305" y2="165" stroke="#19e3ff" stroke-width="9" opacity=".22"/>
+          <line x1="232" y1="38" x2="305" y2="165" stroke="#19e3ff" stroke-width="4"/>
+          <line x1="180" y1="60" x2="180" y2="165" stroke="#ffcf5c" stroke-width="2.5" stroke-dasharray="7 7"/>
+          <text x="14" y="24" fill="#3ce29a" font-size="12" font-family="Consolas">● 边线已锁定</text>
+          <text x="282" y="24" fill="#a9a3cf" font-size="11" font-family="Consolas">30 FPS</text>
+        </svg>
+        <div class="sl"><span>色相 H</span><span class="tr"><i style="width:58%"></i><b style="left:58%"></b></span><span class="vv">198</span></div>
+        <div class="sl"><span>饱和度下限</span><span class="tr"><i style="width:42%"></i><b style="left:42%"></b></span><span class="vv">92</span></div>
+        <div class="sl"><span>视野裁剪</span><span class="tr"><i style="width:35%"></i><b style="left:35%"></b></span><span class="vv">35%</span></div>
+      </div>
+    </div>
   </div>
-  <span class="demo-tag">🖐 现场试一下:你来调 AI 的眼睛(拖滑块,框准蓝边)</span>
 </section>
 
 <!-- 11 T1 里程碑 -->
@@ -415,20 +464,59 @@
 <section class="slide">
   <div class="kicker purp">T2 · 第 4–6 月 · ③</div>
   <h2>loss 曲线:<span class="neon">AI 变聪明的心电图</span></h2>
-  <ul class="pts">
-    <li>曲线往下掉 = AI 从例子里总结出了开车规律</li>
-    <li>掉不动了?孩子要学会诊断:<b>数据不够?教得太乱?练过头了?</b></li>
-    <li>这就是真实 AI 工程师每天看的图——读懂它,比会背公式值钱</li>
-  </ul>
-  <span class="demo-tag">🖐 现场试一下:采数据 → 一键训练 → 看它学会你的开法</span>
+  <div class="split" style="margin-top:14px">
+    <div>
+      <ul class="pts" style="margin-top:0">
+        <li>曲线往下掉 = AI 从例子里总结出了开车规律</li>
+        <li>掉不动了?孩子学会诊断:<b>数据不够?教得太乱?练过头了?</b></li>
+        <li>这就是真实 AI 工程师每天看的图——<b>读懂它,比背公式值钱</b></li>
+      </ul>
+      <span class="demo-tag" style="margin-top:20px">🖐 现场试一下:采数据 → 一键训练</span>
+    </div>
+    <div class="mock">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">训练控制台 · my_driver_v3</span></div>
+      <div class="bd">
+        <div style="display:flex;gap:16px;font-size:13.5px;color:var(--dim);margin-bottom:8px">数据集 <b style="color:#fff">1,248 条</b><span>·</span>Epoch <b style="color:#fff">18 / 30</b><span>·</span>已用 <b style="color:#fff">02:41</b></div>
+        <svg viewBox="0 0 360 150" style="width:100%;border-radius:8px;background:#0a0f1e">
+          <line x1="34" y1="12" x2="34" y2="128" stroke="rgba(255,255,255,.18)"/>
+          <line x1="34" y1="128" x2="348" y2="128" stroke="rgba(255,255,255,.18)"/>
+          <polyline points="40,22 70,52 100,74 130,90 160,101 190,109 220,114 250,118 280,121 310,123 340,124"
+            fill="none" stroke="#19e3ff" stroke-width="3.5" stroke-linecap="round"/>
+          <polyline points="40,22 70,52 100,74 130,90 160,101 190,109 220,114 250,118 280,121 310,123 340,124"
+            fill="none" stroke="#19e3ff" stroke-width="10" opacity=".15" stroke-linecap="round"/>
+          <text x="40" y="142" fill="#a9a3cf" font-size="10.5" font-family="Consolas">epoch →</text>
+          <text x="8" y="20" fill="#a9a3cf" font-size="10.5" font-family="Consolas">loss</text>
+          <circle cx="340" cy="124" r="4.5" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="term">▶ 训练中… loss <b>0.082</b> ↓　|　完成后自动打包,可一键部署上车</div>
+    </div>
+  </div>
 </section>
 
 <!-- 15 T2 里程碑 -->
 <section class="slide">
   <div class="kicker purp">T2 · MILESTONE</div>
   <h2>「<span class="neon">我训练的模型,让车自动跑</span>」</h2>
-  <p class="out">🎯 里程碑:自己的模型上车跑 + 装<b>起跑线计时门</b>,拿到首个官方单圈成绩　·　📜 L3 神经网络训练认证</p>
-  <p class="big" style="margin-top:22px">从 T2 起,每圈都有计时——进步是一条<b>看得见的圈速曲线</b>,家长每个月都能看到孩子快了几秒。</p>
+  <div class="split" style="margin-top:14px">
+    <div>
+      <p class="out" style="margin-top:0">🎯 里程碑:自己的模型上车跑 + 装<b>起跑线计时门</b>,拿到首个官方单圈成绩　·　📜 L3 神经网络训练认证</p>
+      <p class="big" style="margin-top:20px">从 T2 起,每圈都有计时——进步是一条<b>看得见的圈速曲线</b>,家长每个月都能看到孩子快了几秒。</p>
+    </div>
+    <div class="mock">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">起跑线计时屏 · LIVE</span></div>
+      <div class="bd">
+        <div style="font-size:12.5px;letter-spacing:.18em;color:var(--dim)">BEST LAP</div>
+        <div style="font-size:52px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1">22.81<span style="font-size:20px;color:var(--dim)"> s</span></div>
+        <div style="margin-top:10px">
+          <div class="lap"><span>LAP 1</span><span>23.42</span></div>
+          <div class="lap"><span>LAP 2 ⭐</span><b>22.81</b></div>
+          <div class="lap"><span>LAP 3</span><span>23.05</span></div>
+        </div>
+      </div>
+      <div class="term">▶ 模型 my_driver_v3 · 3 圈 · 零出界 ✓ · 成绩已存入个人档案</div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══ T3(P16–19) ═══ -->
