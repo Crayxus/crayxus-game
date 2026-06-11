@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进校合作 · 决策流程图</title>
+<meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share.jpg">
+<meta property="og:title" content="进校合作 · 决策流程图">
+<meta property="og:description" content="三阶段保留,补上闸门、失败出口与回环。">
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --gold:#ffcf5c; --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.12); --glass:rgba(255,255,255,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);line-height:1.55;
+    background:linear-gradient(160deg,var(--bg0),var(--bg1) 55%,var(--bg2));background-attachment:fixed;padding:0 0 50px}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 16px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header{padding:26px 0 4px;text-align:center}
+  .kicker{letter-spacing:.34em;font-size:11px;color:var(--cyan);font-weight:800}
+  h1{font-size:25px;margin:8px 0 4px;font-weight:900}
+  .sub{color:var(--dim);font-size:13px;max-width:700px;margin:0 auto}
+  .legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0 4px}
+  .lg{font-size:11px;color:var(--dim);padding:3px 10px;border-radius:20px;background:var(--glass);border:1px solid var(--line)}
+  .chart{margin-top:6px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.02);padding:4px}
+  svg{width:100%;height:auto;display:block;font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif}
+  svg .boxR{fill:rgba(60,226,154,.07);stroke:rgba(60,226,154,.6);stroke-width:1.6}
+  svg .boxG{fill:rgba(169,163,207,.07);stroke:rgba(169,163,207,.5);stroke-width:1.6}
+  svg .boxN{fill:rgba(255,255,255,.05);stroke:rgba(25,227,255,.5);stroke-width:1.6}
+  svg .diaY{fill:rgba(255,207,92,.1);stroke:rgba(255,207,92,.75);stroke-width:1.8}
+  svg .diaR{fill:rgba(60,226,154,.1);stroke:rgba(60,226,154,.8);stroke-width:1.8}
+  svg .term{fill:rgba(255,207,92,.12);stroke:var(--gold);stroke-width:2}
+  svg .start{fill:rgba(255,207,92,.14);stroke:var(--gold);stroke-width:2}
+  svg .lnL{stroke:rgba(255,93,115,.8);stroke-width:2.2;fill:none}
+  svg .lnR{stroke:rgba(60,226,154,.9);stroke-width:2.8;fill:none}
+  svg .lnD{stroke:rgba(169,163,207,.6);stroke-width:2;fill:none;stroke-dasharray:6 6}
+  svg .lnY{stroke:rgba(255,207,92,.85);stroke-width:2.2;fill:none;stroke-dasharray:8 6}
+  svg .t{fill:#eef0ff;font-size:16px;font-weight:800;text-anchor:middle}
+  svg .d{fill:#a9a3cf;font-size:12.5px;text-anchor:middle}
+  svg .lab{font-size:13px;font-weight:900}
+  svg .labG{fill:#3ce29a} svg .labR{fill:#ff5d73} svg .labY{fill:#ffcf5c} svg .labD{fill:#a9a3cf}
+  .final{margin-top:14px;padding:12px;border-radius:14px;text-align:center;
+    background:linear-gradient(120deg,rgba(25,227,255,.1),rgba(255,46,154,.12));border:1px solid rgba(255,46,154,.4)}
+  .final h2{font-size:15px;font-weight:900}
+  .final .gold{background:linear-gradient(92deg,#ffe9b0,var(--gold) 55%,#ff9a4d);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .foot{text-align:center;margin-top:24px;color:var(--dim);font-size:11px;letter-spacing:.16em}
+  @media(max-width:700px){h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">SCHOOL PARTNERSHIP FLOWCHART</div>
+    <h1>进校合作 · <span class="neon">真流程图</span></h1>
+    <p class="sub">三阶段(0/1/2)保留 · 补上每一步的判断、失败出口与回环</p>
+  </header>
+
+  <div class="legend">
+    <span class="lg">🟡 起点/终局</span>
+    <span class="lg">◇ YES/NO 判断</span>
+    <span class="lg">🟢 主线</span>
+    <span class="lg">🔴 失败出口</span>
+    <span class="lg">┄ 回环/等待</span>
+  </div>
+
+  <div class="chart">
+  <svg viewBox="0 0 1000 870" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff5d73"/></marker>
+      <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3ce29a"/></marker>
+      <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ffcf5c"/></marker>
+      <marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a9a3cf"/></marker>
+    </defs>
+
+    <!-- START -->
+    <rect class="start" x="320" y="14" width="360" height="46" rx="23"/>
+    <text class="t" x="500" y="36">🎯 目标校池:上外附杭国际部 + 候选 N 所</text>
+    <text class="d" x="500" y="53">起点是"池",不是"已合作"</text>
+    <line class="lnR" x1="500" y1="60" x2="500" y2="80" marker-end="url(#ag)"/>
+
+    <!-- 阶段0 -->
+    <rect class="boxR" x="340" y="82" width="320" height="54" rx="12"/>
+    <text class="t" x="500" y="104">阶段0 · 免费体验日</text>
+    <text class="d" x="500" y="124">45′ demo 课 + 教师交流 · 零成本 · 可多校并行</text>
+    <line class="lnR" x1="500" y1="136" x2="500" y2="156" marker-end="url(#ag)"/>
+
+    <!-- G1 校方反应 -->
+    <polygon class="diaY" points="500,158 626,202 500,246 374,202"/>
+    <text class="t" x="500" y="208">🔥 校方反应热?</text>
+
+    <polyline class="lnL" points="374,202 190,202 190,224" marker-end="url(#ar)"/>
+    <text class="lab labR" x="350" y="190" text-anchor="end">NO</text>
+    <rect class="boxG" x="80" y="226" width="220" height="50" rx="12"/>
+    <text class="t" x="190" y="246" style="font-size:14.5px">入名单池 · 换下一所</text>
+    <text class="d" x="190" y="264">不恋战 · demo 资产复用</text>
+    <polyline class="lnD" points="190,276 190,300 40,300 40,37 316,37" marker-end="url(#ad)"/>
+
+    <line class="lnR" x1="500" y1="246" x2="500" y2="266" marker-end="url(#ag)"/>
+    <text class="lab labG" x="514" y="262">YES</text>
+
+    <!-- G2 钥匙 -->
+    <polygon class="diaY" points="500,268 640,316 500,364 360,316"/>
+    <text class="t" x="500" y="311">🔑 有钥匙吗?</text>
+    <text class="d" x="500" y="332">M9 战绩 / 白名单赛项</text>
+
+    <polyline class="lnL" points="360,316 180,316 180,338" marker-end="url(#ar)"/>
+    <text class="lab labR" x="336" y="304" text-anchor="end">还没有</text>
+    <rect class="boxG" x="70" y="340" width="220" height="64" rx="12"/>
+    <text class="t" x="180" y="362" style="font-size:14.5px">轻试点 · 社团/选修</text>
+    <text class="d" x="180" y="380">学校零投入 · 学生个体报名</text>
+    <text class="d" x="180" y="395">攒作品与家长口碑</text>
+    <polyline class="lnD" points="180,404 180,452 336,452" marker-end="url(#ad)"/>
+    <text class="lab labD" x="172" y="432" text-anchor="end">M9 后升级 ↘</text>
+
+    <line class="lnR" x1="500" y1="364" x2="500" y2="426" marker-end="url(#ag)"/>
+    <text class="lab labG" x="514" y="392">YES</text>
+
+    <!-- 阶段1 -->
+    <rect class="boxR" x="340" y="428" width="320" height="64" rx="12"/>
+    <text class="t" x="500" y="452">阶段1 · 试点共建(1 学期)</text>
+    <text class="d" x="500" y="472">学校出场地与课时 · 我们出课程/设备/师资</text>
+    <text class="d" x="500" y="487">入校托管收费 · 白纸黑字 KPI</text>
+    <line class="lnR" x1="500" y1="492" x2="500" y2="512" marker-end="url(#ag)"/>
+
+    <!-- G3 KPI -->
+    <polygon class="diaR" points="500,514 640,562 500,610 360,562"/>
+    <text class="t" x="500" y="557">📊 学期 KPI 达标?</text>
+    <text class="d" x="500" y="578">续班率 · 学生作品 · 赛事名额</text>
+
+    <polyline class="lnL" points="640,562 810,562 810,584" marker-end="url(#ar)"/>
+    <text class="lab labR" x="656" y="550">NO</text>
+    <rect class="boxN" x="700" y="586" width="220" height="56" rx="12"/>
+    <text class="t" x="810" y="608" style="font-size:14.5px">复盘修正一次</text>
+    <text class="d" x="810" y="627">再不达标 → 体面退出回名单池</text>
+    <polyline class="lnY" points="700,614 668,614 668,576 648,568" marker-end="url(#ay)"/>
+    <text class="lab labY" x="710" y="660">↺ 仅一次</text>
+
+    <line class="lnR" x1="500" y1="610" x2="500" y2="630" marker-end="url(#ag)"/>
+    <text class="lab labG" x="514" y="626">YES</text>
+
+    <!-- 阶段2 -->
+    <rect class="boxR" x="340" y="632" width="320" height="54" rx="12"/>
+    <text class="t" x="500" y="654">阶段2 · 全面合作</text>
+    <text class="d" x="500" y="674">全校选修 + 校内基地 + 联合署名赛项</text>
+    <line class="lnR" x1="500" y1="686" x2="500" y2="706" marker-end="url(#ag)"/>
+
+    <!-- 终局 -->
+    <rect class="term" x="330" y="708" width="340" height="52" rx="26"/>
+    <text class="t" x="500" y="730">🏁 全国示范校模板</text>
+    <text class="d" x="500" y="749">打包复制 → 池里的下一所</text>
+    <polyline class="lnD" points="670,734 950,734 950,37 684,37" marker-end="url(#ad)"/>
+    <text class="lab labD" x="940" y="390" text-anchor="end">复制循环</text>
+
+    <text class="lab labY" x="500" y="822" text-anchor="middle">每个菱形都能回答「没过,怎么办」—— 这才是流程</text>
+  </svg>
+  </div>
+
+  <div class="final">
+    <h2>三阶段没错,缺的是闸门:<span class="gold">起点是"池"不是"已合作",每一步都有失败出口。</span></h2>
+  </div>
+
+  <div class="foot">CRAYXUS　·　SCHOOL FLOWCHART　·　内部讨论稿</div>
+
+</div>
+</body>
+</html>
