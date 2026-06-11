@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中天现场作业指南 — 智能底座点亮 · 五步</title>
+<meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share.jpg">
+<meta property="og:title" content="中天现场作业指南 · 底座点亮五步">
+<meta property="og:description" content="接线 → 烧录 → 通信 → 标定 → 覆盖 Demo,带故障速查。">
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --gold:#ffcf5c; --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.12); --glass:rgba(255,255,255,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);line-height:1.6;
+    background:linear-gradient(160deg,var(--bg0),var(--bg1) 55%,var(--bg2));background-attachment:fixed;padding:0 0 60px}
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header{padding:30px 0 8px;text-align:center}
+  .kicker{letter-spacing:.3em;font-size:11px;color:var(--cyan);font-weight:800}
+  h1{font-size:24px;margin:8px 0 4px;font-weight:900}
+  .sub{color:var(--dim);font-size:13px}
+  .step{margin-top:16px;border-radius:14px;border:1px solid var(--line);background:var(--glass);overflow:hidden}
+  .step .h{padding:12px 16px;font-size:16px;font-weight:900;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+  .step .n{width:26px;height:26px;border-radius:50%;background:rgba(25,227,255,.15);border:1px solid var(--cyan);
+    color:var(--cyan);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .step .b{padding:12px 16px}
+  .step ul{list-style:none}
+  .step li{font-size:14px;color:var(--dim);margin:8px 0;padding-left:26px;position:relative}
+  .step li::before{content:"☐";position:absolute;left:0;color:var(--gold);font-size:15px}
+  .step li b{color:#fff}
+  .step li.note::before{content:"💡";font-size:12px}
+  .code{font-family:Consolas,Menlo,monospace;font-size:13px;color:#9fe8ff;background:rgba(0,0,0,.5);
+    border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0;overflow-x:auto;white-space:pre}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.07);color:var(--dim)}
+  td.k{color:#fff;font-weight:700;white-space:nowrap}
+  .warn{margin-top:16px;padding:12px 16px;border-radius:12px;background:rgba(255,93,115,.07);border:1px solid rgba(255,93,115,.4)}
+  .warn .t{color:var(--red);font-weight:900;font-size:13px;letter-spacing:.1em;margin-bottom:6px}
+  .ok{margin-top:16px;padding:14px 16px;border-radius:12px;background:rgba(60,226,154,.07);border:1px solid rgba(60,226,154,.4);text-align:center}
+  .ok b{color:var(--green);font-size:15px}
+  .ok p{color:var(--dim);font-size:13px;margin-top:4px}
+  .foot{text-align:center;margin-top:30px;color:var(--dim);font-size:11px;letter-spacing:.14em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">CRAYXUS FIELDWORK</div>
+    <h1>中天现场 · <span class="neon">底座点亮五步</span></h1>
+    <p class="sub">每步打勾再进下一步 · 卡住看底部故障速查</p>
+  </header>
+
+  <!-- 装备 -->
+  <div class="step">
+    <div class="h"><span class="n">0</span>出门装备清单</div>
+    <div class="b"><ul>
+      <li>底座整机 + <b>ESP32 + DRV8833</b> + 杜邦线一把</li>
+      <li><b>1S 电池(充满)</b> + TP4056 + 备用电池</li>
+      <li>笔记本(装好 esp32-car 目录) + USB 数据线(<b>能传数据的</b>,不是纯充电线)</li>
+      <li>iPhone(热点) · 卷尺 · 蓝胶带 · 剪刀 · 螺丝刀 · 双面胶 + 拖布条 · 一把纸屑(演示道具)</li>
+    </ul></div>
+  </div>
+
+  <!-- 1 接线 -->
+  <div class="step">
+    <div class="h"><span class="n">1</span>接线(断电操作)</div>
+    <div class="b">
+      <table>
+        <tr><td class="k">GPIO 4</td><td>→ DRV8833 AIN1(左电机)</td></tr>
+        <tr><td class="k">GPIO 5</td><td>→ DRV8833 AIN2</td></tr>
+        <tr><td class="k">GPIO 6</td><td>→ DRV8833 BIN1(右电机)</td></tr>
+        <tr><td class="k">GPIO 7</td><td>→ DRV8833 BIN2</td></tr>
+        <tr><td class="k">VM</td><td>→ 1S 电池 + (⚠ 不接 5V 升压)</td></tr>
+        <tr><td class="k">GND</td><td>→ 电池− 和 ESP32 GND <b>共地</b></td></tr>
+        <tr><td class="k">OA1/OA2 OB1/OB2</td><td>→ 左/右 N20 两根线</td></tr>
+      </table>
+      <ul><li class="note">DRV8833 有 EEP/SLP 脚的话接 3.3V(使能)</li></ul>
+    </div>
+  </div>
+
+  <!-- 2 烧录 -->
+  <div class="step">
+    <div class="h"><span class="n">2</span>烧录固件</div>
+    <div class="b">
+      <div class="code">cd C:/Users/Jayzee/esp32-car
+copy track_board.py main.py
+py upload.py boot.py main.py
+py monitor.py</div>
+      <ul>
+        <li>monitor 看到 <b>"Track Board A ready"</b> + LED 闪 3 下 = 成功</li>
+        <li class="note">boot.py 自动连 iPhone 热点(名字密码不对就改 boot.py 重传);monitor 输出里记下 <b>IP 地址</b></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3 通信+架空测试 -->
+  <div class="step">
+    <div class="h"><span class="n">3</span>通信 + 架空测试(轮子离地!)</div>
+    <div class="b">
+      <div class="code">浏览器打开:
+http://&lt;IP&gt;/tm            ← 返回 JSON = 通了
+http://&lt;IP&gt;/move?dir=F&t=300&pwm=500   ← 双轮正转
+http://&lt;IP&gt;/move?dir=R&t=300&pwm=500   ← 左正右反
+http://&lt;IP&gt;/stop</div>
+      <ul>
+        <li><b>F 时两轮都朝"前"转</b>才算对,方向不对看速查表</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 4 标定 -->
+  <div class="step">
+    <div class="h"><span class="n">4</span>落地标定(2 个数)</div>
+    <div class="b">
+      <ul>
+        <li><b>直线速度</b>:地上贴 1m 胶带,发 <b>/move?dir=F&t=5000&pwm=600</b>,量实走毫米数 ÷5 = <b>MM_PER_S</b></li>
+        <li><b>转弯</b>:发 <b>/move?dir=R&t=4000&pwm=600</b>,目测转了几度 → <b>TURN90_MS = 4000 × 90 ÷ 实际度数</b></li>
+        <li>把两个数填进 <b>sweeper_demo.py 顶部 CALIB</b></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 5 覆盖 demo -->
+  <div class="step">
+    <div class="h"><span class="n">5</span>覆盖 Demo + 录视频</div>
+    <div class="b">
+      <ul>
+        <li>底盘前缘双面胶粘<b>拖布条</b>,地上撒纸屑,蓝胶带围 60×60cm</li>
+      </ul>
+      <div class="code">py sweeper_demo.py zigzag 60 60 --ip &lt;IP&gt;</div>
+      <ul>
+        <li><b>📹 横屏录全程</b>:这段"自主覆盖清扫"就是给永康/申报的第一段素材</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 故障速查 -->
+  <div class="warn">
+    <div class="t">⚡ 故障速查</div>
+    <table>
+      <tr><td class="k">全不转</td><td>VM 没电 / 没共地 / pwm&lt;300 推不动 → 试 pwm=800</td></tr>
+      <tr><td class="k">只转一个轮</td><td>另一路接线松 → 重插 AIN/BIN 与电机线</td></tr>
+      <tr><td class="k">某轮方向反</td><td>对调<b>该电机的两根线</b>(或 TRACK_PINS 里对调那一对)</td></tr>
+      <tr><td class="k">左右搞反</td><td>A、B 两组整体互换</td></tr>
+      <tr><td class="k">WiFi 连不上</td><td>热点开 <b>2.4GHz 兼容模式</b>;boot.py 里名字密码核对</td></tr>
+      <tr><td class="k">走不直</td><td>正常(开环),标定阶段无视;影响大就给快的一侧 duty −5%</td></tr>
+      <tr><td class="k">中途复位</td><td>电池电压塌 → 换满电电池;杜邦线虚接 → 换线</td></tr>
+    </table>
+  </div>
+
+  <div class="ok">
+    <b>✅ 今天的成功判据:一段 60×60 自主覆盖视频</b>
+    <p>五步全过 = 智能底座点亮;雷达和 UBEC 到货后,下一站「屏幕上长出地图」。</p>
+  </div>
+
+  <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="CRAYXUS" style="display:block;margin:26px auto 0;width:200px;max-width:60%;border-radius:12px;border:1px solid rgba(255,255,255,.15)">
+<div class="foot">CRAYXUS FIELDWORK　·　内部作业页</div>
+
+</div>
+</body>
+</html>
