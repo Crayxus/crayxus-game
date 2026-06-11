@@ -87,12 +87,11 @@
     <div class="h"><span class="n">2</span>烧录固件</div>
     <div class="b">
       <div class="code">cd C:/Users/Jayzee/esp32-car
-copy track_board.py main.py
-py upload.py boot.py main.py
-py monitor.py</div>
+py upload_tile.py --watch</div>
       <ul>
-        <li>monitor 看到 <b>"Track Board A ready"</b> + LED 闪 3 下 = 成功</li>
-        <li class="note">boot.py 自动连 iPhone 热点(名字密码不对就改 boot.py 重传);monitor 输出里记下 <b>IP 地址</b></li>
+        <li>专用上传器:自动找串口,track_board 存为<b>板上</b> main.py,<b>不碰本地赛车固件</b>;找错口就 <b>py upload_tile.py COM号 --watch</b></li>
+        <li>BOOT LOG 看到 <b>"Track Board A ready"</b> + LED 闪 3 下 = 成功,同屏记下 <b>IP</b></li>
+        <li class="note">热点连不上会自动开 AP「CrayxusCar-XXXX」(无密码),手机/电脑连它,IP = <b>192.168.4.1</b></li>
       </ul>
     </div>
   </div>
