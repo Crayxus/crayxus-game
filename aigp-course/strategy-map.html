@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI·GP 决策流程图 — 单页版</title>
+<title>AI·GP 决策流程图 — T1–T4 单页版</title>
 <meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share.jpg">
-<meta property="og:title" content="AI·GP 决策流程图 · 单页版">
-<meta property="og:description" content="一页看完:第一笔钱 → 中天研发 → 更多学生 → M9 跑赢人类 → 白名单。">
+<meta property="og:title" content="AI·GP 决策流程图 · T1–T4 单页版">
+<meta property="og:description" content="一页看完:第一笔钱 → T1 借中天 → 实验室 → T2 计时 → T3 攻单圈 → T4 决战 → 白名单。">
 <style>
   :root{
     --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
@@ -23,11 +23,10 @@
     background-attachment:fixed;padding:0 0 50px}
   .wrap{max-width:1020px;margin:0 auto;padding:0 16px}
   .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-  header{padding:26px 0 4px;text-align:center}
+  header{padding:24px 0 4px;text-align:center}
   .kicker{letter-spacing:.34em;font-size:11px;color:var(--cyan);font-weight:800}
-  h1{font-size:25px;line-height:1.2;margin:8px 0 4px;font-weight:900}
+  h1{font-size:24px;line-height:1.2;margin:8px 0 4px;font-weight:900}
   .sub{color:var(--dim);font-size:13px;max-width:700px;margin:0 auto}
-  .sub b{color:#fff}
   .legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0 4px}
   .lg{font-size:11px;color:var(--dim);padding:3px 10px;border-radius:20px;background:var(--glass);border:1px solid var(--line)}
   .chart{margin-top:6px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.02);padding:4px}
@@ -40,7 +39,6 @@
   svg .term{fill:rgba(255,207,92,.12);stroke:var(--gold);stroke-width:2}
   svg .termR{fill:rgba(255,93,115,.13);stroke:var(--red);stroke-width:2}
   svg .start{fill:rgba(255,207,92,.14);stroke:var(--gold);stroke-width:2}
-  svg .ln{stroke:rgba(238,240,255,.55);stroke-width:2.2;fill:none}
   svg .lnL{stroke:rgba(255,93,115,.8);stroke-width:2.2;fill:none}
   svg .lnR{stroke:rgba(60,226,154,.9);stroke-width:2.8;fill:none}
   svg .lnD{stroke:rgba(169,163,207,.6);stroke-width:2;fill:none;stroke-dasharray:6 6}
@@ -48,22 +46,22 @@
   svg .t{fill:#eef0ff;font-size:16px;font-weight:800;text-anchor:middle}
   svg .d{fill:#a9a3cf;font-size:12.5px;text-anchor:middle}
   svg .lab{font-size:13px;font-weight:900}
-  svg .labG{fill:#3ce29a} svg .labR{fill:#ff5d73} svg .labY{fill:#ffcf5c} svg .labD{fill:#a9a3cf}
+  svg .labG{fill:#3ce29a} svg .labR{fill:#ff5d73} svg .labY{fill:#ffcf5c}
   .final{margin-top:14px;padding:12px;border-radius:14px;text-align:center;
     background:linear-gradient(120deg,rgba(25,227,255,.1),rgba(255,46,154,.12));border:1px solid rgba(255,46,154,.4)}
   .final h2{font-size:15px;font-weight:900}
   .final .gold{background:linear-gradient(92deg,#ffe9b0,var(--gold) 55%,#ff9a4d);-webkit-background-clip:text;background-clip:text;color:transparent}
   .foot{text-align:center;margin-top:24px;color:var(--dim);font-size:11px;letter-spacing:.16em}
-  @media(max-width:700px){h1{font-size:20px}}
+  @media(max-width:700px){h1{font-size:19px}}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header>
-    <div class="kicker">AI·GP DECISION FLOWCHART · 单页版</div>
-    <h1>第一个学生 → 中天研发 → <span class="neon">跑赢人类 → 白名单</span></h1>
-    <p class="sub">主线一条 · 两道闸门 · 一个基点 · 失败可回环</p>
+    <div class="kicker">AI·GP DECISION FLOWCHART · T1–T4</div>
+    <h1>第一个学生 → T1–T4 → <span class="neon">跑赢人类 → 白名单</span></h1>
+    <p class="sub">按四阶段排布 · 两道闸门 · 实验室分两档 · 失败可回环</p>
   </header>
 
   <div class="legend">
@@ -75,9 +73,8 @@
   </div>
 
   <div class="chart">
-  <svg viewBox="0 0 1000 820" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 1000 890" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#eef0ff" opacity=".75"/></marker>
       <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff5d73"/></marker>
       <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3ce29a"/></marker>
       <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ffcf5c"/></marker>
@@ -100,73 +97,78 @@
     <line class="lnR" x1="500" y1="168" x2="500" y2="186" marker-end="url(#ag)"/>
     <text class="lab labG" x="514" y="182">YES</text>
 
-    <!-- 实验室基点 -->
-    <rect class="boxR" x="340" y="188" width="320" height="60" rx="12"/>
-    <text class="t" x="500" y="208">🏠 实验室基点(必备)</text>
-    <text class="d" x="500" y="227">装配 · 调试 · 上课 · 计时门与地标常驻</text>
-    <text class="d" x="500" y="242">T1 可借中天过渡 · 最晚 T2 前(M3)落地</text>
-    <line class="lnR" x1="500" y1="248" x2="500" y2="266" marker-end="url(#ag)"/>
-
-    <!-- 研发主线 -->
-    <rect class="boxR" x="340" y="268" width="320" height="80" rx="12"/>
-    <text class="t" x="500" y="294">🔧 研发主线 M1–M8 · 双场地</text>
-    <text class="d" x="500" y="316">实验室日常研发 + 中天赛道实测</text>
-    <text class="d" x="500" y="334">钱 100% 投研发 · 课程=研发 · 每月圈速汇报</text>
-    <line class="lnR" x1="500" y1="348" x2="500" y2="368" marker-end="url(#ag)"/>
+    <!-- T1 -->
+    <rect class="boxR" x="340" y="188" width="320" height="64" rx="12"/>
+    <text class="t" x="500" y="210">🚗 T1(第 1–3 月)让车动</text>
+    <text class="d" x="500" y="230">借中天场地 · 车载视觉 · 套件 ≈¥0.9 万</text>
+    <text class="d" x="500" y="245">demo 课滚动招生中</text>
+    <line class="lnR" x1="500" y1="252" x2="500" y2="270" marker-end="url(#ag)"/>
 
     <!-- G2 -->
-    <polygon class="diaY" points="500,370 626,414 500,458 374,414"/>
-    <text class="t" x="500" y="420">👥 更多学生?</text>
+    <polygon class="diaY" points="500,272 626,316 500,360 374,316"/>
+    <text class="t" x="500" y="322">👥 更多学生?</text>
 
-    <polyline class="lnR" points="626,414 800,414 800,436" marker-end="url(#ag)"/>
-    <text class="lab labG" x="640" y="402">YES</text>
-    <rect class="boxR" x="690" y="438" width="220" height="62" rx="12"/>
-    <text class="t" x="800" y="460" style="font-size:14.5px">实验室 → 展示基地</text>
-    <text class="d" x="800" y="478">→ 进校共建后续基地</text>
-    <text class="d" x="800" y="493">新学费滚动 · 不动主线钱</text>
-    <polyline class="lnR" points="800,500 800,524 508,524" marker-end="url(#ag)"/>
+    <polyline class="lnR" points="626,316 800,316 800,338" marker-end="url(#ag)"/>
+    <text class="lab labG" x="640" y="304">YES</text>
+    <rect class="boxR" x="690" y="340" width="220" height="66" rx="12"/>
+    <text class="t" x="800" y="362" style="font-size:14.5px">标准实验室 · 兼展示</text>
+    <text class="d" x="800" y="380">新学费滚动投入</text>
+    <text class="d" x="800" y="395">→ 进校共建后续基地</text>
+    <polyline class="lnR" points="800,406 800,452 666,452" marker-end="url(#ag)"/>
 
-    <polyline class="lnL" points="374,414 206,414 206,436" marker-end="url(#ar)"/>
-    <text class="lab labR" x="338" y="402" text-anchor="end">NO</text>
-    <rect class="boxG" x="96" y="438" width="220" height="52" rx="12"/>
-    <text class="t" x="206" y="458" style="font-size:14.5px">❄ 扩张不通</text>
-    <text class="d" x="206" y="476">单线硬撑到 M9 · 无缓冲</text>
-    <polyline class="lnD" points="206,490 206,590 372,590" marker-end="url(#ad)"/>
+    <polyline class="lnL" points="374,316 206,316 206,338" marker-end="url(#ar)"/>
+    <text class="lab labR" x="338" y="304" text-anchor="end">NO</text>
+    <rect class="boxG" x="96" y="340" width="220" height="56" rx="12"/>
+    <text class="t" x="206" y="360" style="font-size:14.5px">乞丐版实验室</text>
+    <text class="d" x="206" y="378">机动金 ¥2 万 · 无缓冲硬撑</text>
+    <polyline class="lnD" points="206,396 206,452 334,452" marker-end="url(#ad)"/>
 
-    <line class="lnR" x1="500" y1="458" x2="500" y2="544" marker-end="url(#ag)"/>
+    <!-- T2 -->
+    <rect class="boxR" x="340" y="428" width="320" height="78" rx="12"/>
+    <text class="t" x="500" y="452">🧠 T2(第 4–6 月)训模型 · 计时</text>
+    <text class="d" x="500" y="472">实验室基点最晚此前落地(计时门/地标常驻)</text>
+    <text class="d" x="500" y="490">实验室日常 + 中天实测 · 首个官方单圈</text>
+    <line class="lnR" x1="500" y1="506" x2="500" y2="524" marker-end="url(#ag)"/>
 
-    <!-- M9 -->
-    <polygon class="diaR" points="500,546 626,590 500,634 374,590"/>
-    <text class="t" x="500" y="596">🏁 M9:跑赢人类?</text>
+    <!-- T3 -->
+    <rect class="boxR" x="340" y="526" width="320" height="64" rx="12"/>
+    <text class="t" x="500" y="548">⚡ T3(第 7–9 月)提速攻单圈</text>
+    <text class="d" x="500" y="568">竞速套件 + 室外 RTK ≈¥1.8 万</text>
+    <text class="d" x="500" y="583">圈速曲线逼近人类基准</text>
+    <line class="lnR" x1="500" y1="590" x2="500" y2="608" marker-end="url(#ag)"/>
 
-    <polyline class="lnL" points="626,590 800,590 800,612" marker-end="url(#ar)"/>
-    <text class="lab labR" x="640" y="578">NO · 2–3 成</text>
-    <rect class="boxN" x="680" y="614" width="240" height="62" rx="12"/>
-    <text class="t" x="800" y="635" style="font-size:14px">未赢:课程已完整交付</text>
-    <text class="d" x="800" y="653">差距小 → 加练再战 ↺</text>
-    <text class="d" x="800" y="668">否则转型课程 · 不归零</text>
-    <polyline class="lnY" points="680,644 652,644 652,602 636,594" marker-end="url(#ay)"/>
+    <!-- G3 = T4 决战 -->
+    <polygon class="diaR" points="500,610 626,654 500,698 374,654"/>
+    <text class="t" x="500" y="660">🏁 T4 决战:跑赢人类?</text>
 
-    <line class="lnR" x1="500" y1="634" x2="500" y2="654" marker-end="url(#ag)"/>
-    <text class="lab labG" x="514" y="650">YES · 7–8 成</text>
+    <polyline class="lnL" points="626,654 800,654 800,676" marker-end="url(#ar)"/>
+    <text class="lab labR" x="640" y="642">NO · 2–3 成</text>
+    <rect class="boxN" x="680" y="678" width="240" height="62" rx="12"/>
+    <text class="t" x="800" y="699" style="font-size:14px">未赢:课程已完整交付</text>
+    <text class="d" x="800" y="717">差距小 → 加练再战 ↺</text>
+    <text class="d" x="800" y="732">否则转型课程 · 不归零</text>
+    <polyline class="lnY" points="680,708 652,708 652,666 636,658" marker-end="url(#ay)"/>
+
+    <line class="lnR" x1="500" y1="698" x2="500" y2="718" marker-end="url(#ag)"/>
+    <text class="lab labG" x="514" y="714">YES · 7–8 成</text>
 
     <!-- 白名单 -->
-    <rect class="boxR" x="340" y="656" width="320" height="54" rx="12"/>
-    <text class="t" x="500" y="678">⚡ 战绩证据 → 🏆 白名单 × 中天立项</text>
-    <text class="d" x="500" y="698">身位跃迁:赛事规则制定方</text>
-    <line class="lnR" x1="500" y1="710" x2="500" y2="730" marker-end="url(#ag)"/>
+    <rect class="boxR" x="340" y="720" width="320" height="54" rx="12"/>
+    <text class="t" x="500" y="742">⚡ 战绩 → 🏆 白名单 × 中天立项(T4 内)</text>
+    <text class="d" x="500" y="762">身位跃迁:赛事规则制定方</text>
+    <line class="lnR" x1="500" y1="774" x2="500" y2="792" marker-end="url(#ag)"/>
 
     <!-- 终局 -->
-    <rect class="term" x="330" y="732" width="340" height="50" rx="25"/>
-    <text class="t" x="500" y="753">🏁 全线解锁:进校 · 营 · 基地</text>
-    <text class="d" x="500" y="772">Y2 规模化 · 关过的门全部重新打开</text>
+    <rect class="term" x="330" y="794" width="340" height="50" rx="25"/>
+    <text class="t" x="500" y="815">🏁 全线解锁:进校 · 营 · 基地</text>
+    <text class="d" x="500" y="834">Y2 规模化 · 关过的门全部重新打开</text>
 
-    <text class="lab labY" x="500" y="806" text-anchor="middle">主线成功概率 7 成以上 · 失败有回环 · 最坏不归零</text>
+    <text class="lab labY" x="500" y="872" text-anchor="middle">主线成功概率 7 成以上 · 失败有回环 · 最坏不归零</text>
   </svg>
   </div>
 
   <div class="final">
-    <h2>第一笔钱定生死,第二批学生定大小,<span class="gold">打穿 M9,全部重新打开。</span></h2>
+    <h2>第一笔钱定生死,第二批学生定实验室档次,<span class="gold">T4 打穿,全部重新打开。</span></h2>
   </div>
 
   <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="CRAYXUS AI·GP" style="display:block;margin:22px auto 0;width:220px;max-width:70%;border-radius:14px;border:1px solid rgba(255,255,255,.15)">
