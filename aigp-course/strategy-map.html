@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI·GP 作战地图 — 一笔 10 万,怎么赢下白名单</title>
+<meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share.jpg">
+<meta property="og:title" content="AI·GP 作战地图 · 一笔 10 万怎么花">
+<meta property="og:description" content="四条线全保留,只排时序——白名单是其他三件事的钥匙。">
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c; --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.12); --glass:rgba(255,255,255,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);line-height:1.6;
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(139,59,255,.34), transparent 60%),
+      radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.2), transparent 55%),
+      radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.14), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    background-attachment:fixed;padding:0 0 80px}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 22px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .gold{background:linear-gradient(92deg,#ffe9b0,var(--gold) 55%,#ff9a4d);-webkit-background-clip:text;background-clip:text;color:transparent}
+  header{padding:56px 0 10px;text-align:center}
+  .kicker{letter-spacing:.4em;font-size:12px;color:var(--cyan);font-weight:800}
+  h1{font-size:36px;line-height:1.25;margin:13px 0 8px;font-weight:900}
+  .sub{color:var(--dim);font-size:15px;max-width:720px;margin:8px auto 0}
+  .sub b{color:#fff}
+  /* north star */
+  .star{margin-top:30px;padding:26px;border-radius:20px;text-align:center;
+    background:linear-gradient(120deg,rgba(255,207,92,.16),rgba(255,46,154,.12),rgba(25,227,255,.1));
+    border:1px solid rgba(255,207,92,.5)}
+  .star .t{font-size:12px;letter-spacing:.3em;color:var(--gold);font-weight:800}
+  .star h2{font-size:27px;font-weight:900;margin:8px 0 4px}
+  .star p{color:var(--dim);font-size:14px}
+  .star p b{color:#fff}
+  /* chain */
+  .section-t{font-size:13px;letter-spacing:.3em;color:var(--cyan);text-align:center;margin:48px 0 6px;font-weight:700}
+  .section-h{font-size:24px;text-align:center;font-weight:800;margin-bottom:20px}
+  .chain{display:flex;flex-direction:column;align-items:center;gap:0}
+  .node{width:100%;max-width:760px;padding:18px 22px;border-radius:16px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px)}
+  .node .n{font-size:11.5px;letter-spacing:.14em;font-weight:800;color:var(--cyan)}
+  .node h3{font-size:19px;margin:5px 0 4px}
+  .node p{font-size:13.5px;color:var(--dim)} .node p b{color:#fff}
+  .node.m1{border-color:rgba(255,207,92,.55);background:rgba(255,207,92,.07)}
+  .node.m1 .n{color:var(--gold)}
+  .vline{width:3px;height:30px;background:linear-gradient(var(--cyan),var(--pink));border-radius:2px;position:relative}
+  .vline::after{content:"▼";position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);color:var(--pink);font-size:13px}
+  .budget{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .b{flex:1;min-width:140px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:12.5px;color:var(--dim)}
+  .b b{display:block;font-size:19px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}
+  /* unlock grid */
+  .unlock{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:920px;margin:0 auto}
+  .u{padding:18px 20px;border-radius:16px;background:var(--glass);border:1px solid rgba(60,226,154,.35)}
+  .u .k{font-size:11px;letter-spacing:.12em;color:var(--green);font-weight:800}
+  .u h4{font-size:17px;margin:6px 0 5px}
+  .u p{font-size:13px;color:var(--dim)} .u p b{color:#fff}
+  /* versus */
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px;margin:0 auto}
+  .col{padding:22px;border-radius:18px;border:1px solid var(--line)}
+  .col.bad{border-color:rgba(255,93,115,.45);background:rgba(255,93,115,.06)}
+  .col.good{border-color:rgba(60,226,154,.45);background:rgba(60,226,154,.06)}
+  .col .ct{font-size:13px;letter-spacing:.14em;font-weight:800;margin-bottom:10px}
+  .col.bad .ct{color:var(--red)} .col.good .ct{color:var(--green)}
+  .col li{font-size:13.5px;color:var(--dim);margin:8px 0 8px 20px;line-height:1.5}
+  .col li b{color:#fff}
+  .verdict{margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.15);font-size:14px;font-weight:800}
+  .col.bad .verdict{color:var(--red)} .col.good .verdict{color:var(--green)}
+  /* timeline */
+  .tl{max-width:860px;margin:0 auto}
+  .trow{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+  .trow .when{font-weight:900;color:var(--gold);font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
+  .trow .what{font-size:14px;color:var(--dim)} .trow .what b{color:#fff}
+  .trow.hot{background:rgba(255,207,92,.05)}
+  /* free moves */
+  .panel{max-width:920px;margin:14px auto 0;padding:18px 22px;border-radius:16px;background:var(--glass);border:1px solid rgba(25,227,255,.3)}
+  .panel .pt{font-size:13px;letter-spacing:.14em;font-weight:800;color:var(--cyan);margin-bottom:8px}
+  .panel li{font-size:13.5px;color:var(--dim);margin:7px 0 7px 20px} .panel li b{color:#fff}
+  .final{margin-top:40px;padding:28px;border-radius:20px;text-align:center;
+    background:linear-gradient(120deg,rgba(25,227,255,.1),rgba(255,46,154,.12));border:1px solid rgba(255,46,154,.4)}
+  .final h2{font-size:23px;font-weight:900;line-height:1.5}
+  .foot{text-align:center;margin-top:46px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
+  @media(max-width:760px){
+    h1{font-size:27px} .unlock{grid-template-columns:1fr} .vs{grid-template-columns:1fr}
+    .trow{grid-template-columns:74px 1fr} .star h2{font-size:21px} .final h2{font-size:18px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">AI·GP STRATEGY MAP</div>
+    <h1>一笔 10 万,<span class="neon">怎么赢下白名单</span></h1>
+    <p class="sub">四条线——10 万创始学员 / 3–5 万赛车营 / 进校合作 / 商场样板间——<b>全部保留,一条不砍</b>。
+      分歧只在一个问题:<b>第一笔钱给谁。</b></p>
+  </header>
+
+  <!-- NORTH STAR -->
+  <div class="star">
+    <div class="t">NORTH STAR · 唯一的北极星</div>
+    <h2>🏆 AI·GP 赛事白名单立项 × 中天</h2>
+    <p>中天的要求只有一条:<b>赛车跑得比人快</b>。满足它,白名单立项;立不了项,其他三条线都失去最大的卖点。</p>
+  </div>
+
+  <!-- CRITICAL PATH -->
+  <div class="section-t">CRITICAL PATH</div>
+  <h2 class="section-h">唯一的关键路径(其他都不在关键路径上)</h2>
+  <div class="chain">
+    <div class="node m1">
+      <div class="n">M0 · 弹药</div>
+      <h3>💰 创始学员 ¥10 万(+车款 ¥9,800)</h3>
+      <p>这笔钱<b>刚好等于</b>"跑赢人类"的全部弹药——账算得清:</p>
+      <div class="budget">
+        <div class="b"><b>≈¥4.7 万</b>T1–T4 全年物料(含专用电脑,动捕走浙大)</div>
+        <div class="b"><b>≈¥3 万</b>一年运营缓冲(备件/赛事报名/Race Day/杂费)</div>
+        <div class="b"><b>≈¥2 万</b>机动金(唯一允许动用的扩张试探)</div>
+      </div>
+    </div>
+    <div class="vline"></div>
+    <div class="node">
+      <div class="n">M1–M9 · 技术里程碑</div>
+      <h3>🔧 T1 让车动 → T2 训模型计时 → T3 圈速逼近人类</h3>
+      <p>一个学生 + 中天场地 + 中天车 = <b>最低成本验证线</b>。每月产出一条圈速曲线,这就是给中天的进度汇报。</p>
+    </div>
+    <div class="vline"></div>
+    <div class="node">
+      <div class="n">M8–M9 · 决定性证据</div>
+      <h3>⚡ 「AI 单圈跑赢人类」实测战绩 + 全程影像</h3>
+      <p>中天唯一要求被满足。这段视频同时是:<b>白名单申报材料 · 进校敲门砖 · 赛车营招生素材 · 样板间核心内容</b>——一份证据,四处变现。</p>
+    </div>
+    <div class="vline"></div>
+    <div class="node m1">
+      <div class="n">M10–M12 · 立项</div>
+      <h3>🏆 白名单申报 × 中天联合立项 + Race Day 公开赛</h3>
+      <p>从"培训机构"升格为<b>"赛事规则制定方"</b>——这是身位的跃迁,不是收入的叠加。</p>
+    </div>
+  </div>
+
+  <!-- UNLOCKS -->
+  <div class="section-t">UNLOCKED · 白名单到手,三条线自动解锁</div>
+  <h2 class="section-h">为什么说它是钥匙,不是四分之一</h2>
+  <div class="unlock">
+    <div class="u"><div class="k">解锁 ①</div><h4>🏫 进校合作</h4><p>白名单赛事 = 学校<b>有义务对接</b>的升学通道——从"求学校给机会 demo"变成"学校需要我们的参赛资格"。</p></div>
+    <div class="u"><div class="k">解锁 ②</div><h4>🏕️ 3–5 万赛车营</h4><p>招生话术从"来学 AI"变成<b>"来打白名单赛事拿成绩"</b>——客单价、转化率、续费率同时上一个台阶。</p></div>
+    <div class="u"><div class="k">解锁 ③</div><h4>🏬 商场样板间</h4><p>用第二期收入建,且里面有东西可放:<b>战绩影像 + 排行榜 + 真车</b>。先有内容,再有橱窗。</p></div>
+  </div>
+
+  <!-- VERSUS -->
+  <div class="section-t">THE FORK · 同一笔钱的两种命运</div>
+  <h2 class="section-h">分歧的本质:10 万是种子,还是预算?</h2>
+  <div class="vs">
+    <div class="col bad">
+      <div class="ct">✖ 摊开花:四线齐动</div>
+      <li>10 万 ÷ 样板间 + 进校 + 营 + 研发 = <b>每条 2–3 万,每条都到不了终点</b></li>
+      <li>样板间月租人力是<b>持续失血</b>,一次投入只是开始</li>
+      <li>最致命:这 10 万是<b>学费,带着 T2–T4 的交付义务</b>——钱花在橱窗上,欠着付钱学生的课,口碑反噬</li>
+      <li>M9 时:没有战绩、没有白名单、没有续费理由</li>
+      <div class="verdict">概率:接近零(不是悲观,是算术)</div>
+    </div>
+    <div class="col good">
+      <div class="ct">✔ 聚焦花:单点击穿</div>
+      <li>10 万 <b>100% 投给关键路径</b>:物料 4.7 万 + 运营 3 万 + 机动 2 万,账面闭环</li>
+      <li>对首个学员是<b>超额交付</b>(他买到的是"亲历击败人类"的一年)→ 最强口碑源</li>
+      <li>M9 拿到决定性证据 → <b>三线被钥匙打开</b>,第二期现金流接力扩张</li>
+      <li>就算最坏情况(单圈没赢),也有完整课程交付 + 圈速曲线 + 研究成果,<b>输了战役不输信用</b></li>
+      <div class="verdict">概率:高(技术路线业界验证过,钱也算得过来)</div>
+    </div>
+  </div>
+
+  <!-- FREE MOVES -->
+  <div class="panel">
+    <div class="pt">🆓 不花预算的并行动作(三线在年内的"占位棋")</div>
+    <li><b>进校 demo</b>:一台笔记本 + 一台车,顺路就做——只投时间不投钱,攒学校名单等钥匙</li>
+    <li><b>赛车营</b>:只做<b>预售</b>(定金锁位,M9 战绩出来后开营)——零投入验证需求</li>
+    <li><b>商场样板间</b>:只谈点位条件、不签约不付租——拿着 M9 的视频去谈,条件完全不同</li>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section-t">CASH FLOW · 一年的钱与事</div>
+  <h2 class="section-h">时间轴</h2>
+  <div class="tl">
+    <div class="trow"><div class="when">M0</div><div class="what"><b>收创始学员 ¥10.98 万</b> → 下单全年物料(Jetson/电脑当周下)</div></div>
+    <div class="trow"><div class="when">M1–M3</div><div class="what">T1 开课 · 进校 demo 顺路做(零预算)· 每月圈速汇报给中天</div></div>
+    <div class="trow"><div class="when">M4–M6</div><div class="what">T2 计时圈 · 赛车营<b>开始预售</b>(只收定金)· F1 套件按计划下单</div></div>
+    <div class="trow"><div class="when">M7–M8</div><div class="what">T3 圈速逼近人类 · 动捕决策点(优先浙大合作)· 带视频谈商场点位</div></div>
+    <div class="trow hot"><div class="when">M9</div><div class="what">⚡ <b>击败人类单圈 · 决定性证据到手</b></div></div>
+    <div class="trow hot"><div class="when">M10–M12</div><div class="what">🏆 白名单申报 × 中天立项 · Race Day 公开赛 · 营/进校用钥匙开门,<b>第二期现金流进场</b></div></div>
+    <div class="trow"><div class="when">Y2</div><div class="what">赛车营开营(已预售)· 学校项目签约 · 样板间用 Y2 收入落地</div></div>
+  </div>
+
+  <!-- FINAL -->
+  <div class="final">
+    <h2>四件事都要做——<br>但只有一件事花第一笔钱。<br><span class="gold">白名单不是四分之一,它是另外三件的钥匙。</span></h2>
+  </div>
+
+  <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="CRAYXUS AI·GP" style="display:block;margin:34px auto 0;width:300px;max-width:80%;border-radius:16px;border:1px solid rgba(255,255,255,.15)">
+<div class="foot">CRAYXUS AI·GP　·　STRATEGY MAP　·　内部讨论稿</div>
+
+</div>
+</body>
+</html>
