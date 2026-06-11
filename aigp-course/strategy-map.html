@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI·GP 作战地图 — 一笔 10 万,怎么赢下白名单</title>
+<title>AI·GP 决策流程图 — 一笔 10 万,怎么赢下白名单</title>
 <meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share.jpg">
-<meta property="og:title" content="AI·GP 作战地图 · 一笔 10 万怎么花">
-<meta property="og:description" content="四条线全保留,只排时序——白名单是其他三件事的钥匙。">
+<meta property="og:title" content="AI·GP 决策流程图 · 一笔 10 万怎么花">
+<meta property="og:description" content="方块·菱形·YES/NO·概率——两条路径的命运,一张图看完。">
 <style>
   :root{
     --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
@@ -20,185 +20,202 @@
       radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.2), transparent 55%),
       radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.14), transparent 55%),
       linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
-    background-attachment:fixed;padding:0 0 80px}
-  .wrap{max-width:1000px;margin:0 auto;padding:0 22px}
+    background-attachment:fixed;padding:0 0 70px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 18px}
   .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .gold{background:linear-gradient(92deg,#ffe9b0,var(--gold) 55%,#ff9a4d);-webkit-background-clip:text;background-clip:text;color:transparent}
-  header{padding:56px 0 10px;text-align:center}
+  header{padding:46px 0 8px;text-align:center}
   .kicker{letter-spacing:.4em;font-size:12px;color:var(--cyan);font-weight:800}
-  h1{font-size:36px;line-height:1.25;margin:13px 0 8px;font-weight:900}
-  .sub{color:var(--dim);font-size:15px;max-width:720px;margin:8px auto 0}
+  h1{font-size:32px;line-height:1.25;margin:12px 0 6px;font-weight:900}
+  .sub{color:var(--dim);font-size:14px;max-width:700px;margin:6px auto 0}
   .sub b{color:#fff}
-  /* north star */
-  .star{margin-top:30px;padding:26px;border-radius:20px;text-align:center;
-    background:linear-gradient(120deg,rgba(255,207,92,.16),rgba(255,46,154,.12),rgba(25,227,255,.1));
-    border:1px solid rgba(255,207,92,.5)}
-  .star .t{font-size:12px;letter-spacing:.3em;color:var(--gold);font-weight:800}
-  .star h2{font-size:27px;font-weight:900;margin:8px 0 4px}
-  .star p{color:var(--dim);font-size:14px}
-  .star p b{color:#fff}
-  /* chain */
-  .section-t{font-size:13px;letter-spacing:.3em;color:var(--cyan);text-align:center;margin:48px 0 6px;font-weight:700}
-  .section-h{font-size:24px;text-align:center;font-weight:800;margin-bottom:20px}
-  .chain{display:flex;flex-direction:column;align-items:center;gap:0}
-  .node{width:100%;max-width:760px;padding:18px 22px;border-radius:16px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px)}
-  .node .n{font-size:11.5px;letter-spacing:.14em;font-weight:800;color:var(--cyan)}
-  .node h3{font-size:19px;margin:5px 0 4px}
-  .node p{font-size:13.5px;color:var(--dim)} .node p b{color:#fff}
-  .node.m1{border-color:rgba(255,207,92,.55);background:rgba(255,207,92,.07)}
-  .node.m1 .n{color:var(--gold)}
-  .vline{width:3px;height:30px;background:linear-gradient(var(--cyan),var(--pink));border-radius:2px;position:relative}
-  .vline::after{content:"▼";position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);color:var(--pink);font-size:13px}
-  .budget{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  .b{flex:1;min-width:140px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:12.5px;color:var(--dim)}
-  .b b{display:block;font-size:19px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}
-  /* unlock grid */
-  .unlock{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:920px;margin:0 auto}
-  .u{padding:18px 20px;border-radius:16px;background:var(--glass);border:1px solid rgba(60,226,154,.35)}
-  .u .k{font-size:11px;letter-spacing:.12em;color:var(--green);font-weight:800}
-  .u h4{font-size:17px;margin:6px 0 5px}
-  .u p{font-size:13px;color:var(--dim)} .u p b{color:#fff}
-  /* versus */
-  .vs{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px;margin:0 auto}
-  .col{padding:22px;border-radius:18px;border:1px solid var(--line)}
-  .col.bad{border-color:rgba(255,93,115,.45);background:rgba(255,93,115,.06)}
-  .col.good{border-color:rgba(60,226,154,.45);background:rgba(60,226,154,.06)}
-  .col .ct{font-size:13px;letter-spacing:.14em;font-weight:800;margin-bottom:10px}
-  .col.bad .ct{color:var(--red)} .col.good .ct{color:var(--green)}
-  .col li{font-size:13.5px;color:var(--dim);margin:8px 0 8px 20px;line-height:1.5}
-  .col li b{color:#fff}
-  .verdict{margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.15);font-size:14px;font-weight:800}
-  .col.bad .verdict{color:var(--red)} .col.good .verdict{color:var(--green)}
-  /* timeline */
-  .tl{max-width:860px;margin:0 auto}
-  .trow{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07)}
-  .trow .when{font-weight:900;color:var(--gold);font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
-  .trow .what{font-size:14px;color:var(--dim)} .trow .what b{color:#fff}
-  .trow.hot{background:rgba(255,207,92,.05)}
-  /* free moves */
-  .panel{max-width:920px;margin:14px auto 0;padding:18px 22px;border-radius:16px;background:var(--glass);border:1px solid rgba(25,227,255,.3)}
-  .panel .pt{font-size:13px;letter-spacing:.14em;font-weight:800;color:var(--cyan);margin-bottom:8px}
-  .panel li{font-size:13.5px;color:var(--dim);margin:7px 0 7px 20px} .panel li b{color:#fff}
-  .final{margin-top:40px;padding:28px;border-radius:20px;text-align:center;
+  .legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px 0 6px}
+  .lg{font-size:12px;color:var(--dim);padding:5px 12px;border-radius:20px;background:var(--glass);border:1px solid var(--line)}
+  .lg b{color:#fff}
+  .chart{margin-top:10px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.02);padding:6px}
+  svg{width:100%;height:auto;display:block;font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif}
+  svg .box{fill:rgba(255,255,255,.05);stroke:rgba(25,227,255,.55);stroke-width:1.6}
+  svg .boxL{fill:rgba(255,93,115,.07);stroke:rgba(255,93,115,.6);stroke-width:1.6}
+  svg .boxR{fill:rgba(60,226,154,.07);stroke:rgba(60,226,154,.6);stroke-width:1.6}
+  svg .boxF{fill:rgba(25,227,255,.05);stroke:rgba(25,227,255,.5);stroke-width:1.6;stroke-dasharray:7 6}
+  svg .dia{fill:rgba(139,59,255,.12);stroke:#8b3bff;stroke-width:1.8}
+  svg .diaL{fill:rgba(255,93,115,.1);stroke:rgba(255,93,115,.75);stroke-width:1.8}
+  svg .diaR{fill:rgba(60,226,154,.1);stroke:rgba(60,226,154,.75);stroke-width:1.8}
+  svg .term{fill:rgba(255,207,92,.12);stroke:var(--gold);stroke-width:2}
+  svg .termR{fill:rgba(255,93,115,.13);stroke:var(--red);stroke-width:2}
+  svg .termG{fill:rgba(169,163,207,.1);stroke:#a9a3cf;stroke-width:1.6}
+  svg .start{fill:rgba(255,207,92,.14);stroke:var(--gold);stroke-width:2}
+  svg .ln{stroke:rgba(238,240,255,.55);stroke-width:2.4;fill:none}
+  svg .lnL{stroke:rgba(255,93,115,.8);stroke-width:2.4;fill:none}
+  svg .lnR{stroke:rgba(60,226,154,.85);stroke-width:2.4;fill:none}
+  svg .lnY{stroke:rgba(255,207,92,.85);stroke-width:2.2;fill:none;stroke-dasharray:8 6}
+  svg .t{fill:#eef0ff;font-size:15.5px;font-weight:800;text-anchor:middle}
+  svg .d{fill:#a9a3cf;font-size:12.5px;text-anchor:middle}
+  svg .lab{font-size:13px;font-weight:900}
+  svg .labG{fill:#3ce29a} svg .labR{fill:#ff5d73} svg .labY{fill:#ffcf5c} svg .labD{fill:#a9a3cf}
+  svg .prob{font-size:13.5px;font-weight:900;text-anchor:middle}
+  .final{margin-top:24px;padding:22px;border-radius:18px;text-align:center;
     background:linear-gradient(120deg,rgba(25,227,255,.1),rgba(255,46,154,.12));border:1px solid rgba(255,46,154,.4)}
-  .final h2{font-size:23px;font-weight:900;line-height:1.5}
-  .foot{text-align:center;margin-top:46px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
-  @media(max-width:760px){
-    h1{font-size:27px} .unlock{grid-template-columns:1fr} .vs{grid-template-columns:1fr}
-    .trow{grid-template-columns:74px 1fr} .star h2{font-size:21px} .final h2{font-size:18px}
-  }
+  .final h2{font-size:19px;font-weight:900;line-height:1.55}
+  .final .gold{background:linear-gradient(92deg,#ffe9b0,var(--gold) 55%,#ff9a4d);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hint{text-align:center;color:var(--dim);font-size:12px;margin-top:10px}
+  .foot{text-align:center;margin-top:40px;color:var(--dim);font-size:11.5px;letter-spacing:.18em}
+  @media(max-width:700px){h1{font-size:24px}}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header>
-    <div class="kicker">AI·GP STRATEGY MAP</div>
-    <h1>一笔 10 万,<span class="neon">怎么赢下白名单</span></h1>
-    <p class="sub">四条线——10 万创始学员 / 3–5 万赛车营 / 进校合作 / 商场样板间——<b>全部保留,一条不砍</b>。
-      分歧只在一个问题:<b>第一笔钱给谁。</b></p>
+    <div class="kicker">AI·GP DECISION FLOWCHART</div>
+    <h1>一笔 10 万,<span class="neon">两条路径的命运</span></h1>
+    <p class="sub">北极星只有一个:<b>白名单立项 × 中天</b>;中天的要求只有一条:<b>车跑得比人快</b>。分歧只是——第一笔钱给谁。</p>
   </header>
 
-  <!-- NORTH STAR -->
-  <div class="star">
-    <div class="t">NORTH STAR · 唯一的北极星</div>
-    <h2>🏆 AI·GP 赛事白名单立项 × 中天</h2>
-    <p>中天的要求只有一条:<b>赛车跑得比人快</b>。满足它,白名单立项;立不了项,其他三条线都失去最大的卖点。</p>
+  <div class="legend">
+    <span class="lg">🟡 <b>胶囊</b> = 起点 / 终局</span>
+    <span class="lg">▭ <b>方块</b> = 动作</span>
+    <span class="lg">◇ <b>菱形</b> = YES / NO 判断</span>
+    <span class="lg">🟢 <b>绿线</b> = 关键路径</span>
+    <span class="lg">🔴 <b>红线</b> = 风险路径</span>
+    <span class="lg">┄ <b>虚线框</b> = 零预算并行</span>
   </div>
 
-  <!-- CRITICAL PATH -->
-  <div class="section-t">CRITICAL PATH</div>
-  <h2 class="section-h">唯一的关键路径(其他都不在关键路径上)</h2>
-  <div class="chain">
-    <div class="node m1">
-      <div class="n">M0 · 弹药</div>
-      <h3>💰 创始学员 ¥10 万(+车款 ¥9,800)</h3>
-      <p>这笔钱<b>刚好等于</b>"跑赢人类"的全部弹药——账算得清:</p>
-      <div class="budget">
-        <div class="b"><b>≈¥4.7 万</b>T1–T4 全年物料(含专用电脑,动捕走浙大)</div>
-        <div class="b"><b>≈¥3 万</b>一年运营缓冲(备件/赛事报名/Race Day/杂费)</div>
-        <div class="b"><b>≈¥2 万</b>机动金(唯一允许动用的扩张试探)</div>
-      </div>
-    </div>
-    <div class="vline"></div>
-    <div class="node">
-      <div class="n">M1–M9 · 技术里程碑</div>
-      <h3>🔧 T1 让车动 → T2 训模型计时 → T3 圈速逼近人类</h3>
-      <p>一个学生 + 中天场地 + 中天车 = <b>最低成本验证线</b>。每月产出一条圈速曲线,这就是给中天的进度汇报。</p>
-    </div>
-    <div class="vline"></div>
-    <div class="node">
-      <div class="n">M8–M9 · 决定性证据</div>
-      <h3>⚡ 「AI 单圈跑赢人类」实测战绩 + 全程影像</h3>
-      <p>中天唯一要求被满足。这段视频同时是:<b>白名单申报材料 · 进校敲门砖 · 赛车营招生素材 · 样板间核心内容</b>——一份证据,四处变现。</p>
-    </div>
-    <div class="vline"></div>
-    <div class="node m1">
-      <div class="n">M10–M12 · 立项</div>
-      <h3>🏆 白名单申报 × 中天联合立项 + Race Day 公开赛</h3>
-      <p>从"培训机构"升格为<b>"赛事规则制定方"</b>——这是身位的跃迁,不是收入的叠加。</p>
-    </div>
-  </div>
+  <div class="chart">
+  <svg viewBox="0 0 1000 1250" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#eef0ff" opacity=".75"/></marker>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff5d73"/></marker>
+      <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3ce29a"/></marker>
+      <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ffcf5c"/></marker>
+    </defs>
 
-  <!-- UNLOCKS -->
-  <div class="section-t">UNLOCKED · 白名单到手,三条线自动解锁</div>
-  <h2 class="section-h">为什么说它是钥匙,不是四分之一</h2>
-  <div class="unlock">
-    <div class="u"><div class="k">解锁 ①</div><h4>🏫 进校合作</h4><p>白名单赛事 = 学校<b>有义务对接</b>的升学通道——从"求学校给机会 demo"变成"学校需要我们的参赛资格"。</p></div>
-    <div class="u"><div class="k">解锁 ②</div><h4>🏕️ 3–5 万赛车营</h4><p>招生话术从"来学 AI"变成<b>"来打白名单赛事拿成绩"</b>——客单价、转化率、续费率同时上一个台阶。</p></div>
-    <div class="u"><div class="k">解锁 ③</div><h4>🏬 商场样板间</h4><p>用第二期收入建,且里面有东西可放:<b>战绩影像 + 排行榜 + 真车</b>。先有内容,再有橱窗。</p></div>
-  </div>
+    <!-- START -->
+    <rect class="start" x="330" y="18" width="340" height="56" rx="28"/>
+    <text class="t" x="500" y="42">💰 START</text>
+    <text class="d" x="500" y="61">创始学员到账:学费 ¥100,000(+车款 ¥9,800)</text>
+    <line class="ln" x1="500" y1="74" x2="500" y2="106" marker-end="url(#aw)"/>
 
-  <!-- VERSUS -->
-  <div class="section-t">THE FORK · 同一笔钱的两种命运</div>
-  <h2 class="section-h">分歧的本质:10 万是种子,还是预算?</h2>
-  <div class="vs">
-    <div class="col bad">
-      <div class="ct">✖ 摊开花:四线齐动</div>
-      <li>10 万 ÷ 样板间 + 进校 + 营 + 研发 = <b>每条 2–3 万,每条都到不了终点</b></li>
-      <li>样板间月租人力是<b>持续失血</b>,一次投入只是开始</li>
-      <li>最致命:这 10 万是<b>学费,带着 T2–T4 的交付义务</b>——钱花在橱窗上,欠着付钱学生的课,口碑反噬</li>
-      <li>M9 时:没有战绩、没有白名单、没有续费理由</li>
-      <div class="verdict">概率:接近零(不是悲观,是算术)</div>
-    </div>
-    <div class="col good">
-      <div class="ct">✔ 聚焦花:单点击穿</div>
-      <li>10 万 <b>100% 投给关键路径</b>:物料 4.7 万 + 运营 3 万 + 机动 2 万,账面闭环</li>
-      <li>对首个学员是<b>超额交付</b>(他买到的是"亲历击败人类"的一年)→ 最强口碑源</li>
-      <li>M9 拿到决定性证据 → <b>三线被钥匙打开</b>,第二期现金流接力扩张</li>
-      <li>就算最坏情况(单圈没赢),也有完整课程交付 + 圈速曲线 + 研究成果,<b>输了战役不输信用</b></li>
-      <div class="verdict">概率:高(技术路线业界验证过,钱也算得过来)</div>
-    </div>
-  </div>
+    <!-- D0 -->
+    <polygon class="dia" points="500,108 652,170 500,232 348,170"/>
+    <text class="t" x="500" y="165">这笔钱怎么花?</text>
+    <text class="d" x="500" y="186">全公司唯一的资源分配决策</text>
+    <polyline class="lnL" points="348,170 200,170 200,276" marker-end="url(#ar)"/>
+    <text class="lab labR" x="222" y="158">✖ 摊开花</text>
+    <polyline class="lnR" points="652,170 770,170 770,276" marker-end="url(#ag)"/>
+    <text class="lab labG" x="688" y="158">✔ 聚焦花</text>
 
-  <!-- FREE MOVES -->
-  <div class="panel">
-    <div class="pt">🆓 不花预算的并行动作(三线在年内的"占位棋")</div>
-    <li><b>进校 demo</b>:一台笔记本 + 一台车,顺路就做——只投时间不投钱,攒学校名单等钥匙</li>
-    <li><b>赛车营</b>:只做<b>预售</b>(定金锁位,M9 战绩出来后开营)——零投入验证需求</li>
-    <li><b>商场样板间</b>:只谈点位条件、不签约不付租——拿着 M9 的视频去谈,条件完全不同</li>
-  </div>
+    <!-- ═══ LEFT (red) ═══ -->
+    <rect class="boxL" x="50" y="278" width="300" height="76" rx="12"/>
+    <text class="t" x="200" y="306">四线齐动</text>
+    <text class="d" x="200" y="326">样板间 · 进校 · 赛车营 · 研发</text>
+    <text class="d" x="200" y="343">每条线只分到 2–3 万</text>
+    <line class="lnL" x1="200" y1="354" x2="200" y2="390" marker-end="url(#ar)"/>
 
-  <!-- TIMELINE -->
-  <div class="section-t">CASH FLOW · 一年的钱与事</div>
-  <h2 class="section-h">时间轴</h2>
-  <div class="tl">
-    <div class="trow"><div class="when">M0</div><div class="what"><b>收创始学员 ¥10.98 万</b> → 下单全年物料(Jetson/电脑当周下)</div></div>
-    <div class="trow"><div class="when">M1–M3</div><div class="what">T1 开课 · 进校 demo 顺路做(零预算)· 每月圈速汇报给中天</div></div>
-    <div class="trow"><div class="when">M4–M6</div><div class="what">T2 计时圈 · 赛车营<b>开始预售</b>(只收定金)· F1 套件按计划下单</div></div>
-    <div class="trow"><div class="when">M7–M8</div><div class="what">T3 圈速逼近人类 · 动捕决策点(优先浙大合作)· 带视频谈商场点位</div></div>
-    <div class="trow hot"><div class="when">M9</div><div class="what">⚡ <b>击败人类单圈 · 决定性证据到手</b></div></div>
-    <div class="trow hot"><div class="when">M10–M12</div><div class="what">🏆 白名单申报 × 中天立项 · Race Day 公开赛 · 营/进校用钥匙开门,<b>第二期现金流进场</b></div></div>
-    <div class="trow"><div class="when">Y2</div><div class="what">赛车营开营(已预售)· 学校项目签约 · 样板间用 Y2 收入落地</div></div>
-  </div>
+    <polygon class="diaL" points="200,392 332,447 200,502 68,447"/>
+    <text class="t" x="200" y="442">有任何一条线</text>
+    <text class="d" x="200" y="462">能走到终点吗?</text>
+    <text class="lab labR" x="218" y="524">NO(钱不够)</text>
+    <line class="lnL" x1="200" y1="502" x2="200" y2="563" marker-end="url(#ar)"/>
+    <polyline class="lnL" points="332,447 420,447 420,600 355,600" marker-end="url(#ar)"/>
+    <text class="lab labD" x="428" y="436">YES · 勉强维持</text>
+    <text class="lab labD" x="440" y="453">(也没有战绩)</text>
 
-  <!-- FINAL -->
+    <rect class="boxL" x="50" y="565" width="300" height="70" rx="12"/>
+    <text class="t" x="200" y="592">持续失血</text>
+    <text class="d" x="200" y="612">样板间月租人力 · 营开不起来</text>
+    <text class="d" x="200" y="628">进校没有硬卖点</text>
+    <line class="lnL" x1="200" y1="635" x2="200" y2="670" marker-end="url(#ar)"/>
+
+    <polygon class="diaL" points="200,672 332,727 200,782 68,727"/>
+    <text class="t" x="200" y="722">T2–T4 学费义务</text>
+    <text class="d" x="200" y="742">能按时交付吗?</text>
+    <text class="lab labR" x="218" y="804">NO(钱花在橱窗上了)</text>
+    <line class="lnL" x1="200" y1="782" x2="200" y2="816" marker-end="url(#ar)"/>
+
+    <rect class="termR" x="50" y="818" width="300" height="62" rx="31"/>
+    <text class="t" x="200" y="844">❌ 交付违约 · 口碑反噬</text>
+    <text class="d" x="200" y="864">首个客户变成首个差评 · 模式死亡</text>
+    <text class="prob" x="200" y="910" fill="#ff5d73">路径成功概率 ≈ 5%</text>
+
+    <!-- ═══ RIGHT (green) ═══ -->
+    <rect class="boxR" x="620" y="278" width="300" height="76" rx="12"/>
+    <text class="t" x="770" y="306">100% 投关键路径</text>
+    <text class="d" x="770" y="326">物料 4.7万 + 运营 3万 + 机动 2万</text>
+    <text class="d" x="770" y="343">账面闭环,刚好够"跑赢人类"</text>
+    <line class="lnR" x1="770" y1="354" x2="770" y2="390" marker-end="url(#ag)"/>
+
+    <rect class="boxR" x="620" y="392" width="300" height="84" rx="12"/>
+    <text class="t" x="770" y="420">M1–M8 技术里程碑</text>
+    <text class="d" x="770" y="440">T1 让车动 → T2 训模型 · 装计时门</text>
+    <text class="d" x="770" y="457">→ T3 圈速逼近人类</text>
+    <text class="d" x="770" y="472">(每月圈速曲线 = 给中天的进度汇报)</text>
+    <line class="lnR" x1="770" y1="476" x2="770" y2="512" marker-end="url(#ag)"/>
+
+    <rect class="boxF" x="620" y="514" width="300" height="70" rx="12"/>
+    <text class="t" x="770" y="540" style="font-size:14px">🆓 零预算占位 · 三线并行不花钱</text>
+    <text class="d" x="770" y="560">进校 demo 顺路做 · 赛车营只预售</text>
+    <text class="d" x="770" y="576">商场只谈点位不付租</text>
+    <line class="lnR" x1="770" y1="584" x2="770" y2="620" marker-end="url(#ag)"/>
+
+    <polygon class="diaR" points="770,622 912,682 770,742 628,682"/>
+    <text class="t" x="770" y="677">M9 决战</text>
+    <text class="d" x="770" y="697">单圈跑赢人类?</text>
+
+    <text class="lab labG" x="788" y="764">YES · 70–80%</text>
+    <line class="lnR" x1="770" y1="742" x2="770" y2="776" marker-end="url(#ag)"/>
+    <polyline class="lnL" points="628,682 480,682 480,776" marker-end="url(#ar)"/>
+    <text class="lab labR" x="510" y="668">NO · 20–30%</text>
+
+    <rect class="boxR" x="620" y="778" width="300" height="60" rx="12"/>
+    <text class="t" x="770" y="802">⚡ 决定性证据</text>
+    <text class="d" x="770" y="822">战绩 + 全程影像 = 一份证据 · 四处变现</text>
+    <line class="lnR" x1="770" y1="838" x2="770" y2="872" marker-end="url(#ag)"/>
+
+    <rect class="boxR" x="620" y="874" width="300" height="54" rx="12"/>
+    <text class="t" x="770" y="897">🏆 白名单申报 × 中天联合立项</text>
+    <text class="d" x="770" y="916">身位跃迁:从机构 → 赛事规则制定方</text>
+    <line class="lnR" x1="770" y1="928" x2="770" y2="962" marker-end="url(#ag)"/>
+
+    <rect class="boxR" x="620" y="964" width="300" height="74" rx="12"/>
+    <text class="t" x="770" y="990">🔓 三线自动解锁</text>
+    <text class="d" x="770" y="1010">进校=通行证 · 赛车营=招生引爆</text>
+    <text class="d" x="770" y="1027">样板间=有战绩内容可放</text>
+    <line class="lnR" x1="770" y1="1038" x2="770" y2="1072" marker-end="url(#ag)"/>
+
+    <rect class="term" x="610" y="1074" width="320" height="60" rx="30"/>
+    <text class="t" x="770" y="1100">🏁 Y2:第二期现金流 · 规模化</text>
+    <text class="d" x="770" y="1120">营开营(已预售) · 学校签约 · 样板间落地</text>
+    <text class="prob" x="770" y="1166" fill="#ffcf5c">路径成功概率:高(70%+)</text>
+
+    <!-- NO sub-branch -->
+    <rect class="box" x="350" y="778" width="260" height="74" rx="12"/>
+    <text class="t" x="480" y="804" style="font-size:14.5px">完整课程已交付</text>
+    <text class="d" x="480" y="824">+ 圈速曲线 + 研究成果</text>
+    <text class="d" x="480" y="841">信用保留,不归零</text>
+    <line class="ln" x1="480" y1="852" x2="480" y2="888" marker-end="url(#aw)"/>
+
+    <polygon class="dia" points="480,890 597,942 480,994 363,942"/>
+    <text class="t" x="480" y="937" style="font-size:14.5px">差距 &lt; 5%?</text>
+    <text class="d" x="480" y="957">(从轨迹数据判断卡点)</text>
+
+    <polyline class="lnY" points="597,942 605,942 605,700 626,688" marker-end="url(#ay)"/>
+    <text class="lab labY" x="608" y="925" text-anchor="end">YES · 加练再战 ↺</text>
+
+    <text class="lab labD" x="496" y="1014">NO</text>
+    <line class="ln" x1="480" y1="994" x2="480" y2="1028" marker-end="url(#aw)"/>
+    <rect class="termG" x="350" y="1030" width="260" height="56" rx="28"/>
+    <text class="t" x="480" y="1054" style="font-size:14.5px">转型纯课程产品</text>
+    <text class="d" x="480" y="1073">体面收场 · 客户拿到完整价值</text>
+  </svg>
+  </div>
+  <p class="hint">手机查看:双指缩放,或横屏</p>
+
   <div class="final">
-    <h2>四件事都要做——<br>但只有一件事花第一笔钱。<br><span class="gold">白名单不是四分之一,它是另外三件的钥匙。</span></h2>
+    <h2>四件事都要做——但只有一件事花第一笔钱。<br><span class="gold">白名单不是四分之一,它是另外三件的钥匙。</span></h2>
   </div>
 
-  <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="CRAYXUS AI·GP" style="display:block;margin:34px auto 0;width:300px;max-width:80%;border-radius:16px;border:1px solid rgba(255,255,255,.15)">
-<div class="foot">CRAYXUS AI·GP　·　STRATEGY MAP　·　内部讨论稿</div>
+  <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="CRAYXUS AI·GP" style="display:block;margin:30px auto 0;width:280px;max-width:78%;border-radius:16px;border:1px solid rgba(255,255,255,.15)">
+<div class="foot">CRAYXUS AI·GP　·　DECISION FLOWCHART　·　内部讨论稿</div>
 
 </div>
 </body>
