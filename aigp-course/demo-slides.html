@@ -73,6 +73,16 @@
   .vs .ai h3{color:var(--cyan)} .vs .hu h3{color:var(--red)}
   .vs li{font-size:19px;color:var(--dim);margin:9px 0 9px 22px;line-height:1.45}
   .vs li b{color:#fff}
+  .wk{border-collapse:collapse;margin-top:22px;width:100%;max-width:1060px;font-size:17.5px}
+  .wk td{padding:6px 14px;border-bottom:1px solid rgba(255,255,255,.07);color:var(--dim);line-height:1.45}
+  .wk td.w{color:var(--cyan);font-weight:800;white-space:nowrap;width:96px}
+  .wk td b{color:#fff}
+  .wk tr.ms td{background:rgba(255,207,92,.08)} .wk tr.ms td.w{color:var(--gold)}
+  .code{font-family:Consolas,Menlo,monospace;background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:12px;padding:16px 22px;font-size:17px;color:#9fe8ff;line-height:1.65;margin-top:18px;max-width:820px}
+  .code .cm{color:var(--dim)}
+  .stats{display:flex;gap:16px;flex-wrap:wrap;margin-top:34px}
+  .st{flex:1;min-width:150px;padding:22px 18px;border-radius:16px;background:var(--glass);border:1px solid var(--line);text-align:center}
+  .st .v{font-size:40px;font-weight:900;color:var(--gold)} .st p{font-size:15.5px;color:var(--dim);margin-top:6px}
   .split{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;max-width:1320px}
   .shot{width:100%;max-height:64vh;object-fit:contain;border-radius:18px;border:1px solid var(--line);box-shadow:0 18px 60px rgba(0,0,0,.45)}
   .shot.lt{background:#fff;padding:8px}
@@ -136,6 +146,20 @@
   </div>
 </section>
 
+<!-- 3.5 数字总览 -->
+<section class="slide">
+  <div class="kicker">BY THE NUMBERS</div>
+  <h2>这一年,用数字说</h2>
+  <div class="stats">
+    <div class="st"><div class="v">40</div><p>周 · 每周 2 小时<br>全部课上完成</p></div>
+    <div class="st"><div class="v">80+</div><p>课时 · 逐周排定<br>每周都有产出</p></div>
+    <div class="st"><div class="v">7</div><p>级阶梯认证<br>L1 → L7</p></div>
+    <div class="st"><div class="v">1</div><p>台自己的 AI 赛车<br>结业带走</p></div>
+    <div class="st"><div class="v">1</div><p>份可答辩的研究<br>+ Race Day 一战</p></div>
+  </div>
+  <p class="big" style="margin-top:30px">每一周上什么,<b>都已经排好</b>——接下来按阶段给你看课表。</p>
+</section>
+
 <!-- 4 技术本质 -->
 <section class="slide">
   <div class="split">
@@ -161,6 +185,23 @@
     <div class="c hot"><div class="n" style="color:var(--gold)">🛠️ VIBE CODING 主线</div><h3>不背语法,指挥 AI 写代码</h3><p>全程用<b>提示词 + AI 编程</b>把想法变成能跑的车代码——0 基础也能造复杂系统,这也是未来十年最值钱的元技能。</p></div>
     <div class="c c5"><div class="n">🏆 成果 / 证书主线</div><h3>边学边拿,越往后越硬</h3><p>每阶段发<b>阶梯认证</b>;后程对接<b>白名单赛事证书 + 浙大教授推荐信 + 科研实践证明</b>——逐阶段兑现。</p></div>
   </div>
+</section>
+
+<!-- 5.5 vibe coding 实例 -->
+<section class="slide">
+  <div class="kicker gold">VIBE CODING · 长这样</div>
+  <h2>不背语法,是<span class="neon">真的写出代码</span></h2>
+  <p class="big">第 8 周的真实课堂任务——孩子对 AI 说:</p>
+  <div class="code">
+    <span class="cm"># 孩子的话:</span>"让车在离障碍物 30 厘米以内时自动刹停"<br><br>
+    <span class="cm"># AI 生成的代码(节选):</span><br>
+    if lidar.front_distance() &lt; 0.30:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;car.brake()&nbsp;&nbsp;<span class="cm"># 立即刹停</span>
+  </div>
+  <ul class="pts" style="margin-top:22px">
+    <li>部署上车 → 车真的在 30cm 处停住——<b>需求 → 语言 → 代码 → 行为,一条龙他自己走通</b></li>
+    <li>看不懂的行,让 AI 逐行解释——<b>理解跟着动手长出来</b>,这是未来十年的编程方式</li>
+  </ul>
 </section>
 
 <!-- 6 零遥控器 -->
@@ -200,6 +241,23 @@
     <li>学:视觉感知入门——车是怎么"看见"赛道的</li>
     <li>学:提示词基础 + vibe coding——写出第一个能跑的控制脚本</li>
   </ul>
+</section>
+
+<!-- 8.5 T1 课表 -->
+<section class="slide">
+  <div class="kicker">T1 · 12 周课表(第 1–3 月)</div>
+  <h2>每一周,都排好了</h2>
+  <table class="wk">
+    <tr><td class="w">W1</td><td><b>开学第一课</b>:自动驾驶全貌 + 第一次让车跑起来 · 建立科研日志</td></tr>
+    <tr><td class="w">W2</td><td>车的眼睛:摄像头与图像——车看到的世界和你不一样</td></tr>
+    <tr><td class="w">W3–4</td><td><b>感知调参</b>:认出赛道蓝边;换光线、换角度,练出鲁棒的"眼睛"</td></tr>
+    <tr><td class="w">W5</td><td>提示词入门:怎么把需求说清楚,让 AI 替你干活</td></tr>
+    <tr><td class="w">W6–7</td><td><b>vibe coding</b>:写出第一个控制脚本——直线行驶刹停 → 沿蓝边走</td></tr>
+    <tr><td class="w">W8</td><td>遇障刹停:激光雷达初识,"30 厘米自动刹停"任务</td></tr>
+    <tr><td class="w">W9–10</td><td>综合调试:跑完整一圈 → 又稳又顺;故障诊断思维</td></tr>
+    <tr><td class="w">W11</td><td>里程碑彩排:自主跑圈 + 避障全流程自己走一遍</td></tr>
+    <tr class="ms"><td class="w">W12</td><td>🏁 <b>T1 里程碑验收</b>:车自主跑一圈 + 遇障停 → 颁 L1–L2 认证</td></tr>
+  </table>
 </section>
 
 <!-- 9 T1 一节课的样子 -->
@@ -253,6 +311,23 @@
   </ul>
 </section>
 
+<!-- 12.5 T2 课表 -->
+<section class="slide">
+  <div class="kicker purp">T2 · 12 周课表(第 4–6 月)</div>
+  <h2>从"写规则"到"教 AI"</h2>
+  <table class="wk">
+    <tr><td class="w">W13</td><td><b>什么是机器学习</b>:从"告诉它怎么做"到"给它看例子"</td></tr>
+    <tr><td class="w">W14–15</td><td><b>采数据</b>:PC 控制台开车录「画面→方向」;数据质量=教材质量,学会挑样本</td></tr>
+    <tr><td class="w">W16</td><td>神经网络是什么:零数学类比课——它怎么从例子里"悟"出规律</td></tr>
+    <tr><td class="w">W17</td><td><b>第一次训练</b>:一键开训,读懂 loss 曲线这张"心电图"</td></tr>
+    <tr><td class="w">W18</td><td>🔥 <b>部署上车:我训练的模型在开车!</b></td></tr>
+    <tr><td class="w">W19–20</td><td>诊断与迭代:它为什么开不好?加数据、清数据、再训练</td></tr>
+    <tr><td class="w">W21</td><td><b>装起跑线计时门</b>:首个官方单圈成绩,从此进步可量化</td></tr>
+    <tr><td class="w">W22–23</td><td>刷圈实验:不同模型 / 不同数据集的圈速对比,写进日志</td></tr>
+    <tr class="ms"><td class="w">W24</td><td>🏁 <b>T2 里程碑验收</b>:自己的模型跑出计时圈 → 颁 L3 神经网络训练认证</td></tr>
+  </table>
+</section>
+
 <!-- 13 T2 闭环 -->
 <section class="slide">
   <div class="kicker purp">T2 · 第 4–6 月 · ②</div>
@@ -300,6 +375,22 @@
     <li>学:<b>强化学习</b>——设好奖励(不出界 + 更快),AI 在仿真里自己试错进化</li>
     <li>孩子的角色升级:从"司机教练"变成<b>"规则设计师"</b></li>
   </ul>
+</section>
+
+<!-- 16.5 T3 课表 -->
+<section class="slide">
+  <div class="kicker pinkc">T3 · 9 周课表(第 7–9 月)</div>
+  <h2>让 AI 自己练,练到超越示范者</h2>
+  <table class="wk">
+    <tr><td class="w">W25</td><td><b>强化学习初识</b>:模仿的天花板在哪,为什么要让 AI 自己试错</td></tr>
+    <tr><td class="w">W26</td><td><b>仿真环境</b>:虚拟赛道跑起来——一晚等于一万圈</td></tr>
+    <tr><td class="w">W27</td><td><b>设计奖励</b>:孩子从"司机教练"升级成"规则设计师"</td></tr>
+    <tr><td class="w">W28</td><td><b>最优赛车线</b>:四种算法同台对比,谁算的线更快?</td></tr>
+    <tr><td class="w">W29</td><td><b>sim2real</b>:仿真练的本事,怎么搬到真车上不走样</td></tr>
+    <tr><td class="w">W30</td><td>🔥 <b>竞速版赛车交接 + 室外首跑</b>:厘米级 RTK 定位上线</td></tr>
+    <tr><td class="w">W31–32</td><td><b>受控实验</b>:每周改一个变量 → 跑 → 记录 → 分析,圈速逼近人类基准</td></tr>
+    <tr class="ms"><td class="w">W33</td><td>🏁 <b>T3 验收</b>:圈速曲线汇报 → 进阶认证 + 白名单赛事备赛</td></tr>
+  </table>
 </section>
 
 <!-- 17 T3 赛车线 -->
@@ -374,6 +465,20 @@
   <p class="big" style="margin-top:26px">赛制选<b>单圈计时</b>——这是 AI 的主场,也是我们设计赛事的智慧。</p>
 </section>
 
+<!-- 20.5 T4 课表 -->
+<section class="slide">
+  <div class="kicker gold">T4 · 7 周课表(第 10–12 月)</div>
+  <h2>冲线前的最后七周</h2>
+  <table class="wk">
+    <tr><td class="w">W34</td><td><b>对决策略</b>:研究赛制与对手,把优势用满</td></tr>
+    <tr><td class="w">W35–36</td><td><b>极限调校</b>:压榨最后零点几秒 + 准备赛事报名材料</td></tr>
+    <tr><td class="w">W37</td><td><b>研究报告</b>:把一年的科研日志,整理成一篇可答辩的研究</td></tr>
+    <tr><td class="w">W38</td><td><b>答辩彩排</b>:讲清楚"我做了什么实验,得到什么结论"</td></tr>
+    <tr><td class="w">W39</td><td>Race Day 总彩排:车、赛道、计时、流程全过一遍</td></tr>
+    <tr class="ms"><td class="w">W40</td><td>🏁🏁 <b>RACE DAY</b>:人机对决 + 现场颁奖 + 研究成果展示——加冕日</td></tr>
+  </table>
+</section>
+
 <!-- 21 业界证据 -->
 <section class="slide">
   <div class="kicker gold">T4 · 第 10–12 月 · ②</div>
@@ -410,6 +515,22 @@
     <li>✍️ <b>浙大教授推荐信 + 科研实践证明</b>——基于他真实的实验与答辩</li>
     <li>📄 <b>一份可答辩的研究报告</b>——科研日志全年累积而成,经得起任何提问</li>
     <li>🎬 <b>Race Day 战绩与影像</b>——「我的 AI 在正式赛道击败了人类」</li>
+  </ul>
+</section>
+
+<!-- 23.5 科研成果样例 -->
+<section class="slide">
+  <div class="kicker gold">EVIDENCE · 成果长这样</div>
+  <h2>科研日志和研究,<span class="neon">不是空话</span></h2>
+  <p class="big">科研日志真实条目(W31,受控实验周):</p>
+  <div class="code" style="color:var(--ink);font-family:inherit;font-size:18px">
+    <span class="cm">2026-10-XX · 实验 #14</span><br>
+    把奖励函数里的"出界惩罚"从 -10 调到 -50:圈速慢了 0.8 秒,但 20 圈零出界。<br>
+    <b style="color:var(--gold)">结论:稳定性和速度是一对权衡。下周试 -30 找平衡点。</b>
+  </div>
+  <ul class="pts" style="margin-top:20px">
+    <li>期末研究题目示例:<b>《不同赛车线算法对 1/10 AI 赛车圈速的影响》</b>《训练数据质量对驾驶稳定性的影响》《仿真与真实的差距来源及补偿》</li>
+    <li>40 周日志自动累积 → 期末整理就是报告——<b>答辩时每一句都有自己的数据撑着</b></li>
   </ul>
 </section>
 
