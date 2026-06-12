@@ -20,9 +20,7 @@
     "pages/speaking-free/speaking-free",
     "pages/crayxus-gp/crayxus-gp",
     "pages/baccarat/baccarat",
-    "pages/truck/home",
-    "pages/farm/farm",
-    "pages/sweeper/sweeper"
+    "pages/truck/home"
   ],
   "window": {
     "navigationBarTitleText": "Crayxus MTT",
