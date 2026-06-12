@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRAYXUS AI·GP — Demo 投屏片 · 1 小时全景课(30 页)</title>
+<title>CRAYXUS AI·GP — Demo 投屏片 · 1 小时(真课体验 + 全年路线)</title>
 <meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share-demo.jpg">
-<meta property="og:title" content="CRAYXUS AI·GP · Demo 课件(1 小时全景课)">
-<meta property="og:description" content="T1–T4 技术全流程 · 逐周课表 + 界面级演示 · 方向键/点击翻页。">
+<meta property="og:title" content="CRAYXUS AI·GP · Demo 课件(真课体验 + 全年路线)">
+<meta property="og:description" content="前半场原样上 T1 第一课(原理→动手→复盘) · 后半场 T1–T4 全年路线 · 方向键/点击翻页。">
 <style>
   :root{
     --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
@@ -157,15 +157,172 @@
     <div>
       <div class="kicker">TODAY</div>
       <h2>从「它能跑」,到<span class="neon">「它如何被构建」</span></h2>
-      <p class="big" style="margin-top:6px">上次的演示验证了结果。今天一小时,讲透三个问题——<b>三页流程图,一页一个答案</b>:</p>
+      <p class="big" style="margin-top:6px">上次的演示验证了结果。今天一小时,分两个半场:</p>
       <ul class="pts">
-        <li>❶ <b>完整技术路线</b>——这台 AI 赛车如何被构建</li>
-        <li>❷ <b>能力阶梯</b>——每个阶段,学员亲手习得什么</li>
-        <li>❸ <b>成果与履历</b>——一年结束,沉淀下什么</li>
+        <li>🖐 <b>前半场 · 真课体验(约 25 分钟)</b>——把 T1 第一课原样上一遍:原理 → 动手 → 复盘,孩子亲手做</li>
+        <li>🗺️ <b>后半场 · 全年路线(约 30 分钟)</b>——技术路线 · 能力阶梯 · 成果履历,三个问题讲透</li>
       </ul>
     </div>
     <div><img class="shot" src="img/usecase_training.jpg" alt="AI 座舱"><div class="cap">AI 驾驶座舱视角——这一年,孩子坐进"工程师席"</div></div>
   </div>
+</section>
+
+<!-- ═══ 前半场 · T1 真课体验 ═══ -->
+
+<!-- L0 真课转场 -->
+<section class="slide">
+  <div class="kicker">PART 1 · LIVE LESSON</div>
+  <h1>接下来不是介绍——<br><span class="neon">直接上 T1 的第一课</span></h1>
+  <p class="big">和正式课堂同一个结构:<b>原理 → 动手 → 复盘</b>。今天你做的每一步,都是 T1 学员每周课上在做的事。</p>
+  <div class="badge-row">
+    <span class="badge">📖 原理 <b>5′</b></span>
+    <span class="badge">🖐 动手 <b>15′</b></span>
+    <span class="badge">📓 复盘 <b>5′</b></span>
+  </div>
+</section>
+
+<!-- L1 原理 -->
+<section class="slide">
+  <div class="split">
+    <div>
+      <div class="kicker">LESSON · 原理 ①</div>
+      <h2>自动驾驶 = <span class="neon">眼睛 + 大脑</span></h2>
+      <ul class="pts">
+        <li>📷 <b>眼睛</b>:车头摄像头,看见赛道边线</li>
+        <li>🧠 <b>大脑</b>:神经网络,看到画面就知道怎么开</li>
+        <li>🕹️ <b>手脚</b>:转向 + 油门,毫秒级执行</li>
+      </ul>
+      <p class="big" style="margin-top:24px">与 <b>Tesla / Waymo</b> 同源的技术架构,工程化为学员可完整驾驭的 1/10 体系。<b>第一课先解决"眼睛"。</b></p>
+    </div>
+    <div><img class="shot" src="img/brain_body.jpg" alt="软件大脑 × 硬件赛车"><div class="cap">CRAYXUS 软件大脑 × 精密硬件赛车</div></div>
+  </div>
+</section>
+
+<!-- L2 动手① 感知调参 -->
+<section class="slide">
+  <div class="kicker">LESSON · 动手 ②</div>
+  <h2>调出 AI 的眼睛——<span class="neon">现在你来</span></h2>
+  <div class="split" style="margin-top:14px">
+    <div>
+      <ul class="pts" style="margin-top:0">
+        <li>🎥 <b>① 画面</b>:车眼中的世界</li>
+        <li>🔵 <b>② 认边</b>:滑块抠出边线</li>
+        <li>🛣️ <b>③ 路线</b>:蓝带 = AI 的判断</li>
+        <li>🔥 <b>第二关</b>:换灯光 / 加遮挡,仍要锁边</li>
+      </ul>
+      <span class="demo-tag" style="margin-top:20px">🖐 上手:拖滑块,把蓝边框准</span>
+    </div>
+    <div class="mock">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">感知调参台 · 学生界面</span></div>
+      <div class="bd">
+        <svg viewBox="0 0 360 165" style="width:100%;border-radius:8px;background:#0a0f1e">
+          <polygon points="55,165 305,165 232,38 128,38" fill="#1b2236"/>
+          <polygon points="128,38 232,38 305,165 55,165" fill="none"/>
+          <polygon points="146,55 214,55 252,165 108,165" fill="rgba(25,227,255,.14)"/>
+          <line x1="128" y1="38" x2="55" y2="165" stroke="#19e3ff" stroke-width="9" opacity=".22"/>
+          <line x1="128" y1="38" x2="55" y2="165" stroke="#19e3ff" stroke-width="4"/>
+          <line x1="232" y1="38" x2="305" y2="165" stroke="#19e3ff" stroke-width="9" opacity=".22"/>
+          <line x1="232" y1="38" x2="305" y2="165" stroke="#19e3ff" stroke-width="4"/>
+          <line x1="180" y1="60" x2="180" y2="165" stroke="#ffcf5c" stroke-width="2.5" stroke-dasharray="7 7"/>
+          <text x="14" y="24" fill="#3ce29a" font-size="12" font-family="Consolas">● 边线已锁定</text>
+          <text x="282" y="24" fill="#a9a3cf" font-size="11" font-family="Consolas">30 FPS</text>
+        </svg>
+        <div class="sl"><span>色相 H</span><span class="tr"><i style="width:58%"></i><b style="left:58%"></b></span><span class="vv">198</span></div>
+        <div class="sl"><span>饱和度下限</span><span class="tr"><i style="width:42%"></i><b style="left:42%"></b></span><span class="vv">92</span></div>
+        <div class="sl"><span>视野裁剪</span><span class="tr"><i style="width:35%"></i><b style="left:35%"></b></span><span class="vv">35%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- L3 动手② vibe coding 是什么 -->
+<section class="slide">
+  <div class="kicker gold">LESSON · 动手 ③</div>
+  <h2>Vibe Coding:<span class="neon">用说话的方式编程</span></h2>
+  <ul class="pts">
+    <li><b>定义</b>:人话说需求 → AI 生成代码 → 人负责想清楚、看懂、验证</li>
+    <li><b>出处</b>:OpenAI 联创 Karpathy 2025 年提出,已是硅谷日常</li>
+    <li><b>门槛之变</b>:从背语法,变成会思考</li>
+  </ul>
+  <p class="big" style="margin-top:22px">四步法:<b>说清 → 生成 → 读懂 → 验证</b>——现在当场走一遍。</p>
+</section>
+
+<!-- L4 动手② vibe coding 实例 -->
+<section class="slide">
+  <div class="kicker gold">LESSON · 动手 ④ · 真实课堂任务</div>
+  <h2>一句话 → 代码 → <span class="neon">车真的停了</span></h2>
+  <div class="split" style="grid-template-columns:1.15fr .85fr;margin-top:14px">
+    <div class="mock">
+      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">AI 编程助手 · 第 8 周课堂任务</span></div>
+      <div class="bd">
+        <div class="bub u">👦 让车在离障碍物 30 厘米以内时自动刹停,并在屏幕上提示</div>
+        <div class="bub a">🤖 好的,用激光雷达的前向距离来判断:
+          <div class="codebox">dist = lidar.front_distance()<br>if dist &lt; 0.30:<br>&nbsp;&nbsp;&nbsp;&nbsp;car.brake()<br>&nbsp;&nbsp;&nbsp;&nbsp;console.show("⚠ 障碍物 " + dist + " m,已刹停")</div>
+        </div>
+      </div>
+      <div class="term">▶ 部署到赛车… 成功<br>▶ 实测:障碍物 <b>0.28 m</b> → <b>已刹停 ✓</b>　屏幕提示 ✓</div>
+    </div>
+    <div>
+      <ul class="pts" style="margin-top:0">
+        <li><b>① 说清</b>需求</li>
+        <li><b>② 生成</b>代码</li>
+        <li><b>③ 读懂</b>每一行</li>
+        <li><b>④ 验证</b>:28cm,停住</li>
+      </ul>
+      <p class="big" style="margin-top:16px;font-size:21px">需求 → 代码 → 行为,<b>全链自主</b>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- L5 动手② vibe coding × 3D 打印 -->
+<section class="slide">
+  <div class="kicker gold">LESSON · 动手 ⑤ · VIBE CODING × 3D 打印</div>
+  <h2>不只是代码:<span class="neon">说一句话,长出一个零件</span></h2>
+  <div class="split" style="margin-top:14px">
+    <div>
+      <ul class="pts" style="margin-top:0">
+        <li><b>① 需求</b>:"夹住 10mm 电机筒,顶面是平的"</li>
+        <li><b>② AI 生成</b> OpenSCAD 实体代码,实时渲染</li>
+        <li><b>③ 打印装车</b>——实物就在现场,传给你看</li>
+      </ul>
+      <p class="big" style="margin-top:18px">会 Fusion 360?两种建模叠加:<b>手工精修 × 语言生成</b>。</p>
+    </div>
+    <div><img class="shot" src="img/v3_assembly.png" alt="AI 生成的电机抱箍"><div class="cap">这台车的电机抱箍——由对话生成、打印、装车</div></div>
+  </div>
+</section>
+
+<!-- L6 复盘 · 科研日志 -->
+<section class="slide">
+  <div class="kicker grn">LESSON · 复盘</div>
+  <h2>最后一步:写下<span class="neon">你的第一条科研日志</span></h2>
+  <div class="code" style="color:var(--ink);font-family:inherit;font-size:18px;margin-top:24px">
+    <span class="cm">2026-06-13 · 日志 #1(现场写)</span><br>
+    今天我调的参数:色相 H = ___ · 饱和度 = ___ · 裁剪 = ___<br>
+    换灯光 / 加遮挡之后,边线 <b>锁住了 / 丢了</b>,因为 ______<br>
+    <b style="color:var(--gold)">下次我想试:______</b>
+  </div>
+  <p class="big" style="margin-top:22px"><b>做了什么 · 为什么 · 下次怎么改</b>——每节课收尾都写一条,40 周写满,期末整理出来就是研究报告的底稿。</p>
+</section>
+
+<!-- L7 收课:这就是每周课 -->
+<section class="slide">
+  <div class="kicker grn">LESSON · 下课</div>
+  <h2>刚才这 25 分钟,就是<span class="neon">每周课的原样</span></h2>
+  <div class="flow">
+    <div class="f"><div class="i">📖</div><h3>15′ 原理</h3><p>今天要解决什么问题<br>零数学,全类比</p></div>
+    <span class="arr">→</span>
+    <div class="f"><div class="i">🖐</div><h3>80′ 动手</h3><p>调参 / 写脚本 / 上赛道<br>全部课上完成</p></div>
+    <span class="arr">→</span>
+    <div class="f"><div class="i">📓</div><h3>25′ 复盘</h3><p>记科研日志:<br>做了什么 · 为什么 · 下次怎么改</p></div>
+  </div>
+  <p class="big" style="margin-top:28px">正式课每周 2 小时,今天是它的缩影——<b>课内完成 · 不留作业</b> · 日志即报告底稿。</p>
+</section>
+
+<!-- L8 下半场转场 -->
+<section class="slide">
+  <div class="kicker pinkc">PART 2 · 全年路线</div>
+  <h1>第一课上完了。<br>这一年,能走<span class="neon">多远?</span></h1>
+  <p class="big" style="margin-top:10px">刚才的滑块和那句"长"出零件的话,是第 1–8 周的日常。接下来 30 分钟:四个阶段,怎么一步步走到<b>「击败人类」</b>。</p>
 </section>
 
 <!-- 2A 答案① 技术流程 -->
@@ -250,86 +407,13 @@
   <p class="big" style="margin-top:30px">40 周教学计划<b>全部排定</b>——以下分阶段展示。</p>
 </section>
 
-<!-- 4 技术本质 -->
-<section class="slide">
-  <div class="split">
-    <div>
-      <div class="kicker">HOW IT WORKS</div>
-      <h2>自动驾驶 = <span class="neon">眼睛 + 大脑</span></h2>
-      <ul class="pts">
-        <li>📷 <b>眼睛</b>:车头摄像头,看见赛道边线</li>
-        <li>🧠 <b>大脑</b>:神经网络,看到画面就知道怎么开</li>
-        <li>🕹️ <b>手脚</b>:转向 + 油门,毫秒级执行</li>
-      </ul>
-      <p class="big" style="margin-top:24px">与 <b>Tesla / Waymo</b> 同源的技术架构,工程化为学员可完整驾驭的 1/10 体系。</p>
-    </div>
-    <div><img class="shot" src="img/brain_body.jpg" alt="软件大脑 × 硬件赛车"><div class="cap">CRAYXUS 软件大脑 × 精密硬件赛车</div></div>
-  </div>
-</section>
-
 <!-- 5 两条主线 -->
 <section class="slide">
   <div class="kicker">TWO THREADS</div>
   <h2>两条主线,贯穿一整年</h2>
   <div class="cards g2">
-    <div class="c hot"><div class="n" style="color:var(--gold)">🛠️ VIBE CODING 主线</div><h3>不背语法,指挥 AI 写代码</h3><p><b>40 周全程</b>使用专业 AI 编程工具,把想法变成能跑的车代码——0 基础造复杂系统。它是什么、长什么样,<b>后面两页专门讲</b>。</p></div>
+    <div class="c hot"><div class="n" style="color:var(--gold)">🛠️ VIBE CODING 主线</div><h3>不背语法,指挥 AI 写代码</h3><p><b>40 周全程</b>使用专业 AI 编程工具,把想法变成能跑的车代码——0 基础造复杂系统。<b>前半场你已经亲手用过了</b>,那就是 40 周的日常工具。</p></div>
     <div class="c c5"><div class="n">🏆 成果 / 证书主线</div><h3>边学边拿,越往后越硬</h3><p>每阶段发<b>阶梯认证</b>;后程对接<b>白名单赛事证书 + 浙大教授推荐信 + 科研实践证明</b>——逐阶段兑现。</p></div>
-  </div>
-</section>
-
-<!-- 5.4 什么是 vibe coding -->
-<section class="slide">
-  <div class="kicker gold">VIBE CODING · 是什么</div>
-  <h2>Vibe Coding:<span class="neon">用说话的方式编程</span></h2>
-  <ul class="pts">
-    <li><b>定义</b>:人话说需求 → AI 生成代码 → 人负责想清楚、看懂、验证</li>
-    <li><b>出处</b>:OpenAI 联创 Karpathy 2025 年提出,已是硅谷日常</li>
-    <li><b>门槛之变</b>:从背语法,变成会思考</li>
-  </ul>
-  <p class="big" style="margin-top:22px">四步法:<b>说清 → 生成 → 读懂 → 验证</b></p>
-</section>
-
-<!-- 5.5 vibe coding 实例 -->
-<section class="slide">
-  <div class="kicker gold">VIBE CODING · 真实课堂界面</div>
-  <h2>一句话 → 代码 → <span class="neon">车真的停了</span></h2>
-  <div class="split" style="grid-template-columns:1.15fr .85fr;margin-top:14px">
-    <div class="mock">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">AI 编程助手 · 第 8 周课堂任务</span></div>
-      <div class="bd">
-        <div class="bub u">👦 让车在离障碍物 30 厘米以内时自动刹停,并在屏幕上提示</div>
-        <div class="bub a">🤖 好的,用激光雷达的前向距离来判断:
-          <div class="codebox">dist = lidar.front_distance()<br>if dist &lt; 0.30:<br>&nbsp;&nbsp;&nbsp;&nbsp;car.brake()<br>&nbsp;&nbsp;&nbsp;&nbsp;console.show("⚠ 障碍物 " + dist + " m,已刹停")</div>
-        </div>
-      </div>
-      <div class="term">▶ 部署到赛车… 成功<br>▶ 实测:障碍物 <b>0.28 m</b> → <b>已刹停 ✓</b>　屏幕提示 ✓</div>
-    </div>
-    <div>
-      <ul class="pts" style="margin-top:0">
-        <li><b>① 说清</b>需求</li>
-        <li><b>② 生成</b>代码</li>
-        <li><b>③ 读懂</b>每一行</li>
-        <li><b>④ 验证</b>:28cm,停住</li>
-      </ul>
-      <p class="big" style="margin-top:16px;font-size:21px">需求 → 代码 → 行为,<b>全链自主</b>。</p>
-    </div>
-  </div>
-</section>
-
-<!-- 5.6 vibe coding × 3D 打印 -->
-<section class="slide">
-  <div class="kicker gold">VIBE CODING × 3D 打印</div>
-  <h2>不只是代码:<span class="neon">说一句话,长出一个零件</span></h2>
-  <div class="split" style="margin-top:14px">
-    <div>
-      <ul class="pts" style="margin-top:0">
-        <li><b>① 需求</b>:"夹住 10mm 电机筒,顶面是平的"</li>
-        <li><b>② AI 生成</b> OpenSCAD 实体代码,实时渲染</li>
-        <li><b>③ 打印装车</b>——实物就在现场,传给你看</li>
-      </ul>
-      <p class="big" style="margin-top:18px">会 Fusion 360?两种建模叠加:<b>手工精修 × 语言生成</b>。</p>
-    </div>
-    <div><img class="shot" src="img/v3_assembly.png" alt="AI 生成的电机抱箍"><div class="cap">这台车的电机抱箍——由对话生成、打印、装车</div></div>
   </div>
 </section>
 
@@ -363,13 +447,14 @@
 
 <!-- 8 T1 学什么 -->
 <section class="slide">
-  <div class="kicker">T1 · 第 1–3 月 · ①</div>
+  <div class="kicker">T1 · 第 1–3 月</div>
   <h2 style="color:var(--cyan)">看懂 AI · 让车动</h2>
   <ul class="pts">
     <li><b>感知 → 决策 → 控制</b>:自动驾驶全貌</li>
     <li>视觉感知:标定一双<b>换光线也认路</b>的"眼睛"</li>
     <li>vibe coding:写出<b>「沿边走」「30cm 刹停」</b>两个真实脚本</li>
   </ul>
+  <p class="big" style="margin-top:24px">前半场那节课,就是这个阶段的<b>第 3 周和第 6–8 周</b>的课堂原样——你已经上过 T1 的第一课了。</p>
 </section>
 
 <!-- 8.5 T1 课表 -->
@@ -387,57 +472,6 @@
     <tr><td class="w">W11</td><td>里程碑彩排:自主跑圈 + 避障全流程自己走一遍</td></tr>
     <tr class="ms"><td class="w">W12</td><td>🏁 <b>T1 里程碑验收</b>:车自主跑一圈 + 遇障停 → 颁 L1–L2 认证</td></tr>
   </table>
-</section>
-
-<!-- 9 T1 一节课的样子 -->
-<section class="slide">
-  <div class="kicker">T1 · 第 1–3 月 · ②</div>
-  <h2>每周 2 小时,长这样</h2>
-  <div class="flow">
-    <div class="f"><div class="i">📖</div><h3>15′ 原理</h3><p>今天要解决什么问题<br>零数学,全类比</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">🖐</div><h3>80′ 动手</h3><p>调参 / 写脚本 / 上赛道<br>全部课上完成</p></div>
-    <span class="arr">→</span>
-    <div class="f"><div class="i">📓</div><h3>25′ 复盘</h3><p>记科研日志:<br>做了什么 · 为什么 · 下次怎么改</p></div>
-  </div>
-  <p class="big" style="margin-top:28px"><b>课内完成 · 不留作业</b> · 日志即报告底稿。</p>
-</section>
-
-<!-- 10 T1 感知拆解 -->
-<section class="slide">
-  <div class="kicker">T1 · 第 1–3 月 · ③</div>
-  <h2>"感知"拆给你看——这就是学生的调参界面</h2>
-  <div class="split" style="margin-top:14px">
-    <div>
-      <ul class="pts" style="margin-top:0">
-        <li>🎥 <b>① 画面</b>:车眼中的世界</li>
-        <li>🔵 <b>② 认边</b>:滑块抠出边线</li>
-        <li>🛣️ <b>③ 路线</b>:蓝带 = AI 的判断</li>
-        <li>🎯 <b>④ 执行</b>:循线 + 遇障停</li>
-      </ul>
-      <span class="demo-tag" style="margin-top:20px">🖐 现场试一下:你来调 AI 的眼睛</span>
-    </div>
-    <div class="mock">
-      <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">感知调参台 · 学生界面</span></div>
-      <div class="bd">
-        <svg viewBox="0 0 360 165" style="width:100%;border-radius:8px;background:#0a0f1e">
-          <polygon points="55,165 305,165 232,38 128,38" fill="#1b2236"/>
-          <polygon points="128,38 232,38 305,165 55,165" fill="none"/>
-          <polygon points="146,55 214,55 252,165 108,165" fill="rgba(25,227,255,.14)"/>
-          <line x1="128" y1="38" x2="55" y2="165" stroke="#19e3ff" stroke-width="9" opacity=".22"/>
-          <line x1="128" y1="38" x2="55" y2="165" stroke="#19e3ff" stroke-width="4"/>
-          <line x1="232" y1="38" x2="305" y2="165" stroke="#19e3ff" stroke-width="9" opacity=".22"/>
-          <line x1="232" y1="38" x2="305" y2="165" stroke="#19e3ff" stroke-width="4"/>
-          <line x1="180" y1="60" x2="180" y2="165" stroke="#ffcf5c" stroke-width="2.5" stroke-dasharray="7 7"/>
-          <text x="14" y="24" fill="#3ce29a" font-size="12" font-family="Consolas">● 边线已锁定</text>
-          <text x="282" y="24" fill="#a9a3cf" font-size="11" font-family="Consolas">30 FPS</text>
-        </svg>
-        <div class="sl"><span>色相 H</span><span class="tr"><i style="width:58%"></i><b style="left:58%"></b></span><span class="vv">198</span></div>
-        <div class="sl"><span>饱和度下限</span><span class="tr"><i style="width:42%"></i><b style="left:42%"></b></span><span class="vv">92</span></div>
-        <div class="sl"><span>视野裁剪</span><span class="tr"><i style="width:35%"></i><b style="left:35%"></b></span><span class="vv">35%</span></div>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- 11 T1 里程碑 -->
@@ -800,8 +834,8 @@
 <!-- 30 收尾 -->
 <section class="slide">
   <div class="kicker">NEXT</div>
-  <h1>下周第一课,<br>就从今天<span class="neon">那个滑块</span>开始</h1>
-  <p class="big" style="margin-top:10px"><b>第一步,今天已完成。</b></p>
+  <h1>第一课,今天已经上完。<br>下周第二课,从日志里<span class="neon">「下次我想试」</span>那行开始</h1>
+  <p class="big" style="margin-top:10px"><b>科研日志 #1,已经写下。</b></p>
   <div class="badge-row" style="margin-top:30px">
     <span class="badge">📅 开课时间:本周内敲定</span>
     <span class="badge">🏎️ <b>Code Your Champion. Drive the Future.</b></span>
