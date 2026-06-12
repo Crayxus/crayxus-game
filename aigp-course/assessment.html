@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRAYXUS AI·GP — 入学学情摸底</title>
+<title>择大·AI·GP — 入学学情摸底</title>
 <meta property="og:image" content="https://crayxus-game.onrender.com/aigp-course/share.jpg">
 <style>
   :root{
@@ -141,7 +141,7 @@
   <!-- ============ STUDENT FORM ============ -->
   <div id="formView">
     <header>
-      <div class="kicker">CRAYXUS AI·GP　|　入学学情摸底</div>
+      <div class="kicker">择大·AI·GP　|　入学学情摸底</div>
       <h1>开始之前，<span class="neon">先认识你</span></h1>
       <p class="sub">这不是考试，没有标准答案。花 3–5 分钟如实填写，我们才能为你<b style="color:#fff">量身定制学习节奏与成果路线</b>——把时间花在真正能帮到你的地方。家长可与孩子一起填。</p>
     </header>
@@ -172,8 +172,8 @@
 
     <button class="submit" id="submitBtn">提交摸底 · 让我们为你定制路线</button>
     <p class="note">🔒 你的信息仅用于课程定制，不会对外分享。</p>
-    <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="CRAYXUS AI·GP" style="display:block;margin:34px auto 0;width:300px;max-width:80%;border-radius:16px;border:1px solid rgba(255,255,255,.15)">
-<div class="foot">CRAYXUS AI·GP　·　浙江大学 AI 教授团队领衔　·　中天模型强力支持</div>
+    <img src="https://crayxus-game.onrender.com/aigp-course/share.jpg" alt="择大·AI·GP" style="display:block;margin:34px auto 0;width:300px;max-width:80%;border-radius:16px;border:1px solid rgba(255,255,255,.15)">
+<div class="foot">择大·AI·GP　·　浙江大学 AI 教授团队领衔　·　中天模型强力支持</div>
   </div>
 
   <!-- ============ THANKS ============ -->
@@ -566,7 +566,7 @@ function rawRows(r){
 /* ========== EXPORT ========== */
 function recordText(r){
   const p=r.profile||buildProfile(r); let s="";
-  s+=`【CRAYXUS AI·GP 学情档案】\n姓名：${r.name}\n联系：${r.contact||"—"}\n提交：${fmt(r.ts)}\n`;
+  s+=`【择大·AI·GP 学情档案】\n姓名：${r.name}\n联系：${r.contact||"—"}\n提交：${fmt(r.ts)}\n`;
   s+=`\n— 画像 —\n时间：${p.time.lv}（${p.time.d}）\n基础：${p.base.lv}（${p.base.d}）\n自驱：${p.drive.lv}（${p.drive.d}）\n目标：${p.goal.lv}（${p.goal.d}）\n`;
   s+=`\n— 建议路线 —\n${p.route.name}：${p.route.desc}\n路径：${p.route.steps.join(" → ")}\n`;
   s+=`\n— 风险与提醒 —\n`+ (p.risks.length? p.risks.map(x=>"· "+strip(x)).join("\n") : "· 无明显风险");

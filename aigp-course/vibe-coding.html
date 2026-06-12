@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRAYXUS AI·GP — Vibe Coding 课堂任务台 · T1(W5–W8)</title>
+<title>择大·AI·GP — Vibe Coding 课堂任务台 · T1(W5–W8)</title>
 <style>
   :root{
     --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
@@ -133,7 +133,7 @@ const TASKS = {
     params: {sec: 2.0},
     parse: txt => { const m = txt.match(/([\d.]+)\s*秒/); return m ? {sec: Math.min(5, Math.max(0.5, parseFloat(m[1])))} : {}; },
     code: s => [
-      ['from crayxus import car, console', '从 CRAYXUS 车载库里拿出「车」和「屏幕」两个工具'],
+      ['from zeda import car, console', '从 择大车载库里拿出「车」和「屏幕」两个工具'],
       ['', ''],
       ['console.show("出发!")', '车的小屏幕显示「出发!」——让你知道程序开始跑了'],
       [`car.forward(speed=60)`, '让车以 60% 油门向前开(满油门是 100,教室里限速)'],
@@ -149,7 +149,7 @@ const TASKS = {
     params: {cm: 30},
     parse: txt => { const m = txt.match(/(\d+)\s*(厘米|cm)/i); return m ? {cm: Math.min(80, Math.max(10, parseInt(m[1])))} : {}; },
     code: s => [
-      ['from crayxus import car, lidar, console', '这次多拿一个工具:lidar(激光雷达)——车的「测距尺」'],
+      ['from zeda import car, lidar, console', '这次多拿一个工具:lidar(激光雷达)——车的「测距尺」'],
       ['', ''],
       ['car.forward(speed=40)', '慢速前进(40% 油门),因为前面有障碍物'],
       ['while car.is_moving():', '只要车还在动,就一直重复下面的检查(循环)'],
