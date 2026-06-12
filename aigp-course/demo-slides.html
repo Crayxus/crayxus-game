@@ -22,17 +22,25 @@
       radial-gradient(800px 700px at 80% 100%, rgba(25,227,255,.16), transparent 55%),
       linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2))}
   .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .slide{display:none;position:absolute;inset:0;padding:6vh 8vw;flex-direction:column;justify-content:center}
+  .slide{display:none;position:absolute;inset:0;padding:9vh 8vw 10vh;flex-direction:column;justify-content:flex-start}
   .slide.active{display:flex}
-  .kicker{letter-spacing:.4em;font-size:15px;color:var(--cyan);font-weight:800;margin-bottom:18px}
+  .slide.center{justify-content:center}
+  .brand{position:fixed;top:20px;right:28px;font-size:13px;letter-spacing:.2em;font-weight:800;color:var(--dim);z-index:9}
+  .brand b{color:var(--gold)}
+  .kicker{letter-spacing:.3em;font-size:14px;color:var(--cyan);font-weight:800;margin-bottom:12px}
   .kicker.gold{color:var(--gold)} .kicker.pinkc{color:var(--pink)} .kicker.purp{color:var(--purple)} .kicker.grn{color:var(--green)}
-  h1{font-size:54px;line-height:1.22;font-weight:900;margin-bottom:18px}
-  h2{font-size:42px;line-height:1.25;font-weight:900;margin-bottom:14px}
-  .big{font-size:25px;color:var(--dim);line-height:1.6;max-width:980px}
+  h1{font-size:52px;line-height:1.22;font-weight:900;margin-bottom:18px}
+  h2{font-size:38px;line-height:1.25;font-weight:900;position:relative;padding-bottom:16px;margin-bottom:26px}
+  h2::after{content:"";position:absolute;left:0;bottom:0;width:110px;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--pink))}
+  .big{font-size:23px;color:var(--dim);line-height:1.6;max-width:1040px}
   .big b{color:#fff}
-  ul.pts{margin-top:24px;padding-left:0;list-style:none;max-width:1000px}
-  ul.pts li{font-size:24px;color:var(--dim);margin:14px 0;padding-left:38px;position:relative;line-height:1.5}
-  ul.pts li::before{content:"▸";position:absolute;left:0;color:var(--pink);font-weight:900}
+  ul.pts{margin-top:6px;padding-left:0;list-style:none;max-width:1060px;counter-reset:pt}
+  ul.pts li{counter-increment:pt;font-size:21px;color:var(--dim);margin:12px 0;padding:14px 20px 14px 80px;position:relative;line-height:1.5;
+    background:var(--glass);border:1px solid var(--line);border-radius:14px}
+  ul.pts li::before{content:counter(pt,decimal-leading-zero);position:absolute;left:16px;top:50%;transform:translateY(-50%);
+    width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:900;font-variant-numeric:tabular-nums;
+    color:#0a0618;background:linear-gradient(135deg,var(--cyan),var(--purple))}
   ul.pts li b{color:#fff}
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:30px}
   .cards.g2{grid-template-columns:1fr 1fr;max-width:1000px}
@@ -105,7 +113,8 @@
   .gradnum{background:linear-gradient(92deg,#ffe9b0,var(--gold) 55%,#ff9a4d);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
   .st .v{font-size:42px;font-weight:900;background:linear-gradient(92deg,#ffe9b0,var(--gold) 55%,#ff9a4d);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;letter-spacing:.01em}
   .st p{font-size:15.5px;color:var(--dim);margin-top:6px}
-  .split{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;max-width:1320px}
+  .split{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start;max-width:1320px}
+  .split .shot{margin-top:8px}
   .shot{width:100%;max-height:64vh;object-fit:contain;border-radius:18px;border:1px solid var(--line);box-shadow:0 18px 60px rgba(0,0,0,.45)}
   .shot.lt{background:#fff;padding:8px}
   .cap{font-size:14px;color:var(--dim);margin-top:10px;text-align:center}
@@ -115,9 +124,12 @@
   .arr{align-self:center;color:var(--pink);font-size:26px;font-weight:900}
   @media(max-width:900px){
     .slide{padding:6vh 6vw 10vh;justify-content:flex-start;overflow-y:auto}
-    h1{font-size:29px;margin-bottom:12px} h2{font-size:23px;margin-bottom:10px}
+    h1{font-size:29px;margin-bottom:12px} h2{font-size:23px;margin-bottom:16px;padding-bottom:10px}
+    h2::after{width:64px;height:3px}
     .kicker{font-size:12px;letter-spacing:.28em;margin-bottom:12px}
-    .big{font-size:16px} ul.pts li{font-size:15px;margin:9px 0;padding-left:28px}
+    .brand{display:none}
+    .big{font-size:16px} ul.pts li{font-size:14.5px;margin:9px 0;padding:10px 12px 10px 52px}
+    ul.pts li::before{width:30px;height:30px;font-size:13px;left:10px;border-radius:8px}
     .cards,.ev{grid-template-columns:1fr;gap:10px} .c,.e{padding:16px}
     .c h3{font-size:19px} .e .r{font-size:30px}
     .stats{gap:10px} .st{min-width:calc(50% - 10px);padding:14px 10px} .st .v{font-size:28px} .st p{font-size:12.5px}
@@ -138,11 +150,12 @@
 </style>
 </head>
 <body>
+<div class="brand">择大<b>·AI·GP</b></div>
 
 <!-- ═══ 开场(P1–7) ═══ -->
 
 <!-- 1 封面 -->
-<section class="slide active">
+<section class="slide center active">
   <img class="cover-img" src="https://crayxus-game.onrender.com/aigp-course/share-demo.jpg" onerror="this.onerror=null;this.src='share-demo.jpg'" alt="择大·AI·GP DEMO 课件">
   <div class="kicker">择大·AI·GP　|　ONE-HOUR PANORAMA</div>
   <h1>一年,亲手造出<br><span class="neon">击败人类的 AI 赛车</span></h1>
@@ -172,7 +185,7 @@
 <!-- ═══ 前半场 · T1 真课体验 ═══ -->
 
 <!-- L0 真课转场 -->
-<section class="slide">
+<section class="slide center">
   <div class="kicker">PART 1 · LIVE LESSON</div>
   <h1>T1 · 第一课<br><span class="neon">感知:让 AI 看见赛道</span></h1>
   <p class="big">与正式课堂同一结构:<b>原理 → 动手 → 复盘</b>。本节内容对应 T1 课表第 1、3–4、6–8 周。</p>
@@ -207,9 +220,9 @@
   <div class="split" style="margin-top:14px">
     <div>
       <ul class="pts" style="margin-top:0">
-        <li>🎥 <b>① 画面</b>:车眼中的世界</li>
-        <li>🔵 <b>② 认边</b>:滑块抠出边线</li>
-        <li>🛣️ <b>③ 路线</b>:蓝带 = AI 的判断</li>
+        <li>🎥 <b>画面</b>:车眼中的世界</li>
+        <li>🔵 <b>认边</b>:滑块抠出边线</li>
+        <li>🛣️ <b>路线</b>:蓝带 = AI 的判断</li>
         <li>🔥 <b>进阶挑战</b>:变光照 / 加遮挡,保持锁定</li>
       </ul>
       <a class="demo-tag" href="lane-follow.html" target="_blank" style="margin-top:20px">▶ 实操 · 感知调参台</a>
@@ -266,10 +279,10 @@
     </div>
     <div>
       <ul class="pts" style="margin-top:0">
-        <li><b>① 说清</b>需求</li>
-        <li><b>② 生成</b>代码</li>
-        <li><b>③ 读懂</b>每一行</li>
-        <li><b>④ 验证</b>:28cm,停住</li>
+        <li><b>说清</b>需求</li>
+        <li><b>生成</b>代码</li>
+        <li><b>读懂</b>每一行</li>
+        <li><b>验证</b>:28cm,停住</li>
       </ul>
       <p class="big" style="margin-top:16px;font-size:21px">需求 → 代码 → 行为,<b>全链自主</b>。</p>
       <a class="demo-tag" href="vibe-coding.html" target="_blank" style="margin-top:18px;font-size:17px">▶ 实操 · Vibe Coding 任务台</a>
@@ -284,9 +297,9 @@
   <div class="split" style="margin-top:14px">
     <div>
       <ul class="pts" style="margin-top:0">
-        <li><b>① 需求</b>:"夹住 10mm 电机筒,顶面是平的"</li>
-        <li><b>② AI 生成</b> OpenSCAD 实体代码,实时渲染</li>
-        <li><b>③ 打印装车</b>——打印实物现场传阅</li>
+        <li><b>需求</b>:"夹住 10mm 电机筒,顶面是平的"</li>
+        <li><b>AI 生成</b> OpenSCAD 实体代码,实时渲染</li>
+        <li><b>打印装车</b>——打印实物现场传阅</li>
       </ul>
       <p class="big" style="margin-top:18px">与 Fusion 360 手工建模互补:<b>手工精修 × 语言生成</b>。</p>
       <a class="demo-tag" href="vibe-coding.html" target="_blank" style="margin-top:18px;font-size:17px">▶ 实操 · 语言建模 → OpenSCAD 渲染</a>
@@ -323,7 +336,7 @@
 </section>
 
 <!-- L8 下半场转场 -->
-<section class="slide">
+<section class="slide center">
   <div class="kicker pinkc">PART 2 · ROADMAP</div>
   <h1>全年培养路线:<br>四个阶段,<span class="neon">直至人机对决</span></h1>
   <p class="big" style="margin-top:10px">PART 1 实操内容为 T1 第 1–8 周常规课堂。以下为完整路线:技术流程 · 能力阶梯 · 成果体系。</p>
@@ -836,7 +849,7 @@
 </section>
 
 <!-- 30 收尾 -->
-<section class="slide">
+<section class="slide center">
   <div class="kicker">NEXT</div>
   <h1>LESSON 01 已完成<br><span class="neon">LESSON 02 · 下周开课</span></h1>
   <p class="big" style="margin-top:10px">课程衔接点已写入科研日志 LOG #001:<b>「下次我想试」</b>。</p>
