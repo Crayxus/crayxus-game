@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>CRAYXUS AI·GP — 科研日志卡(打印版)</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;background:#555;padding:20px;color:#1a1430}
+  .toolbar{max-width:210mm;margin:0 auto 14px;display:flex;gap:10px;align-items:center}
+  .toolbar button{padding:10px 26px;border:none;border-radius:10px;background:#8b3bff;color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+  .toolbar p{color:#ddd;font-size:13px}
+  .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;padding:10mm;display:flex;flex-direction:column;gap:6mm}
+  .card{flex:1;border:2.5px solid #1a1430;border-radius:14px;padding:8mm;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .card::after{content:"";position:absolute;right:-30mm;top:-30mm;width:60mm;height:60mm;border-radius:50%;
+    background:radial-gradient(circle, rgba(139,59,255,.12), transparent 70%)}
+  .hd{display:flex;align-items:baseline;gap:10px;border-bottom:2px solid #1a1430;padding-bottom:4mm;margin-bottom:5mm}
+  .hd .logo{font-size:17px;font-weight:900;letter-spacing:.04em}
+  .hd .logo span{color:#8b3bff}
+  .hd .t{font-size:21px;font-weight:900;margin-left:4px}
+  .hd .no{margin-left:auto;font-size:14px;font-weight:800;color:#8b3bff;white-space:nowrap}
+  .meta{display:flex;gap:14px;font-size:14px;margin-bottom:5mm}
+  .meta .f{flex:1;display:flex;align-items:baseline;gap:6px}
+  .meta .f b{white-space:nowrap}
+  .wl{flex:1;border-bottom:1.5px solid #999;min-height:7mm}
+  .sec{margin-bottom:4mm}
+  .sec h3{font-size:14.5px;font-weight:900;margin-bottom:2.5mm}
+  .sec h3 .n{display:inline-block;width:6.5mm;height:6.5mm;border-radius:50%;background:#1a1430;color:#fff;text-align:center;line-height:6.5mm;font-size:12px;margin-right:2mm}
+  .row{display:flex;gap:10px;align-items:baseline;font-size:13.5px;margin:2.5mm 0;flex-wrap:wrap}
+  .blank{display:inline-block;border-bottom:1.5px solid #999;min-width:17mm;height:6.5mm;vertical-align:bottom}
+  .blank.w{min-width:42mm}
+  .chky{display:inline-flex;align-items:center;gap:4px;margin-right:8px}
+  .box{width:4.5mm;height:4.5mm;border:1.8px solid #1a1430;border-radius:2px;display:inline-block}
+  .bigblank{border:1.5px dashed #999;border-radius:8px;min-height:16mm;margin-top:2mm;padding:2mm;font-size:12px;color:#bbb}
+  .bigblank.gold{border-color:#c89b2c;background:rgba(255,207,92,.08)}
+  .ft{margin-top:auto;display:flex;align-items:center;gap:12px;border-top:1.5px solid #ccc;padding-top:3.5mm;font-size:12.5px;color:#555}
+  .ft .lv{margin-left:auto;display:flex;gap:4px;align-items:center;font-weight:800;color:#1a1430}
+  .dot{width:4mm;height:4mm;border-radius:50%;border:1.6px solid #1a1430;display:inline-block}
+  .dot.fill{background:#8b3bff;border-color:#8b3bff}
+  .hint{font-size:11.5px;color:#888;margin-top:1mm}
+  @media print{
+    body{background:#fff;padding:0}
+    .toolbar{display:none}
+    .page{margin:0;padding:8mm}
+    @page{size:A4 portrait;margin:0}
+  }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button onclick="print()">🖨 打印(A4 一页两张)</button>
+  <p>黑白打印即可 · 裁成两张 A5 · 多打一张备用</p>
+</div>
+
+<div class="page">
+  <!-- 同一张卡 ×2 -->
+  <div class="card" id="c1">
+    <div class="hd">
+      <div class="logo">CRAYXUS <span>AI·GP</span></div>
+      <div class="t">科研日志</div>
+      <div class="no">LOG #001 · T1 第一课</div>
+    </div>
+    <div class="meta">
+      <div class="f"><b>车手:</b><span class="wl"></span></div>
+      <div class="f"><b>日期:</b><span class="wl"></span></div>
+      <div class="f"><b>课题:</b>调出 AI 的眼睛(感知调参)</div>
+    </div>
+
+    <div class="sec">
+      <h3><span class="n">1</span>今天我做了什么 — 我调出的参数</h3>
+      <div class="row">
+        色相 H = <span class="blank"></span>
+        色相容差 ± <span class="blank"></span>
+        饱和度下限 = <span class="blank"></span>
+        视野裁剪 = <span class="blank"></span> %
+      </div>
+      <div class="row">第一次锁定边线,我大概用了 <span class="blank"></span> 分钟</div>
+    </div>
+
+    <div class="sec">
+      <h3><span class="n">2</span>第二关(换光 / 遮挡)之后,结果如何?</h3>
+      <div class="row">
+        <span class="chky"><span class="box"></span> 边线还锁着</span>
+        <span class="chky"><span class="box"></span> 边线丢了,重调后找回</span>
+        <span class="chky"><span class="box"></span> 没找回(也是有效实验!)</span>
+      </div>
+      <div class="row" style="margin-top:1mm">我认为原因是:<span class="blank w" style="flex:1"></span></div>
+    </div>
+
+    <div class="sec" style="margin-bottom:0">
+      <h3><span class="n">3</span>下次我想试…… <span style="font-weight:400;font-size:12px;color:#888">(写下来,下节课从这里开始)</span></h3>
+      <div class="bigblank gold">&nbsp;</div>
+      <p class="hint">提示:换个颜色的边线?摄像头装到车上会怎样?让 AI 写一段更聪明的代码?</p>
+    </div>
+
+    <div class="ft">
+      做了什么 · 为什么 · 下次怎么改 —— 40 周写满,就是你的研究报告
+      <span class="lv">L0 <span class="dot fill"></span><span class="dot"></span><span class="dot"></span> L1</span>
+    </div>
+  </div>
+
+  <div class="card" id="c2"></div>
+</div>
+
+<script>
+document.getElementById('c2').innerHTML = document.getElementById('c1').innerHTML;
+</script>
+</body>
+</html>

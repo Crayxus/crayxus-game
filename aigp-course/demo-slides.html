@@ -46,6 +46,8 @@
   .c.hot{border-color:rgba(255,207,92,.5);background:rgba(255,207,92,.07)}
   .demo-tag{display:inline-block;margin-top:28px;font-size:21px;font-weight:800;color:var(--gold);
     border:2px solid rgba(255,207,92,.55);border-radius:40px;padding:12px 28px;background:rgba(255,207,92,.08)}
+  a.demo-tag{text-decoration:none;cursor:pointer}
+  a.demo-tag:hover{background:rgba(255,207,92,.18);box-shadow:0 0 24px rgba(255,207,92,.25)}
   .out{margin-top:24px;font-size:23px;color:var(--green);font-weight:700;line-height:1.5}
   .out b{color:#fff}
   .badge-row{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
@@ -185,7 +187,7 @@
 <section class="slide">
   <div class="split">
     <div>
-      <div class="kicker">LESSON · 原理 ①</div>
+      <div class="kicker">LESSON · 原理　|　T1 · W1 课堂内容</div>
       <h2>自动驾驶 = <span class="neon">眼睛 + 大脑</span></h2>
       <ul class="pts">
         <li>📷 <b>眼睛</b>:车头摄像头,看见赛道边线</li>
@@ -200,7 +202,7 @@
 
 <!-- L2 动手① 感知调参 -->
 <section class="slide">
-  <div class="kicker">LESSON · 动手 ②</div>
+  <div class="kicker">LESSON · 动手　|　T1 · W3–4 感知调参</div>
   <h2>调出 AI 的眼睛——<span class="neon">现在你来</span></h2>
   <div class="split" style="margin-top:14px">
     <div>
@@ -210,7 +212,7 @@
         <li>🛣️ <b>③ 路线</b>:蓝带 = AI 的判断</li>
         <li>🔥 <b>第二关</b>:换灯光 / 加遮挡,仍要锁边</li>
       </ul>
-      <span class="demo-tag" style="margin-top:20px">🖐 上手:拖滑块,把蓝边框准</span>
+      <a class="demo-tag" href="lane-follow.html" target="_blank" style="margin-top:20px">🖐 打开调参台:拖滑块,把蓝边框准</a>
     </div>
     <div class="mock">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">感知调参台 · 学生界面</span></div>
@@ -237,7 +239,7 @@
 
 <!-- L3 动手② vibe coding 是什么 -->
 <section class="slide">
-  <div class="kicker gold">LESSON · 动手 ③</div>
+  <div class="kicker gold">LESSON · 动手　|　T1 · W5 提示词与 Vibe Coding</div>
   <h2>Vibe Coding:<span class="neon">用说话的方式编程</span></h2>
   <ul class="pts">
     <li><b>定义</b>:人话说需求 → AI 生成代码 → 人负责想清楚、看懂、验证</li>
@@ -249,8 +251,8 @@
 
 <!-- L4 动手② vibe coding 实例 -->
 <section class="slide">
-  <div class="kicker gold">LESSON · 动手 ④ · 真实课堂任务</div>
-  <h2>一句话 → 代码 → <span class="neon">车真的停了</span></h2>
+  <div class="kicker gold">LESSON · 动手　|　T1 · W6–8 课堂原题</div>
+  <h2>一句话 → 代码 → <span class="neon">车真的动了</span></h2>
   <div class="split" style="grid-template-columns:1.15fr .85fr;margin-top:14px">
     <div class="mock">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">AI 编程助手 · 第 8 周课堂任务</span></div>
@@ -270,13 +272,14 @@
         <li><b>④ 验证</b>:28cm,停住</li>
       </ul>
       <p class="big" style="margin-top:16px;font-size:21px">需求 → 代码 → 行为,<b>全链自主</b>。</p>
+      <a class="demo-tag" href="vibe-coding.html" target="_blank" style="margin-top:18px;font-size:17px">🖐 打开任务台:他来说,AI 来写</a>
     </div>
   </div>
 </section>
 
 <!-- L5 动手② vibe coding × 3D 打印 -->
 <section class="slide">
-  <div class="kicker gold">LESSON · 动手 ⑤ · VIBE CODING × 3D 打印</div>
+  <div class="kicker gold">LESSON · 延伸　|　Vibe Coding × 3D 打印(车壳改装预告)</div>
   <h2>不只是代码:<span class="neon">说一句话,长出一个零件</span></h2>
   <div class="split" style="margin-top:14px">
     <div>
@@ -286,6 +289,7 @@
         <li><b>③ 打印装车</b>——实物就在现场,传给你看</li>
       </ul>
       <p class="big" style="margin-top:18px">会 Fusion 360?两种建模叠加:<b>手工精修 × 语言生成</b>。</p>
+      <a class="demo-tag" href="vibe-coding.html" target="_blank" style="margin-top:18px;font-size:17px">🖐 任务台「说一句话长出零件」→ 复制进 OpenSCAD 渲染</a>
     </div>
     <div><img class="shot" src="img/v3_assembly.png" alt="AI 生成的电机抱箍"><div class="cap">这台车的电机抱箍——由对话生成、打印、装车</div></div>
   </div>
@@ -293,7 +297,7 @@
 
 <!-- L6 复盘 · 科研日志 -->
 <section class="slide">
-  <div class="kicker grn">LESSON · 复盘</div>
+  <div class="kicker grn">LESSON · 复盘　|　T1 · W1 起每课必做</div>
   <h2>最后一步:写下<span class="neon">你的第一条科研日志</span></h2>
   <div class="code" style="color:var(--ink);font-family:inherit;font-size:18px;margin-top:24px">
     <span class="cm">2026-06-13 · 日志 #1(现场写)</span><br>
@@ -539,7 +543,7 @@
         <li>停滞 → 诊断:<b>数据量?质量?过拟合?</b></li>
         <li><b>AI 工程师的日常核心读物</b></li>
       </ul>
-      <span class="demo-tag" style="margin-top:20px">🖐 现场试一下:采数据 → 一键训练</span>
+      <a class="demo-tag" href="training-console.html" target="_blank" style="margin-top:20px">🖐 打开训练台(T2 预览):采数据 → 一键训练</a>
     </div>
     <div class="mock">
       <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="ttl">训练控制台 · my_driver_v3</span></div>

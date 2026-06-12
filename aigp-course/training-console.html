@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAYXUS AI·GP — 训练控制台 · T2 阶段预览</title>
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c; --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.12); --glass:rgba(255,255,255,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(139,59,255,.35), transparent 60%),
+      radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.22), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    padding:20px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .wrap{max-width:1180px;margin:0 auto}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  h1{font-size:24px;font-weight:900}
+  .badge{font-size:12.5px;padding:6px 14px;border-radius:30px;background:var(--glass);border:1px solid var(--line);color:var(--dim);font-weight:700}
+  .badge.warn{border-color:rgba(139,59,255,.55);color:#c9a8ff;background:rgba(139,59,255,.1)}
+  .flow{display:flex;gap:8px;margin-bottom:14px}
+  .ftab{flex:1;text-align:center;padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--glass);color:var(--dim);font-size:15px;font-weight:800;cursor:pointer;transition:.25s}
+  .ftab.on{border-color:rgba(139,59,255,.6);color:#c9a8ff;background:rgba(139,59,255,.1)}
+  .ftab.done{border-color:rgba(60,226,154,.45);color:var(--green)}
+  .grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;align-items:start}
+  .panel{border-radius:16px;background:var(--glass);border:1px solid var(--line);padding:16px}
+  canvas{width:100%;border-radius:12px;background:#0a0f1e;border:1px solid var(--line);display:block}
+  .ptit{font-size:12px;letter-spacing:.22em;font-weight:800;color:#c9a8ff;margin-bottom:12px}
+  .bigbtn{width:100%;margin-top:12px;padding:13px;border-radius:12px;border:none;font-size:16px;font-weight:900;cursor:pointer;
+    background:linear-gradient(92deg,var(--purple),var(--pink));color:#fff;letter-spacing:.08em}
+  .bigbtn.alt{background:none;border:1px solid var(--line);color:var(--dim);font-weight:700;font-size:14px}
+  .bigbtn:disabled{opacity:.4;cursor:not-allowed}
+  .stats{display:flex;gap:10px;margin-top:12px}
+  .st{flex:1;padding:12px;border-radius:12px;background:rgba(0,0,0,.3);border:1px solid var(--line);text-align:center}
+  .st .v{font-size:26px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}
+  .st p{font-size:12px;color:var(--dim);margin-top:3px}
+  .term{font-family:Consolas,Menlo,monospace;font-size:12.5px;color:var(--green);background:#04140c;border:1px solid var(--line);border-radius:10px;padding:10px 13px;line-height:1.65;margin-top:12px;height:150px;overflow-y:auto}
+  .term b{color:#fff}
+  .keys{font-size:13px;color:var(--dim);margin-top:10px;text-align:center}
+  .keys b{color:var(--cyan);border:1px solid var(--line);border-radius:6px;padding:1px 9px;margin:0 2px}
+  @media(max-width:920px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>训练控制台 · <span class="neon">my_driver_v1</span></h1>
+    <span class="badge warn">T2 · 第 4–6 月 阶段预览 — 第二阶段学员的日常界面</span>
+  </header>
+
+  <div class="flow">
+    <div class="ftab on" id="f0" onclick="goPhase(0)">① 开车采数据</div>
+    <div class="ftab" id="f1" onclick="goPhase(1)">② 一键训练</div>
+    <div class="ftab" id="f2" onclick="goPhase(2)">③ 回放:AI 在开</div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <canvas id="cv" width="760" height="420"></canvas>
+      <div class="keys" id="keys">按住 <b>←</b> <b>→</b> 开车 — 你开的每一帧「画面 + 方向」都被记下来,这就是 AI 的教材</div>
+    </div>
+    <div class="panel">
+      <div class="ptit" id="sideTit">数据采集</div>
+      <div class="stats">
+        <div class="st"><div class="v" id="n1">0</div><p>样本(画面→方向)</p></div>
+        <div class="st"><div class="v" id="n2">--</div><p id="n2l">当前方向</p></div>
+      </div>
+      <button class="bigbtn" id="actBtn" onclick="action()">▶ 开始采集</button>
+      <button class="bigbtn alt" id="preBtn" onclick="preload()">⚡ 直接载入预录数据集(1,248 条)</button>
+      <div class="term" id="term">▶ T2 流程:开车示范 → 整理数据 → 训练 → 部署上车<br>▶ 等待操作…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+let phase = 0, running = false, samples = 0, anim = null;
+let steer = 0, keyL = false, keyR = false;
+let roadT = 0, lossPts = [];
+
+addEventListener('keydown', e => { if(e.key==='ArrowLeft')keyL=true; if(e.key==='ArrowRight')keyR=true; });
+addEventListener('keyup',   e => { if(e.key==='ArrowLeft')keyL=false; if(e.key==='ArrowRight')keyR=false; });
+
+function log(m){ const t=$('term'); t.innerHTML+='<br>'+m; t.scrollTop=1e6; }
+
+// ---------- 第一人称赛道(采集 & 回放共用) ----------
+// 弯道曲率随时间变化;steer 是当前方向(-1..1)
+function roadCurve(t){ return Math.sin(t*0.0006)*0.9 + Math.sin(t*0.00023)*0.5; }
+function drawRoad(t, steerV, label) {
+  ctx.fillStyle = '#0a0f1e'; ctx.fillRect(0,0,760,420);
+  // 天空微光
+  const g = ctx.createLinearGradient(0,0,0,180);
+  g.addColorStop(0,'rgba(139,59,255,.12)'); g.addColorStop(1,'transparent');
+  ctx.fillStyle = g; ctx.fillRect(0,0,760,180);
+  const horizon = 150, cx = 380;
+  const curve = roadCurve(t);
+  // 路面:分段画梯形条,产生透视弯道
+  for (let i=0;i<26;i++) {
+    const p0 = i/26, p1 = (i+1)/26;                     // 0=远 1=近
+    const y0 = horizon + p0*p0*(420-horizon), y1 = horizon + p1*p1*(420-horizon);
+    const off0 = curve*(1-p0)*(1-p0)*240, off1 = curve*(1-p1)*(1-p1)*240;
+    const w0 = 30+p0*330, w1 = 30+p1*330;
+    ctx.fillStyle = i%2 ? '#1c2238' : '#202741';
+    ctx.beginPath();
+    ctx.moveTo(cx+off0-w0,y0); ctx.lineTo(cx+off0+w0,y0);
+    ctx.lineTo(cx+off1+w1,y1); ctx.lineTo(cx+off1-w1,y1);
+    ctx.closePath(); ctx.fill();
+    // 蓝边线
+    ctx.fillStyle = '#1979e6';
+    ctx.fillRect(cx+off0-w0-4, y0, 5, y1-y0+1);
+    ctx.fillRect(cx+off0+w0,   y0, 5, y1-y0+1);
+  }
+  // 车头盖
+  ctx.fillStyle = '#0d0a22';
+  ctx.beginPath(); ctx.moveTo(120,420); ctx.quadraticCurveTo(380,330,640,420); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(25,227,255,.4)'; ctx.stroke();
+  // 方向指示(底部)
+  ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(280,378,200,30);
+  ctx.fillStyle = '#19e3ff';
+  const sx = 380 + steerV*80;
+  ctx.beginPath(); ctx.moveTo(sx,382); ctx.lineTo(sx-12,404); ctx.lineTo(sx+12,404); ctx.closePath(); ctx.fill();
+  if (label) {
+    ctx.fillStyle = label.color; ctx.font = '900 17px "Microsoft YaHei"';
+    ctx.fillText(label.text, 20, 36);
+  }
+}
+
+// ---------- 阶段切换 ----------
+function goPhase(p) {
+  if (anim) cancelAnimationFrame(anim); anim = null; running = false;
+  phase = p;
+  for (let i=0;i<3;i++) $('f'+i).className = 'ftab' + (i===p?' on':(i<p?' done':''));
+  if (p===0) { $('sideTit').textContent='数据采集'; $('actBtn').textContent='▶ 开始采集'; $('actBtn').disabled=false;
+    $('preBtn').style.display='block'; $('keys').style.visibility='visible';
+    $('n2').textContent='--'; $('n2l').textContent='当前方向'; drawRoad(0,0); }
+  if (p===1) { $('sideTit').textContent='训练 my_driver_v1'; $('actBtn').textContent='🧠 开始训练'; $('actBtn').disabled = samples<200;
+    $('preBtn').style.display='none'; $('keys').style.visibility='hidden';
+    $('n2').textContent='0/30'; $('n2l').textContent='Epoch'; drawLossAxes();
+    if (samples<200) log('⚠ 样本不足 200,先回第①步采数据(或载入预录)'); }
+  if (p===2) { $('sideTit').textContent='部署回放'; $('actBtn').textContent='🚗 AI 接管,开!'; $('actBtn').disabled = lossPts.length<30;
+    $('preBtn').style.display='none'; $('keys').style.visibility='hidden';
+    $('n2').textContent='AI'; $('n2l').textContent='驾驶者'; drawRoad(0,0,{text:'模型 my_driver_v1 已装载', color:'#3ce29a'});
+    if (lossPts.length<30) log('⚠ 还没训练,先完成第②步'); }
+}
+
+function action(){ if (phase===0) collect(); else if (phase===1) train(); else replay(); }
+
+// ---------- ① 采集 ----------
+function collect() {
+  if (running) { running=false; $('actBtn').textContent='▶ 继续采集'; log('▶ 暂停。已采 <b>'+samples+'</b> 条'); return; }
+  running = true; $('actBtn').textContent='⏸ 暂停';
+  log('▶ 采集中——按住 ← → 沿蓝边开,开得越好,教材越好');
+  let t = roadT;
+  const loop = () => {
+    if (!running || phase!==0) return;
+    t += 16; roadT = t;
+    // 学生控制
+    steer += ((keyL?-1:0)+(keyR?1:0) - steer*0.7)*0.12;
+    steer = Math.max(-1, Math.min(1, steer));
+    drawRoad(t, steer, {text:'● REC 采集中', color:'#ff5d73'});
+    samples++;
+    $('n1').textContent = samples.toLocaleString();
+    $('n2').textContent = steer<-0.25?'←':steer>0.25?'→':'↑';
+    anim = requestAnimationFrame(loop);
+  };
+  anim = requestAnimationFrame(loop);
+}
+function preload() {
+  samples = 1248; $('n1').textContent = '1,248';
+  log('⚡ 已载入预录数据集 <b>1,248 条</b>(上周课堂采的)→ 直接去第②步');
+}
+
+// ---------- ② 训练 ----------
+function drawLossAxes() {
+  ctx.fillStyle = '#0a0f1e'; ctx.fillRect(0,0,760,420);
+  ctx.strokeStyle = 'rgba(255,255,255,.18)';
+  ctx.beginPath(); ctx.moveTo(60,30); ctx.lineTo(60,370); ctx.lineTo(720,370); ctx.stroke();
+  ctx.fillStyle = '#a9a3cf'; ctx.font = '13px Consolas';
+  ctx.fillText('loss', 18, 40); ctx.fillText('epoch →', 650, 392);
+  ctx.fillText('AI 预测的方向 和 你开的方向 差多少 —— 越低越聪明', 200, 30);
+}
+function train() {
+  if (running) return;
+  running = true; $('actBtn').disabled = true;
+  lossPts = [];
+  drawLossAxes();
+  log('▶ 训练开始:'+samples.toLocaleString()+' 条样本 · 小型 CNN · 30 epoch');
+  let ep = 0;
+  const tick = setInterval(() => {
+    ep++;
+    const loss = 2.3*Math.exp(-ep*0.16) + 0.07 + (Math.random()-0.5)*0.05/ep;
+    lossPts.push(loss);
+    $('n2').textContent = ep+'/30';
+    // 画曲线
+    ctx.strokeStyle = '#19e3ff'; ctx.lineWidth = 3; ctx.lineCap='round';
+    ctx.shadowColor='#19e3ff'; ctx.shadowBlur=10;
+    ctx.beginPath();
+    lossPts.forEach((l,i)=>{ const x=60+(i+1)*(660/30), y=370-(l/2.4)*330; i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.stroke(); ctx.shadowBlur=0;
+    if (ep%6===0) log('▶ epoch '+ep+'  loss=<b>'+loss.toFixed(3)+'</b> ↓');
+    if (ep>=30) {
+      clearInterval(tick); running=false;
+      log('✓ 训练完成 loss=<b>'+loss.toFixed(3)+'</b> → 模型已打包 <b>my_driver_v1</b>');
+      log('▶ 去第③步:让它开车!');
+      $('f1').classList.add('done');
+      $('actBtn').disabled = false; $('actBtn').textContent='✓ 已完成 → 去③';
+    }
+  }, 260);
+}
+
+// ---------- ③ 回放 ----------
+function replay() {
+  if (running) { running=false; $('actBtn').textContent='🚗 AI 接管,开!'; return; }
+  running = true; $('actBtn').textContent='⏸ 停';
+  log('▶ <b>AI 正在开</b>——注意底部箭头:这是模型自己算的方向,不是人在按键');
+  let t = roadT;
+  const loop = () => {
+    if (!running || phase!==2) return;
+    t += 16;
+    // AI 方向 = 模型"预测":跟随弯道曲率(带一点噪声,显得真实)
+    const target = roadCurve(t+600)*0.9;
+    steer += (target - steer)*0.08 + (Math.random()-0.5)*0.015;
+    drawRoad(t, steer, {text:'🧠 AI DRIVING · my_driver_v1', color:'#3ce29a'});
+    // 预测条
+    ctx.fillStyle='rgba(60,226,154,.9)'; ctx.font='13px Consolas';
+    ctx.fillText('steer_pred = '+steer.toFixed(2), 20, 60);
+    anim = requestAnimationFrame(loop);
+  };
+  anim = requestAnimationFrame(loop);
+}
+
+drawRoad(0,0);
+</script>
+</body>
+</html>

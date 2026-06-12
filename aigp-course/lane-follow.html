@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAYXUS AI·GP — 感知调参台 · 学生界面</title>
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c; --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.12); --glass:rgba(255,255,255,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(139,59,255,.35), transparent 60%),
+      radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.22), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    padding:20px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .wrap{max-width:1280px;margin:0 auto}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  h1{font-size:24px;font-weight:900}
+  .badge{font-size:13px;padding:7px 16px;border-radius:30px;background:var(--glass);border:1px solid var(--line);color:var(--dim);font-weight:700}
+  .badge.lock{border-color:rgba(60,226,154,.6);color:var(--green);background:rgba(60,226,154,.08)}
+  .badge.unlock{border-color:rgba(255,93,115,.5);color:var(--red);background:rgba(255,93,115,.06)}
+  .badge.fps{margin-left:auto;font-variant-numeric:tabular-nums}
+  .grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+  .panel{border-radius:16px;background:var(--glass);border:1px solid var(--line);padding:16px}
+  .viewbox{position:relative;border-radius:12px;overflow:hidden;background:#0a0f1e;border:1px solid var(--line)}
+  canvas#view{width:100%;display:block}
+  .hud{position:absolute;top:10px;left:12px;font-family:Consolas,Menlo,monospace;font-size:13px;color:var(--green);text-shadow:0 0 8px rgba(0,0,0,.9)}
+  .hud.bad{color:var(--red)}
+  .hud2{position:absolute;top:10px;right:12px;font-family:Consolas,Menlo,monospace;font-size:12px;color:var(--dim);text-shadow:0 0 8px rgba(0,0,0,.9)}
+  .decide{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,.3);border:1px solid var(--line)}
+  .arrow{font-size:26px;font-weight:900;color:rgba(255,255,255,.18);width:54px;text-align:center;transition:.15s}
+  .arrow.on{color:var(--gold);text-shadow:0 0 16px var(--gold)}
+  .decide .label{font-size:13px;color:var(--dim);margin-right:8px}
+  .decide .val{font-family:Consolas,Menlo,monospace;font-size:13px;color:var(--cyan);min-width:90px}
+  .ptit{font-size:12px;letter-spacing:.22em;font-weight:800;color:var(--cyan);margin-bottom:14px}
+  .sl{display:grid;grid-template-columns:110px 1fr 56px;gap:12px;align-items:center;margin:14px 0}
+  .sl label{font-size:14px;color:var(--dim)}
+  .sl input[type=range]{width:100%;accent-color:#19e3ff;height:6px}
+  .sl .vv{text-align:right;font-weight:800;color:var(--cyan);font-variant-numeric:tabular-nums;font-size:15px}
+  .modebar{display:flex;gap:8px;margin-bottom:6px}
+  .mbtn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--glass);color:var(--dim);font-size:14px;font-weight:700;cursor:pointer}
+  .mbtn.on{border-color:rgba(25,227,255,.6);color:var(--cyan);background:rgba(25,227,255,.08)}
+  .l2{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+  .l2 .ptit{color:var(--gold)}
+  .chk{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--dim);margin:12px 0;cursor:pointer}
+  .chk input{width:18px;height:18px;accent-color:#ffcf5c}
+  .tip{font-size:12.5px;color:var(--dim);line-height:1.6;margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.25)}
+  .tip b{color:var(--ink)}
+  .toast{position:fixed;left:50%;top:18%;transform:translateX(-50%) scale(.9);opacity:0;pointer-events:none;
+    font-size:30px;font-weight:900;padding:18px 42px;border-radius:20px;color:#04140c;
+    background:linear-gradient(92deg,#7dffc8,var(--green));box-shadow:0 0 60px rgba(60,226,154,.5);transition:.35s}
+  .toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>感知调参台 · <span class="neon">调出 AI 的眼睛</span></h1>
+    <span class="badge unlock" id="lockBadge">○ 未锁定</span>
+    <span class="badge fps" id="fpsBadge">-- FPS</span>
+  </header>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="viewbox">
+        <canvas id="view" width="640" height="480"></canvas>
+        <div class="hud bad" id="hud">○ 寻找边线…</div>
+        <div class="hud2" id="hud2">SYNTH</div>
+      </div>
+      <div class="decide">
+        <span class="label">AI 的判断:</span>
+        <span class="arrow" id="aL">←</span>
+        <span class="arrow" id="aC">↑</span>
+        <span class="arrow" id="aR">→</span>
+        <span class="val" id="offVal">offset --</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptit">输入源</div>
+      <div class="modebar">
+        <button class="mbtn" id="mCam">📷 真摄像头</button>
+        <button class="mbtn on" id="mSyn">🎬 合成赛道</button>
+      </div>
+
+      <div class="ptit" style="margin-top:18px">感知参数 — 你来调</div>
+      <div class="sl"><label>色相中心 H</label><input type="range" id="h0" min="0" max="360" value="210"><span class="vv" id="h0v">210</span></div>
+      <div class="sl"><label>色相容差 ±</label><input type="range" id="htol" min="4" max="80" value="28"><span class="vv" id="htolv">28</span></div>
+      <div class="sl"><label>饱和度下限</label><input type="range" id="smin" min="0" max="100" value="35"><span class="vv" id="sminv">35</span></div>
+      <div class="sl"><label>亮度下限</label><input type="range" id="vmin" min="0" max="100" value="20"><span class="vv" id="vminv">20</span></div>
+      <div class="sl"><label>视野裁剪</label><input type="range" id="crop" min="0" max="60" value="35"><span class="vv" id="cropv">35%</span></div>
+
+      <div class="l2" id="l2box">
+        <div class="ptit">🔥 第二关(合成模式)</div>
+        <div class="sl"><label>环境亮度</label><input type="range" id="amb" min="25" max="130" value="100"><span class="vv" id="ambv">100%</span></div>
+        <label class="chk"><input type="checkbox" id="occ"> 加一块遮挡(挡住右边线)</label>
+        <div class="tip"><b>玩法:</b>先在标准光线下锁边 → 把环境亮度拉暗/拉爆、打开遮挡 → 重新调参数,让「● 边线已锁定」重新亮起。<b>真课第二关用台灯和手实现同样效果。</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast">✓ 边线已锁定!</div>
+
+<script>
+// ---------- 状态 ----------
+const P = {h0:210, htol:28, smin:35, vmin:20, crop:35, amb:100, occ:false};
+let mode = 'syn';            // 'cam' | 'syn'
+let video = null, camOK = false;
+const W=160, H=120;          // 处理分辨率
+const proc = document.createElement('canvas'); proc.width=W; proc.height=H;
+const pctx = proc.getContext('2d', {willReadFrequently:true});
+const view = document.getElementById('view');
+const vctx = view.getContext('2d');
+let lockFrames = 0, locked = false, lastT = performance.now(), fpsAcc=0, fpsN=0;
+let t0 = performance.now();
+
+// ---------- 控件绑定 ----------
+for (const k of ['h0','htol','smin','vmin','crop','amb']) {
+  const el = document.getElementById(k);
+  el.addEventListener('input', () => {
+    P[k] = +el.value;
+    document.getElementById(k+'v').textContent = (k==='crop'||k==='amb') ? el.value+'%' : el.value;
+  });
+}
+document.getElementById('occ').addEventListener('change', e => P.occ = e.target.checked);
+document.getElementById('mCam').onclick = () => switchMode('cam');
+document.getElementById('mSyn').onclick = () => switchMode('syn');
+
+async function switchMode(m) {
+  if (m === 'cam' && !camOK) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({video:{width:640, height:480}});
+      video = document.createElement('video');
+      video.srcObject = stream; video.playsInline = true;
+      await video.play(); camOK = true;
+    } catch(e) { alert('摄像头不可用,继续用合成赛道。\n' + e.message); return; }
+  }
+  mode = m;
+  document.getElementById('mCam').classList.toggle('on', m==='cam');
+  document.getElementById('mSyn').classList.toggle('on', m==='syn');
+  document.getElementById('hud2').textContent = m==='cam' ? 'CAMERA' : 'SYNTH';
+  document.getElementById('l2box').style.opacity = m==='syn' ? 1 : .35;
+}
+
+// ---------- 合成赛道(画到 proc 上,跑同一套真算法) ----------
+function drawSynth(t) {
+  const g = pctx;
+  const amb = P.amb / 100;
+  const sway = Math.sin(t/1400) * 9;                 // 模拟车身轻微摆动
+  // 背景
+  g.fillStyle = `rgb(${24*amb|0},${26*amb|0},${40*amb|0})`; g.fillRect(0,0,W,H);
+  // 路面(梯形)
+  const topY = 28, vp = W/2 + sway;                  // 灭点附近
+  const tl = vp-26, tr = vp+26, bl = 8+sway*1.6, br = W-8+sway*1.6;
+  g.fillStyle = `rgb(${44*amb|0},${50*amb|0},${74*amb|0})`;
+  g.beginPath(); g.moveTo(tl,topY); g.lineTo(tr,topY); g.lineTo(br,H); g.lineTo(bl,H); g.closePath(); g.fill();
+  // 蓝边线(左右,带宽度)— HSV≈H210,S高,V中高
+  const edge = (x1,x2,w1,w2) => {
+    g.strokeStyle = `rgb(${30*amb|0},${120*amb|0},${230*amb|0})`;
+    g.lineWidth = 4;
+    g.beginPath(); g.moveTo(x1,topY); g.lineTo(x2,H); g.stroke();
+  };
+  edge(tl,bl); edge(tr,br);
+  // 中线虚线(黄,干扰项:学生若把 H 调到黄色会"认错路")
+  g.strokeStyle = `rgb(${235*amb|0},${200*amb|0},${70*amb|0})`; g.lineWidth = 2;
+  g.setLineDash([6,7]); g.beginPath(); g.moveTo(vp,topY+6); g.lineTo(W/2+sway*1.2,H); g.stroke(); g.setLineDash([]);
+  // 噪点
+  for (let i=0;i<46;i++){
+    const x=Math.random()*W|0, y=Math.random()*H|0, v=(Math.random()*55*amb)|0;
+    g.fillStyle=`rgba(${v+30},${v+30},${v+45},.5)`; g.fillRect(x,y,1,1);
+  }
+  // 遮挡块(第二关):盖住右边线中段
+  if (P.occ) {
+    g.fillStyle = `rgb(${60*amb|0},${58*amb|0},${56*amb|0})`;
+    const ox = (tr+br)/2 - 8;
+    g.fillRect(ox-12, H*0.42, 42, H*0.30);
+  }
+}
+
+// ---------- RGB→HSV(快速) ----------
+function rgb2hsv(r,g,b) {
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), d = mx-mn;
+  let h = 0;
+  if (d) {
+    if (mx===r) h = 60*(((g-b)/d)%6);
+    else if (mx===g) h = 60*((b-r)/d+2);
+    else h = 60*((r-g)/d+4);
+  }
+  if (h<0) h+=360;
+  return [h, mx? d/mx*100 : 0, mx/255*100];
+}
+
+// ---------- 主循环 ----------
+function frame(t) {
+  // 1) 取画面
+  if (mode==='cam' && camOK) pctx.drawImage(video, 0, 0, W, H);
+  else drawSynth(t);
+
+  const img = pctx.getImageData(0,0,W,H);
+  const d = img.data;
+  const cropY = (H * P.crop / 100) | 0;
+
+  // 2) HSV 阈值 → mask + 行扫描左右边缘点
+  const ptsL = [], ptsR = [];
+  const mask = new Uint8Array(W*H);
+  for (let y=cropY; y<H; y++) {
+    let xl=-1, xr=-1;
+    for (let x=0; x<W; x++) {
+      const i = (y*W+x)*4;
+      const [h,s,v] = rgb2hsv(d[i],d[i+1],d[i+2]);
+      let dh = Math.abs(h - P.h0); if (dh>180) dh = 360-dh;
+      if (dh<=P.htol && s>=P.smin && v>=P.vmin) {
+        mask[y*W+x] = 1;
+        if (xl<0) xl=x;
+        xr=x;
+      }
+    }
+    if (xl>=0 && xr>xl+W*0.15) { ptsL.push([xl,y]); ptsR.push([xr,y]); }
+    else if (xl>=0) { (xl < W/2 ? ptsL : ptsR).push([xl,y]); }
+  }
+
+  // 3) 拟合左右边线 x = a*y + b
+  const fit = pts => {
+    if (pts.length < 8) return null;
+    let sy=0,sx=0,syy=0,syx=0,n=pts.length;
+    for (const [x,y] of pts){ sy+=y; sx+=x; syy+=y*y; syx+=y*x; }
+    const den = n*syy - sy*sy; if (!den) return null;
+    const a = (n*syx - sy*sx)/den, b = (sx - a*sy)/n;
+    return {a,b};
+  };
+  const L = fit(ptsL), R = fit(ptsR);
+
+  // 4) 渲染显示层(放大 4x)
+  vctx.imageSmoothingEnabled = false;
+  vctx.drawImage(proc, 0, 0, 640, 480);
+  // mask 高亮
+  const ov = vctx.getImageData(0,0,640,480);
+  const od = ov.data;
+  for (let y=cropY; y<H; y++) for (let x=0; x<W; x++) {
+    if (!mask[y*W+x]) continue;
+    for (let dy=0; dy<4; dy++) for (let dx=0; dx<4; dx++) {
+      const j = ((y*4+dy)*640 + x*4+dx)*4;
+      od[j] = od[j]*0.3 + 25*0.7; od[j+1] = od[j+1]*0.3 + 227*0.7; od[j+2] = od[j+2]*0.3 + 255*0.7;
+    }
+  }
+  vctx.putImageData(ov,0,0);
+  // 裁剪线
+  vctx.strokeStyle = 'rgba(255,207,92,.5)'; vctx.setLineDash([10,8]); vctx.lineWidth = 2;
+  vctx.beginPath(); vctx.moveTo(0,cropY*4); vctx.lineTo(640,cropY*4); vctx.stroke(); vctx.setLineDash([]);
+  vctx.fillStyle = 'rgba(255,207,92,.7)'; vctx.font = '12px Consolas';
+  vctx.fillText('▼ 视野裁剪线(只看下方)', 8, cropY*4 - 6);
+  // 拟合线 + 中线
+  const drawLine = (f, color) => {
+    vctx.strokeStyle = color; vctx.lineWidth = 5; vctx.shadowColor = color; vctx.shadowBlur = 14;
+    vctx.beginPath(); vctx.moveTo((f.a*cropY+f.b)*4, cropY*4); vctx.lineTo((f.a*H+f.b)*4, 480); vctx.stroke();
+    vctx.shadowBlur = 0;
+  };
+  let offset = null;
+  if (L) drawLine(L, 'rgba(25,227,255,.95)');
+  if (R) drawLine(R, 'rgba(25,227,255,.95)');
+  if (L && R) {
+    const mid = {a:(L.a+R.a)/2, b:(L.b+R.b)/2};
+    drawLine(mid, 'rgba(255,46,154,.9)');
+    offset = ((mid.a*H + mid.b) - W/2) / (W/2);   // 底部中线偏移 -1..1
+  }
+
+  // 5) 锁定判定
+  const ok = L && R && ptsL.length > (H-cropY)*0.35 && ptsR.length > (H-cropY)*0.35;
+  lockFrames = ok ? lockFrames+1 : 0;
+  const wasLocked = locked;
+  locked = lockFrames >= 12;
+  const hud = document.getElementById('hud');
+  const badge = document.getElementById('lockBadge');
+  if (locked) {
+    hud.textContent = '● 边线已锁定'; hud.classList.remove('bad');
+    badge.textContent = '● 边线已锁定'; badge.className = 'badge lock';
+    if (!wasLocked) { const tt=document.getElementById('toast'); tt.classList.add('show'); setTimeout(()=>tt.classList.remove('show'), 1600); }
+  } else {
+    hud.textContent = '○ 寻找边线… (' + (L?'左✓':'左✗') + ' ' + (R?'右✓':'右✗') + ')'; hud.classList.add('bad');
+    badge.textContent = '○ 未锁定'; badge.className = 'badge unlock';
+  }
+
+  // 6) AI 判断
+  const aL=document.getElementById('aL'), aC=document.getElementById('aC'), aR=document.getElementById('aR');
+  aL.classList.remove('on'); aC.classList.remove('on'); aR.classList.remove('on');
+  if (locked && offset!==null) {
+    if (offset < -0.12) aR.classList.add('on');        // 中线偏左→车应右修
+    else if (offset > 0.12) aL.classList.add('on');
+    else aC.classList.add('on');
+    document.getElementById('offVal').textContent = 'offset ' + (offset*100).toFixed(0) + '%';
+  } else {
+    document.getElementById('offVal').textContent = 'offset --';
+  }
+
+  // FPS
+  fpsAcc += 1000/(t-lastT); fpsN++; lastT = t;
+  if (fpsN >= 20) { document.getElementById('fpsBadge').textContent = (fpsAcc/fpsN).toFixed(0)+' FPS'; fpsAcc=0; fpsN=0; }
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

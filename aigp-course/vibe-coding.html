@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAYXUS AI·GP — Vibe Coding 课堂任务台 · T1(W5–W8)</title>
+<style>
+  :root{
+    --bg0:#070318; --bg1:#140a35; --bg2:#1d0d4a;
+    --pink:#ff2e9a; --cyan:#19e3ff; --purple:#8b3bff; --gold:#ffcf5c; --green:#3ce29a; --red:#ff5d73;
+    --ink:#eef0ff; --dim:#a9a3cf; --line:rgba(255,255,255,.12); --glass:rgba(255,255,255,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;color:var(--ink);min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(139,59,255,.35), transparent 60%),
+      radial-gradient(900px 500px at 96% 4%, rgba(255,46,154,.22), transparent 55%),
+      linear-gradient(160deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+    padding:20px}
+  .neon{background:linear-gradient(92deg,var(--cyan),var(--pink) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .wrap{max-width:1320px;margin:0 auto}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  h1{font-size:24px;font-weight:900}
+  .badge{font-size:12.5px;padding:6px 14px;border-radius:30px;background:var(--glass);border:1px solid var(--line);color:var(--dim);font-weight:700}
+  /* 四步法进度 */
+  .steps{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .stp{flex:1;min-width:120px;text-align:center;padding:9px 6px;border-radius:12px;border:1px solid var(--line);background:var(--glass);color:var(--dim);font-size:14px;font-weight:800;letter-spacing:.06em;transition:.3s}
+  .stp.on{border-color:rgba(255,207,92,.6);color:var(--gold);background:rgba(255,207,92,.08);box-shadow:0 0 18px rgba(255,207,92,.15)}
+  .stp.done{border-color:rgba(60,226,154,.5);color:var(--green)}
+  .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;align-items:start}
+  .panel{border-radius:16px;background:var(--glass);border:1px solid var(--line);padding:16px}
+  .ptit{font-size:12px;letter-spacing:.22em;font-weight:800;color:var(--cyan);margin-bottom:12px}
+  /* 任务按钮 */
+  .tasks{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tbtn{padding:9px 14px;border-radius:11px;border:1px solid var(--line);background:var(--glass);color:var(--dim);font-size:13.5px;font-weight:700;cursor:pointer;transition:.2s}
+  .tbtn:hover{border-color:rgba(25,227,255,.5);color:var(--cyan)}
+  .tbtn .w{font-size:11px;color:var(--gold);margin-right:6px;letter-spacing:.08em}
+  .inputrow{display:flex;gap:8px}
+  .inputrow input{flex:1;padding:11px 14px;border-radius:11px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--ink);font-size:14.5px;outline:none}
+  .inputrow input:focus{border-color:rgba(25,227,255,.5)}
+  .inputrow button{padding:11px 20px;border-radius:11px;border:none;background:linear-gradient(92deg,var(--cyan),var(--purple));color:#fff;font-weight:800;font-size:14.5px;cursor:pointer}
+  /* 聊天 */
+  .chat{margin-top:14px;min-height:120px}
+  .bub{border-radius:12px;padding:11px 15px;font-size:14.5px;margin:10px 0;line-height:1.55}
+  .bub.u{background:rgba(25,227,255,.12);border:1px solid rgba(25,227,255,.3)}
+  .bub.a{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--dim)}
+  .codebox{font-family:Consolas,Menlo,monospace;font-size:13.5px;background:rgba(0,0,0,.55);border-radius:10px;padding:12px 14px;margin-top:10px;line-height:1.7;color:#9fe8ff;overflow-x:auto}
+  .codebox .ln{display:block;border-radius:6px;padding:0 8px;margin:0 -8px;cursor:pointer;transition:.15s}
+  .codebox .ln:hover, .codebox .ln.hl{background:rgba(255,207,92,.14)}
+  .codebox .cm{color:#6f6a96}
+  .explain{margin-top:10px;padding:10px 14px;border-radius:10px;background:rgba(255,207,92,.07);border:1px solid rgba(255,207,92,.35);font-size:13.5px;color:var(--ink);min-height:42px;line-height:1.55}
+  .explain b{color:var(--gold)}
+  .copybtn{margin-top:10px;padding:9px 16px;border-radius:10px;border:1px solid rgba(60,226,154,.5);background:rgba(60,226,154,.08);color:var(--green);font-weight:700;font-size:13.5px;cursor:pointer}
+  /* 验证区 */
+  .vtabs{display:flex;gap:8px;margin-bottom:12px}
+  .vtab{flex:1;padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--glass);color:var(--dim);font-size:14px;font-weight:800;cursor:pointer;text-align:center}
+  .vtab.on{border-color:rgba(255,46,154,.6);color:var(--pink);background:rgba(255,46,154,.07)}
+  canvas#sim{width:100%;border-radius:12px;background:#0a0f1e;border:1px solid var(--line);display:block}
+  .runbtn{width:100%;margin-top:12px;padding:13px;border-radius:12px;border:none;font-size:16px;font-weight:900;cursor:pointer;
+    background:linear-gradient(92deg,var(--pink),var(--purple));color:#fff;letter-spacing:.1em}
+  .runbtn:disabled{opacity:.4;cursor:not-allowed}
+  .iprow{display:flex;gap:8px;align-items:center;margin-top:12px}
+  .iprow label{font-size:13px;color:var(--dim);white-space:nowrap}
+  .iprow input{flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--ink);font-family:Consolas,monospace;font-size:14px;outline:none}
+  .estop{padding:9px 18px;border-radius:10px;border:1px solid rgba(255,93,115,.55);background:rgba(255,93,115,.1);color:var(--red);font-weight:900;cursor:pointer;font-size:13.5px}
+  .term{font-family:Consolas,Menlo,monospace;font-size:13px;color:var(--green);background:#04140c;border:1px solid var(--line);border-radius:10px;padding:11px 14px;line-height:1.7;margin-top:12px;min-height:90px;max-height:170px;overflow-y:auto}
+  .term b{color:#fff}
+  .term .err{color:var(--red)}
+  .note{font-size:12.5px;color:var(--dim);margin-top:10px;line-height:1.6;padding:9px 12px;border-radius:10px;background:rgba(0,0,0,.25)}
+  .note b{color:var(--gold)}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Vibe Coding · <span class="neon">课堂任务台</span></h1>
+    <span class="badge">T1 · 第 5–8 周课程内容</span>
+    <span class="badge">说清 → 生成 → 读懂 → 验证</span>
+  </header>
+
+  <div class="steps">
+    <div class="stp" id="st0">① 说清需求</div>
+    <div class="stp" id="st1">② AI 生成</div>
+    <div class="stp" id="st2">③ 读懂每行</div>
+    <div class="stp" id="st3">④ 验证</div>
+  </div>
+
+  <div class="grid">
+    <!-- 左:对话 + 代码 -->
+    <div class="panel">
+      <div class="ptit">课堂任务(点选或自己说)</div>
+      <div class="tasks">
+        <button class="tbtn" onclick="pick('drive')"><span class="w">W6–7</span>让车直行 2 秒再刹停</button>
+        <button class="tbtn" onclick="pick('brake')"><span class="w">W8</span>离障碍 30cm 自动刹停</button>
+        <button class="tbtn" onclick="pick('part')"><span class="w">延伸</span>说一句话长出零件</button>
+      </div>
+      <div class="inputrow">
+        <input id="freeIn" placeholder='也可以改着说,比如:"直行 3 秒" / "离障碍 40 厘米刹停"' onkeydown="if(event.key==='Enter')freeAsk()">
+        <button onclick="freeAsk()">发送</button>
+      </div>
+      <div class="chat" id="chat"></div>
+      <div class="explain" id="explain">💡 点代码的任意一行,这里会解释它在干什么——<b>第③步「读懂」</b>,AI 写的代码你必须看得懂。</div>
+      <button class="copybtn" id="copyBtn" style="display:none" onclick="copyCode()">📋 复制 OpenSCAD 代码 → 贴进 OpenSCAD 按 F5 渲染</button>
+    </div>
+
+    <!-- 右:验证 -->
+    <div class="panel">
+      <div class="ptit" style="color:var(--pink)">第④步 · 验证</div>
+      <div class="vtabs">
+        <div class="vtab on" id="vSim" onclick="vMode('sim')">🎮 仿真验证</div>
+        <div class="vtab" id="vCar" onclick="vMode('car')">🚗 真车部署</div>
+      </div>
+      <canvas id="sim" width="560" height="300"></canvas>
+      <button class="runbtn" id="runBtn" onclick="run()" disabled>▶ 运行验证</button>
+      <div class="iprow" id="carRow" style="display:none">
+        <label>赛车 IP</label>
+        <input id="carIp" value="172.20.10.5">
+        <button class="estop" onclick="estop()">🛑 急停</button>
+      </div>
+      <div class="term" id="term">▶ 等待任务…</div>
+      <div class="note" id="vnote"><b>W6–7 任务</b>可直接部署到 ESP32 赛车(车机同一热点);<b>W8 任务</b>用仿真验证——激光雷达是第 8 周配发的装备,今天先在仿真里看效果。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= 任务定义(严格对齐 T1 课表) =================
+const TASKS = {
+  drive: {
+    week:'W6–7 · 第一个控制脚本',
+    ask: s => `让车向前开 ${s.sec} 秒,然后停下`,
+    params: {sec: 2.0},
+    parse: txt => { const m = txt.match(/([\d.]+)\s*秒/); return m ? {sec: Math.min(5, Math.max(0.5, parseFloat(m[1])))} : {}; },
+    code: s => [
+      ['from crayxus import car, console', '从 CRAYXUS 车载库里拿出「车」和「屏幕」两个工具'],
+      ['', ''],
+      ['console.show("出发!")', '车的小屏幕显示「出发!」——让你知道程序开始跑了'],
+      [`car.forward(speed=60)`, '让车以 60% 油门向前开(满油门是 100,教室里限速)'],
+      [`car.wait(${s.sec.toFixed(1)})`, `保持当前动作 ${s.sec.toFixed(1)} 秒——这个数字就来自你刚才那句话`],
+      ['car.brake()', '刹车!电机反向制动,不是慢慢滑停'],
+      ['console.show("已停稳 OK")', '屏幕报告任务完成'],
+    ],
+    sim: 'drive', car: true,
+  },
+  brake: {
+    week:'W8 · 遇障刹停(雷达初识)',
+    ask: s => `让车在离障碍物 ${s.cm} 厘米以内时自动刹停,并在屏幕上提示`,
+    params: {cm: 30},
+    parse: txt => { const m = txt.match(/(\d+)\s*(厘米|cm)/i); return m ? {cm: Math.min(80, Math.max(10, parseInt(m[1])))} : {}; },
+    code: s => [
+      ['from crayxus import car, lidar, console', '这次多拿一个工具:lidar(激光雷达)——车的「测距尺」'],
+      ['', ''],
+      ['car.forward(speed=40)', '慢速前进(40% 油门),因为前面有障碍物'],
+      ['while car.is_moving():', '只要车还在动,就一直重复下面的检查(循环)'],
+      ['    dist = lidar.front_distance()', '问雷达:正前方离最近的东西有多少米?'],
+      [`    if dist < ${(s.cm/100).toFixed(2)}:`, `如果距离小于 ${(s.cm/100).toFixed(2)} 米(= ${s.cm} 厘米)——你定的安全线`],
+      ['        car.brake()', '立刻刹停'],
+      [`        console.show("障碍物 " + dist + " m, 已刹停")`, '屏幕显示实测距离,证明是雷达「看到」才停的'],
+    ],
+    sim: 'brake', car: false,
+  },
+  part: {
+    week:'延伸 · Vibe Coding × 3D 打印(车壳改装预告)',
+    ask: () => `帮我画一个抱箍:夹住直径 10mm 的电机筒,顶面是平的,可以打两颗 M2 螺丝`,
+    params: {},
+    parse: () => ({}),
+    code: () => [
+      ['// OpenSCAD — AI 生成的实体模型代码', '这不是普通代码,每一行都在「捏」一块实体'],
+      ['$fn = 64;', '圆做得光滑一点(64 边近似圆)'],
+      ['difference() {', '「减法」:先做一个实心体,再挖掉不要的部分'],
+      ['  union() {', '「加法」:把外筒和顶面平台粘成一体'],
+      ['    cylinder(h=12, d=14);', '外筒:高 12mm,外径 14mm'],
+      ['    translate([-7,-9,0]) cube([14,9,12]);', '顶面平台:14×9×12 的方块,贴在筒上'],
+      ['  }', ''],
+      ['  cylinder(h=13, d=10.2);', '挖掉中心孔:直径 10.2mm——电机筒 10mm + 0.2 公差'],
+      ['  for (x=[-4,4]) translate([x,-6,6])', '左右各一个位置…'],
+      ['    rotate([90,0,0]) cylinder(h=8, d=2.2);', '…横着挖 M2 螺丝孔(直径 2.2mm)'],
+      ['}', '完成——按 F5 就能看到三维实体'],
+    ],
+    sim: 'part', car: false, scad: true,
+  },
+};
+
+let cur = null, curParams = {}, codeLines = [], busy = false;
+const $ = id => document.getElementById(id);
+
+function setStep(n) {
+  for (let i=0;i<4;i++) {
+    $('st'+i).className = 'stp' + (i<n ? ' done' : i===n ? ' on' : '');
+  }
+}
+setStep(0);
+
+function pick(key, txtOverride) {
+  if (busy) return;
+  cur = TASKS[key];
+  curParams = {...cur.params, ...(txtOverride ? cur.parse(txtOverride) : {})};
+  const ask = txtOverride || cur.ask(curParams);
+  addBub('u', '👦 ' + ask);
+  setStep(1);
+  $('runBtn').disabled = true;
+  $('copyBtn').style.display = 'none';
+  // AI 生成(打字机)
+  busy = true;
+  codeLines = cur.code(curParams);
+  const bub = addBub('a', '🤖 好的「' + cur.week + '」,代码来了:');
+  const box = document.createElement('div'); box.className = 'codebox'; bub.appendChild(box);
+  let i = 0;
+  const typer = setInterval(() => {
+    if (i >= codeLines.length) {
+      clearInterval(typer); busy = false;
+      setStep(2);
+      $('explain').innerHTML = '💡 <b>现在是第③步「读懂」</b>:点上面代码的任意一行,看它在干什么。都看懂了,再点右边「运行验证」。';
+      $('runBtn').disabled = false;
+      if (cur.scad) $('copyBtn').style.display = 'inline-block';
+      return;
+    }
+    const [code, exp] = codeLines[i];
+    const ln = document.createElement('span'); ln.className = 'ln';
+    ln.textContent = code || ' ';
+    if (code.startsWith('//') || code.startsWith('#')) ln.classList.add('cm');
+    const idx = i;
+    ln.onclick = () => {
+      box.querySelectorAll('.ln').forEach(e=>e.classList.remove('hl'));
+      ln.classList.add('hl');
+      $('explain').innerHTML = exp ? ('<b>这一行:</b>' + exp) : '(空行,分段用)';
+    };
+    box.appendChild(ln);
+    i++;
+    $('chat').scrollTop = 1e6;
+  }, 220);
+}
+
+function freeAsk() {
+  const t = $('freeIn').value.trim();
+  if (!t) return;
+  $('freeIn').value = '';
+  // 路由到最匹配的任务
+  const key = /(厘米|cm|障碍)/i.test(t) ? 'brake' : /(零件|抱箍|打印|模型)/.test(t) ? 'part' : 'drive';
+  pick(key, t);
+}
+
+function addBub(cls, text) {
+  const b = document.createElement('div'); b.className = 'bub ' + cls; b.textContent = text;
+  $('chat').appendChild(b);
+  return b;
+}
+
+// ================= 验证 =================
+let vmode = 'sim';
+function vMode(m) {
+  vmode = m;
+  $('vSim').classList.toggle('on', m==='sim');
+  $('vCar').classList.toggle('on', m==='car');
+  $('carRow').style.display = m==='car' ? 'flex' : 'none';
+}
+
+function log(msg, err) {
+  const t = $('term');
+  t.innerHTML += '<br>' + (err?'<span class="err">':'') + msg + (err?'</span>':'');
+  t.scrollTop = 1e6;
+}
+function logReset(msg){ $('term').innerHTML = msg; }
+
+const cvs = $('sim'), ctx = cvs.getContext('2d');
+let anim = null;
+
+function drawScene(carX, opts={}) {
+  ctx.fillStyle = '#0a0f1e'; ctx.fillRect(0,0,560,300);
+  // 地面网格
+  ctx.strokeStyle = 'rgba(255,255,255,.05)';
+  for (let x=0;x<560;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,300);ctx.stroke();}
+  // 赛道带(蓝边)
+  ctx.fillStyle = 'rgba(40,46,70,.8)'; ctx.fillRect(0,110,560,90);
+  ctx.fillStyle = '#1979e6'; ctx.fillRect(0,106,560,5); ctx.fillRect(0,199,560,5);
+  // 障碍物
+  if (opts.obstacle) {
+    ctx.fillStyle = '#5a5650'; ctx.fillRect(460,120,26,70);
+    ctx.fillStyle = '#ffcf5c'; ctx.font='12px Consolas'; ctx.fillText('障碍物', 450, 112);
+  }
+  // 车
+  ctx.save(); ctx.translate(carX, 155);
+  ctx.shadowColor = '#19e3ff'; ctx.shadowBlur = 16;
+  ctx.fillStyle = '#19e3ff'; ctx.beginPath();
+  ctx.roundRect(-24,-13,48,26,6); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#070318'; ctx.fillRect(2,-9,14,18);
+  ctx.restore();
+  // 屏幕提示
+  if (opts.msg) {
+    ctx.fillStyle = 'rgba(60,226,154,.95)'; ctx.font = '900 19px "Microsoft YaHei"';
+    ctx.fillText(opts.msg, 20, 40);
+  }
+  if (opts.dist !== undefined) {
+    ctx.fillStyle = '#ffcf5c'; ctx.font = '14px Consolas';
+    ctx.fillText('lidar.front_distance() = ' + opts.dist.toFixed(2) + ' m', 20, 64);
+    ctx.strokeStyle = 'rgba(255,207,92,.6)'; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(opts.carX+26,155); ctx.lineTo(458,155); ctx.stroke(); ctx.setLineDash([]);
+  }
+}
+drawScene(60);
+
+function run() {
+  if (!cur || busy) return;
+  setStep(3);
+  if (anim) cancelAnimationFrame(anim);
+  if (vmode === 'car') { runCar(); return; }
+  // ---- 仿真 ----
+  if (cur.sim === 'drive') {
+    logReset('▶ 仿真开始:直行 ' + curParams.sec.toFixed(1) + ' 秒 → 刹停');
+    const t0 = performance.now(); const dur = curParams.sec*1000;
+    const loop = t => {
+      const e = t - t0;
+      let x, msg = null;
+      if (e < dur) { x = 60 + (e/dur)*340; }
+      else if (e < dur+450) { x = 400 + 60*(1-Math.pow(1-(e-dur)/450,2)); msg='刹车中…'; }
+      else { drawScene(460,{msg:'✓ 已停稳 OK'}); log('▶ 行驶 '+curParams.sec.toFixed(1)+'s → <b>car.brake() ✓ 已停稳</b>'); setStep(4); return; }
+      drawScene(x,{msg});
+      anim = requestAnimationFrame(loop);
+    };
+    anim = requestAnimationFrame(loop);
+  } else if (cur.sim === 'brake') {
+    const lim = curParams.cm/100;
+    logReset('▶ 仿真开始:前进,雷达盯着前方… 安全线 ' + lim.toFixed(2) + ' m');
+    const t0 = performance.now();
+    const loop = t => {
+      const e = t - t0;
+      let x = 60 + e*0.10;
+      const dist = Math.max(0, (458 - (x+26)) / 250);   // 像素→米(演示比例)
+      if (dist <= lim) {
+        drawScene(x,{obstacle:true, dist, carX:x, msg:'⚠ 障碍物 '+dist.toFixed(2)+' m, 已刹停'});
+        log('▶ dist=' + dist.toFixed(2) + ' m < ' + lim.toFixed(2) + ' → <b>car.brake() ✓</b>');
+        setStep(4); return;
+      }
+      drawScene(x,{obstacle:true, dist, carX:x});
+      anim = requestAnimationFrame(loop);
+    };
+    anim = requestAnimationFrame(loop);
+  } else if (cur.sim === 'part') {
+    // 零件:画线框示意 + 引导去 OpenSCAD
+    ctx.fillStyle = '#0a0f1e'; ctx.fillRect(0,0,560,300);
+    ctx.strokeStyle = '#19e3ff'; ctx.lineWidth = 2;
+    ctx.save(); ctx.translate(280,160); ctx.scale(1,.5); ctx.rotate(-.4);
+    for (const r of [50,70]) { ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.stroke(); }
+    ctx.restore();
+    ctx.strokeRect(208,52,144,60);
+    ctx.fillStyle = '#ffcf5c'; ctx.font='15px "Microsoft YaHei"';
+    ctx.fillText('← 线框示意。真渲染:复制代码 → OpenSCAD → F5', 60, 268);
+    logReset('▶ 这个任务的「验证」= 在 OpenSCAD 里渲染出实体 → 今天的<b>实物已经打印好了,在老师手里</b>');
+    setStep(4);
+  }
+}
+
+// ---- 真车部署(W6–7 任务) ----
+async function runCar() {
+  if (!cur.car) { log('⚠ 这个任务今天用仿真验证(雷达第 8 周配发)', true); vMode('sim'); run(); return; }
+  const ip = $('carIp').value.trim();
+  const sec = curParams.sec;
+  logReset('▶ 部署到赛车 http://' + ip + ' …');
+  $('runBtn').disabled = true;
+  try {
+    await fetch(`http://${ip}/c?x=F`, {mode:'cors'});
+    log('▶ car.forward() → 车已起步');
+    await new Promise(r => setTimeout(r, sec*1000));
+    await fetch(`http://${ip}/c?x=S`, {mode:'cors'});
+    log('▶ ' + sec.toFixed(1) + 's 到 → car.brake() → <b>✓ 已停稳</b>');
+    setStep(4);
+  } catch(e) {
+    log('✗ 连不上车(' + e.message + ')——检查:车开机了吗?笔记本和车在同一个热点吗?', true);
+    log('▶ 先切回仿真验证 ↑');
+  }
+  $('runBtn').disabled = false;
+}
+
+async function estop() {
+  const ip = $('carIp').value.trim();
+  try { await fetch(`http://${ip}/stop`, {mode:'cors'}); log('🛑 急停已发送'); }
+  catch(e) { log('✗ 急停发送失败:' + e.message, true); }
+}
+
+function copyCode() {
+  const txt = codeLines.map(l=>l[0]).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>{ $('copyBtn').textContent = '✓ 已复制 — 去 OpenSCAD 粘贴,按 F5'; });
+}
+</script>
+</body>
+</html>
